@@ -1,0 +1,73 @@
+<ParameterList name="Inputs">
+  <!-- ===========  PROBLEM INPUT PARAMETER SUBLIST  =========== -->
+  <ParameterList name="Formulation">
+    <Parameter name="Number of Parameter Samples" type="int"    value="1" />
+    <Parameter name="Finite Difference Check"     type="bool" value="false" /> <!-- Compute finite difference approximations of the sensitivity indices by resolving the optimization problem -->
+    <Parameter name="Finite Difference Check Step"     type="double" value="1.e-4" />
+    <Parameter name="Compute GSVD Sensitivities"   type="bool" value="false" /> <!-- Compute sensitivity indices using a truncated GSVD approximation -->
+    <Parameter name="Compute Direct Sensitivities"   type="bool" value="false" /> <!-- Compute sensitivity indices directly rather than using a truncated GSVD approximation -->
+    <Parameter name="Output Sensitivity Operator Columns"   type="bool" value="false" /> <!-- Output columns of the sensitivity operator when computing direct sensitivities -->
+    <Parameter name="Randomized Hessian Eigenvector Projection"  type="bool"  value="false" /> <!-- This featured is only supported for reduced space formulations -->
+    <Parameter name="Randomized Likelihood Informed Subspace Eigenvector Projection"  type="bool"  value="true" /> <!-- This featured is only supported for reduced space formulations -->
+    <Parameter name="Anasazi Hessian Eigen Decomposition"  type="bool"  value="false" /> <!-- This featured is only supported for reduced space formulations -->
+    <Parameter name="Enforce z Zeros"  type="bool"  value="true" />
+    <Parameter name="Construct Weight Matrices"  type="bool"  value="false" /> 
+    <Parameter name="Construct K"  type="bool"  value="false" /> 
+    <Parameter name="Construct B"  type="bool"  value="false" /> 
+    <Parameter name="Construct B Transpose"  type="bool"  value="false" /> 
+    <Parameter name="Verbosity"  type="bool"  value="false" /> 
+    <Parameter name="Conserve Memory"  type="bool"  value="false" /> 
+    <Parameter name="Reduced Space Sensitivities"  type="bool"  value="true" /> 
+  </ParameterList>
+  <ParameterList name="GSVD Solver">
+    <Parameter name="GSVD Formulation"           type="string"  value="GSVD" /> <!-- Choose either "Gram" or "Jordan-Wielandt" or "GSVD" -->
+    <Parameter name="GSVD Solver"           type="string"  value="Randomized" /> <!-- Choose either "Randomized" or "Anasazi", if GSVD Formuation == GSVD then GSVD Solver must be set to Randomized -->
+    <Parameter name="Number of Singular Values"  type="int"  value="10" />
+    <Parameter name="Oversampling Factor"  type="int"  value="0" />
+    <Parameter name="Number of Subspace Iterations"  type="int"  value="1" />
+  </ParameterList>
+  <ParameterList name="Randomized Likelihood Informed Subspace EVP"> <!-- Only applicable when Randomized Likelihood Informed Subspace Eigenvector Projection = True -->
+    <Parameter name="Eigenvalue Algorithm"           type="string"  value="Double Pass" /> <!-- Choose either "Nystrom" or "Double Pass" -->
+    <Parameter name="Oversampling Factor"      type="int"       value="4" />
+    <Parameter name="Initial Target Rank" type="int"  value="1" /> 
+    <Parameter name="Maximum Number of Iterations"      type="int"       value="2" />
+    <Parameter name="Minimum Eigenvalue Tolerance" type="double"  value="1.e-1" /> 
+    <Parameter name="Regularization Hessian Inversion Tolerance" type="double"  value="1.e-10" /> 
+    <Parameter name="Regularization Hessian Inversion Solver" type="string"  value="CG" /> 
+    <Parameter name="Regularization Hessian Inversion Verbosity" type="bool"  value="false" /> 
+    <Parameter name="Construct B" type="bool"  value="false" /> 
+  </ParameterList>
+  <ParameterList name="Anasazi GEVP"> <!-- Only applicable when GSVD Solver = Anasazi -->
+    <Parameter name="Eigen Solver Tolerance"    type="double"   value="1.e-2" />
+    <Parameter name="Block Size"    type="int"   value="5" />
+    <Parameter name="Number of Blocks"    type="int"   value="1" />
+    <Parameter name="Eigen Solver"       type="string"     value="LOBPCG"  /> <!-- Choose either "RTR" or "LOBPCG" or "Block Davidson" -->
+  </ParameterList>
+  <ParameterList name="Regularization Update"> <!-- Only implemented when Reduced Space Sensitivities = true -->
+    <Parameter name="1st Order Update"     type="bool" value="false" />
+    <Parameter name="2nd Order Update"     type="bool" value="false" />
+    <Parameter name="alpha"  type="double" value="2.0" />
+    <Parameter name="2nd Order Update Rank"  type="int" value="2" />
+    <Parameter name="Target Minimum Eigenvalue"  type="double" value="1.e-7" />
+  </ParameterList>
+  <ParameterList name="Parameter Derivative">
+    <Parameter name="Finite Difference Step"   type="double"  value="1.e-4" /> 
+  </ParameterList>
+  <ParameterList name="KKT Solve">
+    <Parameter name="Maximum Iterations"  type="int"  value="1000" /> 
+    <Parameter name="Verbosity"  type="bool"  value="false" /> 
+    <Parameter name="Tolerance"   type="double"  value="1.e-6" /> 
+  </ParameterList>
+  <ParameterList name="Parameter Weight Matrix Solve">
+    <Parameter name="Maximum Iterations"  type="int"  value="1000" /> 
+    <Parameter name="Verbosity"  type="bool"  value="false" /> 
+    <Parameter name="Tolerance"   type="double"  value="1.e-9" /> 
+  </ParameterList>
+  <ParameterList name="Hessian EVP">
+    <Parameter name="Eigen Solver Tolerance"    type="double"   value="1.e-3" />
+    <Parameter name="Number of Eigenvalues"    type="int"   value="2" />
+    <Parameter name="Block Size"    type="int"   value="2" />
+    <Parameter name="Number of Blocks"    type="int"   value="6" />
+    <Parameter name="Type of Eigenvalues"       type="string"     value="LR"  /> <!-- Choose "LR" for largest real or "SR" for smallest real -->
+  </ParameterList>
+</ParameterList>

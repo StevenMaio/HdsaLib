@@ -1,0 +1,3 @@
+cd GEVP
+./regression_test
+cd ../

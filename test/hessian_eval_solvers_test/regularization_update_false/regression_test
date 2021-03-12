@@ -1,0 +1,3 @@
+cd randomized_hessian_EVP
+./regression_test
+cd ../

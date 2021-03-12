@@ -1,0 +1,15 @@
+cd sensitivity_solvers_test
+./regression_test
+cd ../
+
+cd hessian_eval_solvers_test/
+./regression_test
+cd ../
+
+cd rol_adapter_test
+./regression_test
+cd ../
+
+cd LIS_solvers_test
+./regression_test
+cd ../

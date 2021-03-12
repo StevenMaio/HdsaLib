@@ -1,0 +1,120 @@
+clear
+close all
+clc
+
+adj = load('cell_to_node_quad.txt') + 1;  %% load node adjacency table, increment by 1 for 1-based indexing
+
+nodes = load('nodes.txt');  %% load node coordinates
+
+active_sensors = load('Active_Sensors.txt');
+
+nt = 5;
+T = 1.0;
+Tmesh   = linspace(0,T,nt);
+
+load('data.txt');
+
+axsize = 200;
+figure('Position', [10 680 3*axsize 2*axsize]);
+figure('Position', [650 680 3*axsize 2*axsize]);
+figure('Position', [1300 680 3*axsize 2*axsize]);
+figure('Position', [10 30 3*axsize 2*axsize]);
+figure('Position', [650 30 3*axsize 2*axsize]);
+figure('Position', [1300 30 3*axsize 2*axsize]);
+
+data_obj = importdata('bed.txt', ' ', 2);  %% we need to skip the first two lines
+bed = data_obj.data;
+data_obj = importdata('initial_iterate.txt', ' ', 2);  %% we need to skip the first two lines
+initial_iterate = data_obj.data;
+m = min(bed(1:3:end));
+M = max(bed(1:3:end));
+
+figure(4)
+trisurf(adj, nodes(:,1), nodes(:,2), bed(1:3:end));
+shading interp;
+view(0,90)
+colorbar
+axis square
+title('Bedrock Topography (m)')
+xlabel('x (km)')
+ylabel('y (km)')
+caxis([m,M])
+figure(7)
+trisurf(adj, nodes(:,1), nodes(:,2), initial_iterate(1:3:end));
+shading interp;
+view(0,90)
+colorbar
+axis square
+caxis([m,M])
+title('Initial b')
+
+adj_f = load('Data_Generation/cell_to_node_quad.txt') + 1;  %% load node adjacency table, increment by 1 for 1-based indexing
+nodes_f = load('Data_Generation/nodes.txt');  %% load node coordinates
+data_obj = importdata('Data_Generation/true_bed.txt', ' ', 2);  %% we need to skip the first two lines
+bed_f = data_obj.data;
+figure(1)
+trisurf(adj_f, nodes_f(:,1), nodes_f(:,2), bed_f(1:3:end));
+shading interp;
+view(0,90)
+colorbar
+axis square
+caxis([m,M])
+title('True Bedrock Topography (m)')
+xlabel('x (km)')
+ylabel('y (km)')
+
+for i=1:nt
+
+  figure(2)
+  trisurf(adj, nodes(:,1), nodes(:,2), data(i,2:3:end));
+  shading interp;
+  view(2);
+  axis square;
+  title(['Horizontal Velocity (m/yr) Prediction at t= ',num2str(Tmesh(i)),'yr'],'fontsize',16);
+  xlabel('x (km)');
+  ylabel('y (km)');
+  colorbar
+  set(gca, 'FontSize', 16); set(gcf, 'Color', 'White');% tightfig;
+  drawnow
+  
+  figure(3)
+  trisurf(adj, nodes(:,1), nodes(:,2), data(i,3:3:end));
+  shading interp;
+  view(2);
+  axis square;
+  title(['Vertical Velocity (m/yr) Prediction at t=',num2str(Tmesh(i)),'yr'],'fontsize',16);
+  xlabel('x');
+  ylabel('y');
+  colorbar
+  set(gca, 'FontSize', 16); set(gcf, 'Color', 'White');% tightfig;
+  drawnow
+  
+  data_state = importdata(['state_',int2str(i-1),'.txt'], ' ', 2);  %% we need to skip the first two lines
+  xvel = data_state.data(2:3:end);
+  yvel = data_state.data(3:3:end);
+  figure(5)
+  trisurf(adj, nodes(:,1), nodes(:,2), xvel);
+  shading interp;
+  view(2);
+  axis square;
+  title(['Horizontal Velocity (m/yr) at t= ',num2str(Tmesh(i)),'yr'],'fontsize',16);
+  xlabel('x');
+  ylabel('y');
+  colorbar
+  set(gca, 'FontSize', 16); set(gcf, 'Color', 'White');% tightfig;
+  figure(6)
+  trisurf(adj, nodes(:,1), nodes(:,2), yvel);
+  shading interp;
+  view(2);
+  axis square;
+  title(['Vertical Velocity (m/yr) at t= ',num2str(Tmesh(i)),'yr'],'fontsize',16);
+  xlabel('x');
+  ylabel('y');
+  colorbar
+  set(gca, 'FontSize', 16); set(gcf, 'Color', 'White');% tightfig;
+  drawnow
+    
+end
+
+
+
