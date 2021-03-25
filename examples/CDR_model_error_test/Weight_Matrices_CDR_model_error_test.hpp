@@ -19,7 +19,7 @@ public:
     // Mz
     Mz = HDSA::makePtr<HDSA::Dense_Matrix<RealT> >(z_dim,z_dim);
     // read in data
-    std::ifstream in_Mz("Mz.txt");           
+    std::ifstream in_Mz("M_z.txt");           
     // read the elements in the file into a vector  
     // test file open   
     RealT val;
@@ -35,7 +35,7 @@ public:
     }
     else
       {
-	std::cout << "Error loading the data from Mz.txt" << std::endl;
+	std::cout << "Error loading the data from M_z.txt" << std::endl;
       } 
   }
 

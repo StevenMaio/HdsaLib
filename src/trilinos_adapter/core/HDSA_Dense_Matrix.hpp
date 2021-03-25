@@ -1,6 +1,8 @@
 #ifndef HDSA_DENSE_MATRIX_HPP
 #define HDSA_DENSE_MATRIX_HPP
 
+#include <fstream>
+
 namespace HDSA
 {
 
@@ -186,31 +188,48 @@ public:
   {
     if(vec.Get_enforce_zeros())
       {
-	int dim = vec.Get_map_full_to_reduced().size();
-	int nonzero_dim = vec.Get_map_reduced_to_full().size();
-	for(int i = 0; i < nonzero_dim; i++)
-	  {
-	    Replace_Element(i,j,vec(vec.Get_map_reduced_to_full()[i]));
-	  }
-	// Handles the case of a Joint_Vector
-	int dim_diff = vec.dimension()-dim;
-	if(dim_diff>0)
-	  {
-	    for(int i = 0; i < dim_diff; i++)
-	      {
-		Replace_Element(nonzero_dim+i,j,vec(dim+i));
-	      }
-	  }
+    	int dim = vec.Get_map_full_to_reduced().size();
+    	int nonzero_dim = vec.Get_map_reduced_to_full().size();
+    	for(int i = 0; i < nonzero_dim; i++)
+    	  {
+    	    Replace_Element(i,j,vec(vec.Get_map_reduced_to_full()[i]));
+    	  }
+    	// Handles the case of a Joint_Vector
+    	int dim_diff = vec.dimension()-dim;
+    	if(dim_diff>0)
+    	  {
+    	    for(int i = 0; i < dim_diff; i++)
+    	      {
+    		Replace_Element(nonzero_dim+i,j,vec(dim+i));
+    	      }
+    	  }
       }
     else
       {
-	for(int i = 0; i < vec.dimension(); i++)
-	  {
-	    Replace_Element(i,j,vec(i));
-	  }
+    	for(int i = 0; i < vec.dimension(); i++)
+    	  {
+    	    Replace_Element(i,j,vec(i));
+    	  }
       }
   }
   
+  void Write_to_File(std::string & name) const
+  {
+    int m = this->numRows();
+    int n = this->numCols();
+    std::ofstream fout;
+    fout.open(name);
+    for(int i = 0; i < m; i++)
+      {
+	for(int j = 0; j < n; j++)
+	{
+	  fout << std::setprecision(16) << (*this)(i,j) << "  ";
+	}
+	fout << "  " << std::endl;
+      }
+    fout.close();
+  }
+
   HDSA::Ptr<Teuchos::SerialDenseMatrix<int, RealT> > Get_Teuchos_Matrix(void)
   {
     return A_;

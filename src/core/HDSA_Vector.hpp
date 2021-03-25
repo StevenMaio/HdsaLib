@@ -1,6 +1,8 @@
 #ifndef HDSA_VECTOR_HPP
 #define HDSA_VECTOR_HPP
 
+#include <fstream>
+
 namespace HDSA
 {
 
@@ -84,6 +86,17 @@ public:
 
   // set entries of this to random numbers in [l,u]
   virtual void randomize( const RealT l = 0.0, const RealT u = 1.0 ) = 0;
+
+  void Write_to_File(std::string & name) const
+  {
+      std::ofstream fout;
+      fout.open(name);
+      for(int k = 0; k < this->dimension(); k++)
+	{
+	  fout << std::setprecision(16) << (*this)(k) << std::endl;
+	}
+      fout.close();
+  }
 
   // Access the kth element
   RealT Get_Element(int k) const 

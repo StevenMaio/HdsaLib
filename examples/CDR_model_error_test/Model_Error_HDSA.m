@@ -22,6 +22,8 @@ classdef Model_Error_HDSA < handle
         
         [Hinv_v] = Apply_Inv_Hessian_RS(this,v_z,u,z);
         
+        [Mu_v] = Apply_u_Mass(this,v_u);
+        
         [Mz_v] = Apply_z_Mass(this,v_z);
 
         [g] = Compute_u_Gradient_FS(this,u,z);
@@ -70,12 +72,12 @@ classdef Model_Error_HDSA < handle
         function [U,Sigma,V] = Compute_HDSA_GSVD(this,k,p,q)
            kpp = k + p;
            Omega = randn(this.m*this.n,kpp);
-           [Q_RS,WQ_RS] = this.RandSubspace(Omega,q);
+           Q_RS = this.RandSubspace(Omega,q);
            
            disp('Projecting onto sampled subspace')
            B = zeros(this.m*this.n,kpp);
            for j = 1:kpp
-               B(:,j) = this.Apply_B_Transpose(this.Apply_Inv_Hessian_RS(WQ_RS(:,j),this.u_star,this.z_star));
+               B(:,j) = this.Apply_B_Transpose(this.Apply_Inv_Hessian_RS(this.Apply_z_Mass(Q_RS(:,j))));
            end
            
            disp('Applying theta mass matrix inverse to projected vectors')
@@ -96,57 +98,53 @@ classdef Model_Error_HDSA < handle
            Sigma = Sigma(1:k,1:k);
         end
         
-        function [Q,WQ] = RandSubspace(this,Omega,q)
+        function [Q] = RandSubspace(this,Omega,q)
             kpp = size(Omega,2);
             Y = zeros(this.n,kpp);
             disp('Starting first round of subspace iteration matvecs')
             for k = 1:kpp
-                Y(:,k) = this.Apply_Inv_Hessian_RS(this.Apply_B(Omega(:,k)),this.u_star,this.z_star);
+                Y(:,k) = this.Apply_Inv_Hessian_RS(this.Apply_B(Omega(:,k)));
             end
             
             disp('Orthogonalizing range space samples')
-            [Q,~,WQ] = this.CholQR(Y,@(z)this.Apply_z_Mass(z));
+            [Q,~] = this.CholQR(Y,@(z)this.Apply_z_Mass(z));
             
             for j = 1:q
             
                 disp('Starting first subspace iteration round of matvecs')
                 Y = zeros(this.m*this.n,kpp);
                 for k = 1:kpp
-                    Y(:,k) = this.Apply_B_Transpose(this.Apply_Inv_Hessian_RS(WQ(:,k),this.u_star,this.z_star));
+                    Y(:,k) = this.Apply_B_Transpose(this.Apply_Inv_Hessian_RS(this.Apply_z_Mass(Q(:,k))));
                 end
-                                
+                
                 disp('Orthogonalizing row space samples')
-                [Q,~,WQ] = this.CholQR(Y,@(b)this.Apply_theta_Mass_Inv(b));
+                [Q,~] = this.CholQR(Y,@(b)this.Apply_theta_Mass_Inv(b));
                 
                 disp('Starting second subspace iteration round of matvecs')
                 Y = zeros(this.n,kpp);
                 for k = 1:kpp
-                    Y(:,k) = this.Apply_Inv_Hessian_RS(this.Apply_B(WQ(:,k)),this.u_star,this.z_star);
+                    Y(:,k) = this.Apply_Inv_Hessian_RS(this.Apply_B(this.Apply_theta_Mass_Inv(Q(:,k))));
                 end
                 
                 disp('Orthogonalizing range space samples')
-                [Q,~,WQ] = this.CholQR(Y,@(z)this.Apply_z_Mass(z));
+                [Q,~] = this.CholQR(Y,@(z)this.Apply_z_Mass(z));
             
             end
         end
         
-        function [Q,R,WQ] = CholQR(this,A,weighting_mat)
-            [Z,RA] = qr(A,0);
-            X = zeros(size(Z));
-            for k = 1:size(Z,2)
-               X(:,k) = weighting_mat(Z(:,k)); 
+        function [Q,R] = CholQR(this,Z,weighting_mat)
+            [QZ,RZ] = qr(Z,0);
+            QW = zeros(size(QZ));
+            for k = 1:size(QZ,2)
+               QW(:,k) = weighting_mat(QZ(:,k)); 
             end
-            C = Z'*X;
-            RC = chol(C);
-            R = RC*RA;
-            WQ = zeros(size(Z));
-            Q = zeros(size(Z));
-            for k = 1:size(RC,2)
-               e = zeros(size(RC,2),1);
+            RW = chol(QZ'*QW);
+            R = RW*RZ;
+            Q = zeros(size(QZ));
+            for k = 1:size(RW,2)
+               e = zeros(size(RW,2),1);
                e(k) = 1;
-               x = linsolve(RC,e);
-               Q(:,k) = Z*x;
-               WQ(:,k) = X*x;
+               Q(:,k) = QZ*linsolve(RW,e); 
             end
         end
         
@@ -174,99 +172,44 @@ classdef Model_Error_HDSA < handle
             
             Mtheta_v = zeros(this.m*this.n,1);
             
-            if true         
-                l = 2;  
-                Theta = reshape(v_theta,this.n,this.m)';
-                Omega = randn(this.n,l);
-                
-                Y = Theta*Omega;
-                [Q,~] = qr(Y,0);
-                B = Theta'*Q;
-                [Uhat,Sigma,V] = svd(B','econ');
-                U = Q*Uhat(:,1:2);
-                Sigma = Sigma(1:2,1:2);
-                V = V(:,1:2);
-                
-                LU = zeros(this.m,2);
-                EV = zeros(this.n,2);
-                LU(:,1) = this.Apply_L_Operator(U(:,1));
-                LU(:,2) = this.Apply_L_Operator(U(:,2));
-                EV(:,1) = this.Apply_E(V(:,1));
-                EV(:,2) = this.Apply_E(V(:,2));
-                
-                tmp = EV*Sigma*LU';
-                Mtheta_v = this.coeff*tmp(:);          
-            else
-                
-                V_tmp = zeros(this.m,this.n);
-                for i = 1:this.m
-                    Ii = ((i-1)*this.n+1):(i*this.n);
-                    V_tmp(i,:) = this.Apply_E(v_theta(Ii));
-                end
-                
-                U_tmp = zeros(this.m,this.n);
-                for k = 1:this.n
-                    U_tmp(:,k) = this.Apply_L_Operator(V_tmp(:,k));
-                end
-                
-                for i = 1:this.m
-                    Ii = ((i-1)*this.n+1):(i*this.n);
-                    Mtheta_v(Ii) = this.coeff*U_tmp(i,:);
-                end
-                
+            V_tmp = zeros(this.m,this.n);
+            for i = 1:this.m
+               Ii = ((i-1)*this.n+1):(i*this.n);
+               V_tmp(i,:) = this.Apply_E(v_theta(Ii));
             end
             
+            U_tmp = zeros(this.m,this.n);
+            for k = 1:this.n
+                U_tmp(:,k) = this.Apply_L_Operator(V_tmp(:,k));
+            end
+            
+            for i = 1:this.m
+                Ii = ((i-1)*this.n+1):(i*this.n);
+                Mtheta_v(Ii) = this.coeff*U_tmp(i,:);
+            end
         end
         
               
         function Mthetainv_v = Apply_theta_Mass_Inv(this,b)
                         
             Mthetainv_v = zeros(this.m*this.n,1);
-            
-            if true
-                l = 2;
-                Theta = reshape(b,this.n,this.m)';
-                Omega = randn(this.n,l);
-                
-                Y = Theta*Omega;
-                [Q,~] = qr(Y,0);
-                B = Theta'*Q;
-                [Uhat,Sigma,V] = svd(B','econ');
-                U = Q*Uhat(:,1:2);
-                Sigma = Sigma(1:2,1:2);
-                V = V(:,1:2);
-                
-                LinvU = zeros(this.m,2);
-                EinvV = zeros(this.n,2);
-                LinvU(:,1) = this.Apply_L_Operator_Inv(U(:,1));
-                LinvU(:,2) = this.Apply_L_Operator_Inv(U(:,2));
-                EinvV(:,1) = this.Apply_E_Inv(V(:,1));
-                EinvV(:,2) = this.Apply_E_Inv(V(:,2));
-                
-                tmp = EinvV*Sigma*LinvU';
-                Mthetainv_v = (1/this.coeff)*tmp(:);                 
-            else
-            
-                V_tmp = zeros(this.m,this.n);
-                for i = 1:this.m
-                    Ii = ((i-1)*this.n+1):(i*this.n);
-                    V_tmp(i,:) = this.Apply_E_Inv(b(Ii));
-                end
-                
-                V_tmp = (1/this.coeff)*V_tmp;
-                
-                U_tmp = zeros(this.m,this.n);
-                for k = 1:this.n
-                    U_tmp(:,k) = this.Apply_L_Operator_Inv(V_tmp(:,k));
-                end
-                
-                for i = 1:this.m
-                    Ii = ((i-1)*this.n+1):(i*this.n);
-                    Mthetainv_v(Ii) = U_tmp(i,:);
-                end
-                
+            V_tmp = zeros(this.m,this.n);
+            for i = 1:this.m
+                Ii = ((i-1)*this.n+1):(i*this.n);
+                V_tmp(i,:) = this.Apply_E_Inv(b(Ii));
             end
             
+            V_tmp = (1/this.coeff)*V_tmp;
+            
+            U_tmp = zeros(this.m,this.n);
+            for k = 1:this.n
+                U_tmp(:,k) = this.Apply_L_Operator_Inv(V_tmp(:,k));
+            end
+            
+            for i = 1:this.m
+                Ii = ((i-1)*this.n+1):(i*this.n);
+                Mthetainv_v(Ii) = U_tmp(i,:);
+            end
         end
                 
         function E_v = Apply_E(this,v)
@@ -345,13 +288,12 @@ classdef Model_Error_HDSA < handle
             end
         end
         
-        function Hinv = Construct_Hinv(this)
-            Hinv = zeros(this.n,this.n);
-            for k = 1:this.n
-                disp(['Constructing the ',num2str(k),'th out of ',num2str(this.m*this.n),' column of H inverse'])
-                z = zeros(this.n,1);
-                z(k) = 1;
-                Hinv(:,k) = this.Apply_Inv_Hessian_RS(z,this.u_star,this.z_star);
+        function Mu = Construct_u_Mass(this)
+            Mu = zeros(this.m,this.m);
+            for k = 1:this.m
+                u = zeros(this.m,1);
+                u(k) = 1;
+                Mu(:,k) = this.Apply_u_Mass(u);
             end
         end
         

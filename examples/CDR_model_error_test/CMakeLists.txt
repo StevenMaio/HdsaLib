@@ -13,7 +13,7 @@ INCLUDE_DIRECTORIES(${${PACKAGE_NAME}_SOURCE_DIR}/adapters/tpetra/src/vector)
  TRIBITS_COPY_FILES_TO_BINARY_DIR(
     CDRModelErrorTestHDSADataCopy
     SOURCE_FILES
-      Sensitivity_input.xml 
+      Sensitivity_input.xml Driver.m  Model_Error_HDSA_Kronecker.m  Model_Error_HDSA.m  Model_Error_HDSA_React_Diff.m  Write_Data_for_Test_Problem.m
     SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}"
     DEST_DIR "${CMAKE_CURRENT_BINARY_DIR}"
   )

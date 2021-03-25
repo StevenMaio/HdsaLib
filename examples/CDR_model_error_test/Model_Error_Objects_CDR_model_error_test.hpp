@@ -76,14 +76,14 @@ public:
   std::vector<RealT> Set_z_cov(void) const
   {
     // Gamma
-    std::vector<RealT> gamma = std::vector<RealT>(z_dim,0.0);
+    std::vector<RealT> gamma = std::vector<RealT>(48,0.0);
     // read in data
     std::ifstream in_Gamma("Gamma.txt");           
     // read the elements in the file into a vector  
     // test file open
     RealT val;
     if (in_Gamma) {   
-      for(int j = 0; j < z_dim; j++)
+      for(int j = 0; j < 48; j++)
 	{
 	  in_Gamma >> val;
 	  gamma[j] = val;

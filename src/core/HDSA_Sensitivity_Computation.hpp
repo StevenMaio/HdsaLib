@@ -21,6 +21,7 @@ namespace HDSA
     std::string gsvd_solver_;
     bool compute_gsvd_sensitivities_;
     bool compute_direct_sensitivities_;
+    bool compute_model_error_sensitivities_;
     bool reduced_space_sen_;
     bool randomized_hessian_eigenvector_projection_;
     bool randomized_LIS_eigenvector_projection_;
@@ -49,6 +50,7 @@ namespace HDSA
       reduced_space_sen_ = parlist_sensitivity_->sublist("Formulation").get("Reduced Space Sensitivities",true);
       compute_gsvd_sensitivities_ = parlist_sensitivity_->sublist("Formulation").get("Compute GSVD Sensitivities", true);
       compute_direct_sensitivities_ = parlist_sensitivity_->sublist("Formulation").get("Compute Direct Sensitivities", false);
+      compute_model_error_sensitivities_ = parlist_sensitivity_->sublist("Formulation").get("Compute Model Error Sensitivities", false);
       randomized_hessian_eigenvector_projection_ = parlist_sensitivity_->sublist("Formulation").get("Randomized Hessian Eigenvector Projection", false);
       randomized_LIS_eigenvector_projection_ = parlist_sensitivity_->sublist("Formulation").get("Randomized Likelihood Informed Subspace Eigenvector Projection", false);
       randomized_LIS_construct_B_ = parlist_sensitivity_->sublist("Randomized Likelihood Informed Subspace EVP").get("Construct B", false);
@@ -315,6 +317,14 @@ namespace HDSA
 		  solver->Compute();
 		}  
 	    }
+	}
+
+      // sensitivity index with respect to model error
+      if(compute_model_error_sensitivities_)
+	{	    
+	  HDSA::Ptr<HDSA::Randomized_GSVD_Model_Error<RealT> > solver = HDSA::makePtr<HDSA::Randomized_GSVD_Model_Error<RealT> >(theta_, parlist_sensitivity_, comm_, OP_Objects_Factory_,
+																 weight_matrices_factory_, sample_index_);
+	  solver->Compute();
 	}
 
     }

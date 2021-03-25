@@ -1,4 +1,4 @@
-classdef Model_Error_HDSA_Syn_Test < Model_Error_HDSA
+classdef Model_Error_HDSA_Syn_Test < Model_Error_HDSA_Kronecker
     
     properties
         n_mesh;
@@ -69,7 +69,7 @@ classdef Model_Error_HDSA_Syn_Test < Model_Error_HDSA
     
     methods
         function obj = Model_Error_HDSA_Syn_Test()
-            obj = obj@Model_Error_HDSA();
+            obj = obj@Model_Error_HDSA_Kronecker();
             Set_Up(obj);
         end
                 

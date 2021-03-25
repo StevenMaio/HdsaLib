@@ -47,7 +47,7 @@ public:
     auto e_vec_1d = Kokkos::subview (e_vec_2d, Kokkos::ALL (), 0);
     if(vec_ptr_->getMap()->isNodeGlobalElement(k))
       {
-  	val = e_vec_1d(vec_ptr_->getMap()->getLocalElement(k));
+    	val = e_vec_1d(vec_ptr_->getMap()->getLocalElement(k));
       }    
     char *buff = (char*)&val;
     long long int k_ll = (long long int)k;
@@ -57,7 +57,7 @@ public:
     auto lookup = vec_ptr_->getMap()->getRemoteIndexList(node,node_id);
     if(lookup==Tpetra::IDNotPresent)
       {
-  	std::cout << "There is an error in vector elementwise access" << std::endl;
+    	std::cout << "There is an error in vector elementwise access" << std::endl;
       }
     comm_->barrier();
     comm_->broadcast(proc,8,buff);

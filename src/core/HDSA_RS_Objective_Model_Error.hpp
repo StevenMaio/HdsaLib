@@ -46,7 +46,7 @@ public:
     model_error_objects_->Apply_A(*u_vec_1,v);
     HDSA::Ptr<HDSA::Vector<RealT> > u_vec_2 = u_vec_1->Clone();
     model_error_objects_->OP_Objects_->fs_obj->hessVec_u_u(*u_vec_2, *u_vec_1, *model_error_objects_->OP_Objects_->u, *model_error_objects_->OP_Objects_->z, *model_error_objects_->OP_Objects_->theta, false);
-    model_error_objects_->Apply_Solution_Operator_z_Jacobian_Tranpose(hv,*u_vec_2);
+    model_error_objects_->Apply_Solution_Operator_z_Jacobian_Transpose(hv,*u_vec_2);
     HDSA::Ptr<HDSA::Vector<RealT> > z_vec_1 = z.Clone();
     model_error_objects_->Apply_X(*z_vec_1,v);
     hv.plus(*z_vec_1);

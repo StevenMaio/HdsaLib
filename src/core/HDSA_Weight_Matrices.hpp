@@ -107,6 +107,41 @@ namespace HDSA
     {
       int theta_dim = theta->dimension();
       int z_dim = z->dimension();
+      HDSA::Ptr<HDSA::Vector<RealT> > z_in = z->Clone();
+      HDSA::Ptr<HDSA::Vector<RealT> > z_out = z->Clone();
+      std::vector<std::vector<RealT> > Mz(z_dim);
+      for(int i = 0; i < z_dim; i++)
+	{
+	  Mz[i].resize(z_dim);
+	}
+      
+      for(int j = 0; j < z_dim; j++)
+	{
+	  std::cout << "Computing column " << j+1 << " out of " << z_dim << " for z weight matrix." << std::endl;
+	  z_in->basis(j);
+	  z_out->zero();
+	  Apply_z_Weight_Mat(z_out,z_in);
+	  for(int i = 0; i < z_dim; i++)
+	    {
+	      Mz[i][j] = (*z_out)(i);
+	    }
+	}
+      
+      // Write solutions to text files
+      std::string name;
+      std::ofstream fout;      
+      name = "Mz.txt";
+      fout.open(name);
+      for(int i = 0; i < z_dim; i++)
+	{
+	  for(int j = 0; j < z_dim; j++)
+	    {
+	      fout << std::setprecision(16) << Mz[i][j] << "  ";
+	    }
+	  fout << "  " << std::endl;
+	}
+      fout.close();
+
       HDSA::Ptr<HDSA::Vector<RealT> > theta_in = theta->Clone();
       HDSA::Ptr<HDSA::Vector<RealT> > theta_out = theta->Clone();
       std::vector<std::vector<RealT> > Mp(theta_dim);
@@ -128,8 +163,6 @@ namespace HDSA
 	}
     
       // Write solutions to text files
-      std::string name;
-      std::ofstream fout;
       name = "Mp.txt";
       fout.open(name);
       for(int i = 0; i < theta_dim; i++)
@@ -172,40 +205,7 @@ namespace HDSA
 	  fout << "  " << std::endl;
 	}
       fout.close();
-      
-      HDSA::Ptr<HDSA::Vector<RealT> > z_in = z->Clone();
-      HDSA::Ptr<HDSA::Vector<RealT> > z_out = z->Clone();
-      std::vector<std::vector<RealT> > Mz(z_dim);
-      for(int i = 0; i < z_dim; i++)
-	{
-	  Mz[i].resize(z_dim);
-	}
-      
-      for(int j = 0; j < z_dim; j++)
-	{
-	  std::cout << "Computing column " << j+1 << " out of " << z_dim << " for z weight matrix." << std::endl;
-	  z_in->basis(j);
-	  z_out->zero();
-	  Apply_z_Weight_Mat(z_out,z_in);
-	  for(int i = 0; i < z_dim; i++)
-	    {
-	      Mz[i][j] = (*z_out)(i);
-	    }
-	}
-      
-      // Write solutions to text files
-      name = "Mz.txt";
-      fout.open(name);
-      for(int i = 0; i < z_dim; i++)
-	{
-	  for(int j = 0; j < z_dim; j++)
-	    {
-	      fout << std::setprecision(16) << Mz[i][j] << "  ";
-	    }
-	  fout << "  " << std::endl;
-	}
-      fout.close();
-      
+          
     }
     
     // Overload Linear Operator to take matrix vector products for the parameter mass matrix inversion.

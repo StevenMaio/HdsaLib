@@ -317,7 +317,7 @@ namespace Linear_Algebra
   {   
     int m = A->numRows();
     int n = A->numCols();
-    
+
     // Take QR Decomposition of Y=Z*R
     HDSA::Ptr<HDSA::Dense_Matrix<RealT> > Z = HDSA::makePtr<HDSA::Dense_Matrix<RealT> >(m,n);
     HDSA::Ptr<HDSA::Dense_Matrix<RealT> > R_A;
@@ -330,7 +330,7 @@ namespace Linear_Algebra
       {
 	HDSA::Linear_Algebra::QR_Factorization<RealT>(A,Z);
       }
-    
+
     // Compute X=W*Z
     HDSA::Ptr<HDSA::Dense_Matrix<RealT> > X = HDSA::makePtr<HDSA::Dense_Matrix<RealT> >(m,n);
     HDSA::Ptr<HDSA::Vector<RealT> > vec_in = vec->Clone();
@@ -348,20 +348,19 @@ namespace Linear_Algebra
 	  }
 	X->Write_Vector_to_Column(j,vec_out);
       }
-  
+
     // Compute C = Z^T*W*Z = Z^T*X
     HDSA::Ptr<HDSA::Dense_Matrix<RealT> > C = HDSA::makePtr<HDSA::Dense_Matrix<RealT> >(n,n);
     Z->Multiply(C,X,true,false);
-    
+
     // Compute R_C=chol(C)
     HDSA::Ptr<HDSA::Dense_Matrix<RealT> > R_C = HDSA::makePtr<HDSA::Dense_Matrix<RealT> >(n,n);
     HDSA::Linear_Algebra::Cholesky_Factorization<RealT>(C,R_C);
-   
+
     // Compute Q=YR_C^{-1} in line 4 of algorithm 4
     
     // Need to solve the linear systems R_C*x_i = e_i for i=1,2,...,n. Here e_i is the ith standard basis vector in euclidean space, hence its ith entry is 1 and others are 0
     // Need to multiply Z*x_i and store this as the ith column of Q
-    
     for(int i = 0; i < n; i++)
       {
 	// Solve the linear system R_C*x = e_i
@@ -402,6 +401,77 @@ namespace Linear_Algebra
       }
   }
  
+  // Compute QR factorization A=Q*R with respect to weighted inner products defined by W with A*W precomputed
+  template <class RealT>
+  void CholQR_Pre_W(HDSA::Ptr<HDSA::Dense_Matrix<RealT> > & A, HDSA::Ptr<HDSA::Dense_Matrix<RealT> > & WA, HDSA::Ptr<HDSA::Dense_Matrix<RealT> > & Q,
+		    HDSA::Ptr<HDSA::Dense_Matrix<RealT> > & R, const HDSA::Ptr<HDSA::Dense_Matrix<RealT> > & WQ = HDSA::nullPtr, const HDSA::Ptr<const HDSA::Comm<int> > & comm_ = HDSA::nullPtr)
+  {   
+    int m = A->numRows();
+    int n = A->numCols();
+
+    // Compute C = A^T*W*A
+    HDSA::Ptr<HDSA::Dense_Matrix<RealT> > C = HDSA::makePtr<HDSA::Dense_Matrix<RealT> >(n,n);
+    A->Multiply(C,WA,true,false);
+
+    if(comm_ != HDSA::nullPtr)
+      {
+	if(comm_->getRank() == 0)
+	  {
+	    std::cout << "Printing the C matrix from the old approach" << std::endl;
+	    for(int i = 0; i < n; i++)
+	      {
+		for(int j = 0; j < n; j++)
+		  {
+		    std::cout << (*C)(i,j) << "  ";
+		  }
+		std::cout << " " << std::endl;
+	      }
+	  }
+      }
+    
+    // Compute R=chol(C)
+    HDSA::Linear_Algebra::Cholesky_Factorization<RealT>(C,R);
+
+    // Compute Q=YR^{-1} in line 4 of algorithm 4
+    
+    // Need to solve the linear systems R*x_i = e_i for i=1,2,...,n. Here e_i is the ith standard basis vector in euclidean space, hence its ith entry is 1 and others are 0
+    // Need to multiply A*x_i and store this as the ith column of Q
+    for(int i = 0; i < n; i++)
+      {
+	// Solve the linear system R*x = e_i
+	HDSA::Ptr<HDSA::Vector<RealT> > ei = HDSA::makePtr<Std_Vector<RealT> >(n);
+	ei->basis(i);
+	HDSA::Ptr<HDSA::Vector<RealT> > x = HDSA::makePtr<Std_Vector<RealT> >(n);
+	HDSA::Linear_Algebra::Upper_Tri_Solve<RealT>( x, ei, R);
+	
+	// Set the ith column of Q to Ax
+	for(int k = 0; k < m; k++)
+	  {
+	    RealT val = 0.0;
+	    for(int j = 0; j < i+1; j++)
+	      {
+		val += (*A)(k,j)*(*x)(j);
+	      }
+	    Q->Replace_Element(k,i,val);
+	  }
+
+	if(WQ != HDSA::nullPtr)
+	  {
+	    // Set the ith column of WQ to WAx
+	    for(int k = 0; k < m; k++)
+	      {
+		RealT val = 0.0;
+		for(int j = 0; j < i+1; j++)
+		  {
+		    val += (*WA)(k,j)*(*x)(j);
+		  }
+		WQ->Replace_Element(k,i,val);
+	      }
+	  }
+      }
+    
+  }
+
  
 }
 

@@ -50,6 +50,17 @@ namespace HDSA
 	}
       return theta;
     }
+
+    HDSA::Ptr<HDSA::Vector<RealT> > Generate_Random_u_Vector(void)
+    {
+      // Populate vectors with standard normal samples
+      HDSA::Ptr<HDSA::Vector<RealT> > u = OP_Objects_->u->Clone();
+      for(int l = 0; l < u->dimension(); l++)
+	{
+	  u->Replace_Element(l,distribution_(generator_));
+	}
+      return u;
+    }
     
     HDSA::Ptr<HDSA::Vector<RealT> > Generate_Random_z_Vector(void)
     {

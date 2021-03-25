@@ -23,6 +23,14 @@ public:
   HDSA::Ptr<HDSA::Vector<RealT> > Mz_star_;
   HDSA::Ptr<HDSA::Vector<RealT> > g_;
   RealT nom_state_inner_prod_;
+  RealT coeff_;
+  HDSA::Ptr<HDSA::Vector<RealT> > gamma_inv_z_star_;
+  HDSA::Ptr<HDSA::Vector<RealT> > Einv_Mz_star_;
+  HDSA::Ptr<HDSA::Vector<RealT> > coeff_Linv_g_;
+  RealT z_star_gamma_inv_z_star_;
+  RealT coeff_g_Linv_g_;
+  RealT zstar_Mz_zstar_;
+  
 
   Model_Error_Objects(const HDSA::Ptr<HDSA::ParameterList> & parlist_sensitivity, const HDSA::Ptr<HDSA::Opt_Problem_Objects<RealT> > & OP_Objects_Factory, 
 		      const HDSA::Ptr<HDSA::Weight_Matrices<RealT> > & weight_matrices_factory):
@@ -48,6 +56,7 @@ public:
   {
     HDSA::Ptr<HDSA::Vector<RealT> > v_in = OP_Objects_->u->Clone();
     HDSA::Ptr<HDSA::Vector<RealT> > v_out = OP_Objects_->u->Clone();
+    HDSA::Ptr<HDSA::Vector<RealT> > z_in = OP_Objects_->z->Clone();
     std::string name;
     std::ofstream fout;
 
@@ -69,6 +78,45 @@ public:
 	    L[i][j] = (*v_out)(i);
 	  }
       }
+
+    // Solution operator jacobian
+    std::vector<std::vector<RealT> > J;
+    J.resize(m_);
+    for(int i = 0; i < m_; i++)
+      {
+	J[i].resize(n_);
+      }
+    for(int j = 0; j < n_; j++)
+      {
+	std::cout << "Computing column " << j+1 << " out of " << n_ << " for J matrix." << std::endl;
+	z_in->basis(j);
+	v_out->zero();
+	Apply_Solution_Operator_z_Jacobian(*v_out,*z_in);
+	for(int i = 0; i < m_; i++)
+	  {
+	    J[i][j] = (*v_out)(i);
+	  }
+      }
+
+    // Full space hessian
+    std::vector<std::vector<RealT> > H;
+    H.resize(m_);
+    for(int i = 0; i < m_; i++)
+      {
+	H[i].resize(m_);
+      }
+    for(int j = 0; j < m_; j++)
+      {
+	std::cout << "Computing column " << j+1 << " out of " << m_ << " for H matrix." << std::endl;
+	v_in->basis(j);
+	v_out->zero();
+	OP_Objects_->fs_obj->hessVec_u_u(*v_out,*v_in,*OP_Objects_->u,*OP_Objects_->z,*theta_pde_,false);
+	for(int i = 0; i < m_; i++)
+	  {
+	    H[i][j] = (*v_out)(i);
+	  }
+      }
+
       // Write Solutions to text files
       name = "L.txt";
       fout.open(name);
@@ -77,6 +125,32 @@ public:
 	  for(int j = 0; j < m_; j++)
 	    {
 	      fout << std::setprecision(16) << L[i][j] << "  ";
+	    }
+	  fout << "  " << std::endl;
+	}
+      fout.close(); 
+
+      // Write Solutions to text files
+      name = "J.txt";
+      fout.open(name);
+      for(int i = 0; i < m_; i++)
+	{
+	  for(int j = 0; j < n_; j++)
+	    {
+	      fout << std::setprecision(16) << J[i][j] << "  ";
+	    }
+	  fout << "  " << std::endl;
+	}
+      fout.close(); 
+
+      // Write Solutions to text files
+      name = "H.txt";
+      fout.open(name);
+      for(int i = 0; i < m_; i++)
+	{
+	  for(int j = 0; j < m_; j++)
+	    {
+	      fout << std::setprecision(16) << H[i][j] << "  ";
 	    }
 	  fout << "  " << std::endl;
 	}
@@ -110,6 +184,9 @@ public:
     Mz_star_ = OP_Objects_->z->Clone();
     weight_matrices_->Apply_z_Weight_Mat(Mz_star_,OP_Objects_->z);
 
+    // Compute zstar^T*Mz*zstar
+    zstar_Mz_zstar_ = Mz_star_->dot(*OP_Objects_->z);
+
     // Compute misfit gradient at nominal solution
     g_ = OP_Objects_->u->Clone();
     OP_Objects_->fs_obj->gradient_u(*g_,*OP_Objects_->u,*OP_Objects_->z,*theta_pde_,false);
@@ -118,6 +195,26 @@ public:
     HDSA::Ptr<HDSA::Vector<RealT> > Lu = OP_Objects_->u->Clone();
     Apply_L_Mat(Lu,OP_Objects_->u);
     nom_state_inner_prod_ = Lu->dot(*OP_Objects_->u);
+    coeff_ = nom_state_inner_prod_*alpha_*alpha_;
+
+    // Compute Gamma^{-1} z^star and z^star^T*Gamma^{-1}*z^star
+    gamma_inv_z_star_ = OP_Objects_->z->Clone();
+    for(int k = 0; k < n_; k++)
+      {
+        gamma_inv_z_star_->Replace_Element(k,(*OP_Objects_->z)(k)/z_cov_[k]);
+      }
+    z_star_gamma_inv_z_star_ = gamma_inv_z_star_->dot(*OP_Objects_->z);
+
+    // Compute E^{-1}*M*z_star
+    Einv_Mz_star_ = OP_Objects_->z->Clone();
+    Apply_E_Inverse(Einv_Mz_star_,Mz_star_);
+    
+    // Compute alpha^2*(ustar,ustar)*g^T*L^{-1}*g
+    coeff_Linv_g_ = OP_Objects_->u->Clone();
+    Apply_L_Mat_Inverse(coeff_Linv_g_,g_);
+    coeff_Linv_g_->scale(coeff_);
+    coeff_g_Linv_g_ = g_->dot(*coeff_Linv_g_);
+
   }
 
   void Apply_A(HDSA::Vector<RealT> & A_theta, const HDSA::Vector<RealT> & theta)
@@ -182,12 +279,44 @@ public:
     OP_Objects_->con->jacobian_u_inverse(S_z,*Jz_z, *OP_Objects_->u, *OP_Objects_->z, *OP_Objects_->theta, false);
   }
 
-  void Apply_Solution_Operator_z_Jacobian_Tranpose(HDSA::Vector<RealT> & S_u, const HDSA::Vector<RealT> & u)
+  void Apply_Solution_Operator_z_Jacobian_Transpose(HDSA::Vector<RealT> & S_u, const HDSA::Vector<RealT> & u)
   {
     HDSA::Ptr<HDSA::Vector<RealT> > Jzt_u = OP_Objects_->u->Clone();
     OP_Objects_->con->jacobian_u_adjoint_inverse(*Jzt_u, u, *OP_Objects_->u, *OP_Objects_->z, *OP_Objects_->theta, false);
     Jzt_u->scale(-1.0);
     OP_Objects_->con->jacobian_z_adjoint(S_u, *Jzt_u, *OP_Objects_->u, *OP_Objects_->z, *OP_Objects_->theta, false);
+  }
+
+  void Apply_E(HDSA::Ptr<HDSA::Vector<RealT> > & z_out, const HDSA::Ptr<HDSA::Vector<RealT> > & z_in) const
+  {
+    HDSA::Ptr<HDSA::Vector<RealT> > z_tmp = z_in->Clone();
+    weight_matrices_->Apply_z_Weight_Mat(z_tmp,z_in);
+    
+    RealT val_coeff = z_tmp->dot(*OP_Objects_->z);
+    for(int k = 0; k < n_; k++)
+      {
+	RealT val = (z_cov_[k])*(*z_tmp)(k);
+	z_tmp->Replace_Element(k,val);
+      }
+    z_tmp->axpy(val_coeff,*OP_Objects_->z);
+    weight_matrices_->Apply_z_Weight_Mat(z_out,z_tmp);
+  }
+
+  void Apply_E_Inverse(HDSA::Ptr<HDSA::Vector<RealT> > & z_out, const HDSA::Ptr<HDSA::Vector<RealT> > & z_in) const
+  {
+    HDSA::Ptr<HDSA::Vector<RealT> > z_tmp1 = z_in->Clone();
+    HDSA::Ptr<HDSA::Vector<RealT> > z_tmp2 = z_in->Clone();
+    weight_matrices_->Apply_z_Weight_Mat_Inverse(z_tmp1,z_in);
+
+    for(int k = 0; k < n_; k++)
+      {
+	RealT val = z_tmp1->Get_Element(k)/z_cov_[k];
+	z_tmp2->Replace_Element(k,val);
+      }
+    RealT val_coeff = -z_tmp2->dot(*OP_Objects_->z)/(1.0+z_star_gamma_inv_z_star_);
+    z_tmp2->axpy(val_coeff,*gamma_inv_z_star_);
+
+    weight_matrices_->Apply_z_Weight_Mat_Inverse(z_out,z_tmp2);
   }
 
 };
