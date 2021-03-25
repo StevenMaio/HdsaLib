@@ -275,8 +275,8 @@ namespace HDSA
 	      std::cout << "Completed parameter orthogonalization for local sensitivity number " << sample_index_<< " in " << Time_ortho << " seconds" << std::endl;
 	    }
       
-	  HDSA::Ptr<HDSA::Dense_Matrix<RealT> > Y_subspace_iter_opt_test = HDSA::makePtr<HDSA::Dense_Matrix<RealT> >(nonzero_z_dim_,kpp_);
-	  HDSA::Ptr<HDSA::Dense_Matrix<RealT> > WY_subspace_iter_opt_test = HDSA::makePtr<HDSA::Dense_Matrix<RealT> >(nonzero_z_dim_,kpp_);
+	  HDSA::Ptr<HDSA::Dense_Matrix<RealT> > Y_subspace_iter_opt = HDSA::makePtr<HDSA::Dense_Matrix<RealT> >(nonzero_z_dim_,kpp_);
+	  HDSA::Ptr<HDSA::Dense_Matrix<RealT> > WY_subspace_iter_opt = HDSA::makePtr<HDSA::Dense_Matrix<RealT> >(nonzero_z_dim_,kpp_);
       
 	  for(int k = 0; k < kpp_; k++)
 	    {
@@ -311,10 +311,10 @@ namespace HDSA
 		  Apply_Inverse_Hessian(z_vec_subcomm_1, z_vec_subcomm_3,OP_Objects_subcomm,Nom_subcomm,grad_nominal);
 		  z_vec_subcomm_1->scale(-1.0);
 	      
-		  Y_subspace_iter_opt_test->Write_Vector_to_Column(k,z_vec_subcomm_1);
+		  Y_subspace_iter_opt->Write_Vector_to_Column(k,z_vec_subcomm_1);
 		  
 		  weight_matrices_subcomm->Apply_z_Weight_Mat(z_vec_subcomm_2,z_vec_subcomm_1);
-		  WY_subspace_iter_opt_test->Write_Vector_to_Column(k,z_vec_subcomm_2);
+		  WY_subspace_iter_opt->Write_Vector_to_Column(k,z_vec_subcomm_2);
 		  
 		  RealT Time_subspace_iter_k = static_cast<RealT>(std::clock()-timer_subspace_iter_k)/static_cast<RealT>(CLOCKS_PER_SEC);
 		  if(subcomm->getRank() == 0)
@@ -325,11 +325,11 @@ namespace HDSA
 	    }
 
 	  comm_->barrier();
-	  proc_dist->Broadcast_Matrix(Y_subspace_iter_opt_test);   
-	  proc_dist->Broadcast_Matrix(WY_subspace_iter_opt_test);
+	  proc_dist->Broadcast_Matrix(Y_subspace_iter_opt);   
+	  proc_dist->Broadcast_Matrix(WY_subspace_iter_opt);
 	  comm_->barrier();
-	  HDSA::Linear_Algebra::CholQR_Pre_W<RealT>(Y_subspace_iter_opt_test, WY_subspace_iter_opt_test, Q, R1, SQ);
-      
+	  HDSA::Linear_Algebra::CholQR_Pre_W<RealT>(Y_subspace_iter_opt, WY_subspace_iter_opt, Q, R1, SQ);    
+
 	  if(comm_->getRank() == 0)
 	    {
 	      std::cout << " " << std::endl;
@@ -444,7 +444,7 @@ namespace HDSA
       // Compute R=chol(C)
       HDSA::Ptr<HDSA::Dense_Matrix<RealT> > R_proj = HDSA::makePtr<HDSA::Dense_Matrix<RealT> >(kpp_,kpp_);
       HDSA::Linear_Algebra::Cholesky_Factorization<RealT>(C_proj,R_proj);
-      
+
       HDSA::Ptr<HDSA::Dense_Matrix<RealT> > R_proj_inv = HDSA::makePtr<HDSA::Dense_Matrix<RealT> >(kpp_,kpp_);
       // Need to solve the linear systems R*x_i = e_i for i=1,2,...,n. Here e_i is the ith standard basis vector in euclidean space, hence its ith entry is 1 and others are 0
       for(int i = 0; i < kpp_; i++)
