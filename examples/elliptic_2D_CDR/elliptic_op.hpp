@@ -35,7 +35,7 @@ private:
   // Indexing:  [sideset number][local side id](cell number, value at dof)
   std::vector<std::vector<ROL::Ptr<Intrepid::FieldContainer<Real> > > > bdryCellDofValues_;
 
-  bool epsilon_;
+  Real epsilon_;
   bool useStateRiesz_;
   bool useControlRiesz_;
 

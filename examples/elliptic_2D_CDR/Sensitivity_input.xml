@@ -1,13 +1,11 @@
-
-
 <ParameterList name="Inputs">
   <!-- ===========  PROBLEM INPUT PARAMETER SUBLIST  =========== -->
   <ParameterList name="Formulation">
     <Parameter name="Number of Parameter Samples" type="int"    value="1" />
     <Parameter name="Finite Difference Check"     type="bool" value="false" /> <!-- Compute finite difference approximations of the sensitivity indices by resolving the optimization problem -->
     <Parameter name="Finite Difference Check Step"     type="double" value="1.e-4" />
-    <Parameter name="Compute GSVD Sensitivities"   type="bool" value="true" /> <!-- Compute sensitivity indices using a truncated GSVD approximation -->
-    <Parameter name="Compute Model Error Sensitivities"   type="bool" value="false" /> <!-- Compute sensitivity indices using a truncated GSVD approximation -->
+    <Parameter name="Compute GSVD Sensitivities"   type="bool" value="false" /> <!-- Compute sensitivity indices using a truncated GSVD approximation -->
+    <Parameter name="Compute Model Error Sensitivities"   type="bool" value="true" /> <!-- Compute sensitivity indices using a truncated GSVD approximation -->
     <Parameter name="Compute Direct Sensitivities"   type="bool" value="false" /> <!-- Compute sensitivity indices directly rather than using a truncated GSVD approximation -->
     <Parameter name="Output Sensitivity Operator Columns"   type="bool" value="false" /> <!-- Output columns of the sensitivity operator when computing direct sensitivities -->
     <Parameter name="Randomized Hessian Eigenvector Projection"  type="bool"  value="false" /> <!-- This featured is only supported for reduced space formulations -->
@@ -19,18 +17,20 @@
     <Parameter name="Construct B Transpose"  type="bool"  value="false" /> 
     <Parameter name="Construct Model Error Objects"  type="bool"  value="false" /> 
     <Parameter name="Verbosity"  type="bool"  value="true" /> 
+    <Parameter name="Check Solution"  type="bool"  value="false" /> 
     <Parameter name="Conserve Memory"  type="bool"  value="false" /> 
     <Parameter name="Reduced Space Sensitivities"  type="bool"  value="true" /> 
   </ParameterList>
   <ParameterList name="Model Error">
-    <Parameter name="Relative Model Error"  type="double"  value="0.05" /> 
+    <Parameter name="Relative Model Error"  type="double"  value="0.01" /> 
+    <Parameter name="Smoothing Factor"  type="double"  value="0.1" /> 
   </ParameterList>
   <ParameterList name="GSVD Solver">
     <Parameter name="GSVD Formulation"           type="string"  value="GSVD" /> <!-- Choose either "Gram" or "Jordan-Wielandt" or "GSVD" -->
     <Parameter name="GSVD Solver"           type="string"  value="Randomized" /> <!-- Choose either "Randomized" or "Anasazi", if GSVD Formuation == GSVD then GSVD Solver must be set to Randomized -->
-    <Parameter name="Number of Singular Values"  type="int"  value="4" />
+    <Parameter name="Number of Singular Values"  type="int"  value="20" />
     <Parameter name="Oversampling Factor"  type="int"  value="12" />
-    <Parameter name="Number of Subspace Iterations"  type="int"  value="1" />
+    <Parameter name="Number of Subspace Iterations"  type="int"  value="2" />
   </ParameterList>
   <ParameterList name="Randomized Hessian EVP"> <!-- Only applicable when Compute Hessian Eigenvector Projection = True -->
     <Parameter name="Eigenvalue Algorithm"           type="string"  value="Double Pass" /> <!-- Choose either "Nystrom" or "Double Pass" -->
@@ -59,11 +59,11 @@
   <ParameterList name="KKT Solve">
     <Parameter name="Maximum Iterations"  type="int"  value="1000" /> 
     <Parameter name="Verbosity"  type="bool"  value="false" /> 
-    <Parameter name="Tolerance"   type="double"  value="1.e-6" /> 
+    <Parameter name="Tolerance"   type="double"  value="1.e-8" /> 
   </ParameterList>
   <ParameterList name="Parameter Weight Matrix Solve">
     <Parameter name="Maximum Iterations"  type="int"  value="1000" /> 
-    <Parameter name="Verbosity"  type="bool"  value="true" /> 
+    <Parameter name="Verbosity"  type="bool"  value="false" /> 
     <Parameter name="Tolerance"   type="double"  value="1.e-6" /> 
   </ParameterList>
   <ParameterList name="Hessian EVP">

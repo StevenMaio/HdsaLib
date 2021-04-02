@@ -9,6 +9,7 @@
 #include "../../../PDE-OPT/TOOLS/assembler_def.hpp"
 #include "../../../PDE-OPT/TOOLS/meshmanager.hpp"
 #include "../../../PDE-OPT/TOOLS/linearpdeconstraint.hpp"
+#include "../../../PDE-OPT/TOOLS/pdeconstraint.hpp"
 #include "../../../PDE-OPT/TOOLS/pdevector.hpp"
 #include "../../../PDE-OPT/TOOLS/pdeobjective.hpp"
 #include "../../src/source_file.hpp"

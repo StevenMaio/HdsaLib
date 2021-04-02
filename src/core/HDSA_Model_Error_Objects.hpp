@@ -57,6 +57,7 @@ public:
     HDSA::Ptr<HDSA::Vector<RealT> > v_in = OP_Objects_->u->Clone();
     HDSA::Ptr<HDSA::Vector<RealT> > v_out = OP_Objects_->u->Clone();
     HDSA::Ptr<HDSA::Vector<RealT> > z_in = OP_Objects_->z->Clone();
+    HDSA::Ptr<HDSA::Vector<RealT> > z_out = OP_Objects_->z->Clone();
     std::string name;
     std::ofstream fout;
 
@@ -95,6 +96,25 @@ public:
 	for(int i = 0; i < m_; i++)
 	  {
 	    J[i][j] = (*v_out)(i);
+	  }
+      }
+
+    // Solution operator jacobian
+    std::vector<std::vector<RealT> > Mz;
+    Mz.resize(n_);
+    for(int i = 0; i < n_; i++)
+      {
+	Mz[i].resize(n_);
+      }
+    for(int j = 0; j < n_; j++)
+      {
+	std::cout << "Computing column " << j+1 << " out of " << n_ << " for Mz matrix." << std::endl;
+	z_in->basis(j);
+	z_out->zero();
+        weight_matrices_->Apply_z_Weight_Mat(z_out,z_in);
+	for(int i = 0; i < n_; i++)
+	  {
+	    Mz[i][j] = (*z_out)(i);
 	  }
       }
 
@@ -156,6 +176,19 @@ public:
 	}
       fout.close(); 
 
+      // Write Solutions to text files
+      name = "Mz.txt";
+      fout.open(name);
+      for(int i = 0; i < n_; i++)
+	{
+	  for(int j = 0; j < n_; j++)
+	    {
+	      fout << std::setprecision(16) << Mz[i][j] << "  ";
+	    }
+	  fout << "  " << std::endl;
+	}
+      fout.close(); 
+
       // z_cov
       // Write Solutions to text files
       name = "z_cov.txt";
@@ -163,6 +196,15 @@ public:
       for(int k = 0; k < n_; k++)
 	{
 	  fout << std::setprecision(16) << z_cov_[k] << "  ";
+	}
+      fout.close();
+
+      // Write Solutions to text files
+      name = "g.txt";
+      fout.open(name);
+      for(int k = 0; k < m_; k++)
+	{
+	  fout << std::setprecision(16) << (*g_)(k) << "  ";
 	}
       fout.close();
   }

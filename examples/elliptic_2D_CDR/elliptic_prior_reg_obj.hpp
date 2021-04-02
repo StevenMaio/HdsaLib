@@ -434,7 +434,7 @@ void Map_Index_to_Coords(int k, std::vector<Real> & coords, int d, int nx, int n
 template<class Real>
 Real Mean_Eval(Real x, Real y)
 {
-  Real val = x*(1.0-x)*y*(1.0-y);
+  Real val = 16.0*x*(1.0-x)*y*(1.0-y);
   return val;
 }
 
@@ -503,6 +503,7 @@ public:
 	Real tol = 1.e-8;
 	for(int j = 0; j < n; j++)
 	  {
+	    std::cout << "Constructing the " << j+1 << "th out of " << n << " columns for the prior operators" << std::endl;
 	    zp->set(*Kz->basis(j));
 	    con_->applyJacobian_1(*Kz,*zp,*tmp1,*tmp1,tol);
 	    mass_mat_con_->applyJacobian_1(*Mz,*zp,*tmp1,*tmp1,tol);
@@ -512,6 +513,7 @@ public:
 		M[i][j] = Mz->dot(*zp->basis(i));
 	      }
 	  }
+	std::cout << "Writing the operators to a file" << std::endl;
 	std::string name;
 	std::ofstream fout;
 	name = "Elliptic_Operator.txt";

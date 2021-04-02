@@ -13,7 +13,7 @@ private:
   HDSA::Ptr<std::ostream> outStream;
   HDSA::Ptr<ROL::Objective_SimOpt<RealT> > obj;
   HDSA::Ptr<ROL::Constraint_SimOpt<RealT> > con;
-  HDSA::Ptr<Linear_PDE_Constraint<RealT> > pdecon;
+  HDSA::Ptr<PDE_Constraint<RealT> > pdecon;
   HDSA::Ptr<Assembler<RealT> > assembler;
   HDSA::Ptr<Tpetra::MultiVector<> > u_ptr, z_ptr, p_ptr, r_ptr;
   HDSA::Ptr<ROL::Vector<RealT> > up, zp, pp, rp;
@@ -45,9 +45,9 @@ public:
     HDSA::Ptr<MeshManager<RealT> > meshMgr = HDSA::makePtr<MeshManager_CDR<RealT> >(*parlist);
     HDSA::Ptr<PDE<RealT> > pde = HDSA::makePtr<PDE_CDR<RealT> >(*parlist);
     HDSA::Ptr<PDE_CDR<RealT> > pde_cdr = HDSA::dynamicPtrCast<PDE_CDR<RealT> >(pde);
-    con = HDSA::makePtr<Linear_PDE_Constraint<RealT> >(pde,meshMgr,comm->Get_Teuchos_Communicator(),*parlist,*outStream,true);
+    con = HDSA::makePtr<PDE_Constraint<RealT> >(pde,meshMgr,comm->Get_Teuchos_Communicator(),*parlist,*outStream);
     // Cast the constraint and get the assembler.
-    pdecon = HDSA::dynamicPtrCast<Linear_PDE_Constraint<RealT> >(con);
+    pdecon = HDSA::dynamicPtrCast<PDE_Constraint<RealT> >(con);
     assembler = pdecon->getAssembler();
 
     // Create state vector and set to zeroes
@@ -114,15 +114,10 @@ public:
     std::vector<HDSA::Ptr<ROL::Objective_SimOpt<RealT> > > obj_vec;
     obj_vec.resize(2);
     obj_vec[0] = HDSA::makePtr<State_Cost_CDR<RealT> >(data,data_weight,data_weight_id,up);
-    // std::vector<HDSA::Ptr<QoI<RealT> > > qoi_vec(1,HDSA::nullPtr);
-    // qoi_vec[0] = HDSA::makePtr<QoI_L2Penalty_CDR<RealT> >(pde_cdr->getFE());
-    // std::vector<RealT> wt(1); wt[0] = 1.0;
-    // obj_vec[1] = HDSA::makePtr<PDE_Objective<RealT> >(qoi_vec,wt,assembler);
-    obj_vec[1] = HDSA::makePtr<Elliptic_Prior_Regularization_Objective<RealT> >(comm, parlist, outStream);
+    bool construct_prior = parlist->sublist("Problem").get("Construct Prior",false);
+    obj_vec[1] = HDSA::makePtr<Elliptic_Prior_Regularization_Objective<RealT> >(comm, parlist, outStream,construct_prior);
     std::vector<RealT> weights = std::vector<RealT>(2,1.0);
     weights[0] = parlist->sublist("Problem").get("Misfit Coefficient",1.0);
-    //RealT alpha = parlist->sublist("Problem").get("Control penalty parameter",1e-2);
-    //weights[1] = alpha;
     obj = HDSA::makePtr<ROL::LinearCombinationObjective_SimOpt<RealT> >(weights,obj_vec);
     HDSA::Ptr<ROL::Objective<RealT> > robj = HDSA::makePtr<ROL::Reduced_Objective_SimOpt<RealT> >(obj, con, up, zp, pp);
 

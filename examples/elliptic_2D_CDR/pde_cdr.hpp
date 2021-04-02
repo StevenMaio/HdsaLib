@@ -38,7 +38,7 @@ private:
   bool useStateRiesz_;
   bool useControlRiesz_;
 
-  Real diff_coeff_, adv_coeff_, react_coeff_;
+  Real diff_coeff_, adv_coeff_, cubic_react_coeff_, linear_react_coeff_;
 
   Real DirichletFunc(const std::vector<Real> & coords, int sideset, int locSideId) const {
     return 0;
@@ -49,11 +49,13 @@ private:
   }
 
   Real evaluatexVelocityField(const std::vector<Real> &x) const {
-    return 1.0;
+    Real pi(M_PI);
+    return std::cos(2.0*pi*x[1]);
   }
 
   Real evaluateyVelocityField(const std::vector<Real> &x) const {
-    return 1.0;
+    Real pi(M_PI);
+    return 1.0 + 1.0*std::pow(std::cos(2.0*pi*x[1]),2.0);
   }
 
   void computeRHS(ROL::Ptr<Intrepid::FieldContainer<Real> > &rhs) const {
@@ -107,8 +109,8 @@ public:
 
     diff_coeff_ = parlist.sublist("Problem").get("Diffusion Coefficient", 1.0);
     adv_coeff_ = parlist.sublist("Problem").get("Advection Coefficient", 1.0);
-    react_coeff_ = parlist.sublist("Problem").get("Reaction Coefficient", 1.0);
-
+    cubic_react_coeff_ = parlist.sublist("Problem").get("Cubic Reaction Coefficient", 1.0);
+    linear_react_coeff_ = parlist.sublist("Problem").get("Linear Reaction Coefficient", 1.0);
   }
 
   void residual(ROL::Ptr<Intrepid::FieldContainer<Real> > & res,
@@ -153,12 +155,20 @@ public:
 
     // ADD REACTION TERM TO RESIDUAL
     ROL::Ptr<Intrepid::FieldContainer<Real> > react_term = ROL::makePtr<Intrepid::FieldContainer<Real>>(c, f);
+    ROL::Ptr<Intrepid::FieldContainer<Real> > U_eval3 = ROL::makePtr<Intrepid::FieldContainer<Real>>(c, p);
+    for(int i = 0; i < c; i++)
+      {
+	for(int j = 0; j < p; j++)
+	  {
+	    (*U_eval3)(i,j) = cubic_react_coeff_*std::pow((*U_eval)(i,j),3.0) + linear_react_coeff_*(*U_eval)(i,j);
+	  } 
+      }
     // Integrate U * N
     Intrepid::FunctionSpaceTools::integrate<Real>(*react_term,
-                                                  *U_eval,
+                                                  *U_eval3,
                                                   *(fe_vol_->NdetJ()),
                                                   Intrepid::COMP_CPP, false);
-    Intrepid::RealSpaceTools<Real>::scale(*react_term,-1.0*react_coeff_);
+    Intrepid::RealSpaceTools<Real>::scale(*react_term,-1.0);
 
     // COMPUTE RHS
     ROL::Ptr<Intrepid::FieldContainer<Real> > rhs
@@ -213,6 +223,10 @@ public:
     // INITILAIZE JACOBIAN
     jac = ROL::makePtr<Intrepid::FieldContainer<Real>>(c, f, f);
     // COMPUTE STIFFNESS TERM
+    ROL::Ptr<Intrepid::FieldContainer<Real> > U_eval
+      = ROL::makePtr<Intrepid::FieldContainer<Real>>(c, p);
+    fe_vol_->evaluateValue(U_eval, u_coeff);
+
     ROL::Ptr<Intrepid::FieldContainer<Real> > diff_term = ROL::makePtr<Intrepid::FieldContainer<Real>>(c, f, f);
     Intrepid::FunctionSpaceTools::integrate<Real>(*diff_term, *(fe_vol_->gradN()), *(fe_vol_->gradNdetJ()), Intrepid::COMP_CPP, false);
     Intrepid::RealSpaceTools<Real>::scale(*diff_term,diff_coeff_);
@@ -234,14 +248,27 @@ public:
                                                   Intrepid::COMP_CPP, false);
     Intrepid::RealSpaceTools<Real>::scale(*adv_term,adv_coeff_);
 
-    // ADD REACTION TERM TO JACOBIAN
+    // ADD REACTION TERM TO RESIDUAL
     ROL::Ptr<Intrepid::FieldContainer<Real> > react_term = ROL::makePtr<Intrepid::FieldContainer<Real>>(c, f, f);
-    // Integrate N * N
+    ROL::Ptr<Intrepid::FieldContainer<Real> > U_eval3_diff = ROL::makePtr<Intrepid::FieldContainer<Real>>(c, p);
+    for(int i = 0; i < c; i++)
+      {
+	for(int j = 0; j < p; j++)
+	  {
+	    (*U_eval3_diff)(i,j) = cubic_react_coeff_*3.0*std::pow((*U_eval)(i,j),2.0) + linear_react_coeff_;
+	  } 
+      }
+    ROL::Ptr<Intrepid::FieldContainer<Real> > U_eval3_diff_N = ROL::makePtr<Intrepid::FieldContainer<Real>>(c,f, p);
+    Intrepid::FunctionSpaceTools::scalarMultiplyDataField<Real>(*U_eval3_diff_N,
+                                                                *U_eval3_diff,
+                                                                *(fe_vol_->N()));
+    // Integrate U * N
     Intrepid::FunctionSpaceTools::integrate<Real>(*react_term,
-                                                  *(fe_vol_->N()),
+                                                  *U_eval3_diff_N,
                                                   *(fe_vol_->NdetJ()),
                                                   Intrepid::COMP_CPP, false);
-    Intrepid::RealSpaceTools<Real>::scale(*react_term,-1.0*react_coeff_);
+    Intrepid::RealSpaceTools<Real>::scale(*react_term,-1.0);
+
 
     Intrepid::RealSpaceTools<Real>::scale(*jac,0.0);
     Intrepid::RealSpaceTools<Real>::add(*jac,*diff_term);
@@ -280,13 +307,18 @@ public:
       int f = basisPtr_->getCardinality();
       // INITIALIZE JACOBIAN
       jac = ROL::makePtr<Intrepid::FieldContainer<Real>>(c, f, f);
-      // ADD CONTROL TERM
-      Intrepid::FunctionSpaceTools::integrate<Real>(*jac, *(fe_vol_->N()), *(fe_vol_->NdetJ()), Intrepid::COMP_CPP, false);
-      Intrepid::RealSpaceTools<Real>::scale(*jac,static_cast<Real>(-1));
+
+      Intrepid::FunctionSpaceTools::integrate<Real>(*jac,
+						    *(fe_vol_->N()),
+						    *(fe_vol_->NdetJ()),
+						    Intrepid::COMP_CPP,false);
+      
+      Intrepid::RealSpaceTools<Real>::scale(*jac,-1.0);
+      
       // APPLY DIRICHLET CONDITIONS
       int numSideSets = bdryCellLocIds_.size();
       if (numSideSets > 0) {
-        for (int i = 0; i < numSideSets; ++i) {
+        for (int i = 0; i < 1; ++i) {
           int numLocalSideIds = bdryCellLocIds_[i].size();
           for (int j = 0; j < numLocalSideIds; ++j) {
             int numCellsSide = bdryCellLocIds_[i][j].size();
@@ -313,7 +345,71 @@ public:
                   const ROL::Ptr<const Intrepid::FieldContainer<Real> > & u_coeff,
                   const ROL::Ptr<const Intrepid::FieldContainer<Real> > & z_coeff = ROL::nullPtr,
                   const ROL::Ptr<const std::vector<Real> > & z_param = ROL::nullPtr) {
-    throw Exception::Zero(">>> (PDE_CDR::Hessian_11): Hessian is zero.");
+    // GET DIMENSIONS
+    int c = u_coeff->dimension(0);
+    int p = cellCub_->getNumPoints();
+    int f = basisPtr_->getCardinality();
+    int d = cellCub_->getDimension();
+    // INITILAIZE JACOBIAN
+    hess = ROL::makePtr<Intrepid::FieldContainer<Real>>(c, f, f);
+
+    ROL::Ptr<Intrepid::FieldContainer<Real> > L = ROL::makePtr<Intrepid::FieldContainer<Real>>(c, f);
+    for(int i = 0; i < c; i++)
+      {
+	for(int j = 0; j < f; j++)
+	  {
+	    (*L)(i,j) = (*l_coeff)(i,j);
+	  }
+      }
+
+    // APPLY DIRICHLET CONDITIONS
+    int numSideSets = bdryCellLocIds_.size();
+    if (numSideSets > 0) {
+      for (int i = 0; i < 1; ++i) {
+        int numLocalSideIds = bdryCellLocIds_[i].size();
+        for (int j = 0; j < numLocalSideIds; ++j) {
+          int numCellsSide = bdryCellLocIds_[i][j].size();
+          int numBdryDofs = fidx_[j].size();
+          for (int k = 0; k < numCellsSide; ++k) {
+            int cidx = bdryCellLocIds_[i][j][k];
+            for (int l = 0; l < numBdryDofs; ++l) {
+              (*L)(cidx,fidx_[j][l]) = 0.0;
+            }
+          }
+        }
+      }
+    }
+   
+    ROL::Ptr<Intrepid::FieldContainer<Real> > U_eval
+      = ROL::makePtr<Intrepid::FieldContainer<Real>>(c, p);
+    fe_vol_->evaluateValue(U_eval, u_coeff);
+
+    ROL::Ptr<Intrepid::FieldContainer<Real> > L_eval
+      = ROL::makePtr<Intrepid::FieldContainer<Real>>(c, p);
+    fe_vol_->evaluateValue(L_eval, L);
+
+    // ADD REACTION TERM TO RESIDUAL
+    ROL::Ptr<Intrepid::FieldContainer<Real> > react_term = ROL::makePtr<Intrepid::FieldContainer<Real>>(c, f, f);
+    ROL::Ptr<Intrepid::FieldContainer<Real> > U_eval3_diff2 = ROL::makePtr<Intrepid::FieldContainer<Real>>(c, p);
+    for(int i = 0; i < c; i++)
+      {
+	for(int j = 0; j < p; j++)
+	  {
+	    (*U_eval3_diff2)(i,j) = cubic_react_coeff_*6.0*(*U_eval)(i,j)*(*L_eval)(i,j);
+	  } 
+      }
+    ROL::Ptr<Intrepid::FieldContainer<Real> > U_eval3_diff2_N = ROL::makePtr<Intrepid::FieldContainer<Real>>(c,f, p);
+    Intrepid::FunctionSpaceTools::scalarMultiplyDataField<Real>(*U_eval3_diff2_N,
+                                                                *U_eval3_diff2,
+                                                                *(fe_vol_->N()));
+    // Integrate U * N
+    Intrepid::FunctionSpaceTools::integrate<Real>(*react_term,
+                                                  *U_eval3_diff2_N,
+                                                  *(fe_vol_->NdetJ()),
+                                                  Intrepid::COMP_CPP, false);
+    Intrepid::RealSpaceTools<Real>::scale(*react_term,-1.0);
+
+    Intrepid::RealSpaceTools<Real>::add(*hess,*react_term);
   }
 
   void Hessian_12(ROL::Ptr<Intrepid::FieldContainer<Real> > & hess,

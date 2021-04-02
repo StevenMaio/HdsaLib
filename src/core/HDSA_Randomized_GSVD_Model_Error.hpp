@@ -22,8 +22,10 @@ namespace HDSA
     HDSA::Ptr<HDSA::Dense_Matrix<RealT> > U_;
     HDSA::Ptr<HDSA::Dense_Matrix<RealT> > V_u_;
     HDSA::Ptr<HDSA::Dense_Matrix<RealT> > V_z_;
+    HDSA::Ptr<HDSA::Dense_Matrix<RealT> > Mz_V_z_;
     HDSA::Ptr<HDSA::Dense_Matrix<RealT> > V_u_kron_;
     HDSA::Ptr<HDSA::Dense_Matrix<RealT> > V_z_kron_;
+    HDSA::Ptr<HDSA::Dense_Matrix<RealT> > Mz_V_z_kron_;
 
   public:
   
@@ -90,7 +92,9 @@ namespace HDSA
       	    {
 	      std::clock_t timer_range_iter_k = std::clock();
 	      HDSA::Ptr<HDSA::Vector<RealT> >  u_vec_random = Sen_Op_subcomm->Generate_Random_u_Vector();
+	      u_vec_random->scale(model_error_objects->Mz_star_->norm());
 	      HDSA::Ptr<HDSA::Vector<RealT> >  z_vec_random = Sen_Op_subcomm->Generate_Random_z_Vector();
+	      z_vec_random->scale(model_error_objects->g_->norm());
 
 	      HDSA::Ptr<HDSA::Vector<RealT> > u_vec_subcomm_1 = OP_Objects_subcomm->u->Clone();
       	      HDSA::Ptr<HDSA::Vector<RealT> > z_vec_subcomm_1 = OP_Objects_subcomm->z->Clone();
@@ -481,6 +485,25 @@ namespace HDSA
       V_z_kron_ = HDSA::makePtr<HDSA::Dense_Matrix<RealT> >(nonzero_z_dim_,1);
       V_z_kron_->Write_Vector_to_Column(0,model_error_objects->Einv_Mz_star_);
 
+      Mz_V_z_kron_ = HDSA::makePtr<HDSA::Dense_Matrix<RealT> >(nonzero_z_dim_,1);      
+      HDSA::Ptr<HDSA::Vector<RealT> > z_vec = OP_Objects_subcomm->z->Clone();
+      weight_matrices_subcomm->Apply_z_Weight_Mat(z_vec,model_error_objects->Einv_Mz_star_);
+      Mz_V_z_kron_->Write_Vector_to_Column(0,z_vec);
+
+      Mz_V_z_ = HDSA::makePtr<HDSA::Dense_Matrix<RealT> >(nonzero_z_dim_,kpp_);
+      comm_->barrier();
+      for(int k = 0; k < kpp_; k++)
+      	{
+	  if(proc_dist->Does_Processor_Own_Vector(k))
+      	    { 
+	      HDSA::Ptr<HDSA::Vector<RealT> > z_vec_subcomm_1 = OP_Objects_subcomm->z->Clone();
+	      HDSA::Ptr<HDSA::Vector<RealT> > z_vec_subcomm_2 = OP_Objects_subcomm->z->Clone();
+	      V_z_->Write_Column_to_Vector(k,z_vec_subcomm_1);
+	      weight_matrices_subcomm->Apply_z_Weight_Mat(z_vec_subcomm_2,z_vec_subcomm_1);	    
+	      Mz_V_z_->Write_Vector_to_Column(k,z_vec_subcomm_2);
+      	    }
+      	}
+
       // The columns of U contain the approximate opt singular vectors
       // The columns of V contain the approximate parameter singular vectors (decomposed in kronecker form)
         
@@ -574,6 +597,28 @@ namespace HDSA
 	    }
 	  fout.close();
 
+	  name = "Mz_theta_Singular_Vector_z2_" + std::to_string(sample_index_) + ".txt";
+	  fout.open(name);
+	  for(int i  = 0; i < z->dimension(); i++)
+	    {
+	      if(z->Is_entry_zero(i))
+		{
+		  for(int k = 0; k < num_sing_vals_; k++)
+		    {   
+		      fout << 0.0 << std::setw(20);
+		    }
+		}
+	      else
+		{
+		  for(int k = 0; k < num_sing_vals_; k++)
+		    {   
+		      fout << (*Mz_V_z_)(z->Get_map_full_to_reduced(i),k) << std::setw(20);
+		    }
+		}
+	      fout << " " << std::endl;
+	    }
+	  fout.close();
+
 	  name = "theta_Singular_Vector_z1_" + std::to_string(sample_index_) + ".txt";
 	  fout.open(name);
 	  for(int i  = 0; i < z->dimension(); i++)
@@ -585,6 +630,22 @@ namespace HDSA
 	      else
 		{
 		  fout << (*V_z_kron_)(z->Get_map_full_to_reduced(i),0) << std::setw(20);
+		}
+	      fout << " " << std::endl;
+	    }
+	  fout.close();
+
+	  name = "Mz_theta_Singular_Vector_z1_" + std::to_string(sample_index_) + ".txt";
+	  fout.open(name);
+	  for(int i  = 0; i < z->dimension(); i++)
+	    {
+	      if(z->Is_entry_zero(i))
+		{ 
+		  fout << 0.0 << std::setw(20);    
+		}
+	      else
+		{
+		  fout << (*Mz_V_z_kron_)(z->Get_map_full_to_reduced(i),0) << std::setw(20);
 		}
 	      fout << " " << std::endl;
 	    }

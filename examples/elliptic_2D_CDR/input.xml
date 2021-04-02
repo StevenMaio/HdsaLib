@@ -1,16 +1,20 @@
-<?xml version="1.0" encoding="utf-8"?>
 <ParameterList name="Inputs">
   <!-- ===========  PROBLEM INPUT PARAMETER SUBLIST  =========== -->
   <ParameterList name="Problem">
     <Parameter name="Check Derivatives"          type="bool"    value="false" />
+    <Parameter name="Construct Prior"          type="bool"    value="false" />
     <Parameter name="Order of FE discretization" type="int"     value="1"     />
-    <Parameter name="Diffusion Coefficient"  type="double"  value="0.01"   />
-    <Parameter name="Advection Coefficient"  type="double"  value="1.0"   />
-    <Parameter name="Reaction Coefficient"  type="double"  value="0.0"   />
-    <Parameter name="Misfit Coefficient"  type="double"  value="1.0"   />
-    <Parameter name="gamma"  type="double"  value="0.001"   />
+    <Parameter name="Diffusion Coefficient"  type="double"  value="0.001"   />
+    <Parameter name="Advection Coefficient"  type="double"  value="2.0"   />
+    <Parameter name="Linear Reaction Coefficient"  type="double"  value="0.0"   />
+    <Parameter name="Cubic Reaction Coefficient"  type="double"  value="3.0"   />
+    <Parameter name="Misfit Coefficient"  type="double"  value="1.e2"   />
+    <Parameter name="gamma"  type="double"  value="0.005"   />
     <Parameter name="alpha"  type="double"  value="0.005"   />
-    <Parameter name="Dirichlet Prior"  type="bool"  value="true"   />
+    <!-- <Parameter name="Misfit Coefficient"  type="double"  value="1.e8"   />
+    <Parameter name="gamma"  type="double"  value="0.5"   />
+    <Parameter name="alpha"  type="double"  value="0.5"   /> -->
+    <Parameter name="Dirichlet Prior"  type="bool"  value="false"   />
   </ParameterList>
 
   <!-- SOLVER INFORMATION -->
@@ -55,10 +59,10 @@
     <Parameter name="X0"                type="double"  value="0.0"  />
     <Parameter name="Y0"                type="double"  value="0.0"  />
     <Parameter name="Partition type"    type="int"     value="1"    />
-    <Parameter name="NX"                type="int"     value="30"   />
-    <Parameter name="NY"                type="int"     value="30"   />  
-    <Parameter name="Sensors Per x-Dimension"  type="int"     value="6"   />
-    <Parameter name="Sensors Per y-Dimension"  type="int"     value="6"   /> 
+    <Parameter name="NX"                type="int"     value="100"   />
+    <Parameter name="NY"                type="int"     value="100"   />  
+    <Parameter name="Sensors Per x-Dimension"  type="int"     value="11"   />
+    <Parameter name="Sensors Per y-Dimension"  type="int"     value="11"   /> 
   </ParameterList>
 
   <!-- ===========  BEGIN GENERAL INPUT PARAMETER SUBLIST  =========== -->
@@ -243,9 +247,9 @@
 
   <!-- ===========  STATUS TEST SUBLIST  =========== -->
   <ParameterList name="Status Test">
-    <Parameter name="Gradient Tolerance"   type="double" value="1.e-10"  />
+    <Parameter name="Gradient Tolerance"   type="double" value="1.e-8"  />
     <Parameter name="Constraint Tolerance" type="double" value="1.e-8"   />
     <Parameter name="Step Tolerance"       type="double" value="1.e-14"  />
-    <Parameter name="Iteration Limit"      type="int"    value="100"     />
+    <Parameter name="Iteration Limit"      type="int"    value="30"     />
   </ParameterList>
 </ParameterList>

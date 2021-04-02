@@ -11,6 +11,7 @@ class Model_Error_Objects_CDR : public HDSA::Model_Error_Objects<RealT> {
 private:
   HDSA::Ptr<HDSA::ParameterList> parlist_;
   HDSA::Ptr<ROL::Constraint_SimOpt<RealT> > con_;
+  HDSA::Ptr<ROL::Constraint_SimOpt<RealT> > mass_con_;
   bool constructed_elliptic_op_;
   RealT epsilon_;
 
@@ -33,6 +34,8 @@ public:
     HDSA::Ptr<MeshManager<RealT> > meshMgr = HDSA::makePtr<MeshManager_Rectangle<RealT> >(*parlist_);
     HDSA::Ptr<PDE<RealT> > pde = HDSA::makePtr<Elliptic_Op<RealT> >(*parlist_,epsilon_);
     con_ = HDSA::makePtr<Linear_PDE_Constraint<RealT> >(pde,meshMgr,comm->Get_Teuchos_Communicator(),*parlist_);
+    HDSA::Ptr<PDE<RealT> > pde_mass = HDSA::makePtr<Elliptic_Op<RealT> >(*parlist_,0.0);
+    mass_con_ = HDSA::makePtr<Linear_PDE_Constraint<RealT> >(pde_mass,meshMgr,comm->Get_Teuchos_Communicator(),*parlist_);
   }
 
   std::vector<RealT> Set_z_cov(void) const
@@ -49,16 +52,22 @@ public:
   {
     HDSA::Ptr<ROL::Vector<RealT> > u_in_rol = HDSA::dynamicPtrCast<ROL_Vector<RealT> >(u_in)->get_rol_vec();
     HDSA::Ptr<ROL::Vector<RealT> > u_out_rol = HDSA::dynamicPtrCast<ROL_Vector<RealT> >(u_out)->get_rol_vec();
+    HDSA::Ptr<ROL::Vector<RealT> > u_tmp = u_out_rol->clone();
     RealT tol = 1.e-8;
     con_->applyJacobian_1(*u_out_rol,*u_in_rol,*u_in_rol,*u_in_rol,tol);
+    mass_con_->applyInverseJacobian_1(*u_tmp,*u_out_rol,*u_in_rol,*u_in_rol,tol);
+    con_->applyAdjointJacobian_1(*u_out_rol,*u_tmp,*u_in_rol,*u_in_rol,tol);
   }
 
   void Apply_L_Mat_Inverse(HDSA::Ptr<HDSA::Vector<RealT> > & u_out, const HDSA::Ptr<HDSA::Vector<RealT> > & u_in) const 
   {
     HDSA::Ptr<ROL::Vector<RealT> > u_in_rol = HDSA::dynamicPtrCast<ROL_Vector<RealT> >(u_in)->get_rol_vec();
     HDSA::Ptr<ROL::Vector<RealT> > u_out_rol = HDSA::dynamicPtrCast<ROL_Vector<RealT> >(u_out)->get_rol_vec();
+    HDSA::Ptr<ROL::Vector<RealT> > u_tmp = u_out_rol->clone();
     RealT tol = 1.e-8;
-    con_->applyInverseJacobian_1(*u_out_rol,*u_in_rol,*u_in_rol,*u_in_rol,tol);
+    con_->applyInverseAdjointJacobian_1(*u_out_rol,*u_in_rol,*u_in_rol,*u_in_rol,tol);
+    mass_con_->applyJacobian_1(*u_tmp,*u_out_rol,*u_in_rol,*u_in_rol,tol);
+    con_->applyInverseJacobian_1(*u_out_rol,*u_tmp,*u_in_rol,*u_in_rol,tol);
   }
 
 };
