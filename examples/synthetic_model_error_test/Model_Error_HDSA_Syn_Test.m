@@ -2,7 +2,7 @@ classdef Model_Error_HDSA_Syn_Test < Model_Error_HDSA_Kronecker
     
     properties
         n_mesh;
-        beta;
+        reg_beta;
         I;
         D;
         L;
@@ -29,7 +29,7 @@ classdef Model_Error_HDSA_Syn_Test < Model_Error_HDSA_Kronecker
             c = zeros(this.n_mesh,1);
             [u,u_diff,u_diff_diff] = this.Model_Fun(z);
             c(this.I) = u_diff(this.I).^2 + u_diff_diff(this.I).*(u(this.I) - this.d);
-            H = this.beta*this.D + diag(c);
+            H = this.reg_beta*this.D + diag(c);
             Hinv_v = linsolve(H,v_z);
         end
         
@@ -68,7 +68,7 @@ classdef Model_Error_HDSA_Syn_Test < Model_Error_HDSA_Kronecker
     end
     
     methods
-        function obj = Model_Error_HDSA_Syn_Test()
+        function obj = Model_Error_HDSA_Syn_Test(val_oper)
             obj = obj@Model_Error_HDSA_Kronecker();
             Set_Up(obj);
         end
@@ -77,7 +77,7 @@ classdef Model_Error_HDSA_Syn_Test < Model_Error_HDSA_Kronecker
           
             n_mesh = 51;
             S = 10;
-            beta = 10^-2;
+            reg_beta = 10^-2;
             
             x = linspace(0,1,n_mesh)';
             ztrue = x.^3;
@@ -96,10 +96,10 @@ classdef Model_Error_HDSA_Syn_Test < Model_Error_HDSA_Kronecker
             M(end,end) = .5*M(end,end);
             M = (1/6)*h*M;
             
-            L = M + 10^-3*D;
+            L = M + 10^-2*D;
             
             this.n_mesh = n_mesh;
-            this.beta = beta;
+            this.reg_beta = reg_beta;
             this.I = I;
             this.D = D;
             this.M = M;
@@ -112,8 +112,8 @@ classdef Model_Error_HDSA_Syn_Test < Model_Error_HDSA_Kronecker
 
         function [val,grad] = J(this,z)
             [u,u_diff] = this.Model_Fun(z);
-            val =  (1/2)*(this.d-u(this.I))'*(this.d-u(this.I)) + (this.beta/2)*z'*this.D*z;
-            grad = this.beta*this.D*z;
+            val =  (1/2)*(this.d-u(this.I))'*(this.d-u(this.I)) + (this.reg_beta/2)*z'*this.D*z;
+            grad = this.reg_beta*this.D*z;
             grad(this.I) = grad(this.I) + (this.d-u(this.I)).*(-u_diff(this.I));
         end
         

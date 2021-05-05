@@ -12,7 +12,7 @@ I = solver.I;
 M = solver.M;
 L = solver.L;
 D = solver.D;
-beta = solver.beta;
+reg_beta = solver.reg_beta;
 z_cov = solver.z_cov;
 alpha = solver.alpha;
 
@@ -23,15 +23,17 @@ v = zeros(n,1);
 v(I) = 1;
 H = diag(v);
 X = kron(g',M);
+X = [zeros(n,n),X];
 A = kron(eye(n),zstar'*M);
+A = [eye(n),A];
 B = Sz'*H*A + X;
 v = zeros(n,1);
 v(I) = 9*zstar(I).^4 - 6*zstar(I).*(d-zstar(I).^3); % Problem Specific
-Hr = diag(v) + beta*D;
+Hr = diag(v) + reg_beta*D;
 
 B = -B; % Because of code conventions
 
-D = zeros(n,n^2);
+D = zeros(n,n*(n+1));
 for i = 1:n
    ei = zeros(n,1);
    ei(i) = 1;
@@ -40,11 +42,16 @@ end
 
 E = M*(zstar*zstar'+diag(z_cov))*M;
 coeff = alpha^2*ustar'*L*ustar;
-Mtheta = (1/coeff)*kron(L,E);
+Mtheta = (1/coeff)*[L,kron(L,zstar'*M);kron(L,M*zstar),kron(L,E)]; 
 
 U = load('HDSA_Results.mat','U').U;
 V = load('HDSA_Results.mat','V').V;
 Sigma = load('HDSA_Results.mat','Sigma').Sigma;
+k = load('HDSA_Results.mat','k').k;
+
+U = U(:,1:k);
+V = V(:,1:k);
+Sigma = Sigma(1:k,1:k);
 
 norm(D*V-U*Sigma,'fro')/norm(D*V,'fro')
 norm(V'*Mtheta*V-eye(size(V,2)))
@@ -79,20 +86,33 @@ load z_Singular_Vector_1.txt
 U'*solver.M*z_Singular_Vector_1
 norm(U-z_Singular_Vector_1,'fro')/norm(U,'fro')
 
-e_vec = zeros(size(V,2),1);
-for k = 1:size(V,2)
-   e_vec(k) = min(norm(Utest(:,k)-z_Singular_Vector_1(:,k)),norm(Utest(:,k)+z_Singular_Vector_1(:,k)))/norm(Utest(:,k)); 
-end
-e_vec'
+load theta_Singular_Vector_zk_1.txt
+load theta_Singular_Vector_z_1.txt
+load theta_Singular_Vector_uk_1.txt
+load theta_Singular_Vector_u_1.txt
+load theta_Singular_Vector_bk_1.txt
+load theta_Singular_Vector_a_1.txt
 
-load theta_Singular_Vector_u1_1.txt
-load theta_Singular_Vector_u2_1.txt
-load theta_Singular_Vector_z1_1.txt
-load theta_Singular_Vector_z2_1.txt
-
-theta_vecs = kron(theta_Singular_Vector_u1_1,theta_Singular_Vector_z1_1) + kron(theta_Singular_Vector_u2_1,theta_Singular_Vector_z2_1);
-e_vec = zeros(size(V,2),1);
+theta_Singular_Vector_1 = zeros(size(V));
 for k = 1:size(V,2)
-   e_vec(k) = min(norm(Vtest(:,k)-theta_vecs(:,k)),norm(Vtest(:,k)+theta_vecs(:,k)))/norm(Vtest(:,k)); 
+   theta_Singular_Vector_1(:,k) = [ theta_Singular_Vector_a_1*theta_Singular_Vector_uk_1(:,k) ; kron(theta_Singular_Vector_uk_1(:,k),theta_Singular_Vector_z_1) ] ...
+       + [ theta_Singular_Vector_bk_1(k)*theta_Singular_Vector_u_1 ; kron(theta_Singular_Vector_u_1,theta_Singular_Vector_zk_1(:,k)) ];
 end
-e_vec'
+
+V'*Mtheta*theta_Singular_Vector_1
+norm(V-theta_Singular_Vector_1,'fro')/norm(V,'fro')
+
+load theta_Singular_Vector_Mz_1.txt
+load theta_Singular_Vector_Mzk_1.txt
+
+norm(theta_Singular_Vector_Mz_1-M*theta_Singular_Vector_z_1)
+norm(theta_Singular_Vector_Mzk_1-M*theta_Singular_Vector_zk_1)
+
+% val_oper = struct();
+% val_oper.B = B;
+% val_oper.Mz = M;
+% val_oper.Mtheta = Mtheta;
+% val_oper.Hr = Hr;
+% val_oper.Sz = Sz;
+% val_oper.H = H;
+% save('val_oper.mat','val_oper')

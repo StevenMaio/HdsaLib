@@ -29,6 +29,7 @@
 #include "core/HDSA_Opt_Problem_Objects_Model_Error.hpp"
 #include "core/HDSA_Iterative_GEVP.hpp"
 #include "core/HDSA_Processor_Distribution.hpp"
+#include "core/HDSA_Model_Error_Kronecker_Matrix.hpp"
 #include "core/HDSA_Randomized_Hessian_EVP.hpp"
 #include "core/HDSA_Randomized_Likelihood_Informed_Subspace_EVP.hpp"
 #include "core/HDSA_Randomized_GSVD.hpp"

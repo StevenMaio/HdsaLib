@@ -404,7 +404,7 @@ namespace Linear_Algebra
   // Compute QR factorization A=Q*R with respect to weighted inner products defined by W with A*W precomputed
   template <class RealT>
   void CholQR_Pre_W(HDSA::Ptr<HDSA::Dense_Matrix<RealT> > & A, HDSA::Ptr<HDSA::Dense_Matrix<RealT> > & WA, HDSA::Ptr<HDSA::Dense_Matrix<RealT> > & Q,
-		    HDSA::Ptr<HDSA::Dense_Matrix<RealT> > & R, const HDSA::Ptr<HDSA::Dense_Matrix<RealT> > & WQ = HDSA::nullPtr, const HDSA::Ptr<const HDSA::Comm<int> > & comm_ = HDSA::nullPtr)
+		    HDSA::Ptr<HDSA::Dense_Matrix<RealT> > & R, const HDSA::Ptr<HDSA::Dense_Matrix<RealT> > & WQ = HDSA::nullPtr)
   {   
     int m = A->numRows();
     int n = A->numCols();
@@ -412,22 +412,6 @@ namespace Linear_Algebra
     // Compute C = A^T*W*A
     HDSA::Ptr<HDSA::Dense_Matrix<RealT> > C = HDSA::makePtr<HDSA::Dense_Matrix<RealT> >(n,n);
     A->Multiply(C,WA,true,false);
-
-    if(comm_ != HDSA::nullPtr)
-      {
-	if(comm_->getRank() == 0)
-	  {
-	    std::cout << "Printing the C matrix from the old approach" << std::endl;
-	    for(int i = 0; i < n; i++)
-	      {
-		for(int j = 0; j < n; j++)
-		  {
-		    std::cout << (*C)(i,j) << "  ";
-		  }
-		std::cout << " " << std::endl;
-	      }
-	  }
-      }
     
     // Compute R=chol(C)
     HDSA::Linear_Algebra::Cholesky_Factorization<RealT>(C,R);
