@@ -16,6 +16,7 @@ private:
   RealT epsilon_;
   int nx_,ny_;
   std::vector<RealT> con_weights_;
+  RealT z_cov_scale_;
   HDSA::Ptr<HDSA::Dense_Matrix<RealT> > Con_Mat_;
   HDSA::Ptr<HDSA::Dense_Matrix<RealT> > Con_Mat_Q_;
   HDSA::Ptr<HDSA::Dense_Matrix<RealT> > Con_Mat_R_;
@@ -32,6 +33,7 @@ public:
     ny_ = parlist->sublist("Geometry").get("NY", 10);
     RealT cw = parlist->sublist("Problem").get("Constraint Weight", 1.0);
     con_weights_ = std::vector<RealT>(nx_+1,cw);
+    z_cov_scale_ = parlist->sublist("Problem").get("Control Variance", 1.0);
   }
 
   virtual ~Model_Error_Objects_CDR()
@@ -76,7 +78,7 @@ public:
   std::vector<RealT> Set_z_cov(void) const
   {
     int dim = (nx_+1)*(ny_+1);
-    std::vector<RealT> z_cov = std::vector<RealT>(dim,1.0);
+    std::vector<RealT> z_cov = std::vector<RealT>(dim,z_cov_scale_);
     return z_cov;
   }
   

@@ -156,10 +156,13 @@ public:
     // HDSA::Ptr<LTI_Objective_TS<RealT> > dyn_obj = HDSA::makePtr<LTI_Objective_TS<RealT> >(*parlist,obj_k);
     HDSA::Ptr<Objective_SimOpt_TS<RealT> > misfit_obj = HDSA::makePtr<State_Cost_shallow_ice<RealT> >(timeStamp,data,data_weight,data_weight_id,u0);
     HDSA::Ptr<QoI<RealT> > qoiH1 = HDSA::makePtr<QoI_H1_shallow_ice<RealT> >(pde_shallow_ice->getFE(),pde_shallow_ice->getFieldHelper());
-    std::vector<HDSA::Ptr<ROL::Objective_SimOpt<RealT> > > reg_obj(1);   
-    reg_obj[0] = HDSA::makePtr<Elliptic_Prior_Regularization_Objective<RealT> >(comm, parlist, outStream);
+    std::vector<HDSA::Ptr<ROL::Objective_SimOpt<RealT> > > reg_obj(1);
+    bool construct_matrices = parlist->sublist("Problem").get("Construct Matrices",false);   
+    reg_obj[0] = HDSA::makePtr<Elliptic_Prior_Regularization_Objective<RealT> >(comm, parlist, outStream,construct_matrices);
     std::vector<RealT> weights = std::vector<RealT>(2,1.0);
     weights[0] = parlist->sublist("Problem").get("State Cost",1.0);
+    weights[0] = weights[0]*(static_cast<RealT>(nt)/T);
+    weights[1] = weights[1]*(static_cast<RealT>(nt)/T)*(1/static_cast<RealT>(nt-1));
     HDSA::Ptr<Objective_SimOpt_TS<RealT> > obj_k = HDSA::makePtr<Misfit_Regularization_Objective_SimOpt_TS<RealT> >(timeStamp, misfit_obj,reg_obj,weights);
     HDSA::Ptr<LTI_Objective_TS<RealT> > dyn_obj = HDSA::makePtr<LTI_Objective_TS<RealT> >(*parlist,obj_k);
 
@@ -195,7 +198,7 @@ public:
     HDSA::Ptr<ROL::Objective<RealT> > robj_misfit = HDSA::makePtr<ROL::ReducedDynamicObjective_Stationary_Control<RealT> >(dyn_obj_misfit, dyn_con, u0, z, ck, timeStamp, rpl);
     // Regularization
     std::vector<RealT> weights_reg = std::vector<RealT>(1);
-    RealT time_scaling = T*static_cast<RealT>(nt-1)/static_cast<RealT>(nt);
+    RealT time_scaling = 1.0; //T*static_cast<RealT>(nt-1)/static_cast<RealT>(nt);
     weights_reg[0] = weights[1]*time_scaling;
     HDSA::Ptr<ROL::Objective_SimOpt<RealT> > obj_reg = HDSA::makePtr<ROL::LinearCombinationObjective_SimOpt<RealT> >(weights_reg,reg_obj);
     HDSA::Ptr<ROL::Objective<RealT> > robj_reg = HDSA::makePtr<Reduced_Objective_Regularization<RealT> >(obj_reg, u0); 

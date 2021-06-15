@@ -1,11 +1,9 @@
-ADD_SUBDIRECTORY(Data_Generation)
-ADD_SUBDIRECTORY(PDE_Forward_Solve)
 
 INCLUDE_DIRECTORIES(${${PACKAGE_NAME}_SOURCE_DIR}/adapters/tpetra/src/vector)	
 
   TRIBITS_ADD_EXECUTABLE_AND_TEST(
-    example_inversion
-    SOURCES example_inversion.cpp
+    example_control
+    SOURCES example_control.cpp
     ARGS PrintItAll
     NUM_MPI_PROCS 4
     NUM_TOTAL_CORES_USED 4
@@ -24,9 +22,9 @@ INCLUDE_DIRECTORIES(${${PACKAGE_NAME}_SOURCE_DIR}/adapters/tpetra/src/vector)
   )
 
  TRIBITS_COPY_FILES_TO_BINARY_DIR(
-    Eliptic2DCDRHDSADataCopy
+    CDRControlHDSADataCopy
     SOURCE_FILES
-      input.xml Sensitivity_input.xml plotresults.m Compare_Solutions.m
+      input.xml plotresults.m Sensitivity_input.xml
     SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}"
     DEST_DIR "${CMAKE_CURRENT_BINARY_DIR}"
   )

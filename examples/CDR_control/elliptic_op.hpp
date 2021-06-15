@@ -225,4 +225,175 @@ public:
 
 }; // Elliptic_Op
 
+template <class Real>
+class PDE_Mass_Mat : public PDE<Real> {
+private:
+  // Finite element basis information
+  ROL::Ptr<Intrepid::Basis<Real, Intrepid::FieldContainer<Real> > > basisPtr_;
+  std::vector<ROL::Ptr<Intrepid::Basis<Real, Intrepid::FieldContainer<Real> > > > basisPtrs_;
+  // Cell cubature information
+  ROL::Ptr<Intrepid::Cubature<Real> > cellCub_;
+  // Cell node information
+  ROL::Ptr<Intrepid::FieldContainer<Real> > volCellNodes_;
+  std::vector<std::vector<ROL::Ptr<Intrepid::FieldContainer<Real> > > > bdryCellNodes_;
+  std::vector<std::vector<std::vector<int> > > bdryCellLocIds_;
+  // Finite element definition
+  ROL::Ptr<FE<Real> > fe_vol_;
+  // Local degrees of freedom on boundary, for each side of the reference cell (first index).
+  std::vector<std::vector<int> > fidx_;
+  // Coordinates of degrees freedom on boundary cells.
+  // Indexing:  [sideset number][local side id](cell number, value at dof)
+  std::vector<std::vector<ROL::Ptr<Intrepid::FieldContainer<Real> > > > bdryCellDofValues_;
+
+public:
+  PDE_Mass_Mat(Teuchos::ParameterList &parlist) {
+    // Finite element fields.
+    int cubDegree  = parlist.sublist("Problem").get("Cubature Degree",4);
+    basisPtr_ = ROL::makePtr<Intrepid::Basis_HGRAD_QUAD_C1_FEM<Real, Intrepid::FieldContainer<Real> >>();
+    basisPtrs_.clear(); basisPtrs_.push_back(basisPtr_);
+    // Quadrature rules.
+    shards::CellTopology cellType = basisPtr_->getBaseCellTopology();
+    Intrepid::DefaultCubatureFactory<Real> cubFactory;
+    cellCub_ = cubFactory.create(cellType, cubDegree);
+  }
+
+  void residual(ROL::Ptr<Intrepid::FieldContainer<Real> > & res,
+                const ROL::Ptr<const Intrepid::FieldContainer<Real> > & u_coeff,
+                const ROL::Ptr<const Intrepid::FieldContainer<Real> > & z_coeff = ROL::nullPtr,
+                const ROL::Ptr<const std::vector<Real> > & z_param = ROL::nullPtr) {
+    // GET DIMENSIONS
+    int c = u_coeff->dimension(0);
+    int p = cellCub_->getNumPoints();
+    int f = basisPtr_->getCardinality();
+    int d = cellCub_->getDimension();
+    // INITIALIZE RESIDUAL
+    res = ROL::makePtr<Intrepid::FieldContainer<Real>>(c, f);
+    // COMPUTE STIFFNESS TERM
+    ROL::Ptr<Intrepid::FieldContainer<Real> > U_eval
+      = ROL::makePtr<Intrepid::FieldContainer<Real>>(c, p);
+    fe_vol_->evaluateValue(U_eval, u_coeff);
+    
+    // Integrate U * N
+    Intrepid::FunctionSpaceTools::integrate<Real>(*res,
+                                                  *U_eval,
+                                                  *(fe_vol_->NdetJ()),
+                                                  Intrepid::COMP_CPP, false);
+  }
+
+  void Jacobian_1(ROL::Ptr<Intrepid::FieldContainer<Real> > & jac,
+                  const ROL::Ptr<const Intrepid::FieldContainer<Real> > & u_coeff,
+                  const ROL::Ptr<const Intrepid::FieldContainer<Real> > & z_coeff = ROL::nullPtr,
+                  const ROL::Ptr<const std::vector<Real> > & z_param = ROL::nullPtr) {
+    // GET DIMENSIONS
+    int c = u_coeff->dimension(0);
+    int p = cellCub_->getNumPoints();
+    int f = basisPtr_->getCardinality();
+    int d = cellCub_->getDimension();
+    // INITILAIZE JACOBIAN
+    jac = ROL::makePtr<Intrepid::FieldContainer<Real>>(c, f, f);
+    // Integrate N * N
+    Intrepid::FunctionSpaceTools::integrate<Real>(*jac,
+                                                  *(fe_vol_->N()),
+                                                  *(fe_vol_->NdetJ()),
+                                                  Intrepid::COMP_CPP, false);
+  }    
+
+  void Jacobian_2(ROL::Ptr<Intrepid::FieldContainer<Real> > & jac,
+                  const ROL::Ptr<const Intrepid::FieldContainer<Real> > & u_coeff,
+                  const ROL::Ptr<const Intrepid::FieldContainer<Real> > & z_coeff = ROL::nullPtr,
+                  const ROL::Ptr<const std::vector<Real> > & z_param = ROL::nullPtr) {
+    // GET DIMENSIONS
+    int c = u_coeff->dimension(0);
+    int p = cellCub_->getNumPoints();
+    int f = basisPtr_->getCardinality();
+    int d = cellCub_->getDimension();
+    // INITILAIZE JACOBIAN
+    jac = ROL::makePtr<Intrepid::FieldContainer<Real>>(c, f, f);
+  }
+
+  void Hessian_11(ROL::Ptr<Intrepid::FieldContainer<Real> > & hess,
+                  const ROL::Ptr<const Intrepid::FieldContainer<Real> > & l_coeff,
+                  const ROL::Ptr<const Intrepid::FieldContainer<Real> > & u_coeff,
+                  const ROL::Ptr<const Intrepid::FieldContainer<Real> > & z_coeff = ROL::nullPtr,
+                  const ROL::Ptr<const std::vector<Real> > & z_param = ROL::nullPtr) {
+    throw Exception::Zero(">>> (PDE_Reg_Op::Hessian_11): Hessian is zero.");
+  }
+
+  void Hessian_12(ROL::Ptr<Intrepid::FieldContainer<Real> > & hess,
+                  const ROL::Ptr<const Intrepid::FieldContainer<Real> > & l_coeff,
+                  const ROL::Ptr<const Intrepid::FieldContainer<Real> > & u_coeff,
+                  const ROL::Ptr<const Intrepid::FieldContainer<Real> > & z_coeff = ROL::nullPtr,
+                  const ROL::Ptr<const std::vector<Real> > & z_param = ROL::nullPtr) {
+    throw Exception::Zero(">>> (PDE_Reg_Op::Hessian_12): Hessian is zero.");
+  }
+
+  void Hessian_21(ROL::Ptr<Intrepid::FieldContainer<Real> > & hess,
+                  const ROL::Ptr<const Intrepid::FieldContainer<Real> > & l_coeff,
+                  const ROL::Ptr<const Intrepid::FieldContainer<Real> > & u_coeff,
+                  const ROL::Ptr<const Intrepid::FieldContainer<Real> > & z_coeff = ROL::nullPtr,
+                  const ROL::Ptr<const std::vector<Real> > & z_param = ROL::nullPtr) {
+    throw Exception::Zero(">>> (PDE_Reg_Op::Hessian_21): Hessian is zero.");
+  }
+
+  void Hessian_22(ROL::Ptr<Intrepid::FieldContainer<Real> > & hess,
+                  const ROL::Ptr<const Intrepid::FieldContainer<Real> > & l_coeff,
+                  const ROL::Ptr<const Intrepid::FieldContainer<Real> > & u_coeff,
+                  const ROL::Ptr<const Intrepid::FieldContainer<Real> > & z_coeff = ROL::nullPtr,
+                  const ROL::Ptr<const std::vector<Real> > & z_param = ROL::nullPtr) {
+    throw Exception::Zero(">>> (PDE_Reg_Op::Hessian_22): Hessian is zero.");
+  }
+
+  std::vector<ROL::Ptr<Intrepid::Basis<Real, Intrepid::FieldContainer<Real> > > > getFields() {
+    return basisPtrs_;
+  }
+
+  Real DirichletFunc(const std::vector<Real> & coords, int sideset, int locSideId) const {
+    return 0;
+  }
+
+  void setCellNodes(const ROL::Ptr<Intrepid::FieldContainer<Real> > &volCellNodes,
+                    const std::vector<std::vector<ROL::Ptr<Intrepid::FieldContainer<Real> > > > &bdryCellNodes,
+                    const std::vector<std::vector<std::vector<int> > > &bdryCellLocIds) {
+    volCellNodes_ = volCellNodes;
+    bdryCellNodes_ = bdryCellNodes;
+    bdryCellLocIds_ = bdryCellLocIds;
+    // Finite element definition.
+    fe_vol_ = ROL::makePtr<FE<Real>>(volCellNodes_,basisPtr_,cellCub_);
+    // Set local boundary DOFs.
+    fidx_ = fe_vol_->getBoundaryDofs();
+    // Compute Dirichlet values at DOFs.
+    int d = basisPtr_->getBaseCellTopology().getDimension();
+    int numSidesets = bdryCellLocIds_.size();
+    bdryCellDofValues_.resize(numSidesets);
+    for (int i=0; i<numSidesets; ++i) {
+      int numLocSides = bdryCellLocIds_[i].size();
+      bdryCellDofValues_[i].resize(numLocSides);
+      for (int j=0; j<numLocSides; ++j) {
+        int c = bdryCellLocIds_[i][j].size();
+        int f = basisPtr_->getCardinality();
+        bdryCellDofValues_[i][j] = ROL::makePtr<Intrepid::FieldContainer<Real>>(c, f);
+        ROL::Ptr<Intrepid::FieldContainer<Real> > coords =
+          ROL::makePtr<Intrepid::FieldContainer<Real>>(c, f, d);
+        if (c > 0) {
+          fe_vol_->computeDofCoords(coords, bdryCellNodes_[i][j]);
+        }
+        for (int k=0; k<c; ++k) {
+          for (int l=0; l<f; ++l) {
+            std::vector<Real> dofpoint(d);
+            for (int m=0; m<d; ++m) {
+              dofpoint[m] = (*coords)(k, l, m);
+            }
+            (*bdryCellDofValues_[i][j])(k, l) = DirichletFunc(dofpoint, i, j);
+          }
+        }
+      }
+    }
+  }
+
+  const ROL::Ptr<FE<Real> > getFE(void) const {
+    return fe_vol_;
+  }
+
+}; // PDE_Mass_Mat
+
 #endif

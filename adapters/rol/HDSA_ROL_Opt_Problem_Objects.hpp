@@ -37,7 +37,13 @@ public:
     
     if(use_Full_Space)
       {
-	const HDSA::Ptr<ROL::Objective_SimOpt<RealT> > rol_obj =  dynamic_cast<const ROL_FS_Objective<RealT>&>(*HDSA::Opt_Problem_Objects<RealT>::fs_obj).get_objective_function();
+	HDSA::Ptr<ROL::Objective_SimOpt<RealT> > rol_obj;
+	try {
+	  rol_obj =  dynamic_cast<ROL_FS_Objective<RealT>&>(*HDSA::Opt_Problem_Objects<RealT>::fs_obj).get_objective_function();
+	} catch(...) {
+	  rol_obj =  dynamic_cast<ROL_FS_Objective_Model_Error<RealT>&>(*HDSA::Opt_Problem_Objects<RealT>::fs_obj).get_objective_function();
+	}
+
 	const HDSA::Ptr<ROL::Constraint_SimOpt<RealT> > rol_con =  dynamic_cast<const ROL_Constraint<RealT>&>(*HDSA::Opt_Problem_Objects<RealT>::con).get_constraint();
 	HDSA::Ptr<ROL::Vector<RealT> > u_rol = dynamic_cast<const ROL_Vector<RealT>&>(*HDSA::Opt_Problem_Objects<RealT>::u).get_rol_vec();
 	HDSA::Ptr<ROL::Vector<RealT> > z_rol = dynamic_cast<const ROL_Vector<RealT>&>(*HDSA::Opt_Problem_Objects<RealT>::z).get_rol_vec();

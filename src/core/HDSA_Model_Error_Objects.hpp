@@ -49,6 +49,8 @@ public:
 
   virtual std::vector<RealT> Set_z_cov(void) const =0;
 
+  virtual void Apply_K_Mat(HDSA::Ptr<HDSA::Vector<RealT> > & u_out, const HDSA::Ptr<HDSA::Vector<RealT> > & u_in) const = 0;
+
   virtual void Apply_L_Mat(HDSA::Ptr<HDSA::Vector<RealT> > & u_out, const HDSA::Ptr<HDSA::Vector<RealT> > & u_in) const = 0;
 
   virtual void Apply_L_Mat_Inverse(HDSA::Ptr<HDSA::Vector<RealT> > & u_out, const HDSA::Ptr<HDSA::Vector<RealT> > & u_in) const = 0;
@@ -59,6 +61,16 @@ public:
     HDSA::Ptr<HDSA::Vector<RealT> > v_out = OP_Objects_->u->Clone();
     HDSA::Ptr<HDSA::Vector<RealT> > z_in = OP_Objects_->z->Clone();
     HDSA::Ptr<HDSA::Vector<RealT> > z_out = OP_Objects_->z->Clone();
+
+    // Test L^{-1}
+    v_in->randomize();
+    HDSA::Ptr<HDSA::Vector<RealT> > v = OP_Objects_->u->Clone();
+    Apply_L_Mat(v,v_in);
+    Apply_L_Mat_Inverse(v_out,v);
+    v_out->axpy(-1.0,*v_in);
+    std::cout << "Norm of L*L^{-1}*v - v = " << v_out->norm() << std::endl;
+
+
     std::string name;
     std::ofstream fout;
 
@@ -81,6 +93,19 @@ public:
 	  }
       }
 
+      // Write Solutions to text files
+      name = "L.txt";
+      fout.open(name);
+      for(int i = 0; i < m_; i++)
+	{
+	  for(int j = 0; j < m_; j++)
+	    {
+	      fout << std::setprecision(16) << L[i][j] << "  ";
+	    }
+	  fout << "  " << std::endl;
+	}
+      fout.close(); 
+
     // Solution operator jacobian
     std::vector<std::vector<RealT> > J;
     J.resize(m_);
@@ -100,6 +125,19 @@ public:
 	  }
       }
 
+      // Write Solutions to text files
+      name = "J.txt";
+      fout.open(name);
+      for(int i = 0; i < m_; i++)
+	{
+	  for(int j = 0; j < n_; j++)
+	    {
+	      fout << std::setprecision(16) << J[i][j] << "  ";
+	    }
+	  fout << "  " << std::endl;
+	}
+      fout.close(); 
+
     // Solution operator jacobian
     std::vector<std::vector<RealT> > Mz;
     Mz.resize(n_);
@@ -118,6 +156,19 @@ public:
 	    Mz[i][j] = (*z_out)(i);
 	  }
       }
+
+      // Write Solutions to text files
+      name = "Mz.txt";
+      fout.open(name);
+      for(int i = 0; i < n_; i++)
+	{
+	  for(int j = 0; j < n_; j++)
+	    {
+	      fout << std::setprecision(16) << Mz[i][j] << "  ";
+	    }
+	  fout << "  " << std::endl;
+	}
+      fout.close(); 
 
     // Full space hessian
     std::vector<std::vector<RealT> > H;
@@ -139,32 +190,6 @@ public:
       }
 
       // Write Solutions to text files
-      name = "L.txt";
-      fout.open(name);
-      for(int i = 0; i < m_; i++)
-	{
-	  for(int j = 0; j < m_; j++)
-	    {
-	      fout << std::setprecision(16) << L[i][j] << "  ";
-	    }
-	  fout << "  " << std::endl;
-	}
-      fout.close(); 
-
-      // Write Solutions to text files
-      name = "J.txt";
-      fout.open(name);
-      for(int i = 0; i < m_; i++)
-	{
-	  for(int j = 0; j < n_; j++)
-	    {
-	      fout << std::setprecision(16) << J[i][j] << "  ";
-	    }
-	  fout << "  " << std::endl;
-	}
-      fout.close(); 
-
-      // Write Solutions to text files
       name = "H.txt";
       fout.open(name);
       for(int i = 0; i < m_; i++)
@@ -172,19 +197,6 @@ public:
 	  for(int j = 0; j < m_; j++)
 	    {
 	      fout << std::setprecision(16) << H[i][j] << "  ";
-	    }
-	  fout << "  " << std::endl;
-	}
-      fout.close(); 
-
-      // Write Solutions to text files
-      name = "Mz.txt";
-      fout.open(name);
-      for(int i = 0; i < n_; i++)
-	{
-	  for(int j = 0; j < n_; j++)
-	    {
-	      fout << std::setprecision(16) << Mz[i][j] << "  ";
 	    }
 	  fout << "  " << std::endl;
 	}
@@ -242,10 +254,10 @@ public:
       }
     z_star_gamma_inv_z_star_ = gamma_inv_z_star_->dot(*OP_Objects_->z);
 
-    // Compute nominal state inner product (u^star,u^star)_s
-    HDSA::Ptr<HDSA::Vector<RealT> > Lu = OP_Objects_->u->Clone();
-    Apply_L_Mat(Lu,OP_Objects_->u);
-    nom_state_inner_prod_ = Lu->dot(*OP_Objects_->u);
+    // Compute nominal state inner product (u^star,u^star)_K
+    HDSA::Ptr<HDSA::Vector<RealT> > Ku = OP_Objects_->u->Clone();
+    Apply_K_Mat(Ku,OP_Objects_->u);
+    nom_state_inner_prod_ = Ku->dot(*OP_Objects_->u);
     coeff_ = nom_state_inner_prod_*alpha_*alpha_*(1.0+z_star_gamma_inv_z_star_);
 
     // Compute E^{-1}*M*z_star
