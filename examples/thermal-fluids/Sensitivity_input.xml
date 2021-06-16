@@ -28,8 +28,8 @@
   <ParameterList name="GSVD Solver">
     <Parameter name="GSVD Formulation"           type="string"  value="GSVD" /> <!-- Choose either "Gram" or "Jordan-Wielandt" or "GSVD" -->
     <Parameter name="GSVD Solver"           type="string"  value="Randomized" /> <!-- Choose either "Randomized" or "Anasazi", if GSVD Formuation == GSVD then GSVD Solver must be set to Randomized -->
-    <Parameter name="Number of Singular Values"  type="int"  value="2" />
-    <Parameter name="Oversampling Factor"  type="int"  value="6" />
+    <Parameter name="Number of Singular Values"  type="int"  value="48" />
+    <Parameter name="Oversampling Factor"  type="int"  value="8" />
     <Parameter name="Number of Subspace Iterations"  type="int"  value="1" />
   </ParameterList>
   <ParameterList name="Randomized Hessian EVP"> <!-- Only applicable when Compute Hessian Eigenvector Projection = True -->

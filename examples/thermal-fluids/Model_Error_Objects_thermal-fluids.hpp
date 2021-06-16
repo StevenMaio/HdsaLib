@@ -3,25 +3,38 @@
 
 // Instantiation of Model_Error_Objects
 
+#include "../../../PDE-OPT/TOOLS/linearpdeconstraint.hpp"
+#include "elliptic_operator.hpp"
+
 template <class RealT>
 class Model_Error_Objects_thermal_fluids : public HDSA::Model_Error_Objects<RealT> {
 
 private:
   HDSA::Ptr<HDSA::ParameterList> parlist_;
+  RealT epsilon_;
+  HDSA::Ptr<ROL::Constraint_SimOpt<RealT> > con_elliptic_;
+  HDSA::Ptr<ROL::Constraint_SimOpt<RealT> > con_mass_;
   
 public:
 
   Model_Error_Objects_thermal_fluids(const HDSA::Ptr<HDSA::ParameterList> & parlist_sensitivity, const HDSA::Ptr<HDSA::Opt_Problem_Objects<RealT> > & OP_Objects_Factory, 
 			      const HDSA::Ptr<HDSA::Weight_Matrices<RealT> > & weight_matrices, const HDSA::Ptr<HDSA::ParameterList> & parlist):
     HDSA::Model_Error_Objects<RealT>(parlist_sensitivity,OP_Objects_Factory,weight_matrices), parlist_(parlist)
-  { }
+  { 
+    epsilon_ = parlist_sensitivity->sublist("Model Error").get("Smoothing Factor", 1.e-6);
+  }
 
   virtual ~Model_Error_Objects_thermal_fluids()
   { }
 
   void Construct_Objects(const HDSA::Ptr<const HDSA::Comm<int> > & comm) 
   {
-    // Need to implement
+    /*** Initialize main data structure. ***/
+    HDSA::Ptr<MeshManager<RealT> > meshMgr = HDSA::makePtr<MeshManager_ThermalFluids<RealT> >(*parlist_);
+    HDSA::Ptr<PDE<RealT> > pde = HDSA::makePtr<Elliptic_Operator<RealT> >(*parlist_,epsilon_);
+    con_elliptic_ = HDSA::makePtr<Linear_PDE_Constraint<RealT> >(pde,meshMgr,comm->Get_Teuchos_Communicator(),*parlist_);
+    HDSA::Ptr<PDE<RealT> > pde_mass = HDSA::makePtr<Elliptic_Operator<RealT> >(*parlist_,0.0);
+    con_mass_ = HDSA::makePtr<Linear_PDE_Constraint<RealT> >(pde_mass,meshMgr,comm->Get_Teuchos_Communicator(),*parlist_);
   }
 
   std::vector<RealT> Set_z_cov(void) const
@@ -35,26 +48,34 @@ public:
   
   void Apply_K_Mat(HDSA::Ptr<HDSA::Vector<RealT> > & u_out, const HDSA::Ptr<HDSA::Vector<RealT> > & u_in) const 
   {
-    // Need to implement
-    u_out->set(*u_in);
+    HDSA::Ptr<ROL::Vector<RealT> > u_in_rol = HDSA::dynamicPtrCast<ROL_Vector<RealT> >(u_in)->get_rol_vec();
+    HDSA::Ptr<ROL::Vector<RealT> > u_out_rol = HDSA::dynamicPtrCast<ROL_Vector<RealT> >(u_out)->get_rol_vec();
+    HDSA::Ptr<ROL::Vector<RealT> > u_tmp = u_out_rol->clone();
+    RealT tol = 1.e-8;
+    con_elliptic_->applyJacobian_1(*u_out_rol,*u_in_rol,*u_in_rol,*u_in_rol,tol);
+    con_mass_->applyInverseJacobian_1(*u_tmp,*u_out_rol,*u_in_rol,*u_in_rol,tol);
+    con_elliptic_->applyJacobian_1(*u_out_rol,*u_tmp,*u_in_rol,*u_in_rol,tol);
   }
 
   void Apply_K_Mat_Inverse(HDSA::Ptr<HDSA::Vector<RealT> > & u_out, const HDSA::Ptr<HDSA::Vector<RealT> > & u_in) const 
   {
-    // Need to implement
-    u_out->set(*u_in);
+    HDSA::Ptr<ROL::Vector<RealT> > u_in_rol = HDSA::dynamicPtrCast<ROL_Vector<RealT> >(u_in)->get_rol_vec();
+    HDSA::Ptr<ROL::Vector<RealT> > u_out_rol = HDSA::dynamicPtrCast<ROL_Vector<RealT> >(u_out)->get_rol_vec();
+    HDSA::Ptr<ROL::Vector<RealT> > u_tmp = u_out_rol->clone();
+    RealT tol = 1.e-8;
+    con_elliptic_->applyInverseJacobian_1(*u_out_rol,*u_in_rol,*u_in_rol,*u_in_rol,tol);
+    con_mass_->applyJacobian_1(*u_tmp,*u_out_rol,*u_in_rol,*u_in_rol,tol);
+    con_elliptic_->applyInverseJacobian_1(*u_out_rol,*u_tmp,*u_in_rol,*u_in_rol,tol);
   }
 
   void Apply_L_Mat(HDSA::Ptr<HDSA::Vector<RealT> > & u_out, const HDSA::Ptr<HDSA::Vector<RealT> > & u_in) const 
   {
-    // Need to implement
-    u_out->set(*u_in);
+    Apply_K_Mat(u_out,u_in);
   }
 
   void Apply_L_Mat_Inverse(HDSA::Ptr<HDSA::Vector<RealT> > & u_out, const HDSA::Ptr<HDSA::Vector<RealT> > & u_in) const 
   {
-    // Need to implement
-    u_out->set(*u_in);
+    Apply_K_Mat_Inverse(u_out,u_in);
   }
 
 };

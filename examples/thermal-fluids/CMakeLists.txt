@@ -26,7 +26,7 @@ IF(${PROJECT_NAME}_ENABLE_Intrepid AND
   TRIBITS_COPY_FILES_TO_BINARY_DIR(
     ThermalFluidsHDSADataCopy
     SOURCE_FILES
-      input.xml plotresults.m Sensitivity_input.xml
+      input.xml plotresults.m Sensitivity_input.xml plotsensitivities.m Process_Perturbations.m
     SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}"
     DEST_DIR "${CMAKE_CURRENT_BINARY_DIR}"
   )
