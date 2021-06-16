@@ -37,6 +37,11 @@ public:
   void Load_Optimal_Solution() 
   {
     model_error_objects_->OP_Objects_->Load_Optimal_Solution();
+    bool enforce_z_zeros_ = model_error_objects_->parlist_sensitivity_->sublist("Formulation").get("Enforce z Zeros",false);
+    if(enforce_z_zeros_)
+      {
+	model_error_objects_->OP_Objects_->z->Enforce_Zeros();
+      }
     model_error_objects_->Precompute_Model_Error_Objects_Data();
   }
 

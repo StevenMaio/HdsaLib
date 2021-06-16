@@ -191,6 +191,7 @@ namespace HDSA
 	  hessian_op = HDSA::makePtr<Hessian_Operator_Preconstructed<RealT> >(preconstructed_K_);
 	}
       RealT tol = Nom_->Get_parlist_sensitivity()->sublist("KKT Solve").get("Tolerance",1.e-5);
+      std::string solver = Nom_->Get_parlist_sensitivity()->sublist("KKT Solve").get("Solver","CG");
       HDSA::Linear_Algebra::Iterative_Linear_Solve<RealT>(x_star,b,hessian_op,tol);
     }
     

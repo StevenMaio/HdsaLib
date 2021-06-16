@@ -26,10 +26,9 @@ public:
 
   std::vector<RealT> Set_z_cov(void) const
   {
-    // Need to update
     int nx = parlist_->sublist("Geometry").get("NX", 10);
     int ny = parlist_->sublist("Geometry").get("NY", 10);
-    int dim = 4*(nx+1)*(ny+1);
+    int dim = 3*(2*nx+1)*(2*ny+1) + (nx+1)*(ny+1);
     std::vector<RealT> z_cov = std::vector<RealT>(dim,1.0);
     return z_cov;
   }

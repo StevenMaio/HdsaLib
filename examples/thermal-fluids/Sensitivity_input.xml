@@ -10,7 +10,7 @@
     <Parameter name="Output Sensitivity Operator Columns"   type="bool" value="false" /> <!-- Output columns of the sensitivity operator when computing direct sensitivities -->
     <Parameter name="Randomized Hessian Eigenvector Projection"  type="bool"  value="false" /> <!-- This featured is only supported for reduced space formulations -->
     <Parameter name="Anasazi Hessian Eigen Decomposition"  type="bool"  value="false" /> <!-- This featured is only supported for reduced space formulations -->
-    <Parameter name="Enforce z Zeros"  type="bool"  value="false" />
+    <Parameter name="Enforce z Zeros"  type="bool"  value="true" />
     <Parameter name="Construct Weight Matrices"  type="bool"  value="false" /> 
     <Parameter name="Construct K"  type="bool"  value="false" /> 
     <Parameter name="Construct B"  type="bool"  value="false" /> 
@@ -60,6 +60,7 @@
     <Parameter name="Maximum Iterations"  type="int"  value="1000" /> 
     <Parameter name="Verbosity"  type="bool"  value="false" /> 
     <Parameter name="Tolerance"   type="double"  value="1.e-8" /> 
+    <Parameter name="Solver"   type="string"  value="CG" /> 
   </ParameterList>
   <ParameterList name="Parameter Weight Matrix Solve">
     <Parameter name="Maximum Iterations"  type="int"  value="1000" /> 
