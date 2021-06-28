@@ -2,6 +2,7 @@
 #define OPT_PROBLEM_OBJECTS_THERMAL_FLUIDS_HPP
 
 // ROL instantiation of Opt_Problem_Objects
+#include "../../adapters/rol/modified_rol_source_code/ROL_Reduced_Objective_SimOpt_modified.hpp"
 
 template <class RealT>
 class Opt_Problem_Objects_thermal_fluids : public Opt_Problem_Objects_ROL<RealT> {
@@ -16,6 +17,7 @@ private:
   HDSA::Ptr<Assembler<RealT> > assembler;
   HDSA::Ptr<Tpetra::MultiVector<> > u_ptr, z_ptr, p_ptr, r_ptr;
   HDSA::Ptr<ROL::Vector<RealT> > up, zp, pp, rp;
+  HDSA::Ptr<Reduced_Objective_SimOpt_modified<RealT> > robj;
 
 public:
 
@@ -75,7 +77,7 @@ public:
     HDSA::Ptr<StdObjective_ThermalFluids<RealT> > std_obj = HDSA::makePtr<StdObjective_ThermalFluids<RealT> >(*parlist);
     HDSA::Ptr<ROL::Objective_SimOpt<RealT> > obj = HDSA::makePtr<PDE_Objective<RealT> >(qoi_vec,std_obj,assembler);
     HDSA::Ptr<ROL::SimController<RealT> > stateStore = HDSA::makePtr<ROL::SimController<RealT> >();
-    HDSA::Ptr<ROL::Reduced_Objective_SimOpt<RealT> > robj = HDSA::makePtr<ROL::Reduced_Objective_SimOpt<RealT> >(obj, con, stateStore, up, zp, pp, true, false);
+    robj = HDSA::makePtr<Reduced_Objective_SimOpt_modified<RealT> >(obj, con, stateStore, up, zp, pp, true, false);
 
     RealT tol(1.e-8);
     bool initSolve = parlist->sublist("Problem").get("Solve state for full space",true);
@@ -107,9 +109,25 @@ public:
   void Load_Optimal_Solution() 
   { 
     // read in solution and write to Opt_Problem_Objects<RealT>::z
-    std::ifstream inputFile("control_read.txt");          
+    std::ifstream inputFile_state("state_read.txt");          
     RealT value;
     int count = 0;
+    // read the elements in the file into a vector  
+    // test file open   
+    if (inputFile_state) {   
+      while ( inputFile_state >> value ) {
+	HDSA::Opt_Problem_Objects<RealT>::u->Replace_Element(count,value);
+	count += 1;
+      }
+    }
+    else
+      {
+	std::cout << "Error loading the optimal state solution" << std::endl;
+      }   
+
+    // read in solution and write to Opt_Problem_Objects<RealT>::z
+    std::ifstream inputFile("control_read.txt");          
+    count = 0;
     // read the elements in the file into a vector  
     // test file open   
     if (inputFile) {   
@@ -122,25 +140,55 @@ public:
       {
 	std::cout << "Error loading the optimal source solution" << std::endl;
       }   
-    RealT tol = 1.e-8;
-    up->zero();
-    rp->zero();
+
+    up->set(*dynamic_cast<const ROL_Vector<RealT>&>(*HDSA::Opt_Problem_Objects<RealT>::u).get_rol_vec());
     zp->set(*dynamic_cast<const ROL_Vector<RealT>&>(*HDSA::Opt_Problem_Objects<RealT>::z).get_rol_vec());
-    con->solve(*rp,*dynamic_cast<const ROL_Vector<RealT>&>(*HDSA::Opt_Problem_Objects<RealT>::u).get_rol_vec(),*zp,tol); 
+    RealT tol = 1.e-8;
+    robj->set_state_solution(*up, *zp, tol);
+
+    // // read in solution and write to Opt_Problem_Objects<RealT>::z
+    // std::ifstream inputFile("control_read.txt");          
+    // RealT value;
+    // int count = 0;
+    // // read the elements in the file into a vector  
+    // // test file open   
+    // if (inputFile) {   
+    //   while ( inputFile >> value ) {
+    // 	HDSA::Opt_Problem_Objects<RealT>::z->Replace_Element(count,value);
+    // 	count += 1;
+    //   }
+    // }
+    // else
+    //   {
+    // 	std::cout << "Error loading the optimal source solution" << std::endl;
+    //   }   
+    // RealT tol = 1.e-8;
+    // up->zero();
+    // rp->zero();
+    // zp->set(*dynamic_cast<const ROL_Vector<RealT>&>(*HDSA::Opt_Problem_Objects<RealT>::z).get_rol_vec());
+    // con->solve(*rp,*dynamic_cast<const ROL_Vector<RealT>&>(*HDSA::Opt_Problem_Objects<RealT>::u).get_rol_vec(),*zp,tol); 
   }
   
   void Write_Optimal_Solution()
   {
-    RealT tol = 1.e-8;
-    up->zero();
-    rp->zero();
+    up->set(*dynamic_cast<const ROL_Vector<RealT>&>(*HDSA::Opt_Problem_Objects<RealT>::u).get_rol_vec());
     zp->set(*dynamic_cast<const ROL_Vector<RealT>&>(*HDSA::Opt_Problem_Objects<RealT>::z).get_rol_vec());
-    con->solve(*rp,*up,*zp,tol);
     // Output.
     pdecon->outputTpetraVector(u_ptr,"state.txt");
     pdecon->outputTpetraVector(z_ptr,"control.txt");
     pdecon->outputTpetraData();
     assembler->printMeshData(*outStream);
+
+    // RealT tol = 1.e-8;
+    // up->zero();
+    // rp->zero();
+    // zp->set(*dynamic_cast<const ROL_Vector<RealT>&>(*HDSA::Opt_Problem_Objects<RealT>::z).get_rol_vec());
+    // con->solve(*rp,*up,*zp,tol);
+    // // Output.
+    // pdecon->outputTpetraVector(u_ptr,"state.txt");
+    // pdecon->outputTpetraVector(z_ptr,"control.txt");
+    // pdecon->outputTpetraData();
+    // assembler->printMeshData(*outStream);
   }
 
   const HDSA::Ptr<const Teuchos::Comm<int> > Get_comm(void) const

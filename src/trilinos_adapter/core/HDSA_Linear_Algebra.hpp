@@ -21,6 +21,8 @@
 #include "Teuchos_SerialQRDenseSolver.hpp"
 #include "Teuchos_SerialSpdDenseSolver.hpp"
 
+#include "BelosMVOPTester.hpp"
+
 namespace HDSA
 {
 
@@ -127,6 +129,7 @@ namespace Linear_Algebra
     HDSA::Ptr<HDSA_Belos_Vector<RealT> > soln = HDSA::makePtr<HDSA_Belos_Vector<RealT> >(b,numrhs);
     HDSA::Ptr<HDSA_Belos_Vector<RealT> > rhs = HDSA::makePtr<HDSA_Belos_Vector<RealT> >(b,numrhs);
     rhs->vec[0]->set(b);
+
     RealT rhs_norm = b.norm();
     if(rhs_norm != 0.0)
       {

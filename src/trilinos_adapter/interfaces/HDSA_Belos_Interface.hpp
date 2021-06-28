@@ -26,11 +26,14 @@ public:
 	// Create vector and set to zero
 	vec[k] = vec_in->Clone();
       }
-    MvInit(0.0);
 
-    seed_ = 547;
+    vec[0]->randomize();
+    int t = std::ceil(10000.0*(*vec[0])(vec[0]->Get_map_reduced_to_full(0)));
+    seed_ = 547*time(NULL)*t;
     generator_.seed(seed_);
     distribution_ = std::uniform_real_distribution<>(0.0,1.0);
+
+    MvInit(0.0);
   }
 
   HDSA_Belos_Vector(const HDSA::Vector<RealT> & vec_in, const int & NumVecs): 
@@ -42,17 +45,21 @@ public:
 	// Create vector and set to zero
 	vec[k] = vec_in.Clone();
       }
-    MvInit(0.0);
-
-    seed_ = 547;
+    
+    vec[0]->randomize();
+    int t = std::ceil(10000.0*(*vec[0])(vec[0]->Get_map_reduced_to_full(0)));
+    seed_ = 547*time(NULL)*t;
     generator_.seed(seed_);
     distribution_ = std::uniform_real_distribution<>(0.0,1.0);
+
+    MvInit(0.0);
   }
   
   //! Destructor
   ~HDSA_Belos_Vector()
   {}
   
+
   //! Returns a clone of the current vector.
   HDSA_Belos_Vector* Clone(const int NumberVecs) const
   {
@@ -109,7 +116,7 @@ public:
   
   ptrdiff_t GetGlobalLength () const
   {
-    return vec[0]->dimension();
+    return vec[0]->Get_nonzero_dim();
   }
   
   int GetNumberVecs () const
@@ -205,9 +212,7 @@ public:
   void MvDot (const Belos::MultiVec<RealT>& A, std::vector<RealT> &b
              ) const
   {
-    assert (NumVecs_ == (int)b.size());
     assert (NumVecs_ == A.GetNumberVecs());
-    assert (GetGlobalLength() == A.GetGlobalLength());
 
     HDSA_Belos_Vector* MyA;
     MyA = dynamic_cast<HDSA_Belos_Vector*>(&const_cast<Belos::MultiVec<RealT> &>(A)); 

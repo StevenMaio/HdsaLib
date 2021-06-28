@@ -58,6 +58,11 @@ public:
 	*outStream_ << "Optimization time: "
 		    << static_cast<RealT>(std::clock()-timer)/static_cast<RealT>(CLOCKS_PER_SEC)
 		    << " seconds." << std::endl << std::endl;
+
+	HDSA::Ptr<ROL::Objective<RealT> > rol_robj = dynamic_cast<ROL_RS_Objective_Model_Error<RealT>&>(*HDSA::Opt_Problem_Objects<RealT>::rs_obj).get_objective_function();
+	RealT tol = 1.e-8;
+	rol_robj->value(*z_rol,tol);
+
       }
     else
       {

@@ -64,12 +64,18 @@ public:
 
     // Test L^{-1}
     v_in->randomize();
+    std::string name1 = "v_in.txt";
+    v_in->Write_to_File(name1);
     HDSA::Ptr<HDSA::Vector<RealT> > v = OP_Objects_->u->Clone();
-    Apply_L_Mat(v,v_in);
-    Apply_L_Mat_Inverse(v_out,v);
+    Apply_L_Mat_Inverse(v,v_in);
+    std::string name2 = "v.txt";
+    v->Write_to_File(name2);
+    Apply_L_Mat(v_out,v);
+    std::string name3 = "v_out.txt";
+    v_out->Write_to_File(name3);
+
     v_out->axpy(-1.0,*v_in);
     std::cout << "Norm of L*L^{-1}*v - v = " << v_out->norm() << std::endl;
-
 
     std::string name;
     std::ofstream fout;
