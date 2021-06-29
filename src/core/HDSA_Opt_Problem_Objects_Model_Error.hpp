@@ -24,8 +24,8 @@ public:
     OP_Objects_model_error->u = OP_Objects_model_error->model_error_objects_->OP_Objects_->u;
     OP_Objects_model_error->z = OP_Objects_model_error->model_error_objects_->OP_Objects_->z;
     OP_Objects_model_error->fs_obj = OP_Objects_model_error->model_error_objects_->OP_Objects_->fs_obj;
-    OP_Objects_model_error->theta = HDSA::makePtr<HDSA::Vector_Model_Error<RealT> >(OP_Objects_model_error->model_error_objects_->m_,OP_Objects_model_error->z);
-    OP_Objects_model_error->rs_obj = HDSA::makePtr<HDSA::RS_Objective_Model_Error<RealT> >(OP_Objects_model_error->model_error_objects_);
+    OP_Objects_model_error->rs_obj = OP_Objects_model_error->model_error_objects_->OP_Objects_->rs_obj;
+    OP_Objects_model_error->theta = HDSA::makePtr<Std_Vector<RealT> >(1);
     return OP_Objects_model_error;
   }
 

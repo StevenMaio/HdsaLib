@@ -94,7 +94,6 @@ public:
     return gamma;
   }
   
-
   void Apply_L_Mat(HDSA::Ptr<HDSA::Vector<RealT> > & u_out, const HDSA::Ptr<HDSA::Vector<RealT> > & u_in) const 
   {
     HDSA::Ptr<HDSA::Dense_Matrix<RealT> > matvec = L->Multiply(*u_in,false);

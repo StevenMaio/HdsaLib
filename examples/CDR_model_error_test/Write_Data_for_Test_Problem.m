@@ -6,14 +6,13 @@ rng(1234)
 n_mesh = 50;
 num_data = 20;
 source_nodes = 2:49;
-beta = 10^-7;
+beta_reg = 10^-7;
 noise = 0.05;
 Pe = 5;
 lambda = 2.e-1; 
-alpha = .001;
 smoothing_coeff = .02;
 
-hdsa = Model_Error_HDSA_React_Diff(num_data,n_mesh,beta,noise,Pe,lambda,source_nodes,smoothing_coeff);
+hdsa = Model_Error_HDSA_React_Diff(num_data,n_mesh,beta_reg,noise,Pe,lambda,source_nodes,smoothing_coeff);
 
 [u_star,z_star] = hdsa.Solve_Inv_Prob();
 [u_hifi,z_hifi] = hdsa.Solve_HiFi_Inv_Prob();
@@ -22,7 +21,7 @@ z_true = exp(-10*(t-.5).^2);
 z_true = z_true(source_nodes)';
 
 z_cov = 1*ones(length(source_nodes),1);
-hdsa.HDSA_Setup(u_star,z_star,alpha,z_cov);
+hdsa.HDSA_Setup(u_star,z_star,z_cov);
 
 w = ones(n_mesh,1); w(1) = .5; w(end) = .5; w = w/sum(w);
 Mu = diag(w);
@@ -39,8 +38,7 @@ L = hdsa.L;
 Linv = inv(L);
 R = hdsa.R_z;
 
-alpha = alpha;
-beta = beta;
+beta_reg = beta_reg;
 Gamma = z_cov;
 
 % We are solving the discrete problem
@@ -73,7 +71,6 @@ Linv = Linv';
 Linv = Linv(:);
 writematrix(Linv,'Linv.txt')
 writematrix(Gamma,'Gamma.txt')
-writematrix(beta,'beta.txt')
-writematrix(alpha,'alpha.txt')
+writematrix(beta_reg,'beta.txt')
 
  

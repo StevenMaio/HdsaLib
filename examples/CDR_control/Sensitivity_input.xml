@@ -21,10 +21,6 @@
     <Parameter name="Conserve Memory"  type="bool"  value="false" /> 
     <Parameter name="Reduced Space Sensitivities"  type="bool"  value="true" /> 
   </ParameterList>
-  <ParameterList name="Model Error">
-    <Parameter name="Relative Model Error"  type="double"  value="0.01" /> 
-    <Parameter name="Smoothing Factor"  type="double"  value="0.1" /> 
-  </ParameterList>
   <ParameterList name="GSVD Solver">
     <Parameter name="GSVD Formulation"           type="string"  value="GSVD" /> <!-- Choose either "Gram" or "Jordan-Wielandt" or "GSVD" -->
     <Parameter name="GSVD Solver"           type="string"  value="Randomized" /> <!-- Choose either "Randomized" or "Anasazi", if GSVD Formuation == GSVD then GSVD Solver must be set to Randomized -->

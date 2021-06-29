@@ -189,7 +189,7 @@ namespace HDSA
 
 		  // Compute WY_subspace_iter
 		  model_error_objects->Apply_L_Mat_Inverse(u_vec_subcomm_1,u_vec_subcomm_2);
-		  u_vec_subcomm_1->scale(model_error_objects->coeff_);
+		  u_vec_subcomm_1->scale(1.0+model_error_objects->z_star_gamma_inv_z_star_);
 		  model_error_objects->Apply_N(z_vec_subcomm_2,z_vec_subcomm_1);
 		  WY_subspace_iter_param->Set_uk(k,*u_vec_subcomm_1);
 		  WY_subspace_iter_param->Set_zk(k,*z_vec_subcomm_2);
@@ -399,7 +399,7 @@ namespace HDSA
 
 	      // Compute WQ_proj
 	      model_error_objects->Apply_L_Mat_Inverse(u_vec_subcomm_1,u_vec_subcomm_2);
-	      u_vec_subcomm_1->scale(model_error_objects->coeff_);
+	      u_vec_subcomm_1->scale(1.0+model_error_objects->z_star_gamma_inv_z_star_);
 	      model_error_objects->Apply_N(z_vec_subcomm_2,z_vec_subcomm_1);
 	      Q_proj->Set_uk(k,*u_vec_subcomm_1);
 	      Q_proj->Set_zk(k,*z_vec_subcomm_2);

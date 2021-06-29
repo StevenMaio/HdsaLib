@@ -3,7 +3,7 @@ classdef Model_Error_HDSA_React_Diff < Model_Error_HDSA_Kronecker
     properties
         num_data;
         n_mesh;
-        beta;
+        beta_reg;
         noise;
         Pe;
         lambda;
@@ -27,7 +27,7 @@ classdef Model_Error_HDSA_React_Diff < Model_Error_HDSA_Kronecker
         %% Pure virtual functions
         
         function [u,z] = Solve_Inv_Prob(this)
-            C = this.B_source_nodes'*this.A_hat_inv'*this.W_misfit*this.A_hat_inv*this.B_source_nodes + this.beta*(this.R_z'*this.R_z);
+            C = this.B_source_nodes'*this.A_hat_inv'*this.W_misfit*this.A_hat_inv*this.B_source_nodes + this.beta_reg*(this.R_z'*this.R_z);
             r = zeros(this.n_mesh,1); r(end) = 1;
             b = this.B_source_nodes'*( this.A_hat_inv'*this.W_misfit*this.d - this.A_hat_inv'*this.W_misfit*this.A_hat_inv*r );
             z = linsolve(C,b);
@@ -35,7 +35,7 @@ classdef Model_Error_HDSA_React_Diff < Model_Error_HDSA_Kronecker
         end
         
         function [Hinv_v] = Apply_Inv_Hessian_RS(this,v_z,u,z)
-            H = this.B_source_nodes'*this.A_hat_inv'*this.W_misfit*this.A_hat_inv*this.B_source_nodes + this.beta*(this.R_z'*this.R_z);
+            H = this.B_source_nodes'*this.A_hat_inv'*this.W_misfit*this.A_hat_inv*this.B_source_nodes + this.beta_reg*(this.R_z'*this.R_z);
             Hinv_v = linsolve(H,v_z);
         end
         
@@ -76,11 +76,11 @@ classdef Model_Error_HDSA_React_Diff < Model_Error_HDSA_Kronecker
     end
     
     methods
-        function obj = Model_Error_HDSA_React_Diff(num_data,n_mesh,beta,noise,Pe,lambda,source_nodes,smoothing_coeff)
+        function obj = Model_Error_HDSA_React_Diff(num_data,n_mesh,beta_reg,noise,Pe,lambda,source_nodes,smoothing_coeff)
             obj = obj@Model_Error_HDSA_Kronecker();
             obj.num_data = num_data;
             obj.n_mesh = n_mesh;
-            obj.beta = beta;
+            obj.beta_reg = beta_reg;
             obj.noise = noise;
             obj.Pe = Pe;
             obj.lambda = lambda;
@@ -97,14 +97,14 @@ classdef Model_Error_HDSA_React_Diff < Model_Error_HDSA_Kronecker
             % Model error function (linear function)
             delta = this.Construct_delta(theta);
             r = zeros(this.n_mesh,1); r(end) = 1;
-            C = (this.A_hat_inv*this.B_source_nodes+delta)'*this.W_misfit*(this.A_hat_inv*this.B_source_nodes+delta) + this.beta*(this.R_z'*this.R_z);
+            C = (this.A_hat_inv*this.B_source_nodes+delta)'*this.W_misfit*(this.A_hat_inv*this.B_source_nodes+delta) + this.beta_reg*(this.R_z'*this.R_z);
             b = (this.A_hat_inv*this.B_source_nodes+delta)'*this.W_misfit*(this.d-this.A_hat_inv*r);
             z_hat = linsolve(C,b);  
             u_hat = this.A_hat_inv*(this.B_source_nodes*z_hat+r) + delta*z_hat;
         end
         
         function [u,z] = Solve_HiFi_Inv_Prob(this)
-            C = this.B_source_nodes'*this.A_inv'*this.W_misfit*this.A_inv*this.B_source_nodes + this.beta*(this.R_z'*this.R_z);
+            C = this.B_source_nodes'*this.A_inv'*this.W_misfit*this.A_inv*this.B_source_nodes + this.beta_reg*(this.R_z'*this.R_z);
             r = zeros(this.n_mesh,1); r(end) = 1;
             b = this.B_source_nodes'*( this.A_inv'*this.W_misfit*this.d - this.A_inv'*this.W_misfit*this.A_inv*r );
             z = linsolve(C,b);

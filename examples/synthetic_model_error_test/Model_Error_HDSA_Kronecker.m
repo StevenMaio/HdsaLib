@@ -1,7 +1,6 @@
 classdef Model_Error_HDSA_Kronecker < handle
     
     properties
-        alpha;
         m;
         n;
         z_cov;
@@ -10,7 +9,6 @@ classdef Model_Error_HDSA_Kronecker < handle
         M_z;
         gamma_inv_z_star;
         Einv_M_z;
-        coeff;
         beta;
         g;
         Linv_g;
@@ -46,15 +44,12 @@ classdef Model_Error_HDSA_Kronecker < handle
 
         end
         
-        function [] = HDSA_Setup(this,u_star,z_star,alpha,z_cov)
+        function [] = HDSA_Setup(this,u_star,z_star,z_cov)
             disp('Starting HDSA setup')
-            this.alpha = alpha;
             this.m = length(u_star);
             this.n = length(z_star);
             this.u_star = u_star;
             this.z_star = z_star;
-            
-            this.coeff = (1/alpha^2)*(1/(u_star'*this.Apply_L_Operator(u_star)));
             
             this.M_z = this.Apply_z_Mass(z_star);
             this.g = this.Compute_u_Gradient_FS(u_star,z_star);
@@ -89,7 +84,7 @@ classdef Model_Error_HDSA_Kronecker < handle
            
            disp('Applying theta mass matrix inverse to projected vectors')
            TinvB = Model_Error_Kronecker_Vector(this.m,this.n,kpp);
-           c = (1+this.beta)/this.coeff;
+           c = 1+this.beta;
            u = c*this.Linv_g;
            z = this.Apply_N(this.M_z) - this.Einv_M_z;
            a = (1-(this.beta/(1+this.beta)));         
@@ -154,7 +149,7 @@ classdef Model_Error_HDSA_Kronecker < handle
                 Y = Model_Error_Kronecker_Vector(this.m,this.n,kpp);
                 WY = Model_Error_Kronecker_Vector(this.m,this.n,kpp);
                 
-                c = (1+this.beta)/this.coeff;
+                c = 1+this.beta;
                 Wu = c*this.Linv_g;
                 Wz = this.Apply_N(this.M_z) - this.Einv_M_z;
                 a = (1-(this.beta/(1+this.beta)));

@@ -9,6 +9,9 @@
     <Parameter name="Cubic Reaction Coefficient"  type="double"  value="1.0"   />
     <Parameter name="L2 penalty parameter"  type="double"  value="1.e-6"   />
     <Parameter name="H1 penalty parameter"  type="double"  value="1.e-6"   />
+    <Parameter name="Constraint Weight"  type="double"  value="50.0"   />
+    <Parameter name="Control Variance"  type="double"  value="50.0"   />
+    <Parameter name="Epsilon"  type="double"  value="10.0"   />
   </ParameterList>
 
   <!-- SOLVER INFORMATION -->
@@ -66,8 +69,8 @@
     <Parameter name="X0"                type="double"  value="0.0"  />
     <Parameter name="Y0"                type="double"  value="0.0"  />
     <Parameter name="Partition type"    type="int"     value="1"    />
-    <Parameter name="NX"                type="int"     value="80"   />
-    <Parameter name="NY"                type="int"     value="80"   />  
+    <Parameter name="NX"                type="int"     value="100"   />
+    <Parameter name="NY"                type="int"     value="100"   />  
   </ParameterList>
 
   <!-- ===========  BEGIN GENERAL INPUT PARAMETER SUBLIST  =========== -->

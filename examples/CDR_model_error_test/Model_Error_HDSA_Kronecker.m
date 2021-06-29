@@ -1,7 +1,6 @@
 classdef Model_Error_HDSA_Kronecker < handle
     
     properties
-        alpha;
         m;
         n;
         z_cov;
@@ -9,8 +8,10 @@ classdef Model_Error_HDSA_Kronecker < handle
         z_star;
         M_z;
         gamma_inv_z_star;
-        coeff;
+        Einv_M_z;
+        beta;
         g;
+        Linv_g;
         Mtheta;
     end
     
@@ -43,20 +44,20 @@ classdef Model_Error_HDSA_Kronecker < handle
 
         end
         
-        function [] = HDSA_Setup(this,u_star,z_star,alpha,z_cov)
+        function [] = HDSA_Setup(this,u_star,z_star,z_cov)
             disp('Starting HDSA setup')
-            this.alpha = alpha;
             this.m = length(u_star);
             this.n = length(z_star);
             this.u_star = u_star;
             this.z_star = z_star;
             
-            this.coeff = (1/alpha^2)*(1/(u_star'*this.Apply_L_Operator(u_star)));
-            
             this.M_z = this.Apply_z_Mass(z_star);
             this.g = this.Compute_u_Gradient_FS(u_star,z_star);
+            this.Linv_g = this.Apply_L_Operator_Inv(this.g);
             this.z_cov = z_cov;    
             this.gamma_inv_z_star = this.z_star./this.z_cov;
+            this.beta = this.z_star'*this.gamma_inv_z_star;
+            this.Einv_M_z = this.Apply_E_Inv(this.M_z);
             
             disp('Finished HDSA setup')
         end
@@ -67,67 +68,72 @@ classdef Model_Error_HDSA_Kronecker < handle
           
         %% GSVD Functions
         
-        function [U,Sigma,Vu,Vz,z1,u2] = Compute_HDSA_GSVD(this,k,p,q)
+        function [U,Sigma,V] = Compute_HDSA_GSVD(this,k,p,q)
            kpp = k + p;
            [Q_RS,WQ_RS] = this.RandSubspace(kpp,q);
            
            disp('Projecting onto sampled subspace')
-           Bu = zeros(this.m,kpp);
-           Bz = zeros(this.n,kpp);
-           for j = 1:kpp
-               vec = this.Apply_Inv_Hessian_RS(WQ_RS(:,j),this.u_star,this.z_star);
-               Bu(:,j) = -this.Apply_u_u_Hessian_FS(this.Apply_Solution_Operator_Jacobian(vec,this.u_star,this.z_star),this.u_star,this.z_star);
-               Bz(:,j) = -this.Apply_z_Mass(vec);
+           B = Model_Error_Kronecker_Vector(this.m,this.n,kpp);
+           for k = 1:kpp
+               vec = this.Apply_Inv_Hessian_RS(WQ_RS(:,k),this.u_star,this.z_star);
+               u_k = -this.Apply_u_u_Hessian_FS(this.Apply_Solution_Operator_Jacobian(vec,this.u_star,this.z_star),this.u_star,this.z_star);
+               z_k = -this.Apply_z_Mass(vec);
+               B.Set_Vector(k,1,0,u_k,z_k,this.g,this.M_z);
            end
            % B(:,k) = kron(Bu(:,k),this.M_z) + kron(this.g,Bz(:,k));
            
            disp('Applying theta mass matrix inverse to projected vectors')
-           TinvBu = zeros(this.m,kpp);
-           TinvBz = zeros(this.n,kpp);
-           for j = 1:kpp
-              TinvBu(:,j) = (1/this.coeff)*this.Apply_L_Operator_Inv(Bu(:,j));
-              TinvBz(:,j) = this.Apply_E_Inv(Bz(:,j));
+           TinvB = Model_Error_Kronecker_Vector(this.m,this.n,kpp);
+           c = 1+this.beta;
+           u = c*this.Linv_g;
+           z = this.Apply_N(this.M_z) - this.Einv_M_z;
+           a = (1-(this.beta/(1+this.beta)));         
+           for k = 1:kpp               
+               uk = c*this.Apply_L_Operator_Inv(B.u_k(:,k));
+               zk = this.Apply_N(B.z_k(:,k));
+               bk = -(this.Einv_M_z'*B.z_k(:,k));
+               TinvB.Set_Vector(k,a,bk,uk,zk,u,z);
            end
-           % TinvB(:,k) = kron(TinvBu(:,k),this.Apply_E_Inv(this.M_z)) + kron((1/this.coeff)*this.Apply_L_Operator_Inv(this.g),TinvBz(:,k))
 
-           disp('Orthogonalizing projected vectors')      
-           C1 = TinvBu'*Bu*(this.M_z'*this.Apply_E_Inv(this.M_z));
-           C2 = (TinvBu'*this.g)*(this.Apply_E_Inv(this.M_z)'*Bz);
-           C3 = (1/this.coeff)*(TinvBz'*this.M_z)*(this.Apply_L_Operator_Inv(this.g)'*Bu);
-           C4 = ((1/this.coeff)*this.g'*this.Apply_L_Operator_Inv(this.g))*TinvBz'*Bz;
+           disp('Orthogonalizing projected vectors')    
+           U = (TinvB.u_k'*B.u_k);
+           C1 = (TinvB.a*B.a).*U + U.*(TinvB.z'*B.z);
+           U = TinvB.u_k'*B.u*ones(1,kpp);
+           C2 = (TinvB.a*ones(kpp,1)*B.b_k').*U + U.*(ones(kpp,1)*TinvB.z'*B.z_k);
+           U = ones(kpp,1)*TinvB.u'*B.u_k;
+           C3 = (TinvB.b_k*B.a*ones(1,kpp)).*U + U.*(TinvB.z_k'*B.z*ones(1,kpp));
+           U = (TinvB.u'*B.u);
+           C4 = (TinvB.b_k*B.b_k')*U + U.*(TinvB.z_k'*B.z_k);
+           
            C = C1 + C2 + C3 + C4;
-           RB_test = chol(C);
-           QBu = zeros(this.m,kpp);
-           QBz = zeros(this.n,kpp);
-           for j = 1:size(RB_test,2)
-               e = zeros(size(RB_test,2),1);
-               e(j) = 1;
-               x = linsolve(RB_test,e);
-               QBu(:,j) = TinvBu*x;
-               QBz(:,j) = TinvBz*x;
+           R_B = chol(C);
+           
+           QB = Model_Error_Kronecker_Vector(this.m,this.n,kpp);
+           for k = 1:size(R_B,2)
+               e = zeros(size(R_B,2),1);
+               e(k) = 1;
+               x = linsolve(R_B,e);
+               QB.Set_Vector(k,TinvB.a,TinvB.b_k'*x,TinvB.u_k*x,TinvB.z_k*x,TinvB.u,TinvB.z);
            end
-           % RB = RB_test and QB(:,k) = kron(QBu(:,k),this.Apply_E_Inv(this.M_z)) + kron((1/this.coeff)*this.Apply_L_Operator_Inv(this.g),QBz(:,k))
-           
-           [U,Sigma,Vt] = svd(RB_test','econ');
+
+           [U,Sigma,Vt] = svd(R_B','econ');
            U = Q_RS*U;
-           Vu = QBu*Vt;
-           Vz = QBz*Vt;
            
-           U = U(:,1:k);
-           Vu = Vu(:,1:k);
-           Vz = Vz(:,1:k);
-           Sigma = Sigma(1:k,1:k);
-           z1 = this.Apply_E_Inv(this.M_z);
-           u2 = (1/this.coeff)*this.Apply_L_Operator_Inv(this.g);
-           % V = kron(Vu,z1) + kron(u2,Vz);
+           V = Model_Error_Kronecker_Vector(this.m,this.n,kpp);
+           for k = 1:kpp
+              bk = QB.b_k'*Vt(:,k);
+              uk = QB.u_k*Vt(:,k);
+              zk = QB.z_k*Vt(:,k);
+              V.Set_Vector(k,QB.a,bk,uk,zk,QB.u,QB.z);
+           end
+           
         end
         
         function [Q,WQ] = RandSubspace(this,kpp,q)
             Y = zeros(this.n,kpp);
             disp('Starting first round of subspace iteration matvecs')
-            Omega_u = sqrt(this.M_z'*this.M_z)*randn(this.m,kpp);
+            Omega_u = sqrt(1+this.M_z'*this.M_z)*randn(this.m,kpp);
             Omega_z = sqrt(this.g'*this.g)*randn(this.n,kpp);
-            
             for k = 1:kpp
                 Bk1 = this.Apply_Solution_Operator_Jacobian_Transpose(this.Apply_u_u_Hessian_FS(Omega_u(:,k),this.u_star,this.z_star),this.u_star,this.z_star);
                 Bk2 = this.Apply_z_Mass(Omega_z(:,k));
@@ -139,47 +145,57 @@ classdef Model_Error_HDSA_Kronecker < handle
             
             for j = 1:q
             
-                disp('Starting first subspace iteration round of matvecs')                
-                Yu = zeros(this.m,kpp);
-                Yz = zeros(this.n,kpp);
-                WYu = zeros(this.m,kpp);
-                WYz = zeros(this.n,kpp);
+                disp('Starting first subspace iteration round of matvecs')   
+                Y = Model_Error_Kronecker_Vector(this.m,this.n,kpp);
+                WY = Model_Error_Kronecker_Vector(this.m,this.n,kpp);
+                
+                c = 1+this.beta;
+                Wu = c*this.Linv_g;
+                Wz = this.Apply_N(this.M_z) - this.Einv_M_z;
+                a = (1-(this.beta/(1+this.beta)));
+                    
                 for k = 1:kpp
                     v = this.Apply_Inv_Hessian_RS(WQ(:,k),this.u_star,this.z_star);
-                    Yu(:,k) = -this.Apply_u_u_Hessian_FS(this.Apply_Solution_Operator_Jacobian(v,this.u_star,this.z_star),this.u_star,this.z_star);
-                    Yz(:,k) = -this.Apply_z_Mass(v);
-                    WYu(:,k) = (1/this.coeff)*this.Apply_L_Operator_Inv(Yu(:,k));
-                    WYz(:,k) = this.Apply_E_Inv(Yz(:,k));
+                    uk = -this.Apply_u_u_Hessian_FS(this.Apply_Solution_Operator_Jacobian(v,this.u_star,this.z_star),this.u_star,this.z_star);
+                    zk = -this.Apply_z_Mass(v);
+                    Y.Set_Vector(k,1,0,uk,zk,this.g,this.M_z);
+                    
+                    Wuk = c*this.Apply_L_Operator_Inv(uk);
+                    Wzk = this.Apply_N(zk);
+                    bk = -(this.Einv_M_z'*zk);
+                    WY.Set_Vector(k,a,bk,Wuk,Wzk,Wu,Wz);
                 end
                 
                 disp('Orthogonalizing row space samples')
-                C1 = Yu'*WYu*(this.M_z'*this.Apply_E_Inv(this.M_z));
-                C2 = (Yu'*(1/this.coeff)*this.Apply_L_Operator_Inv(this.g))*(this.M_z'*WYz);
-                C3 = (Yz'*this.Apply_E_Inv(this.M_z))*(this.g'*WYu);
-                C4 = ((1/this.coeff)*this.g'*this.Apply_L_Operator_Inv(this.g))*Yz'*WYz;
-                C = C1 + C2 + C3 + C4;
+                U = (Y.u_k'*WY.u_k);
+                C1 = (Y.a*WY.a).*U + U.*(Y.z'*WY.z);
+                U = Y.u_k'*WY.u*ones(1,kpp);
+                C2 = (Y.a*ones(kpp,1)*WY.b_k').*U + U.*(ones(kpp,1)*Y.z'*WY.z_k);
+                U = ones(kpp,1)*Y.u'*WY.u_k;
+                C3 = (Y.b_k*WY.a*ones(1,kpp)).*U + U.*(Y.z_k'*WY.z*ones(1,kpp));
+                U = (Y.u'*WY.u);
+                C4 = (Y.b_k*WY.b_k')*U + U.*(Y.z_k'*WY.z_k);
+                
+                C = C1 + C2 + C3 + C4;        
                 R = chol(C);
-                WQu = zeros(this.m,kpp);
-                WQz = zeros(this.n,kpp);
-                Qu = zeros(this.m,kpp);
-                Qz = zeros(this.n,kpp);
+                
+                Q = Model_Error_Kronecker_Vector(this.m,this.n,kpp);
+                WQ = Model_Error_Kronecker_Vector(this.m,this.n,kpp);
                 for k = 1:size(R,2)
                     e = zeros(size(R,2),1);
                     e(k) = 1;
                     x = linsolve(R,e);
-                    Qu(:,k) = Yu*x;
-                    Qz(:,k) = Yz*x;
-                    WQu(:,k) = WYu*x;
-                    WQz(:,k) = WYz*x;
+                    Q.Set_Vector(k,Y.a,Y.b_k'*x,Y.u_k*x,Y.z_k*x,Y.u,Y.z);
+                    WQ.Set_Vector(k,WY.a,WY.b_k'*x,WY.u_k*x,WY.z_k*x,WY.u,WY.z);
                 end
                 
                 disp('Starting second subspace iteration round of matvecs')
                 Y = zeros(this.n,kpp);
                 for k = 1:kpp
-                    vec1 = (this.M_z'*this.Apply_E_Inv(this.M_z))*this.Apply_Solution_Operator_Jacobian_Transpose(this.Apply_u_u_Hessian_FS(WQu(:,k),this.u_star,this.z_star),this.u_star,this.z_star);
-                    vec2 = (this.g'*WQu(:,k))*this.Apply_z_Mass(this.Apply_E_Inv(this.M_z));
-                    vec3 = (1/this.coeff)*(WQz(:,k)'*this.M_z)*this.Apply_Solution_Operator_Jacobian_Transpose(this.Apply_u_u_Hessian_FS(this.Apply_L_Operator_Inv(this.g),this.u_star,this.z_star),this.u_star,this.z_star);
-                    vec4 = (1/this.coeff)*(this.g'*this.Apply_L_Operator_Inv(this.g))*this.Apply_z_Mass(WQz(:,k));
+                    vec1 = (WQ.a+this.M_z'*WQ.z)*this.Apply_Solution_Operator_Jacobian_Transpose(this.Apply_u_u_Hessian_FS(WQ.u_k(:,k),this.u_star,this.z_star),this.u_star,this.z_star);
+                    vec2 = (this.g'*WQ.u_k(:,k))*this.Apply_z_Mass(WQ.z);
+                    vec3 = (WQ.b_k(k)+this.M_z'*WQ.z_k(:,k))*this.Apply_Solution_Operator_Jacobian_Transpose(this.Apply_u_u_Hessian_FS(WQ.u,this.u_star,this.z_star),this.u_star,this.z_star);
+                    vec4 = (this.g'*WQ.u)*this.Apply_z_Mass(WQ.z_k(:,k));
                     vec = vec1 + vec2 + vec3 + vec4;
                     Y(:,k) = this.Apply_Inv_Hessian_RS(vec,this.u_star,this.z_star);
                 end
@@ -221,6 +237,17 @@ classdef Model_Error_HDSA_Kronecker < handle
             tmp = this.Apply_z_Mass_Inv(b);
             tmp = tmp./this.z_cov - this.gamma_inv_z_star*(this.gamma_inv_z_star'*tmp)/(1+this.gamma_inv_z_star'*this.z_star);
             Einv_v = this.Apply_z_Mass_Inv(tmp);
+        end
+        
+        function N_v = Apply_N(this,v)
+            tmp1 = this.Apply_z_Mass_Inv(v);
+            
+            tmp1 = tmp1 + (tmp1'*this.gamma_inv_z_star)*this.z_star;
+            G_tmp1 = (1/(1+this.beta))*(tmp1'*this.gamma_inv_z_star)*this.gamma_inv_z_star;
+            tmp2 = tmp1./this.z_cov - G_tmp1;
+            tmp2 = (1/(1+this.beta))*tmp2;
+            
+            N_v = this.Apply_z_Mass_Inv(tmp2);
         end
         
         function Mzinv_v = Apply_z_Mass_Inv(this,b)

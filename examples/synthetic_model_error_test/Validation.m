@@ -14,7 +14,6 @@ L = solver.L;
 D = solver.D;
 reg_beta = solver.reg_beta;
 z_cov = solver.z_cov;
-alpha = solver.alpha;
 
 Sz = diag(3*zstar.^2); % Problem Specific
 g = zeros(n,1);
@@ -41,8 +40,7 @@ for i = 1:n
 end
 
 E = M*(zstar*zstar'+diag(z_cov))*M;
-coeff = alpha^2*ustar'*L*ustar;
-Mtheta = (1/coeff)*[L,kron(L,zstar'*M);kron(L,M*zstar),kron(L,E)]; 
+Mtheta = [L,kron(L,zstar'*M);kron(L,M*zstar),kron(L,E)]; 
 
 U = load('HDSA_Results.mat','U').U;
 V = load('HDSA_Results.mat','V').V;
@@ -84,7 +82,10 @@ norm(diag(Sigmatest(1:2,1:2))'-Singular_Values_1)
 
 load z_Singular_Vector_1.txt
 U'*solver.M*z_Singular_Vector_1
-norm(U-z_Singular_Vector_1,'fro')/norm(U,'fro')
+S = size(U,2);
+for k = 1:S
+    min(norm(U(:,k)-z_Singular_Vector_1(:,k))/norm(U(:,k)),norm(U(:,k)+z_Singular_Vector_1(:,k))/norm(U(:,k)))
+end
 
 load theta_Singular_Vector_zk_1.txt
 load theta_Singular_Vector_z_1.txt
@@ -100,7 +101,9 @@ for k = 1:size(V,2)
 end
 
 V'*Mtheta*theta_Singular_Vector_1
-norm(V-theta_Singular_Vector_1,'fro')/norm(V,'fro')
+for k = 1:S
+    min(norm(V(:,k)-theta_Singular_Vector_1(:,k))/norm(V(:,k)),norm(V(:,k)+theta_Singular_Vector_1(:,k))/norm(V(:,k)))
+end
 
 load theta_Singular_Vector_Mz_1.txt
 load theta_Singular_Vector_Mzk_1.txt

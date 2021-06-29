@@ -29,9 +29,8 @@ int main(int argc, char *argv[]) {
 
   HDSA::Ptr<HDSA::Model_Error_Objects<RealT> > model_error_obj = HDSA::makePtr<Model_Error_Objects_CDR_model_error_test<RealT> >(parlist_sensitivity,OP_Objects_Factory,weight_matrices_factory);
   HDSA::Ptr<HDSA::Opt_Problem_Objects<RealT> > OP_Objects_Factory_model_error = HDSA::makePtr<HDSA::Opt_Problem_Objects_Model_Error<RealT> >(model_error_obj);
-  HDSA::Ptr<HDSA::Weight_Matrices<RealT> > weight_matrices_factory_model_error = HDSA::makePtr<HDSA::Weight_Matrices_Model_Error<RealT> >(model_error_obj);
 
-  HDSA::Sample_Local_Sensitivities<RealT>(comm,parlist_sensitivity,OP_Objects_Factory_model_error,weight_matrices_factory_model_error,sampler);  
+  HDSA::Sample_Local_Sensitivities<RealT>(comm,parlist_sensitivity,OP_Objects_Factory_model_error,weight_matrices_factory,sampler);  
 
   return 0;
 }

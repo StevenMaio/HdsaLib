@@ -6,9 +6,8 @@ solver = Model_Error_HDSA_Syn_Test();
 [ustar,zstar] = solver.Solve_Inv_Prob();
 x = solver.x;
 
-alpha = .05;
 z_cov = 1*ones(length(x),1);
-solver.HDSA_Setup(ustar,zstar,alpha,z_cov);
+solver.HDSA_Setup(ustar,zstar,z_cov);
 
 k = 2;
 p = 14;

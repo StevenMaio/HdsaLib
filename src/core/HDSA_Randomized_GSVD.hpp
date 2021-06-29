@@ -268,14 +268,7 @@ namespace HDSA
 	  std::cout << " " << std::endl;
 	}
 
-      if( OP_Objects_subcomm->theta->dimension() == theta_->dimension() )
-	{
-	  Write_Solution(OP_Objects_subcomm->z,weight_matrices_subcomm);
-	}
-      else
-	{
-	  Write_Solution_Model_Error(OP_Objects_subcomm->z);
-	}
+      Write_Solution(OP_Objects_subcomm->z,weight_matrices_subcomm);
     }
 
     void Write_Solution(HDSA::Ptr<HDSA::Vector<RealT> > & z, HDSA::Ptr<HDSA::Weight_Matrices<RealT> > & weight_matrices)
@@ -384,71 +377,6 @@ namespace HDSA
 	}
 
     }
-
-    void Write_Solution_Model_Error(HDSA::Ptr<HDSA::Vector<RealT> > & z)
-    {
-      std::clock_t timer_write = std::clock();
-      if(comm_->getRank() == 0)
-	{
-	  // Write to text files
-	  std::string name;
-	  std::ofstream fout;
-
-	  name = "z_Singular_Vector_" + std::to_string(sample_index_) + ".txt";
-	  fout.open(name);
-	  for(int i  = 0; i < z->dimension(); i++)
-	    {
-	      if(z->Is_entry_zero(i))
-		{
-		  for(int k = 0; k < num_sing_vals_; k++)
-		    {   
-		      fout << 0.0 << std::setw(20);
-		    }
-		}
-	      else
-		{
-		  for(int k = 0; k < num_sing_vals_; k++)
-		    {   
-		      fout << (*U_)(z->Get_map_full_to_reduced(i),k) << std::setw(20);
-		    }
-		}
-	      fout << " " << std::endl;
-	    }
-	  fout.close();
-	  
-	  name = "theta_Singular_Vector_" + std::to_string(sample_index_) + ".txt";
-	  fout.open(name);
-	  for(int i  = 0; i < theta_dim_; i++)
-	    {
-	      for(int k = 0; k < num_sing_vals_; k++)
-		{    
-		  fout << (*V_)(i,k) << std::setw(20);
-		}
-	      fout << " " << std::endl;
-	    }
-	  fout.close();
-	  
-	  name = "Singular_Values_" + std::to_string(sample_index_) + ".txt";
-	  fout.open(name);
-	  for(int k = 0; k < num_sing_vals_; k++)
-	    {
-	      fout << (*S_)(k) << std::setw(20);
-	    }
-	  fout.close();
-	     
-	}
-      comm_->barrier();
-      RealT Time_write = static_cast<RealT>(std::clock()-timer_write)/static_cast<RealT>(CLOCKS_PER_SEC);        
-
-      if(comm_->getRank() == 0)
-	{
-	  std::cout << " " << std::endl;
-	  std::cout << "Time writing to file: " << Time_write << " seconds for local sensitivity number " << sample_index_ << std::endl;
-	  std::cout << " " << std::endl;
-	}
-
-    }
-
     
   };
   
