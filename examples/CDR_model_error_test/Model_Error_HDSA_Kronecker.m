@@ -3,7 +3,6 @@ classdef Model_Error_HDSA_Kronecker < handle
     properties
         m;
         n;
-        z_cov;
         u_star;
         z_star;
         M_z;
@@ -33,6 +32,10 @@ classdef Model_Error_HDSA_Kronecker < handle
         
         [J_v] = Apply_Solution_Operator_Jacobian_Transpose(this,v_u,u,z);
         
+        [Gamma_v] = Apply_Gamma_Operator(this,v_z);
+        
+        [Gammainv_v] = Apply_Gamma_Operator_Inv(this,v_z);
+        
         [L_v] = Apply_L_Operator(this,v_u);
         
         [Linv_v] = Apply_L_Operator_Inv(this,v_u);
@@ -44,7 +47,7 @@ classdef Model_Error_HDSA_Kronecker < handle
 
         end
         
-        function [] = HDSA_Setup(this,u_star,z_star,z_cov)
+        function [] = HDSA_Setup(this,u_star,z_star)
             disp('Starting HDSA setup')
             this.m = length(u_star);
             this.n = length(z_star);
@@ -53,9 +56,8 @@ classdef Model_Error_HDSA_Kronecker < handle
             
             this.M_z = this.Apply_z_Mass(z_star);
             this.g = this.Compute_u_Gradient_FS(u_star,z_star);
-            this.Linv_g = this.Apply_L_Operator_Inv(this.g);
-            this.z_cov = z_cov;    
-            this.gamma_inv_z_star = this.z_star./this.z_cov;
+            this.Linv_g = this.Apply_L_Operator_Inv(this.g); 
+            this.gamma_inv_z_star = this.Apply_Gamma_Operator_Inv(this.z_star);
             this.beta = this.z_star'*this.gamma_inv_z_star;
             this.Einv_M_z = this.Apply_E_Inv(this.M_z);
             
@@ -229,13 +231,13 @@ classdef Model_Error_HDSA_Kronecker < handle
         %% HDSA Operators  
         function E_v = Apply_E(this,v)
             vi = this.Apply_z_Mass(v);
-            vi = (this.z_star'*vi)*this.z_star + vi.*this.z_cov;
+            vi = (this.z_star'*vi)*this.z_star + this.Apply_Gamma_Operator(vi);
             E_v =  this.Apply_z_Mass(vi);
         end
         
         function Einv_v = Apply_E_Inv(this,b)
             tmp = this.Apply_z_Mass_Inv(b);
-            tmp = tmp./this.z_cov - this.gamma_inv_z_star*(this.gamma_inv_z_star'*tmp)/(1+this.gamma_inv_z_star'*this.z_star);
+            tmp = this.Apply_Gamma_Operator_Inv(tmp) - this.gamma_inv_z_star*(this.gamma_inv_z_star'*tmp)/(1+this.gamma_inv_z_star'*this.z_star);
             Einv_v = this.Apply_z_Mass_Inv(tmp);
         end
         
@@ -244,7 +246,7 @@ classdef Model_Error_HDSA_Kronecker < handle
             
             tmp1 = tmp1 + (tmp1'*this.gamma_inv_z_star)*this.z_star;
             G_tmp1 = (1/(1+this.beta))*(tmp1'*this.gamma_inv_z_star)*this.gamma_inv_z_star;
-            tmp2 = tmp1./this.z_cov - G_tmp1;
+            tmp2 = this.Apply_Gamma_Operator_Inv(tmp1) - G_tmp1;
             tmp2 = (1/(1+this.beta))*tmp2;
             
             N_v = this.Apply_z_Mass_Inv(tmp2);

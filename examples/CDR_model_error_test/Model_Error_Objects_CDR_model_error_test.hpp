@@ -11,6 +11,8 @@ private:
   int z_dim;
   HDSA::Ptr<HDSA::Dense_Matrix<RealT> > L;
   HDSA::Ptr<HDSA::Dense_Matrix<RealT> > Linv;
+  HDSA::Ptr<HDSA::Dense_Matrix<RealT> > Gamma;
+  HDSA::Ptr<HDSA::Dense_Matrix<RealT> > Gammainv;
 
 public:
 
@@ -71,31 +73,62 @@ public:
       {
 	std::cout << "Error loading the data from Linv.txt" << std::endl;
       } 
-  }
 
-  std::vector<RealT> Set_z_cov(void) const
-  {
     // Gamma
-    std::vector<RealT> gamma = std::vector<RealT>(48,0.0);
+    Gamma = HDSA::makePtr<HDSA::Dense_Matrix<RealT> >(z_dim,z_dim);
     // read in data
     std::ifstream in_Gamma("Gamma.txt");           
     // read the elements in the file into a vector  
     // test file open
-    RealT val;
     if (in_Gamma) {   
-      for(int j = 0; j < 48; j++)
+      for(int i = 0; i < z_dim; i++)
 	{
-	  in_Gamma >> val;
-	  gamma[j] = val;
-	}
+	  for(int j = 0; j < z_dim; j++)
+	    {
+	      in_Gamma >> val;
+	      Gamma->Replace_Element(i,j,val);
+	    }
+	}   
     }
     else
       {
 	std::cout << "Error loading the data from Gamma.txt" << std::endl;
       }  
-    return gamma;
+
+    // Gammainv
+    Gammainv = HDSA::makePtr<HDSA::Dense_Matrix<RealT> >(z_dim,z_dim);
+    // read in data
+    std::ifstream in_Gammainv("Gamma_inv.txt");           
+    // read the elements in the file into a vector  
+    // test file open
+    if (in_Gammainv) {   
+      for(int i = 0; i < z_dim; i++)
+	{
+	  for(int j = 0; j < z_dim; j++)
+	    {
+	      in_Gammainv >> val;
+	      Gammainv->Replace_Element(i,j,val);
+	    }
+	}   
+    }
+    else
+      {
+	std::cout << "Error loading the data from Gamma_inv.txt" << std::endl;
+      } 
+
   }
-  
+
+  void Apply_Gamma_Mat(HDSA::Ptr<HDSA::Vector<RealT> > & z_out, const HDSA::Ptr<HDSA::Vector<RealT> > & z_in) const 
+  {
+    HDSA::Ptr<HDSA::Dense_Matrix<RealT> > matvec = Gamma->Multiply(*z_in,false);
+    matvec->Write_Column_to_Vector(0,*z_out);
+  }
+
+  void Apply_Gamma_Mat_Inverse(HDSA::Ptr<HDSA::Vector<RealT> > & z_out, const HDSA::Ptr<HDSA::Vector<RealT> > & z_in) const 
+  {
+    HDSA::Ptr<HDSA::Dense_Matrix<RealT> > matvec = Gammainv->Multiply(*z_in,false);
+    matvec->Write_Column_to_Vector(0,*z_out);
+  }
 
   void Apply_L_Mat(HDSA::Ptr<HDSA::Vector<RealT> > & u_out, const HDSA::Ptr<HDSA::Vector<RealT> > & u_in) const 
   {

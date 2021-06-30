@@ -10,6 +10,7 @@ classdef Model_Error_HDSA_React_Diff < Model_Error_HDSA_Kronecker
         source_nodes;
         B_source_nodes;
         smoothing_coeff;
+        Gamma;
         
         A_inv;
         A_hat;
@@ -71,6 +72,14 @@ classdef Model_Error_HDSA_React_Diff < Model_Error_HDSA_Kronecker
         
         function [Linv_v] = Apply_L_Operator_Inv(this,v_u)
             Linv_v = linsolve(this.L,v_u);
+        end
+        
+        function [Gamma_v] = Apply_Gamma_Operator(this,v_z)
+            Gamma_v = this.Gamma*v_z;
+        end
+        
+        function [Gammainv_v] = Apply_Gamma_Operator_Inv(this,v_z)
+            Gammainv_v = linsolve(this.Gamma,v_z);
         end
         
     end
@@ -190,6 +199,9 @@ classdef Model_Error_HDSA_React_Diff < Model_Error_HDSA_Kronecker
             this.L(end,end) = 1/2;
             this.L = this.L/sum(diag(this.L));
             this.L = this.L + this.smoothing_coeff*this.R'*this.L*this.R;
+            
+            x = linspace(0,1,this.n_mesh)';
+            this.Gamma = exp(-1000*(x(2:end-1)-x(2:end-1)').^2);
         end
 
     end

@@ -40,13 +40,16 @@ public:
     con_elliptic_ = HDSA::makePtr<Linear_PDE_Constraint<RealT> >(pde,meshMgr,comm->Get_Teuchos_Communicator(),*parlist_);
   }
 
-  std::vector<RealT> Set_z_cov(void) const
+  void Apply_Gamma_Mat(HDSA::Ptr<HDSA::Vector<RealT> > & z_out, const HDSA::Ptr<HDSA::Vector<RealT> > & z_in) const 
   {
-    int nx = parlist_->sublist("Geometry").get("NX", 10);
-    int ny = parlist_->sublist("Geometry").get("NY", 10);
-    int dim = 3*(2*nx+1)*(2*ny+1) + (nx+1)*(ny+1);
-    std::vector<RealT> z_cov = std::vector<RealT>(dim,z_cov_scale_);
-    return z_cov;
+    z_out->set(*z_in);
+    z_out->scale(z_cov_scale_);
+  }
+
+  void Apply_Gamma_Mat_Inverse(HDSA::Ptr<HDSA::Vector<RealT> > & z_out, const HDSA::Ptr<HDSA::Vector<RealT> > & z_in) const 
+  {
+    z_out->set(*z_in);
+    z_out->scale(1.0/z_cov_scale_);
   }
   
   void Apply_L_Mat(HDSA::Ptr<HDSA::Vector<RealT> > & u_out, const HDSA::Ptr<HDSA::Vector<RealT> > & u_in) const 

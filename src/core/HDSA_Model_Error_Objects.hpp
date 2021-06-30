@@ -11,7 +11,6 @@ public:
 
   HDSA::Ptr<HDSA::ParameterList> parlist_sensitivity_;
   HDSA::Ptr<HDSA::Opt_Problem_Objects<RealT> > OP_Objects_Factory_;
-  std::vector<RealT> z_cov_;
   HDSA::Ptr<HDSA::Opt_Problem_Objects<RealT> > OP_Objects_;
   int m_;
   int n_;
@@ -40,7 +39,9 @@ public:
   virtual void Construct_Objects(const HDSA::Ptr<const HDSA::Comm<int> > & comm)
   { }
 
-  virtual std::vector<RealT> Set_z_cov(void) const =0;
+  virtual void Apply_Gamma_Mat(HDSA::Ptr<HDSA::Vector<RealT> > & z_out, const HDSA::Ptr<HDSA::Vector<RealT> > & z_in) const = 0;
+
+  virtual void Apply_Gamma_Mat_Inverse(HDSA::Ptr<HDSA::Vector<RealT> > & z_out, const HDSA::Ptr<HDSA::Vector<RealT> > & z_in) const = 0;
 
   virtual void Apply_L_Mat(HDSA::Ptr<HDSA::Vector<RealT> > & u_out, const HDSA::Ptr<HDSA::Vector<RealT> > & u_in) const = 0;
 
@@ -199,16 +200,6 @@ public:
 	}
       fout.close(); 
 
-      // z_cov
-      // Write Solutions to text files
-      name = "z_cov.txt";
-      fout.open(name);
-      for(int k = 0; k < n_; k++)
-	{
-	  fout << std::setprecision(16) << z_cov_[k] << "  ";
-	}
-      fout.close();
-
       // Write Solutions to text files
       name = "g.txt";
       fout.open(name);
@@ -223,9 +214,8 @@ public:
   {
     theta_pde_ = theta;
     OP_Objects_ = OP_Objects_Factory_->Construct_Opt_Problem_Objects(theta,comm);
-    z_cov_ = Set_z_cov();
     m_ = OP_Objects_->u->dimension();
-    n_ = z_cov_.size();
+    n_ = OP_Objects_->z->dimension();
     weight_matrices_ = weight_matrices_factory_->Construct_Weight_Matrices(theta,comm);
     Construct_Objects(comm);
   }
@@ -245,25 +235,12 @@ public:
 
     // Compute Gamma^{-1} z^star and z^star^T*Gamma^{-1}*z^star
     gamma_inv_z_star_ = OP_Objects_->z->Clone();
-    for(int k = 0; k < n_; k++)
-      {
-        gamma_inv_z_star_->Replace_Element(k,(*OP_Objects_->z)(k)/z_cov_[k]);
-      }
+    Apply_Gamma_Mat_Inverse(gamma_inv_z_star_,OP_Objects_->z);
     z_star_gamma_inv_z_star_ = gamma_inv_z_star_->dot(*OP_Objects_->z);
 
     // Compute E^{-1}*M*z_star
     Einv_Mz_star_ = OP_Objects_->z->Clone();
-    HDSA::Ptr<HDSA::Vector<RealT> > z_tmp1 = OP_Objects_->z->Clone();
-    HDSA::Ptr<HDSA::Vector<RealT> > z_tmp2 = OP_Objects_->z->Clone();
-    weight_matrices_->Apply_z_Weight_Mat_Inverse(z_tmp1,Mz_star_);
-    for(int k = 0; k < n_; k++)
-      {
-	RealT val = z_tmp1->Get_Element(k)/z_cov_[k];
-	z_tmp2->Replace_Element(k,val);
-      }
-    RealT val_coeff = -z_tmp2->dot(*OP_Objects_->z)/(1.0+z_star_gamma_inv_z_star_);
-    z_tmp2->axpy(val_coeff,*gamma_inv_z_star_);
-    weight_matrices_->Apply_z_Weight_Mat_Inverse(Einv_Mz_star_,z_tmp2);
+    Apply_E_Inverse(Einv_Mz_star_,Mz_star_);
     
     // Compute (1+beta)*g^T*L^{-1}*g
     coeff_Linv_g_ = OP_Objects_->u->Clone();
@@ -274,7 +251,6 @@ public:
     N_min_Einv_Mz_star_ = OP_Objects_->z->Clone();
     Apply_N(N_min_Einv_Mz_star_,Mz_star_);
     N_min_Einv_Mz_star_->axpy(-1.0,*Einv_Mz_star_);
-
   }
 
   void Apply_Solution_Operator_z_Jacobian(HDSA::Vector<RealT> & S_z, const HDSA::Vector<RealT> & z)
@@ -295,22 +271,46 @@ public:
 
   void Apply_N(HDSA::Ptr<HDSA::Vector<RealT> > & z_out, const HDSA::Ptr<HDSA::Vector<RealT> > & z_in) const
   {
-    HDSA::Ptr<HDSA::Vector<RealT> > z_tmp = z_in->Clone();
-    weight_matrices_->Apply_z_Weight_Mat_Inverse(z_tmp,z_in);
+    HDSA::Ptr<HDSA::Vector<RealT> > z_tmp1 = z_in->Clone();
+    HDSA::Ptr<HDSA::Vector<RealT> > z_tmp2 = z_in->Clone();
+
+    weight_matrices_->Apply_z_Weight_Mat_Inverse(z_tmp1,z_in);
     
-    RealT val_coeff = z_tmp->dot(*gamma_inv_z_star_);
-    z_tmp->axpy(val_coeff,*OP_Objects_->z);
+    RealT val_coeff = z_tmp1->dot(*gamma_inv_z_star_);
+    z_tmp1->axpy(val_coeff,*OP_Objects_->z);
 
-    val_coeff = z_tmp->dot(*gamma_inv_z_star_)/(1.0+z_star_gamma_inv_z_star_);
-    for(int k = 0; k < n_; k++)
-      {
-	RealT val = (*z_tmp)(k)/(z_cov_[k]) - val_coeff*(*gamma_inv_z_star_)(k);
-    	z_tmp->Replace_Element(k,val);
-      }
+    Apply_Gamma_Mat_Inverse(z_tmp2,z_tmp1);
+    z_tmp2->axpy(-(gamma_inv_z_star_->dot(*z_tmp1))/(1.0+z_star_gamma_inv_z_star_),*gamma_inv_z_star_);
 
-    z_tmp->scale(1.0/(1.0+z_star_gamma_inv_z_star_));
+    z_tmp2->scale(1.0/(1.0+z_star_gamma_inv_z_star_));
 
-    weight_matrices_->Apply_z_Weight_Mat_Inverse(z_out,z_tmp);
+    weight_matrices_->Apply_z_Weight_Mat_Inverse(z_out,z_tmp2);
+  }
+
+  void Apply_E(HDSA::Ptr<HDSA::Vector<RealT> > & z_out, const HDSA::Ptr<HDSA::Vector<RealT> > & z_in) const
+  {
+    HDSA::Ptr<HDSA::Vector<RealT> > z_tmp1 = z_in->Clone();
+    HDSA::Ptr<HDSA::Vector<RealT> > z_tmp2 = z_in->Clone();
+
+    weight_matrices_->Apply_z_Weight_Mat(z_tmp1,z_in);
+    
+    Apply_Gamma_Mat(z_tmp2,z_tmp1);
+    z_tmp2->axpy(z_tmp1->dot(OP_Objects_->z),OP_Objects_->z);
+
+    weight_matrices_->Apply_z_Weight_Mat(z_out,z_tmp2);
+  }
+
+  void Apply_E_Inverse(HDSA::Ptr<HDSA::Vector<RealT> > & z_out, const HDSA::Ptr<HDSA::Vector<RealT> > & z_in) const
+  {
+    HDSA::Ptr<HDSA::Vector<RealT> > z_tmp1 = z_in->Clone();
+    HDSA::Ptr<HDSA::Vector<RealT> > z_tmp2 = z_in->Clone();
+
+    weight_matrices_->Apply_z_Weight_Mat_Inverse(z_tmp1,z_in);
+    
+    Apply_Gamma_Mat_Inverse(z_tmp2,z_tmp1);
+    z_tmp2->axpy(-(gamma_inv_z_star_->dot(*z_tmp1))/(1.0+z_star_gamma_inv_z_star_),*gamma_inv_z_star_);
+
+    weight_matrices_->Apply_z_Weight_Mat_Inverse(z_out,z_tmp2);
   }
 
 };

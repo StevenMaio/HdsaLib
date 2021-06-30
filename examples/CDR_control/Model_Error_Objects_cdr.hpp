@@ -64,8 +64,6 @@ public:
       {
 	u1p->set(*u2p->basis(j));
 	con_->applyInverseJacobian_1(*u2p,*u1p,*u1p,*u1p,tol);
-	mass_con_->applyJacobian_1(*u1p,*u2p,*u1p,*u1p,tol);
-	con_->applyInverseJacobian_1(*u2p,*u1p,*u1p,*u1p,tol);
 	for(int i = 0; i < nx_+1; i++)
 	  {
 	    Con_Mat_->Replace_Element(i,j,u2p->dot(*u1p->basis(i)));
@@ -75,19 +73,21 @@ public:
     HDSA::Linear_Algebra::QR_Factorization<RealT>(Con_Mat_, Con_Mat_Q_, Con_Mat_R_);
   }
 
-  std::vector<RealT> Set_z_cov(void) const
+  void Apply_Gamma_Mat(HDSA::Ptr<HDSA::Vector<RealT> > & z_out, const HDSA::Ptr<HDSA::Vector<RealT> > & z_in) const 
   {
-    int dim = (nx_+1)*(ny_+1);
-    std::vector<RealT> z_cov = std::vector<RealT>(dim,z_cov_scale_);
-    return z_cov;
+    z_out->set(*z_in);
+    z_out->scale(z_cov_scale_);
+  }
+
+  void Apply_Gamma_Mat_Inverse(HDSA::Ptr<HDSA::Vector<RealT> > & z_out, const HDSA::Ptr<HDSA::Vector<RealT> > & z_in) const 
+  {
+    z_out->set(*z_in);
+    z_out->scale(1.0/z_cov_scale_);
   }
   
   void Apply_L_Mat(HDSA::Ptr<HDSA::Vector<RealT> > & u_out, const HDSA::Ptr<HDSA::Vector<RealT> > & u_in) const 
   {
-    HDSA::Ptr<ROL::Vector<RealT> > u_in_rol = HDSA::dynamicPtrCast<ROL_Vector<RealT> >(u_in)->get_rol_vec();
-    HDSA::Ptr<ROL::Vector<RealT> > u_out_rol = HDSA::dynamicPtrCast<ROL_Vector<RealT> >(u_out)->get_rol_vec();
-    RealT tol = 1.e-8;
-    con_->applyJacobian_1(*u_out_rol,*u_in_rol,*u_in_rol,*u_in_rol,tol);
+    Apply_Elliptic_Mat(u_out,u_in);
     for(int k = 0; k < nx_+1; k++)
       {
     	u_out->Replace_Element(k,(*u_out)(k)+con_weights_[k]*(*u_in)(k));
@@ -111,20 +111,30 @@ public:
     HDSA::Ptr<HDSA::Vector<RealT> > x = HDSA::makePtr<Std_Vector<RealT> >(nx_+1);
     HDSA::Linear_Algebra::Upper_Tri_Solve<RealT>( x, qv, Con_Mat_R_);
     
-    u_tmp->set(*u_in);
+    HDSA::Ptr<HDSA::Vector<RealT> > u_tmp2 = u_out->Clone();
     for(int k = 0; k < nx_+1; k++)
       {
-    	u_tmp->Replace_Element(k,(*u_in)(k)-(*x)(k));
+    	u_tmp2->Replace_Element(k,(*x)(k));
       }
 
-    Apply_Elliptic_Mat_Inverse(u_out,u_tmp);
+    Apply_Elliptic_Mat_Inverse(u_out,u_tmp2);
+
+    u_out->scale(-1.0);
+    u_out->plus(*u_tmp);
+  }
+
+  void Apply_Elliptic_Mat(HDSA::Ptr<HDSA::Vector<RealT> > & u_out, const HDSA::Ptr<HDSA::Vector<RealT> > & u_in) const 
+  {
+    HDSA::Ptr<ROL::Vector<RealT> > u_in_rol = HDSA::dynamicPtrCast<ROL_Vector<RealT> >(u_in)->get_rol_vec();
+    HDSA::Ptr<ROL::Vector<RealT> > u_out_rol = HDSA::dynamicPtrCast<ROL_Vector<RealT> >(u_out)->get_rol_vec();
+    RealT tol = 1.e-8;
+    con_->applyJacobian_1(*u_out_rol,*u_in_rol,*u_in_rol,*u_in_rol,tol);
   }
 
   void Apply_Elliptic_Mat_Inverse(HDSA::Ptr<HDSA::Vector<RealT> > & u_out, const HDSA::Ptr<HDSA::Vector<RealT> > & u_in) const 
   {
     HDSA::Ptr<ROL::Vector<RealT> > u_in_rol = HDSA::dynamicPtrCast<ROL_Vector<RealT> >(u_in)->get_rol_vec();
     HDSA::Ptr<ROL::Vector<RealT> > u_out_rol = HDSA::dynamicPtrCast<ROL_Vector<RealT> >(u_out)->get_rol_vec();
-    HDSA::Ptr<ROL::Vector<RealT> > u_tmp = u_out_rol->clone();
     RealT tol = 1.e-8;
     con_->applyInverseJacobian_1(*u_out_rol,*u_in_rol,*u_in_rol,*u_in_rol,tol);
   }

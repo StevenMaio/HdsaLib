@@ -35,8 +35,15 @@ A = solver.M;
 A = A(:);
 writematrix(A,'Mz.txt')
 
+A = solver.Gamma;
+A = A(:);
+writematrix(A,'Gamma.txt')
+
+A = inv(solver.Gamma);
+A = A(:);
+writematrix(A,'Gamma_inv.txt')
+
 writematrix(solver.u_star,'opt_state.txt')
 writematrix(solver.z_star,'opt_solution.txt')
 writematrix(data,'data.txt')
 writematrix(solver.reg_beta,'beta.txt')
-writematrix(solver.z_cov,'Gamma.txt')

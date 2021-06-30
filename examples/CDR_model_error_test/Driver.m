@@ -20,8 +20,7 @@ t = linspace(0,1,n_mesh);
 z_true = exp(-10*(t-.5).^2);
 z_true = z_true(source_nodes)';
 
-z_cov = 1*ones(length(source_nodes),1);
-hdsa.HDSA_Setup(u_star,z_star,z_cov);
+hdsa.HDSA_Setup(u_star,z_star);
 
 S = 6;
 p = 10;

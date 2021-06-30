@@ -1,3 +1,4 @@
+%%
 clear
 close all
 clc
@@ -13,7 +14,7 @@ M = solver.M;
 L = solver.L;
 D = solver.D;
 reg_beta = solver.reg_beta;
-z_cov = solver.z_cov;
+Gamma = solver.Gamma;
 
 Sz = diag(3*zstar.^2); % Problem Specific
 g = zeros(n,1);
@@ -39,7 +40,7 @@ for i = 1:n
    D(i,:) = B'*linsolve(Hr,ei); 
 end
 
-E = M*(zstar*zstar'+diag(z_cov))*M;
+E = M*(zstar*zstar'+Gamma)*M;
 Mtheta = [L,kron(L,zstar'*M);kron(L,M*zstar),kron(L,E)]; 
 
 U = load('HDSA_Results.mat','U').U;
@@ -77,6 +78,7 @@ for k = 1:size(V,2)
 end
 e_vec'
 
+%%
 load Singular_Values_1.txt
 norm(diag(Sigmatest(1:2,1:2))'-Singular_Values_1)
 

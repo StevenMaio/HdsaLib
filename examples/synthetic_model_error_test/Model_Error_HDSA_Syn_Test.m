@@ -6,6 +6,7 @@ classdef Model_Error_HDSA_Syn_Test < Model_Error_HDSA_Kronecker
         I;
         D;
         L;
+        Gamma;
         M;
         d;
         x;
@@ -65,6 +66,14 @@ classdef Model_Error_HDSA_Syn_Test < Model_Error_HDSA_Kronecker
             Linv_v = linsolve(this.L,v_u);
         end
         
+        function [Gamma_v] = Apply_Gamma_Operator(this,v_z)
+            Gamma_v = this.Gamma*v_z;
+        end
+        
+        function [Gammainv_v] = Apply_Gamma_Operator_Inv(this,v_z)
+            Gammainv_v = linsolve(this.Gamma,v_z);
+        end
+        
     end
     
     methods
@@ -98,12 +107,15 @@ classdef Model_Error_HDSA_Syn_Test < Model_Error_HDSA_Kronecker
             
             L = M + 10^-2*D;
             
+            Gamma = exp(-1000*(x-x').^2);
+            
             this.n_mesh = n_mesh;
             this.reg_beta = reg_beta;
             this.I = I;
             this.D = D;
             this.M = M;
             this.L = L;
+            this.Gamma = Gamma;
             this.d = d;
             this.x = x;
             this.ztrue = ztrue;

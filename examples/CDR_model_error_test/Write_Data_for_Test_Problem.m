@@ -20,8 +20,7 @@ t = linspace(0,1,n_mesh);
 z_true = exp(-10*(t-.5).^2);
 z_true = z_true(source_nodes)';
 
-z_cov = 1*ones(length(source_nodes),1);
-hdsa.HDSA_Setup(u_star,z_star,z_cov);
+hdsa.HDSA_Setup(u_star,z_star);
 
 w = ones(n_mesh,1); w(1) = .5; w(end) = .5; w = w/sum(w);
 Mu = diag(w);
@@ -39,7 +38,8 @@ Linv = inv(L);
 R = hdsa.R_z;
 
 beta_reg = beta_reg;
-Gamma = z_cov;
+Gamma = hdsa.Gamma;
+Gammainv = inv(Gamma);
 
 % We are solving the discrete problem
 % min_{u,z} (u-d)^T*D*(u-d) + beta*z^T*R^T*R*z
@@ -61,6 +61,12 @@ writematrix(R,'R.txt')
 Mz = Mz';
 Mz = Mz(:);
 writematrix(Mz,'M_z.txt')
+Gamma = Gamma';
+Gamma = Gamma(:);
+writematrix(Gamma,'Gamma.txt')
+Gammainv = Gammainv';
+Gammainv = Gammainv(:);
+writematrix(Gammainv,'Gamma_inv.txt')
 writematrix(u_star,'opt_state.txt')
 writematrix(z_star,'opt_solution.txt')
 writematrix(data,'data.txt')
