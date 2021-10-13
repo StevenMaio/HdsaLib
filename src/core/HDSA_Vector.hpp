@@ -167,6 +167,17 @@ public:
     return vec_zeros_;
   }
 
+  void Set_Zeros(void)
+  {
+    for(int k = 0; k < this->dimension(); k++)
+      {
+	if(Is_entry_zero(k))
+	  {
+	    Replace_Element(k,0.0);
+	  }
+      }
+  }
+
   void Enforce_Zeros(void) 
   {
     enforce_zeros_ = true;

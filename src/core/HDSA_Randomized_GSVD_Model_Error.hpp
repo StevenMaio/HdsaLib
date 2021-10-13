@@ -519,7 +519,8 @@ namespace HDSA
 	  std::cout << "Time contributed by everything else: " << Time_gsvd-Time_Loop_1-Time_Loop_2-Time_Loop_SubIter << " seconds for local sensitivity number " << sample_index_ << std::endl;
 	  std::cout << " " << std::endl;
 	}
-      
+    
+      model_error_objects->Optional_Postprocessing(S_,U_,V_,Mz_V_);
       Write_Solution(OP_Objects_subcomm->z);
     }
 

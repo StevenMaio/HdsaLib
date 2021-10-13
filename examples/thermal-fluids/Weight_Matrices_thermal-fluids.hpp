@@ -23,7 +23,7 @@ public:
   {  
     /*** Initialize main data structure. ***/
     HDSA::Ptr<MeshManager<RealT> > meshMgr = HDSA::makePtr<MeshManager_ThermalFluids<RealT> >(*parlist_);
-    HDSA::Ptr<PDE<RealT> > pde = HDSA::makePtr<Control_Mass_Mat<RealT> >(*parlist_);
+    HDSA::Ptr<PDE<RealT> > pde = HDSA::makePtr<Control_Mass_Mat<RealT> >(*parlist_,1.0,0.0);
     con_mass_ = HDSA::makePtr<Linear_PDE_Constraint<RealT> >(pde,meshMgr,comm->Get_Teuchos_Communicator(),*parlist_);
   }
 
@@ -43,7 +43,8 @@ public:
     HDSA::Ptr<ROL::Vector<RealT> > z_in_rol = HDSA::dynamicPtrCast<ROL_Vector<RealT> >(z_in)->get_rol_vec();
     HDSA::Ptr<ROL::Vector<RealT> > z_out_rol = HDSA::dynamicPtrCast<ROL_Vector<RealT> >(z_out)->get_rol_vec();
     RealT tol = 1.e-8;
-    con_mass_->applyJacobian_1(*z_out_rol,*z_in_rol,*z_in_rol,*z_in_rol,tol);
+    con_mass_->applyJacobian_2(*z_out_rol,*z_in_rol,*z_in_rol,*z_in_rol,tol);
+    z_out->Set_Zeros();
   }
 
 };

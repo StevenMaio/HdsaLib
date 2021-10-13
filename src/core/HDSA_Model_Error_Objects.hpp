@@ -46,7 +46,11 @@ public:
   virtual void Apply_L_Mat(HDSA::Ptr<HDSA::Vector<RealT> > & u_out, const HDSA::Ptr<HDSA::Vector<RealT> > & u_in) const = 0;
 
   virtual void Apply_L_Mat_Inverse(HDSA::Ptr<HDSA::Vector<RealT> > & u_out, const HDSA::Ptr<HDSA::Vector<RealT> > & u_in) const = 0;
- 
+
+  virtual void Optional_Postprocessing(HDSA::Ptr<HDSA::Vector<RealT> > S, HDSA::Ptr<HDSA::Dense_Matrix<RealT> > U, 
+				       HDSA::Ptr<HDSA::Model_Error_Kronecker_Matrix<RealT> > V, HDSA::Ptr<HDSA::Dense_Matrix<RealT> > Mz_V) const 
+  { } 
+
   void Construct_Model_Error_Objects_Test(void)
   {
     HDSA::Ptr<HDSA::Vector<RealT> > v_in = OP_Objects_->u->Clone();
@@ -54,23 +58,61 @@ public:
     HDSA::Ptr<HDSA::Vector<RealT> > z_in = OP_Objects_->z->Clone();
     HDSA::Ptr<HDSA::Vector<RealT> > z_out = OP_Objects_->z->Clone();
 
-    // Test L^{-1}
-    v_in->randomize();
-    std::string name1 = "v_in.txt";
-    v_in->Write_to_File(name1);
-    HDSA::Ptr<HDSA::Vector<RealT> > v = OP_Objects_->u->Clone();
-    Apply_L_Mat_Inverse(v,v_in);
-    std::string name2 = "v.txt";
-    v->Write_to_File(name2);
-    Apply_L_Mat(v_out,v);
-    std::string name3 = "v_out.txt";
-    v_out->Write_to_File(name3);
+    // Test Gamma^{-1}
+    z_in->randomize();
+    z_in->Set_Zeros();
+    HDSA::Ptr<HDSA::Vector<RealT> > z = OP_Objects_->z->Clone();
+    Apply_Gamma_Mat_Inverse(z,z_in);
+    Apply_Gamma_Mat(z_out,z);
 
-    v_out->axpy(-1.0,*v_in);
-    std::cout << "Norm of L*L^{-1}*v - v = " << v_out->norm() << std::endl;
+    z_out->axpy(-1.0,*z_in);
+    std::cout << "Norm of Gamma*Gamma^{-1}*v - v = " << z_out->norm() << std::endl;
 
     std::string name;
     std::ofstream fout;
+
+    // State weighting matrix
+    std::vector<std::vector<RealT> > Gamma;
+    Gamma.resize(n_);
+    for(int i = 0; i < n_; i++)
+      {
+	Gamma[i].resize(n_);
+      }
+    for(int j = 0; j < n_; j++)
+      {
+	std::cout << "Computing column " << j+1 << " out of " << m_ << " for Gamma matrix." << std::endl;
+	z_in->basis(j);
+	z_in->Set_Zeros();
+	z_out->zero();
+	Apply_Gamma_Mat(z_out,z_in);
+	for(int i = 0; i < n_; i++)
+	  {
+	    Gamma[i][j] = (*z_out)(i);
+	  }
+      }
+
+      // Write Solutions to text files
+      name = "Gamma.txt";
+      fout.open(name);
+      for(int i = 0; i < n_; i++)
+	{
+	  for(int j = 0; j < n_; j++)
+	    {
+	      fout << std::setprecision(16) << Gamma[i][j] << "  ";
+	    }
+	  fout << "  " << std::endl;
+	}
+      fout.close(); 
+
+    // Test L^{-1}
+    v_in->randomize();
+    HDSA::Ptr<HDSA::Vector<RealT> > v = OP_Objects_->u->Clone();
+    Apply_L_Mat_Inverse(v,v_in);
+    Apply_L_Mat(v_out,v);
+
+    v_out->axpy(-1.0,*v_in);
+    v_out->scale(1.0/(v_in->norm()));
+    std::cout << "|| L*L^{-1}*v - v || / || v || = " << v_out->norm() << std::endl;
 
     // State weighting matrix
     std::vector<std::vector<RealT> > L;
@@ -214,6 +256,12 @@ public:
   {
     theta_pde_ = theta;
     OP_Objects_ = OP_Objects_Factory_->Construct_Opt_Problem_Objects(theta,comm);
+    OP_Objects_->Load_Optimal_Solution();
+    bool enforce_z_zeros = parlist_sensitivity_->sublist("Formulation").get("Enforce z Zeros",false);
+    if(enforce_z_zeros)
+      {
+	OP_Objects_->z->Enforce_Zeros();
+      }
     m_ = OP_Objects_->u->dimension();
     n_ = OP_Objects_->z->dimension();
     weight_matrices_ = weight_matrices_factory_->Construct_Weight_Matrices(theta,comm);

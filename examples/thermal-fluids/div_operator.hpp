@@ -1,5 +1,5 @@
-#ifndef CONTROL_MASS_MAT_HPP
-#define CONTROL_MASS_MAT_HPP
+#ifndef PDE_DIV_OP_HPP
+#define PDE_DIV_OP_HPP
 
 #include "../../../PDE-OPT/TOOLS/pde.hpp"
 #include "../../../PDE-OPT/TOOLS/fe.hpp"
@@ -14,7 +14,7 @@
 #include "ROL_Ptr.hpp"
 
 template <class Real>
-class Control_Mass_Mat : public PDE<Real> {
+class PDE_Div_Op : public PDE<Real> {
 private:
   // Finite element basis information
   ROL::Ptr<Intrepid::Basis<Real, Intrepid::FieldContainer<Real> > > basisPtrVel_;
@@ -51,15 +51,9 @@ private:
   std::vector<int> numFieldDofs_;                // for each field, number of degrees of freedom
   
   ROL::Ptr<FieldHelper<Real> > fieldHelper_;
-  Real alpha_, epsilon_;
-
-  // Implements the elliptic operator alpha*( epsilon*K + M) where K is the stiffness matrix and M is the mass matrix
 
 public:
-  Control_Mass_Mat(Teuchos::ParameterList &parlist, Real alpha, Real epsilon)
-  {
-    alpha_ = alpha;
-    epsilon_ = epsilon;
+  PDE_Div_Op(Teuchos::ParameterList &parlist)  {
     // Finite element fields -- NOT DIMENSION INDEPENDENT!
     basisPtrVel_ = ROL::makePtr<Intrepid::Basis_HGRAD_QUAD_C2_FEM<Real, Intrepid::FieldContainer<Real> >>();
     basisPtrPrs_ = ROL::makePtr<Intrepid::Basis_HGRAD_QUAD_C1_FEM<Real, Intrepid::FieldContainer<Real> >>();
@@ -123,35 +117,32 @@ public:
     fieldHelper_->splitFieldCoeff(U, u_coeff);
     fieldHelper_->splitFieldCoeff(Z, z_coeff);
 
-    // Evaluate/interpolate finite element fields on cells.
-    std::vector<ROL::Ptr<Intrepid::FieldContainer<Real> > > valVel_vec(d);
+    // Evaluate/interpolate gradient of finite element fields on cells.
+    std::vector<ROL::Ptr<Intrepid::FieldContainer<Real> > > gradVel_vec(d);
     for (int i = 0; i < d; ++i) {
-      valVel_vec[i] = ROL::makePtr<Intrepid::FieldContainer<Real> >(c, p);
-      feVel_->evaluateValue(valVel_vec[i], U[i]);
+      gradVel_vec[i] = ROL::makePtr<Intrepid::FieldContainer<Real>>(c, p, d);
+      feVel_->evaluateGradient(gradVel_vec[i], U[i]);
     }
-    ROL::Ptr<Intrepid::FieldContainer<Real> > valPres_eval, valHeat_eval;
-    valPres_eval = ROL::makePtr<Intrepid::FieldContainer<Real> >(c, p);
-    valHeat_eval = ROL::makePtr<Intrepid::FieldContainer<Real> >(c, p);
-    fePrs_->evaluateValue(valPres_eval, U[d]);
-    feThr_->evaluateValue(valHeat_eval, U[d+1]);
 
-    for(int i = 0; i < d; i++)
-      {
-	Intrepid::FunctionSpaceTools::integrate<Real>(*R[i],
-						      *valVel_vec[i],
-						      *(feVel_->NdetJ()),
-						      Intrepid::COMP_CPP, false);
-      }	
+    // Assemble the velocity vector and its divergence.
+    ROL::Ptr<Intrepid::FieldContainer<Real> > divVel_eval;
+    divVel_eval = ROL::makePtr<Intrepid::FieldContainer<Real>>(c, p);
+    for (int i = 0; i < c; ++i) {
+      for (int j = 0; j < p; ++j) {
+        (*divVel_eval)(i,j) = static_cast<Real>(0);
+        for (int k = 0; k < d; ++k) {
+          (*divVel_eval)(i,j)  += (*gradVel_vec[k])(i,j,k);
+        }
+      }
+    }
 
-    Intrepid::FunctionSpaceTools::integrate<Real>(*R[d],
-						  *valPres_eval,
-						  *(fePrs_->NdetJ()),
-						  Intrepid::COMP_CPP, false);
-
-    Intrepid::FunctionSpaceTools::integrate<Real>(*R[d+1],
-						  *valHeat_eval,
-						  *(feThr_->NdetJ()),
-						  Intrepid::COMP_CPP, false);
+    // Pressure equation.
+    Intrepid::FunctionSpaceTools::integrate<Real>((*R[d]),
+                                                  *divVel_eval,             // divU
+                                                  *(fePrs_->NdetJ()),       // Phi
+                                                  Intrepid::COMP_CPP,
+                                                  false);
+    Intrepid::RealSpaceTools<Real>::scale((*R[d]),static_cast<Real>(-1));
 
     // Combine the residuals.
     fieldHelper_->combineFieldCoeff(res, R);
@@ -188,32 +179,19 @@ public:
     J[d][d+1]   = ROL::makePtr<Intrepid::FieldContainer<Real>>(c, fp, fh);
     J[d+1][d+1] = ROL::makePtr<Intrepid::FieldContainer<Real>>(c, fh, fh);
 
-    // Split u_coeff into components.
-    std::vector<ROL::Ptr<Intrepid::FieldContainer<Real> > > U, Z;
-    fieldHelper_->splitFieldCoeff(U, u_coeff);
-    fieldHelper_->splitFieldCoeff(Z, z_coeff);
+    /*** Evaluate weak form of the Jacobian. ***/
+    // X component of velocity equation.
+    for (int i = 0; i < d; ++i) {
+      Intrepid::FunctionSpaceTools::integrate<Real>((*J[d][i]),
+                                                    *(fePrs_->NdetJ()),       // Phi
+                                                    *(feVel_->DND(i)),        // dPhi/dx
+                                                    Intrepid::COMP_CPP,
+                                                    false);
+      Intrepid::RealSpaceTools<Real>::scale((*J[d][i]),static_cast<Real>(-1));
+    }
 
-    for(int i = 0; i < d; i++)
-      {
-	Intrepid::FunctionSpaceTools::integrate<Real>(*J[i][i],
-						      *(feVel_->N()),
-						      *(feVel_->NdetJ()),
-						      Intrepid::COMP_CPP, false);
-      }
-
-    Intrepid::FunctionSpaceTools::integrate<Real>(*J[d][d],
-						  *(fePrs_->N()),
-						  *(fePrs_->NdetJ()),
-						  Intrepid::COMP_CPP, false);
-
-    Intrepid::FunctionSpaceTools::integrate<Real>(*J[d+1][d+1],
-						  *(feThr_->N()),
-						  *(feThr_->NdetJ()),
-						  Intrepid::COMP_CPP, false);
-    
     // Combine the jacobians.
     fieldHelper_->combineFieldCoeff(jac, J);
-
   }
 
 
@@ -223,7 +201,6 @@ public:
                   const ROL::Ptr<const std::vector<Real> > & z_param = ROL::nullPtr) {
     // Retrieve dimensions.
     int c  = u_coeff->dimension(0);
-    int p  = cellCub_->getNumPoints();
     int fv = basisPtrVel_->getCardinality();
     int fp = basisPtrPrs_->getCardinality();
     int fh = basisPtrThr_->getCardinality();
@@ -248,36 +225,6 @@ public:
     J[d][d+1]   = ROL::makePtr<Intrepid::FieldContainer<Real>>(c, fp, fh);
     J[d+1][d+1] = ROL::makePtr<Intrepid::FieldContainer<Real>>(c, fh, fh);
 
-    int numSideSets = bdryCellLocIds_.size();
-    const int numCubPerSide = bdryCub_->getNumPoints();
-    for (int i = 1; i < 3; ++i) {
-      int numLocalSideIds = bdryCellLocIds_[i].size();
-      for (int j = 0; j < numLocalSideIds; ++j) {
-	int numCellsSide = bdryCellLocIds_[i][j].size();
-	if (numCellsSide) {
-	  
-	  ROL::Ptr<Intrepid::FieldContainer<Real> > M = ROL::makePtr<Intrepid::FieldContainer<Real> >(numCellsSide, fh, fh);
-	  Intrepid::FunctionSpaceTools::integrate<Real>(*M,
-							*feThrBdry_[i][j]->N(),
-							*(feThrBdry_[i][j]->NdetJ()),
-							Intrepid::COMP_CPP, false);
-	  ROL::Ptr<Intrepid::FieldContainer<Real> > K = ROL::makePtr<Intrepid::FieldContainer<Real> >(numCellsSide, fh, fh);
-	  Intrepid::FunctionSpaceTools::integrate<Real>(*K,
-							*feThrBdry_[i][j]->gradN(),
-							*(feThrBdry_[i][j]->gradNdetJ()),
-							Intrepid::COMP_CPP, false);
-	  for (int k = 0; k < numCellsSide; ++k) {
-	    int cidx = bdryCellLocIds_[i][j][k];
-	    for (int l = 0; l < fh; ++l) {
-	      for (int m = 0; m < fh; ++m) {
-		(*J[d+1][d+1])(cidx,l,m) += alpha_*( epsilon_*(*K)(k,l,m) + (*M)(k,l,m) );
-	      }
-	    }
-	  }
-	}
-      }
-    }
-              
     // Combine the jacobians.
     fieldHelper_->combineFieldCoeff(jac, J);
   }
@@ -287,7 +234,7 @@ public:
                   const ROL::Ptr<const Intrepid::FieldContainer<Real> > & u_coeff,
                   const ROL::Ptr<const Intrepid::FieldContainer<Real> > & z_coeff = ROL::nullPtr,
                   const ROL::Ptr<const std::vector<Real> > & z_param = ROL::nullPtr) {
-    throw Exception::Zero(">>> (PDE_Elliptic_Operator::Hessian_11): Hessian is zero.");
+    throw Exception::Zero(">>> (PDE_ThermalFluids::Hessian_11): Hessian is zero.");
   }
 
   void Hessian_12(ROL::Ptr<Intrepid::FieldContainer<Real> > & hess,
@@ -295,7 +242,7 @@ public:
                   const ROL::Ptr<const Intrepid::FieldContainer<Real> > & u_coeff,
                   const ROL::Ptr<const Intrepid::FieldContainer<Real> > & z_coeff = ROL::nullPtr,
                   const ROL::Ptr<const std::vector<Real> > & z_param = ROL::nullPtr) {
-    throw Exception::Zero(">>> (PDE_Elliptic_Operator::Hessian_12): Hessian is zero.");
+    throw Exception::Zero(">>> (PDE_ThermalFluids::Hessian_12): Hessian is zero.");
   }
 
   void Hessian_21(ROL::Ptr<Intrepid::FieldContainer<Real> > & hess,
@@ -303,7 +250,7 @@ public:
                   const ROL::Ptr<const Intrepid::FieldContainer<Real> > & u_coeff,
                   const ROL::Ptr<const Intrepid::FieldContainer<Real> > & z_coeff = ROL::nullPtr,
                   const ROL::Ptr<const std::vector<Real> > & z_param = ROL::nullPtr) {
-    throw Exception::Zero(">>> (PDE_Elliptic_Operator::Hessian_21): Hessian is zero.");
+    throw Exception::Zero(">>> (PDE_ThermalFluids::Hessian_21): Hessian is zero.");
   }
 
   void Hessian_22(ROL::Ptr<Intrepid::FieldContainer<Real> > & hess,
@@ -311,15 +258,84 @@ public:
                   const ROL::Ptr<const Intrepid::FieldContainer<Real> > & u_coeff,
                   const ROL::Ptr<const Intrepid::FieldContainer<Real> > & z_coeff = ROL::nullPtr,
                   const ROL::Ptr<const std::vector<Real> > & z_param = ROL::nullPtr) {
-    throw Exception::Zero(">>> (PDE_Elliptic_Operator::Hessian_22): Hessian is zero.");
+    throw Exception::Zero(">>> (PDE_ThermalFluids::Hessian_22): Hessian is zero.");
   }
 
   void RieszMap_1(ROL::Ptr<Intrepid::FieldContainer<Real> > & riesz) {
-    throw Exception::NotImplemented(">>> (PDE_Thermal-Fluids::RieszMap_1): Not implemented.");
+    // Retrieve dimensions.
+    int c  = feVel_->N()->dimension(0);
+    int fv = basisPtrVel_->getCardinality();
+    int fp = basisPtrPrs_->getCardinality();
+    int fh = basisPtrThr_->getCardinality();
+    int d  = cellCub_->getDimension();
+ 
+    // Initialize jacobians.
+    std::vector<std::vector<ROL::Ptr<Intrepid::FieldContainer<Real> > > > J(d+2);
+    for (int i = 0; i < d+2; ++i) {
+      J[i].resize(d+2);
+    }
+    for (int i = 0; i < d; ++i) {
+      for (int j = 0; j < d; ++j) {
+        J[i][j] = ROL::makePtr<Intrepid::FieldContainer<Real>>(c, fv, fv);
+      }
+      J[d][i]   = ROL::makePtr<Intrepid::FieldContainer<Real>>(c, fp, fv);
+      J[i][d]   = ROL::makePtr<Intrepid::FieldContainer<Real>>(c, fv, fp);
+      J[d+1][i] = ROL::makePtr<Intrepid::FieldContainer<Real>>(c, fh, fv);
+      J[i][d+1] = ROL::makePtr<Intrepid::FieldContainer<Real>>(c, fv, fh);
+    }
+    J[d][d]     = ROL::makePtr<Intrepid::FieldContainer<Real>>(c, fp, fp);
+    J[d+1][d]   = ROL::makePtr<Intrepid::FieldContainer<Real>>(c, fh, fp);
+    J[d][d+1]   = ROL::makePtr<Intrepid::FieldContainer<Real>>(c, fp, fh);
+    J[d+1][d+1] = ROL::makePtr<Intrepid::FieldContainer<Real>>(c, fh, fh);
+
+    for (int i = 0; i < d; ++i) {
+      *(J[i][i]) = *(feVel_->stiffMat());
+      Intrepid::RealSpaceTools<Real>::add(*(J[i][i]),*(feVel_->massMat()));
+    }
+    *(J[d][d]) = *(fePrs_->massMat());
+    *(J[d+1][d+1]) = *(feThr_->stiffMat());
+    Intrepid::RealSpaceTools<Real>::add(*(J[d+1][d+1]),*(feThr_->massMat()));
+
+    // Combine the jacobians.
+    fieldHelper_->combineFieldCoeff(riesz, J);
   }
 
   void RieszMap_2(ROL::Ptr<Intrepid::FieldContainer<Real> > & riesz) {
-    throw Exception::NotImplemented(">>> (PDE_Thermal-Fluids::RieszMap_1): Not implemented.");
+    // Retrieve dimensions.
+    int c  = feVel_->N()->dimension(0);
+    int fv = basisPtrVel_->getCardinality();
+    int fp = basisPtrPrs_->getCardinality();
+    int fh = basisPtrThr_->getCardinality();
+    int d  = cellCub_->getDimension();
+ 
+    // Initialize jacobians.
+    std::vector<std::vector<ROL::Ptr<Intrepid::FieldContainer<Real> > > > J(d+2);
+    for (int i = 0; i < d+2; ++i) {
+      J[i].resize(d+2);
+    }
+    for (int i = 0; i < d; ++i) {
+      for (int j = 0; j < d; ++j) {
+        J[i][j] = ROL::makePtr<Intrepid::FieldContainer<Real>>(c, fv, fv);
+      }
+      J[d][i]   = ROL::makePtr<Intrepid::FieldContainer<Real>>(c, fp, fv);
+      J[i][d]   = ROL::makePtr<Intrepid::FieldContainer<Real>>(c, fv, fp);
+      J[d+1][i] = ROL::makePtr<Intrepid::FieldContainer<Real>>(c, fh, fv);
+      J[i][d+1] = ROL::makePtr<Intrepid::FieldContainer<Real>>(c, fv, fh);
+    }
+    J[d][d]     = ROL::makePtr<Intrepid::FieldContainer<Real>>(c, fp, fp);
+    J[d+1][d]   = ROL::makePtr<Intrepid::FieldContainer<Real>>(c, fh, fp);
+    J[d][d+1]   = ROL::makePtr<Intrepid::FieldContainer<Real>>(c, fp, fh);
+    J[d+1][d+1] = ROL::makePtr<Intrepid::FieldContainer<Real>>(c, fh, fh);
+
+
+    for (int i = 0; i < d; ++i) {
+      *(J[i][i]) = *(feVel_->massMat());
+    }
+    *(J[d][d]) = *(fePrs_->massMat());
+    *(J[d+1][d+1]) = *(feThr_->massMat());
+
+    // Combine the jacobians.
+    fieldHelper_->combineFieldCoeff(riesz, J);
   }
 
   std::vector<ROL::Ptr<Intrepid::Basis<Real, Intrepid::FieldContainer<Real> > > > getFields() {
@@ -397,6 +413,6 @@ public:
     return fieldHelper_;
   }
 
-}; // Control_Mass_Mat
+}; // PDE_ThermalFluids
 
 #endif

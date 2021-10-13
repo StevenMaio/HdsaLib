@@ -11,12 +11,13 @@ class Model_Error_Objects_CDR : public HDSA::Model_Error_Objects<RealT> {
 private:
   HDSA::Ptr<HDSA::ParameterList> parlist_;
   HDSA::Ptr<ROL::Constraint_SimOpt<RealT> > con_;
+  HDSA::Ptr<ROL::Constraint_SimOpt<RealT> > con_z_cov_;
   HDSA::Ptr<ROL::Constraint_SimOpt<RealT> > mass_con_;
   bool constructed_elliptic_op_;
   RealT epsilon_;
   int nx_,ny_;
   std::vector<RealT> con_weights_;
-  RealT z_cov_scale_;
+  RealT z_length_scale_, z_var_;
   HDSA::Ptr<HDSA::Dense_Matrix<RealT> > Con_Mat_;
   HDSA::Ptr<HDSA::Dense_Matrix<RealT> > Con_Mat_Q_;
   HDSA::Ptr<HDSA::Dense_Matrix<RealT> > Con_Mat_R_;
@@ -32,8 +33,9 @@ public:
     ny_ = parlist->sublist("Geometry").get("NY", 10);
     RealT cw = parlist->sublist("Problem").get("Constraint Weight", 1.0);
     con_weights_ = std::vector<RealT>(nx_+1,cw);
-    z_cov_scale_ = parlist->sublist("Problem").get("Control Variance", 1.0);
     epsilon_ = parlist_sensitivity->sublist("Problem").get("Epsilon", 1.e-6);
+    z_length_scale_ = parlist->sublist("Problem").get("Control Length Scale", 1.0);
+    z_var_ = parlist->sublist("Problem").get("Control Variance", 1.0);
   }
 
   virtual ~Model_Error_Objects_CDR()
@@ -45,6 +47,8 @@ public:
     HDSA::Ptr<MeshManager<RealT> > meshMgr = HDSA::makePtr<MeshManager_Rectangle<RealT> >(*parlist_);
     HDSA::Ptr<PDE<RealT> > pde = HDSA::makePtr<Elliptic_Op<RealT> >(*parlist_,epsilon_);
     con_ = HDSA::makePtr<Linear_PDE_Constraint<RealT> >(pde,meshMgr,comm->Get_Teuchos_Communicator(),*parlist_);
+    HDSA::Ptr<PDE<RealT> > pde_z_cov = HDSA::makePtr<Elliptic_Op<RealT> >(*parlist_,z_length_scale_/(z_var_*z_var_),1.0/(z_var_*z_var_));
+    con_z_cov_ = HDSA::makePtr<Linear_PDE_Constraint<RealT> >(pde_z_cov,meshMgr,comm->Get_Teuchos_Communicator(),*parlist_);
     HDSA::Ptr<PDE<RealT> > pde_mass = HDSA::makePtr<PDE_Mass_Mat<RealT> >(*parlist_);
     mass_con_ = HDSA::makePtr<Linear_PDE_Constraint<RealT> >(pde_mass,meshMgr,comm->Get_Teuchos_Communicator(),*parlist_);
 
@@ -75,14 +79,18 @@ public:
 
   void Apply_Gamma_Mat(HDSA::Ptr<HDSA::Vector<RealT> > & z_out, const HDSA::Ptr<HDSA::Vector<RealT> > & z_in) const 
   {
-    z_out->set(*z_in);
-    z_out->scale(z_cov_scale_);
+    HDSA::Ptr<ROL::Vector<RealT> > z_in_rol = HDSA::dynamicPtrCast<ROL_Vector<RealT> >(z_in)->get_rol_vec();
+    HDSA::Ptr<ROL::Vector<RealT> > z_out_rol = HDSA::dynamicPtrCast<ROL_Vector<RealT> >(z_out)->get_rol_vec();
+    RealT tol = 1.e-8;
+    con_z_cov_->applyInverseJacobian_1(*z_out_rol,*z_in_rol,*z_in_rol,*z_in_rol,tol);
   }
 
   void Apply_Gamma_Mat_Inverse(HDSA::Ptr<HDSA::Vector<RealT> > & z_out, const HDSA::Ptr<HDSA::Vector<RealT> > & z_in) const 
   {
-    z_out->set(*z_in);
-    z_out->scale(1.0/z_cov_scale_);
+    HDSA::Ptr<ROL::Vector<RealT> > z_in_rol = HDSA::dynamicPtrCast<ROL_Vector<RealT> >(z_in)->get_rol_vec();
+    HDSA::Ptr<ROL::Vector<RealT> > z_out_rol = HDSA::dynamicPtrCast<ROL_Vector<RealT> >(z_out)->get_rol_vec();
+    RealT tol = 1.e-8;
+    con_z_cov_->applyJacobian_1(*z_out_rol,*z_in_rol,*z_in_rol,*z_in_rol,tol);
   }
   
   void Apply_L_Mat(HDSA::Ptr<HDSA::Vector<RealT> > & u_out, const HDSA::Ptr<HDSA::Vector<RealT> > & u_in) const 

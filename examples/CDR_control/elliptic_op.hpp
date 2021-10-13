@@ -36,11 +36,12 @@ private:
   std::vector<std::vector<ROL::Ptr<Intrepid::FieldContainer<Real> > > > bdryCellDofValues_;
 
   Real epsilon_;
+  Real alpha_;
   bool useStateRiesz_;
   bool useControlRiesz_;
 
 public:
-  Elliptic_Op(Teuchos::ParameterList &parlist, Real epsilon) {
+  Elliptic_Op(Teuchos::ParameterList &parlist, Real epsilon, Real alpha = 1.0) {
     // Finite element fields.
     int cubDegree  = parlist.sublist("Problem").get("Cubature Degree",4);
     basisPtr_ = ROL::makePtr<Intrepid::Basis_HGRAD_QUAD_C1_FEM<Real, Intrepid::FieldContainer<Real> >>();
@@ -53,6 +54,7 @@ public:
     useStateRiesz_   = parlist.sublist("Problem").get("Use State Riesz Map", true);      // use Riesz map for state variables?
     useControlRiesz_ = parlist.sublist("Problem").get("Use Control Riesz Map", true);    // use Riesz map for control variables?
     epsilon_ = epsilon; 
+    alpha_ = alpha;
   }
 
    void residual(ROL::Ptr<Intrepid::FieldContainer<Real> > & res,
@@ -85,6 +87,7 @@ public:
                                                   *U_eval,
                                                   *(fe_vol_->NdetJ()),
                                                   Intrepid::COMP_CPP, false);
+    Intrepid::RealSpaceTools<Real>::scale(*eye_term,alpha_);
     
     Intrepid::RealSpaceTools<Real>::scale(*res,0.0);
     Intrepid::RealSpaceTools<Real>::add(*res,*laplace_term);
@@ -115,6 +118,7 @@ public:
                                                   *(fe_vol_->N()),
                                                   *(fe_vol_->NdetJ()),
                                                   Intrepid::COMP_CPP, false);
+    Intrepid::RealSpaceTools<Real>::scale(*eye_term,alpha_);
 
     Intrepid::RealSpaceTools<Real>::scale(*jac,0.0);
     Intrepid::RealSpaceTools<Real>::add(*jac,*laplace_term);
