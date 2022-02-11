@@ -323,13 +323,8 @@ public:
     HDSA::Ptr<HDSA::Vector<RealT> > z_tmp2 = z_in->Clone();
 
     weight_matrices_->Apply_z_Weight_Mat_Inverse(z_tmp1,z_in);
-    
-    RealT val_coeff = z_tmp1->dot(*gamma_inv_z_star_);
-    z_tmp1->axpy(val_coeff,*OP_Objects_->z);
 
     Apply_Gamma_Mat_Inverse(z_tmp2,z_tmp1);
-    z_tmp2->axpy(-(gamma_inv_z_star_->dot(*z_tmp1))/(1.0+z_star_gamma_inv_z_star_),*gamma_inv_z_star_);
-
     z_tmp2->scale(1.0/(1.0+z_star_gamma_inv_z_star_));
 
     weight_matrices_->Apply_z_Weight_Mat_Inverse(z_out,z_tmp2);

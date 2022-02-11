@@ -1511,41 +1511,10 @@ public:
                            const ROL::Vector<Real>    &un,
                            const ROL::Vector<Real>    &z,
                            const ROL::TimeStamp<Real> &ts) const {
-    // ROL::Ptr<Tpetra::MultiVector<>>    ahwvf = getField(ahwv);
-    // ROL::Ptr<const Tpetra::MultiVector<>> vf = getConstField(v);
-    // assembleHuo_uo(w,uo,un,z,ts);
-    // applyHessian_uo_uo(ahwvf,vf);
-
-    if(!isHuo_uoNotImplemented_)
-      {
-	assembleHuo_uo(w,uo,un,z,ts);
-      }
-    
-    if(isHuo_uoNotImplemented_)
-      {
-	Real h = 1.e-3;	
-	// Evaluate Jacobian at new state
-	ROL::Ptr<ROL::Vector<Real> > u = uo.clone();
-	u->set(uo);
-	u->axpy(h,v);
-	isResAssembled_    = false;
-	isJuoAssembled_    = (isJuoZero_    ? isJuoAssembled_    : false);
-	applyAdjointJacobian_uo(ahwv,w,*u,un,z,ts);
-	// Evaluate Jacobian at old state
-	ROL::Ptr<ROL::Vector<Real> > jv = ahwv.clone();
-	isResAssembled_    = false;
-	isJuoAssembled_    = (isJuoZero_    ? isJuoAssembled_    : false);
-	applyAdjointJacobian_uo(*jv,w,uo,un,z,ts);
-	// Compute Newton quotient
-	ahwv.axpy(-1.0,*jv);
-	ahwv.scale(1.0/h);
-      }
-    else
-      {
-    	ROL::Ptr<Tpetra::MultiVector<>>    ahwvf = getField(ahwv);
-	ROL::Ptr<const Tpetra::MultiVector<>> vf = getConstField(v);
-	applyHessian_uo_uo(ahwvf,vf);
-      }
+    ROL::Ptr<Tpetra::MultiVector<>>    ahwvf = getField(ahwv);
+    ROL::Ptr<const Tpetra::MultiVector<>> vf = getConstField(v);
+    assembleHuo_uo(w,uo,un,z,ts);
+    applyHessian_uo_uo(ahwvf,vf);
   }
 
 
@@ -1570,63 +1539,17 @@ public:
                           const ROL::Vector<Real>    &un,
                           const ROL::Vector<Real>    &z,
                           const ROL::TimeStamp<Real> &ts) const {
-    // ROL::Ptr<std::vector<Real>>        ahwvp = getParameter(ahwv);
-    // ROL::Ptr<Tpetra::MultiVector<>>    ahwvf = getField(ahwv);
-    // ROL::Ptr<const Tpetra::MultiVector<>> vf = getConstField(v);
-    // if (ahwvf != ROL::nullPtr) {
-    //   assembleHuo_zf(w,uo,un,z,ts);
-    //   applyHessian_uo_zf(ahwvf,vf);
-    // }
-    // if (ahwvp != ROL::nullPtr) {
-    //   assembleHuo_zp(w,uo,un,z,ts);
-    //   applyHessian_uo_zp(ahwvp,vf);
-    // }
-    if(!isHuo_zfNotImplemented_ & !isHuo_zpNotImplemented_)
-      {
-	ROL::Ptr<std::vector<Real>>        ahwvp = getParameter(ahwv);
-	ROL::Ptr<Tpetra::MultiVector<>>    ahwvf = getField(ahwv);
-	if (ahwvf != ROL::nullPtr) {
-	  assembleHuo_zf(w,uo,un,z,ts);
-	}
-	if (ahwvp != ROL::nullPtr) {
-	  assembleHuo_zp(w,uo,un,z,ts);
-	}
-      }
-    if(isHuo_zfNotImplemented_ || isHuo_zpNotImplemented_)
-      {
-	Real h = 1.e-3;	
-	// Evaluate Jacobian at new state
-	ROL::Ptr<ROL::Vector<Real> > u = uo.clone();
-	u->set(uo);
-	u->axpy(h,v);
-	isResAssembled_    = false;
-	isJzfAssembled_    = (isJzfZero_    ? isJzfAssembled_    : false);
-	isJzpAssembled_    = (isJzpZero_    ? isJzpAssembled_    : false);
-	applyAdjointJacobian_z(ahwv,w,*u,un,z,ts);
-	// Evaluate Jacobian at old state
-	ROL::Ptr<ROL::Vector<Real> > jv = ahwv.clone();
-	isResAssembled_    = false;
-	isJzfAssembled_    = (isJzfZero_    ? isJzfAssembled_    : false);
-	isJzpAssembled_    = (isJzpZero_    ? isJzpAssembled_    : false);
-	applyAdjointJacobian_z(*jv,w,uo,un,z,ts);
-	// Compute Newton quotient
-	ahwv.axpy(-1.0,*jv);
-	ahwv.scale(1.0/h);
-      }
-    else
-      {
-	ROL::Ptr<std::vector<Real>>        ahwvp = getParameter(ahwv);
-	ROL::Ptr<Tpetra::MultiVector<>>    ahwvf = getField(ahwv);
-	ROL::Ptr<const Tpetra::MultiVector<>> vf = getConstField(v);
-	if (ahwvf != ROL::nullPtr) {
-	  assembleHuo_zf(w,uo,un,z,ts);
-	  applyHessian_uo_zf(ahwvf,vf);
-	}
-	if (ahwvp != ROL::nullPtr) {
-	  assembleHuo_zp(w,uo,un,z,ts);
-	  applyHessian_uo_zp(ahwvp,vf);
-	}
-      }
+    ROL::Ptr<std::vector<Real>>        ahwvp = getParameter(ahwv);
+    ROL::Ptr<Tpetra::MultiVector<>>    ahwvf = getField(ahwv);
+    ROL::Ptr<const Tpetra::MultiVector<>> vf = getConstField(v);
+    if (ahwvf != ROL::nullPtr) {
+      assembleHuo_zf(w,uo,un,z,ts);
+      applyHessian_uo_zf(ahwvf,vf);
+    }
+    if (ahwvp != ROL::nullPtr) {
+      assembleHuo_zp(w,uo,un,z,ts);
+      applyHessian_uo_zp(ahwvp,vf);
+    }
   }
 
 
@@ -1651,40 +1574,10 @@ public:
                            const ROL::Vector<Real>    &un,
                            const ROL::Vector<Real>    &z,
                            const ROL::TimeStamp<Real> &ts) const {
-    // assembleHun_un(w,uo,un,z,ts);
-    // ROL::Ptr<Tpetra::MultiVector<>>    ahwvf = getField(ahwv);
-    // ROL::Ptr<const Tpetra::MultiVector<>> vf = getConstField(v);
-    // applyHessian_un_un(ahwvf,vf);
-    if(!isHun_unNotImplemented_)
-      {
-	assembleHun_un(w,uo,un,z,ts);
-      }    
-    
-    if(isHun_unNotImplemented_)
-      {
-	Real h = 1.e-3;	
-	// Evaluate Jacobian at new state
-	ROL::Ptr<ROL::Vector<Real> > u = un.clone();
-	u->set(un);
-	u->axpy(h,v);
-	isResAssembled_    = false;
-	isJunAssembled_    = (isJunZero_    ? isJunAssembled_    : false);
-	applyAdjointJacobian_un(ahwv,w,uo,*u,z,ts);
-	// Evaluate Jacobian at old state
-	ROL::Ptr<ROL::Vector<Real> > jv = ahwv.clone();
-	isResAssembled_    = false;
-	isJunAssembled_    = (isJunZero_    ? isJunAssembled_    : false);
-	applyAdjointJacobian_un(*jv,w,uo,un,z,ts);
-	// Compute Newton quotient
-	ahwv.axpy(-1.0,*jv);
-	ahwv.scale(1.0/h);
-      }    
-    else
-      {
-	ROL::Ptr<Tpetra::MultiVector<>>    ahwvf = getField(ahwv);
-	ROL::Ptr<const Tpetra::MultiVector<>> vf = getConstField(v);
-	applyHessian_un_un(ahwvf,vf);
-      }
+    assembleHun_un(w,uo,un,z,ts);
+    ROL::Ptr<Tpetra::MultiVector<>>    ahwvf = getField(ahwv);
+    ROL::Ptr<const Tpetra::MultiVector<>> vf = getConstField(v);
+    applyHessian_un_un(ahwvf,vf);
   }
 
 
@@ -1695,63 +1588,17 @@ public:
                           const ROL::Vector<Real>    &un,
                           const ROL::Vector<Real>    &z,
                           const ROL::TimeStamp<Real> &ts) const {
-    // ROL::Ptr<std::vector<Real>>        ahwvp = getParameter(ahwv);
-    // ROL::Ptr<Tpetra::MultiVector<>>    ahwvf = getField(ahwv);
-    // ROL::Ptr<const Tpetra::MultiVector<>> vf = getConstField(v);
-    // if (ahwvf != ROL::nullPtr) {
-    //   assembleHun_zf(w,uo,un,z,ts);
-    //   applyHessian_un_zf(ahwvf,vf);
-    // }
-    // if (ahwvp != ROL::nullPtr) {
-    //   assembleHun_zp(w,uo,un,z,ts);
-    //   applyHessian_un_zp(ahwvp,vf);
-    // }
-    if(!isHun_zfNotImplemented_ & !isHun_zfNotImplemented_)
-      {
-	ROL::Ptr<std::vector<Real>>        ahwvp = getParameter(ahwv);
-	ROL::Ptr<Tpetra::MultiVector<>>    ahwvf = getField(ahwv);
-	if (ahwvf != ROL::nullPtr) {
-	  assembleHun_zf(w,uo,un,z,ts);
-	}
-	if (ahwvp != ROL::nullPtr) {
-	  assembleHun_zp(w,uo,un,z,ts);
-	}
-      }
-    if(isHun_zfNotImplemented_ || isHun_zpNotImplemented_)
-      {
-	Real h = 1.e-3;	
-	// Evaluate Jacobian at new state
-	ROL::Ptr<ROL::Vector<Real> > u = uo.clone();
-	u->set(un);
-	u->axpy(h,v);
-	isResAssembled_    = false;
-	isJzfAssembled_    = (isJzfZero_    ? isJzfAssembled_    : false);
-	isJzpAssembled_    = (isJzpZero_    ? isJzpAssembled_    : false);
-	applyAdjointJacobian_z(ahwv,w,uo,*u,z,ts);
-	// Evaluate Jacobian at old state
-	ROL::Ptr<ROL::Vector<Real> > jv = ahwv.clone();
-	isResAssembled_    = false;
-	isJzfAssembled_    = (isJzfZero_    ? isJzfAssembled_    : false);
-	isJzpAssembled_    = (isJzpZero_    ? isJzpAssembled_    : false);
-	applyAdjointJacobian_z(*jv,w,uo,un,z,ts);
-	// Compute Newton quotient
-	ahwv.axpy(-1.0,*jv);
-	ahwv.scale(1.0/h);
-      }
-    else
-      {
-	ROL::Ptr<std::vector<Real>>        ahwvp = getParameter(ahwv);
-	ROL::Ptr<Tpetra::MultiVector<>>    ahwvf = getField(ahwv);
-	ROL::Ptr<const Tpetra::MultiVector<>> vf = getConstField(v);
-	if (ahwvf != ROL::nullPtr) {
-	  assembleHun_zf(w,uo,un,z,ts);
-	  applyHessian_un_zf(ahwvf,vf);
-	}
-	if (ahwvp != ROL::nullPtr) {
-	  assembleHun_zp(w,uo,un,z,ts);
-	  applyHessian_un_zp(ahwvp,vf);
-	}
-      }
+    ROL::Ptr<std::vector<Real>>        ahwvp = getParameter(ahwv);
+    ROL::Ptr<Tpetra::MultiVector<>>    ahwvf = getField(ahwv);
+    ROL::Ptr<const Tpetra::MultiVector<>> vf = getConstField(v);
+    if (ahwvf != ROL::nullPtr) {
+      assembleHun_zf(w,uo,un,z,ts);
+      applyHessian_un_zf(ahwvf,vf);
+    }
+    if (ahwvp != ROL::nullPtr) {
+      assembleHun_zp(w,uo,un,z,ts);
+      applyHessian_un_zp(ahwvp,vf);
+    }
   }
 
 
@@ -1762,63 +1609,18 @@ public:
                           const ROL::Vector<Real>    &un,
                           const ROL::Vector<Real>    &z,
                           const ROL::TimeStamp<Real> &ts) const {
-    // ROL::Ptr<Tpetra::MultiVector<>>    ahwvf = getField(ahwv);
-    // ROL::Ptr<const Tpetra::MultiVector<>> vf = getConstField(v);
-    // ROL::Ptr<const std::vector<Real>>     vp = getConstParameter(v);
-    // if (vf != ROL::nullPtr) {
-    //   assembleHzf_uo(w,uo,un,z,ts);
-    //   applyHessian_zf_uo(ahwvf,vf);
-    // }
-    // if (vp != ROL::nullPtr) {
-    //   bool zeroOut = (vf == ROL::nullPtr);
-    //   assembleHzp_uo(w,uo,un,z,ts);
-    //   applyHessian_zp_uo(ahwvf,vp,zeroOut);
-    // }
-    if(!isHzf_uoNotImplemented_ & !isHzp_uoNotImplemented_)
-      {
-	ROL::Ptr<const Tpetra::MultiVector<>> vf = getConstField(v);
-	ROL::Ptr<const std::vector<Real>>     vp = getConstParameter(v);
-	if (vf != ROL::nullPtr) {
-	  assembleHzf_uo(w,uo,un,z,ts);
-	}
-	if (vp != ROL::nullPtr) {
-	  assembleHzp_uo(w,uo,un,z,ts);
-	}
-      }
-    if(isHzf_uoNotImplemented_ || isHzp_uoNotImplemented_)
-      {
-	Real h = 1.e-3;	
-	// Evaluate Jacobian at new state
-	ROL::Ptr<ROL::Vector<Real> > zc = z.clone();
-	zc->set(z);
-	zc->axpy(h,v);
-	isResAssembled_    = false;
-	isJuoAssembled_    = (isJuoZero_    ? isJuoAssembled_    : false);
-	applyAdjointJacobian_uo(ahwv,w,uo,un,*zc,ts);
-	// Evaluate Jacobian at old state
-	ROL::Ptr<ROL::Vector<Real> > jv = ahwv.clone();
-	isResAssembled_    = false;
-	isJuoAssembled_    = (isJuoZero_    ? isJuoAssembled_    : false);
-	applyAdjointJacobian_uo(*jv,w,uo,un,z,ts);
-	// Compute Newton quotient
-	ahwv.axpy(-1.0,*jv);
-	ahwv.scale(1.0/h);
-      }
-    else
-      {
-	ROL::Ptr<Tpetra::MultiVector<>>    ahwvf = getField(ahwv);
-	ROL::Ptr<const Tpetra::MultiVector<>> vf = getConstField(v);
-	ROL::Ptr<const std::vector<Real>>     vp = getConstParameter(v);
-	if (vf != ROL::nullPtr) {
-	  assembleHzf_uo(w,uo,un,z,ts);
-	  applyHessian_zf_uo(ahwvf,vf);
-	}
-	if (vp != ROL::nullPtr) {
-	  bool zeroOut = (vf == ROL::nullPtr);
-	  assembleHzp_uo(w,uo,un,z,ts);
-	  applyHessian_zp_uo(ahwvf,vp,zeroOut);
-	}
-      }
+    ROL::Ptr<Tpetra::MultiVector<>>    ahwvf = getField(ahwv);
+    ROL::Ptr<const Tpetra::MultiVector<>> vf = getConstField(v);
+    ROL::Ptr<const std::vector<Real>>     vp = getConstParameter(v);
+    if (vf != ROL::nullPtr) {
+      assembleHzf_uo(w,uo,un,z,ts);
+      applyHessian_zf_uo(ahwvf,vf);
+    }
+    if (vp != ROL::nullPtr) {
+      bool zeroOut = (vf == ROL::nullPtr);
+      assembleHzp_uo(w,uo,un,z,ts);
+      applyHessian_zp_uo(ahwvf,vp,zeroOut);
+    }
   }
 
 
@@ -1829,63 +1631,18 @@ public:
                           const ROL::Vector<Real>    &un,
                           const ROL::Vector<Real>    &z,
                           const ROL::TimeStamp<Real> &ts) const {
-    // ROL::Ptr<Tpetra::MultiVector<>>    ahwvf = getField(ahwv);
-    // ROL::Ptr<const Tpetra::MultiVector<>> vf = getConstField(v);
-    // ROL::Ptr<const std::vector<Real>>     vp = getConstParameter(v);
-    // if (vf != ROL::nullPtr) {
-    //   assembleHzf_un(w,uo,un,z,ts);
-    //   applyHessian_zf_un(ahwvf,vf);
-    // }
-    // if (vp != ROL::nullPtr) {
-    //   bool zeroOut = (vf == ROL::nullPtr);
-    //   assembleHzp_un(w,uo,un,z,ts);
-    //   applyHessian_zp_un(ahwvf,vp,zeroOut);
-    // }
-    if(!isHzf_unNotImplemented_ & !isHzp_unNotImplemented_)
-      {
-	ROL::Ptr<const Tpetra::MultiVector<>> vf = getConstField(v);
-	ROL::Ptr<const std::vector<Real>>     vp = getConstParameter(v);
-	if (vf != ROL::nullPtr) {
-	  assembleHzf_un(w,uo,un,z,ts);
-	}
-	if (vp != ROL::nullPtr) {
-	  assembleHzp_un(w,uo,un,z,ts);
-	}
-      }
-    if(isHzf_unNotImplemented_ || isHzp_unNotImplemented_)
-      {
-	Real h = 1.e-3;	
-	// Evaluate Jacobian at new state
-	ROL::Ptr<ROL::Vector<Real> > zc = z.clone();
-	zc->set(z);
-	zc->axpy(h,v);
-	isResAssembled_    = false;
-	isJunAssembled_    = (isJunZero_    ? isJunAssembled_    : false);
-	applyAdjointJacobian_un(ahwv,w,uo,un,*zc,ts);
-	// Evaluate Jacobian at old state
-	ROL::Ptr<ROL::Vector<Real> > jv = ahwv.clone();
-	isResAssembled_    = false;
-	isJunAssembled_    = (isJunZero_    ? isJunAssembled_    : false);
-	applyAdjointJacobian_un(*jv,w,uo,un,z,ts);
-	// Compute Newton quotient
-	ahwv.axpy(-1.0,*jv);
-	ahwv.scale(1.0/h);
-      }
-    else
-      {
-	ROL::Ptr<Tpetra::MultiVector<>>    ahwvf = getField(ahwv);
-	ROL::Ptr<const Tpetra::MultiVector<>> vf = getConstField(v);
-	ROL::Ptr<const std::vector<Real>>     vp = getConstParameter(v);
-	if (vf != ROL::nullPtr) {
-	  assembleHzf_un(w,uo,un,z,ts);
-	  applyHessian_zf_un(ahwvf,vf);
-	}
-	if (vp != ROL::nullPtr) {
-	  bool zeroOut = (vf == ROL::nullPtr);
-	  assembleHzp_un(w,uo,un,z,ts);
-	  applyHessian_zp_un(ahwvf,vp,zeroOut);
-	}
-      }
+    ROL::Ptr<Tpetra::MultiVector<>>    ahwvf = getField(ahwv);
+    ROL::Ptr<const Tpetra::MultiVector<>> vf = getConstField(v);
+    ROL::Ptr<const std::vector<Real>>     vp = getConstParameter(v);
+    if (vf != ROL::nullPtr) {
+      assembleHzf_un(w,uo,un,z,ts);
+      applyHessian_zf_un(ahwvf,vf);
+    }
+    if (vp != ROL::nullPtr) {
+      bool zeroOut = (vf == ROL::nullPtr);
+      assembleHzp_un(w,uo,un,z,ts);
+      applyHessian_zp_un(ahwvf,vp,zeroOut);
+    }
   }
 
 
@@ -1896,81 +1653,26 @@ public:
                          const ROL::Vector<Real>    &un,
                          const ROL::Vector<Real>    &z,
                          const ROL::TimeStamp<Real> &ts) const {
-    // ROL::Ptr<Tpetra::MultiVector<>>    ahwvf = getField(ahwv);
-    // ROL::Ptr<std::vector<Real>>        ahwvp = getParameter(ahwv);
-    // ROL::Ptr<const Tpetra::MultiVector<>> vf = getConstField(v);
-    // ROL::Ptr<const std::vector<Real>>     vp = getConstParameter(v);
+    ROL::Ptr<Tpetra::MultiVector<>>    ahwvf = getField(ahwv);
+    ROL::Ptr<std::vector<Real>>        ahwvp = getParameter(ahwv);
+    ROL::Ptr<const Tpetra::MultiVector<>> vf = getConstField(v);
+    ROL::Ptr<const std::vector<Real>>     vp = getConstParameter(v);
 
-    // bool zeroOut = (vf == ROL::nullPtr);
-    // if (vf != ROL::nullPtr) {
-    //   assembleHzf_zf(w,uo,un,z,ts);
-    //   applyHessian_zf_zf(ahwvf,vf);
-    // }
-    // if (vp != ROL::nullPtr) {
-    //   assembleHzp_zp(w,uo,un,z,ts);
-    //   applyHessian_zp_zp(ahwvp,vp,zeroOut);
-    // }
-    // if (vf != ROL::nullPtr && vp != ROL::nullPtr) {
-    //   assembleHzf_zp(w,uo,un,z,ts);
-    //   applyHessian_zf_zp(ahwvp,vf,zeroOut);
-    //   assembleHzp_zf(w,uo,un,z,ts);
-    //   applyHessian_zp_zf(ahwvf,vp);
-    // }
-    if(!isHzf_zfNotImplemented_ & !isHzp_zpNotImplemented_)
-      {
-	ROL::Ptr<const Tpetra::MultiVector<>> vf = getConstField(v);
-	ROL::Ptr<const std::vector<Real>>     vp = getConstParameter(v);
-	if (vf != ROL::nullPtr) {
-	  assembleHzf_zf(w,uo,un,z,ts);
-	}
-	if (vp != ROL::nullPtr) {
-	  assembleHzp_zp(w,uo,un,z,ts);
-	}
-      }
-    if(isHzf_zfNotImplemented_ || isHzp_zpNotImplemented_)
-      {
-	Real h = 1.e-3;	
-	// Evaluate Jacobian at new state
-	ROL::Ptr<ROL::Vector<Real> > zc = z.clone();
-	zc->set(z);
-	zc->axpy(h,v);
-	isResAssembled_    = false;
-	isJzfAssembled_    = (isJzfZero_    ? isJzfAssembled_    : false);
-	isJzpAssembled_    = (isJzpZero_    ? isJzpAssembled_    : false);
-	applyAdjointJacobian_z(ahwv,w,uo,un,*zc,ts);
-	// Evaluate Jacobian at old state
-	ROL::Ptr<ROL::Vector<Real> > jv = ahwv.clone();
-	isResAssembled_    = false;
-	isJzfAssembled_    = (isJzfZero_    ? isJzfAssembled_    : false);
-	isJzpAssembled_    = (isJzpZero_    ? isJzpAssembled_    : false);
-	applyAdjointJacobian_z(*jv,w,uo,un,z,ts);
-	// Compute Newton quotient
-	ahwv.axpy(-1.0,*jv);
-	ahwv.scale(1.0/h);
-      }
-    else
-      {
-	ROL::Ptr<Tpetra::MultiVector<>>    ahwvf = getField(ahwv);
-	ROL::Ptr<std::vector<Real>>        ahwvp = getParameter(ahwv);
-	ROL::Ptr<const Tpetra::MultiVector<>> vf = getConstField(v);
-	ROL::Ptr<const std::vector<Real>>     vp = getConstParameter(v);
-	
-	bool zeroOut = (vf == ROL::nullPtr);
-	if (vf != ROL::nullPtr) {
-	  assembleHzf_zf(w,uo,un,z,ts);
-	  applyHessian_zf_zf(ahwvf,vf);
-	}
-	if (vp != ROL::nullPtr) {
-	  assembleHzp_zp(w,uo,un,z,ts);
-	  applyHessian_zp_zp(ahwvp,vp,zeroOut);
-	}
-	if (vf != ROL::nullPtr && vp != ROL::nullPtr) {
-	  assembleHzf_zp(w,uo,un,z,ts);
-	  applyHessian_zf_zp(ahwvp,vf,zeroOut);
-	  assembleHzp_zf(w,uo,un,z,ts);
-	  applyHessian_zp_zf(ahwvf,vp);
-	}
-      }
+    bool zeroOut = (vf == ROL::nullPtr);
+    if (vf != ROL::nullPtr) {
+      assembleHzf_zf(w,uo,un,z,ts);
+      applyHessian_zf_zf(ahwvf,vf);
+    }
+    if (vp != ROL::nullPtr) {
+      assembleHzp_zp(w,uo,un,z,ts);
+      applyHessian_zp_zp(ahwvp,vp,zeroOut);
+    }
+    if (vf != ROL::nullPtr && vp != ROL::nullPtr) {
+      assembleHzf_zp(w,uo,un,z,ts);
+      applyHessian_zf_zp(ahwvp,vf,zeroOut);
+      assembleHzp_zf(w,uo,un,z,ts);
+      applyHessian_zp_zf(ahwvf,vp);
+    }
   }
 
   void setParameter(const std::vector<Real> & param) 

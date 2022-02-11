@@ -50,8 +50,7 @@ public:
     	val = e_vec_1d(vec_ptr_->getMap()->getLocalElement(k));
       }    
     char *buff = (char*)&val;
-    long long int k_ll = (long long int)k;
-    Teuchos::ArrayView<long long int> node = Teuchos::ArrayView<long long int>(&k_ll,1);
+    Teuchos::ArrayView<int> node = Teuchos::ArrayView<int>(&k,1);
     int proc = 0;
     Teuchos::ArrayView<int> node_id = Teuchos::ArrayView<int>(&proc,1);
     auto lookup = vec_ptr_->getMap()->getRemoteIndexList(node,node_id);

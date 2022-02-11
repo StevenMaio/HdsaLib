@@ -76,7 +76,7 @@ public:
 								    pde_tf->getFieldHelper());
     HDSA::Ptr<StdObjective_ThermalFluids<RealT> > std_obj = HDSA::makePtr<StdObjective_ThermalFluids<RealT> >(*parlist);
     HDSA::Ptr<ROL::Objective_SimOpt<RealT> > obj = HDSA::makePtr<PDE_Objective<RealT> >(qoi_vec,std_obj,assembler);
-    HDSA::Ptr<ROL::SimController<RealT> > stateStore = HDSA::makePtr<ROL::SimController<RealT> >();
+    HDSA::Ptr<ROL::VectorController<RealT> > stateStore = HDSA::makePtr<ROL::VectorController<RealT> >();
     robj = HDSA::makePtr<Reduced_Objective_SimOpt_modified<RealT> >(obj, con, stateStore, up, zp, pp, true, false);
 
     RealT tol(1.e-8);

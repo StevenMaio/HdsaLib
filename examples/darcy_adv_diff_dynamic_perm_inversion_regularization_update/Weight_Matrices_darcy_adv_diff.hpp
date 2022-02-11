@@ -101,7 +101,7 @@ public:
     RealT delta_y = 1.0/ny_float;
 
     HDSA::Ptr<Tpetra::MultiVector<> > z_tpetra = HDSA::dynamicPtrCast<ROL_PDEOPT_Tpetra_Vector<RealT> >(z_in)->get_tpetra_vec(); 
-    Teuchos::Array<long long int> Map_myGlobalIds;
+    Teuchos::Array<int> Map_myGlobalIds;
     for(int i = 0; i < dim; i++)
       {
 	Map_myGlobalIds.push_back(i);

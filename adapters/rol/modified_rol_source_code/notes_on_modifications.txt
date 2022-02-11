@@ -2,7 +2,7 @@ I added the "get_z_field_container" function to assembler.hpp and assembler_def.
 
 I added the "setParameter" function to ROL_DynamicConstraint.hpp, ROL_DynamicObjective.hpp, ROL_ReducedDynamicObjective.hpp, and dynconstraint.hpp. This is needed to update the parameters in the PDE.
 
-I put hessian finite differences in dynconstraint.hpp as a default if they are not provided.
+I put hessian finite differences in dynconstraint.hpp as a default if they are not provided. As of February 11, 2022 I stopped maintaining this modification as it is unnecessary work each time ROL changes.
 
 I modified the "setParameter" function in dynpde.hpp to make it virtual. This was necessary for parameter updates in the dynamic constraint.
 

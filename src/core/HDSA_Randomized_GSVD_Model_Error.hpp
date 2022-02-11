@@ -87,6 +87,7 @@ namespace HDSA
 	  if(proc_dist->Does_Processor_Own_Vector(k))
       	    {
 	      std::clock_t timer_range_iter_k = std::clock();
+	      // This is still implementing independent sampling, I implemented joint sampling in the Matlab code and observed that it didn't make a difference
 	      HDSA::Ptr<HDSA::Vector<RealT> >  u_vec_random = Sen_Op_subcomm->Generate_Random_u_Vector();
 	      u_vec_random->scale(std::sqrt(1.0+std::pow(model_error_objects->Mz_star_->norm(),2.0))); 
 	      HDSA::Ptr<HDSA::Vector<RealT> >  z_vec_random = Sen_Op_subcomm->Generate_Random_z_Vector();

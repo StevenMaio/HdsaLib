@@ -3,15 +3,15 @@
 
 #include "ROL_Objective_SimOpt.hpp"
 #include "ROL_Constraint_SimOpt.hpp"
-#include "ROL_SimController.hpp"
+#include "ROL_VectorController.hpp"
 
 template <class Real>
 class Reduced_Objective_SimOpt_modified : public ROL::Objective<Real> {
 private:
   const ROL::Ptr<ROL::Objective_SimOpt<Real> > obj_;          
   const ROL::Ptr<ROL::Constraint_SimOpt<Real> > con_; 
-  ROL::Ptr<ROL::SimController<Real> > stateStore_;
-  ROL::Ptr<ROL::SimController<Real> > adjointStore_;
+  ROL::Ptr<ROL::VectorController<Real> > stateStore_;
+  ROL::Ptr<ROL::VectorController<Real> > adjointStore_;
 
   // Primal vectors
   ROL::Ptr<ROL::Vector<Real> > state_;                              
@@ -133,8 +133,8 @@ public:
     : obj_(obj), con_(con),
       storage_(storage), useFDhessVec_(useFDhessVec),
       updateFlag_(true), updateIter_(0) {
-    stateStore_   = ROL::makePtr<ROL::SimController<Real>>();
-    adjointStore_ = ROL::makePtr<ROL::SimController<Real>>();
+    stateStore_   = ROL::makePtr<ROL::VectorController<Real>>();
+    adjointStore_ = ROL::makePtr<ROL::VectorController<Real>>();
     state_        = state->clone();
     adjoint_      = adjoint->clone();
     state_sens_   = state->clone();
@@ -172,8 +172,8 @@ public:
     : obj_(obj), con_(con),
       storage_(storage), useFDhessVec_(useFDhessVec),
       updateFlag_(true), updateIter_(0) {
-    stateStore_   = ROL::makePtr<ROL::SimController<Real>>();
-    adjointStore_ = ROL::makePtr<ROL::SimController<Real>>();
+    stateStore_   = ROL::makePtr<ROL::VectorController<Real>>();
+    adjointStore_ = ROL::makePtr<ROL::VectorController<Real>>();
     state_        = state->clone();
     adjoint_      = adjoint->clone();
     state_sens_   = state->clone();
@@ -188,7 +188,7 @@ public:
 
       @param[in] obj          is a pointer to a SimOpt objective function.
       @param[in] con          is a pointer to a SimOpt equality constraint.
-      @param[in] stateStore   is a pointer to a SimController object.
+      @param[in] stateStore   is a pointer to a VectorController object.
       @param[in] state        is a pointer to a state space vector, \f$\mathcal{U}\f$.
       @param[in] control      is a pointer to a optimization space vector, \f$\mathcal{Z}\f$.
       @param[in] adjoint      is a pointer to a dual constraint space vector, \f$\mathcal{C}^*\f$.
@@ -198,7 +198,7 @@ public:
   Reduced_Objective_SimOpt_modified(
       const ROL::Ptr<ROL::Objective_SimOpt<Real> > &obj, 
       const ROL::Ptr<ROL::Constraint_SimOpt<Real> > &con, 
-      const ROL::Ptr<ROL::SimController<Real> > &stateStore, 
+      const ROL::Ptr<ROL::VectorController<Real> > &stateStore, 
       const ROL::Ptr<ROL::Vector<Real> > &state, 
       const ROL::Ptr<ROL::Vector<Real> > &control, 
       const ROL::Ptr<ROL::Vector<Real> > &adjoint,
@@ -207,7 +207,7 @@ public:
     : obj_(obj), con_(con), stateStore_(stateStore),
       storage_(storage), useFDhessVec_(useFDhessVec),
       updateFlag_(true), updateIter_(0) {
-    adjointStore_ = ROL::makePtr<ROL::SimController<Real>>();
+    adjointStore_ = ROL::makePtr<ROL::VectorController<Real>>();
     state_        = state->clone();
     adjoint_      = adjoint->clone();
     state_sens_   = state->clone();
@@ -223,7 +223,7 @@ public:
 
       @param[in] obj          is a pointer to a SimOpt objective function.
       @param[in] con          is a pointer to a SimOpt equality constraint.
-      @param[in] stateStore   is a pointer to a SimController object.
+      @param[in] stateStore   is a pointer to a VectorController object.
       @param[in] state        is a pointer to a state space vector, \f$\mathcal{U}\f$.
       @param[in] control      is a pointer to a optimization space vector, \f$\mathcal{Z}\f$.
       @param[in] adjoint      is a pointer to a dual constraint space vector, \f$\mathcal{C}^*\f$.
@@ -235,7 +235,7 @@ public:
   Reduced_Objective_SimOpt_modified(
       const ROL::Ptr<ROL::Objective_SimOpt<Real> > &obj,
       const ROL::Ptr<ROL::Constraint_SimOpt<Real> > &con,
-      const ROL::Ptr<ROL::SimController<Real> > &stateStore, 
+      const ROL::Ptr<ROL::VectorController<Real> > &stateStore, 
       const ROL::Ptr<ROL::Vector<Real> > &state,
       const ROL::Ptr<ROL::Vector<Real> > &control, 
       const ROL::Ptr<ROL::Vector<Real> > &adjoint,
@@ -247,7 +247,7 @@ public:
     : obj_(obj), con_(con), stateStore_(stateStore),
       storage_(storage), useFDhessVec_(useFDhessVec),
       updateFlag_(true), updateIter_(0) {
-    adjointStore_ = ROL::makePtr<ROL::SimController<Real>>();
+    adjointStore_ = ROL::makePtr<ROL::VectorController<Real>>();
     state_        = state->clone();
     adjoint_      = adjoint->clone();
     state_sens_   = state->clone();

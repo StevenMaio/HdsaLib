@@ -124,7 +124,7 @@ public:
     std::vector<RealT> weights = std::vector<RealT>(1);
     weights[0] = parlist->sublist("Problem").get("State Cost",1.0);
     HDSA::Ptr<ROL::Objective_SimOpt<RealT> > obj = HDSA::makePtr<ROL::LinearCombinationObjective_SimOpt<RealT> >(weights,obj_vec);
-    HDSA::Ptr<ROL::SimController<RealT> > stateStore = HDSA::makePtr<ROL::SimController<RealT> >();
+    HDSA::Ptr<ROL::VectorController<RealT> > stateStore = HDSA::makePtr<ROL::VectorController<RealT> >();
     HDSA::Ptr<ROL::Objective<RealT> > robj_misfit = HDSA::makePtr<ROL::Reduced_Objective_SimOpt<RealT> >(obj, con, stateStore, u, z, c, true, false);
 
     std::vector<HDSA::Ptr<ROL::Objective_SimOpt<RealT> > > reg_obj(2);   

@@ -116,7 +116,7 @@ public:
     weights[1] = parlist->sublist("Problem").get("Control Cost",1.e-3);
     obj = HDSA::makePtr<ROL::LinearCombinationObjective_SimOpt<RealT> >(weights,obj_vec);
   
-    HDSA::Ptr<ROL::SimController<RealT> > stateStore = HDSA::makePtr<ROL::SimController<RealT> >();
+    HDSA::Ptr<ROL::VectorController<RealT> > stateStore = HDSA::makePtr<ROL::VectorController<RealT> >();
     HDSA::Ptr<ROL::Reduced_Objective_SimOpt<RealT> > robj = HDSA::makePtr<ROL::Reduced_Objective_SimOpt<RealT> >(obj, con, stateStore, up, zp, pp, true, false);
   
     // Run derivative checks
