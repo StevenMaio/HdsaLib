@@ -22,6 +22,7 @@ namespace HDSA
     bool compute_gsvd_sensitivities_;
     bool compute_direct_sensitivities_;
     bool compute_model_error_sensitivities_;
+    bool compute_bayes_model_error_sensitivities_;
     bool reduced_space_sen_;
     bool randomized_hessian_eigenvector_projection_;
     bool randomized_LIS_eigenvector_projection_;
@@ -51,6 +52,7 @@ namespace HDSA
       compute_gsvd_sensitivities_ = parlist_sensitivity_->sublist("Formulation").get("Compute GSVD Sensitivities", true);
       compute_direct_sensitivities_ = parlist_sensitivity_->sublist("Formulation").get("Compute Direct Sensitivities", false);
       compute_model_error_sensitivities_ = parlist_sensitivity_->sublist("Formulation").get("Compute Model Error Sensitivities", false);
+      compute_bayes_model_error_sensitivities_ = parlist_sensitivity_->sublist("Formulation").get("Compute Bayes Model Error Sensitivities", false);     
       randomized_hessian_eigenvector_projection_ = parlist_sensitivity_->sublist("Formulation").get("Randomized Hessian Eigenvector Projection", false);
       randomized_LIS_eigenvector_projection_ = parlist_sensitivity_->sublist("Formulation").get("Randomized Likelihood Informed Subspace Eigenvector Projection", false);
       randomized_LIS_construct_B_ = parlist_sensitivity_->sublist("Randomized Likelihood Informed Subspace EVP").get("Construct B", false);
@@ -82,8 +84,16 @@ namespace HDSA
 	    {
 	      OP_Objects->z->Enforce_Zeros();
 	    }
-	  Opt_Problem_Objects_Model_Error<RealT> &eOP_Objects = dynamic_cast<Opt_Problem_Objects_Model_Error<RealT>&>(*OP_Objects);
-	  eOP_Objects.Construct_Model_Error_Objects_Test();
+	  if(compute_model_error_sensitivities_)
+	    {
+	      Opt_Problem_Objects_Model_Error<RealT> &eOP_Objects = dynamic_cast<Opt_Problem_Objects_Model_Error<RealT>&>(*OP_Objects);
+	      eOP_Objects.Construct_Model_Error_Objects_Test();
+	    }
+	  else if(compute_bayes_model_error_sensitivities_)
+	    {
+	      Opt_Problem_Objects_Bayes_Model_Error<RealT> &eOP_Objects = dynamic_cast<Opt_Problem_Objects_Bayes_Model_Error<RealT>&>(*OP_Objects);
+	      eOP_Objects.Construct_Model_Error_Objects_Test();
+	    }
 	}
 
       if(construct_weight_mat_)
@@ -327,7 +337,16 @@ namespace HDSA
 	  solver->Compute();
 	}
 
+
+      if(compute_bayes_model_error_sensitivities_)
+	{
+	  HDSA::Ptr<HDSA::Bayes_Model_Error<RealT> > solver = HDSA::makePtr<HDSA::Bayes_Model_Error<RealT> >(theta_, parlist_sensitivity_, comm_, OP_Objects_Factory_,
+													     weight_matrices_factory_, sample_index_);
+	  solver->Compute();
+	}
+
     }
+
     
   };
 

@@ -282,7 +282,7 @@ namespace Linear_Algebra
 
   // Compute eigenvalue decomposition A=V*S*V^T for a symmetric matrix A, store eigenvalues in a length n std::vector S instead of nxn diagonal matrix
   template <class RealT>
-  void Symmetric_Eig_Decomposition(HDSA::Ptr<HDSA::Dense_Matrix<RealT> > & A, HDSA::Ptr<HDSA::Dense_Matrix<RealT> > & V, HDSA::Ptr<HDSA::Vector<RealT> > & S) 
+  void Symmetric_Eig_Decomposition(const HDSA::Ptr<HDSA::Dense_Matrix<RealT> > & A, HDSA::Ptr<HDSA::Dense_Matrix<RealT> > & V, HDSA::Ptr<HDSA::Vector<RealT> > & S) 
   {
     int n = A->numRows();
     HDSA::Ptr<Teuchos::SerialDenseMatrix<int, RealT> > B = HDSA::makePtr<Teuchos::SerialDenseMatrix<int, RealT> >(n,n);
