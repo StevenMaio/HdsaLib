@@ -1,7 +1,7 @@
 #ifndef HDSA_BAYES_MODEL_ERROR_HPP
 #define HDSA_BAYES_MODEL_ERROR_HPP
 
-// This class executes the randomized GSVD solver for model error
+// This class executes the Bayesian HDSA with respect to model form error
 
 namespace HDSA
 {
@@ -17,6 +17,7 @@ namespace HDSA
     HDSA::Ptr<Weight_Matrices<RealT> > weight_matrices_factory_;
     int sample_index_;
     int num_prior_samps_;
+    int num_post_samps_;
     HDSA::Ptr<HDSA::MultiVector<RealT> > Z0_samps_;
     HDSA::Ptr<HDSA::MultiVector<RealT> > U0_samps_;
     HDSA::Ptr<HDSA::Bayes_Posterior_Data<RealT> > post_data_;    
@@ -29,6 +30,7 @@ namespace HDSA
       theta_(theta), parlist_sensitivity_(parlist_sensitivity), comm_(comm), OP_Objects_Factory_(OP_Objects_Factory), weight_matrices_factory_(weight_matrices_factory), sample_index_(sample_index)
     {
       num_prior_samps_ = parlist_sensitivity_->sublist("Bayes Model Error").get("Number of Prior Samples", 5);
+      num_post_samps_ = parlist_sensitivity_->sublist("Bayes Model Error").get("Number of Posterior Samples", 5);
     }
     
     void Compute(void)
@@ -102,14 +104,90 @@ namespace HDSA
       post_data_->N = post_data_->Z->Number_of_Vectors();
       
       post_data_->Gamma_inv_Z = HDSA::makePtr<HDSA::MultiVector<RealT> >(post_data_->N,bayes_model_error_objects->OP_Objects_->z);
+      post_data_->Mz_inv_Gamma_inv_Z = HDSA::makePtr<HDSA::MultiVector<RealT> >(post_data_->N,bayes_model_error_objects->OP_Objects_->z);
       for(int k = 0; k < post_data_->N; k++)
 	{
 	  HDSA::Ptr<HDSA::Vector<RealT> > zk = (*post_data_->Z)[k];
 	  HDSA::Ptr<HDSA::Vector<RealT> > gzk = (*post_data_->Gamma_inv_Z)[k];
 	  bayes_model_error_objects->Apply_Gamma_Mat_Inverse(gzk,zk);
+	  HDSA::Ptr<HDSA::Vector<RealT> > Mgzk = (*post_data_->Mz_inv_Gamma_inv_Z)[k];
+	  weight_matrices->Apply_z_Weight_Mat_Inverse(Mgzk,gzk);
 	}
 
-      // Need to conintue implementation
+      post_data_->G = HDSA::makePtr<HDSA::Dense_Matrix<RealT> >(post_data_->N,post_data_->N);
+      for(int i = 0; i < post_data_->N; i++)
+	{
+	  HDSA::Ptr<HDSA::Vector<RealT> > zi = (*post_data_->Z)[i];
+	  HDSA::Ptr<HDSA::Vector<RealT> > gzi = (*post_data_->Gamma_inv_Z)[i];
+	  RealT vali = 1.0 + bayes_model_error_objects->z_star_gamma_inv_z_star_ - zi->dot(*bayes_model_error_objects->gamma_inv_z_star_);
+	  for(int j = 0; j < i+1; j++)
+	    {
+	      HDSA::Ptr<HDSA::Vector<RealT> > zj = (*post_data_->Z)[j];
+	      RealT val = vali;
+	      val -= zj->dot(*bayes_model_error_objects->gamma_inv_z_star_);
+	      val += zj->dot(*gzi);
+	      post_data_->G->Replace_Element(i,j,val);
+	    }
+	}
+      for(int i = 0; i < post_data_->N; i++)
+	{
+	  for(int j = i+1; j < post_data_->N; j++)
+	    {
+	      post_data_->G->Replace_Element(i,j,(*post_data_->G)(j,i));
+	    }
+	}
+
+      post_data_->g_vecs = HDSA::makePtr<HDSA::Dense_Matrix<RealT> >(post_data_->N,post_data_->N);
+      post_data_->Lambda = HDSA::makePtr<Std_Vector<RealT> >(post_data_->N);
+      HDSA::Linear_Algebra::Symmetric_Eig_Decomposition<RealT>(post_data_->G, post_data_->g_vecs, post_data_->Lambda);
+
+      post_data_->u_ell = HDSA::makePtr<HDSA::MultiVector<RealT> >(post_data_->N,bayes_model_error_objects->OP_Objects_->u);      
+      post_data_->u_i_ell.resize(post_data_->N);
+      for(int i = 0; i < post_data_->N; i++)
+	{
+	  post_data_->u_i_ell[i] = HDSA::makePtr<HDSA::MultiVector<RealT> >(post_data_->N,bayes_model_error_objects->OP_Objects_->u);
+	  for(int ell = 0; ell < post_data_->N; ell++)
+	    {
+	      HDSA::Ptr<HDSA::Vector<RealT> > yl = (*post_data_->Y)[ell];
+	      HDSA::Ptr<HDSA::Vector<RealT> > ul = (*post_data_->u_ell)[ell];
+	      bayes_model_error_objects->Apply_L_Mat_Inverse(ul,yl);
+	      HDSA::Ptr<HDSA::Vector<RealT> > uil = (*post_data_->u_i_ell[i])[ell];
+	      bayes_model_error_objects->Apply_L_Plus_Shift_Mat_Inverse(uil,ul,(*post_data_->Lambda)(i)/post_data_->alpha);
+	      uil->scale(1.0/post_data_->alpha);
+	    }
+	}
+
+      post_data_->a_ell = HDSA::makePtr<HDSA::Dense_Matrix<RealT> >(post_data_->N,1);
+      post_data_->b_i_ell = HDSA::makePtr<HDSA::Dense_Matrix<RealT> >(post_data_->N,post_data_->N);
+      for(int ell = 0; ell < post_data_->N; ell++)
+	{
+	  HDSA::Ptr<HDSA::Vector<RealT> > zl = (*post_data_->Z)[ell];
+	  RealT val_a = 1.0 - zl->dot(*bayes_model_error_objects->gamma_inv_z_star_) + bayes_model_error_objects->z_star_gamma_inv_z_star_;
+	  post_data_->a_ell->Replace_Element(ell,0,val_a);
+	  for(int i = 0; i < post_data_->N; i++)
+	    {
+	      RealT val_b = 0.0;
+	      for(int k = 0; k < post_data_->N; k++)
+		{
+		  HDSA::Ptr<HDSA::Vector<RealT> > gzk = (*post_data_->Gamma_inv_Z)[k];
+		  val_b += (*post_data_->g_vecs)(k,i)*(zl->dot(*gzk) - gzk->dot(*bayes_model_error_objects->OP_Objects_->z) + (*post_data_->a_ell)(ell,0));
+		}
+	      post_data_->b_i_ell->Replace_Element(i,ell,val_b);
+	    }
+	}
+      
+      post_data_->u_hat.resize(num_post_samps_);
+      for(int k = 0; k < num_post_samps_; k++)
+	{
+	  post_data_->u_hat[k] = HDSA::makePtr<HDSA::MultiVector<RealT> >(post_data_->N,bayes_model_error_objects->OP_Objects_->u);
+	  for(int i = 0; i < post_data_->N; i++)
+	    {
+	      HDSA::Ptr<HDSA::Vector<RealT> > u_vec = Sen_Op->Generate_Random_u_Vector();
+	      HDSA::Ptr<HDSA::Vector<RealT> > ui = (*post_data_->u_hat[k])[i];
+	      bayes_model_error_objects->Apply_Sqrt_L_Plus_Shift_Mat_Inverse(ui,u_vec,(*post_data_->Lambda)(i)/post_data_->alpha);
+	      ui->scale(1.0/std::sqrt(post_data_->alpha));
+	    }
+	}
 
     }
 

@@ -5,7 +5,8 @@
     <Parameter name="Finite Difference Check"     type="bool" value="false" /> <!-- Compute finite difference approximations of the sensitivity indices by resolving the optimization problem -->
     <Parameter name="Finite Difference Check Step"     type="double" value="1.e-4" />
     <Parameter name="Compute GSVD Sensitivities"   type="bool" value="false" /> <!-- Compute sensitivity indices using a truncated GSVD approximation -->
-    <Parameter name="Compute Model Error Sensitivities"   type="bool" value="true" /> <!-- Compute sensitivity indices using a truncated GSVD approximation -->
+    <Parameter name="Compute Model Error Sensitivities"   type="bool" value="false" /> <!-- Compute sensitivity indices using a truncated GSVD approximation -->
+    <Parameter name="Compute Bayes Model Error Sensitivities"   type="bool" value="true" /> 
     <Parameter name="Compute Direct Sensitivities"   type="bool" value="false" /> <!-- Compute sensitivity indices directly rather than using a truncated GSVD approximation -->
     <Parameter name="Output Sensitivity Operator Columns"   type="bool" value="false" /> <!-- Output columns of the sensitivity operator when computing direct sensitivities -->
     <Parameter name="Randomized Hessian Eigenvector Projection"  type="bool"  value="false" /> <!-- This featured is only supported for reduced space formulations -->
@@ -27,6 +28,11 @@
     <Parameter name="Number of Singular Values"  type="int"  value="2" />
     <Parameter name="Oversampling Factor"  type="int"  value="14" />
     <Parameter name="Number of Subspace Iterations"  type="int"  value="1" />
+  </ParameterList>
+  <ParameterList name="Bayes Model Error">
+   <Parameter name="Number of Prior Samples"  type="int"  value="400" />
+   <Parameter name="Number of Posterior Samples"  type="int"  value="400" />
+   <Parameter name="alpha" type="double"  value="0.01" /> 
   </ParameterList>
   <ParameterList name="Randomized Hessian EVP"> <!-- Only applicable when Compute Hessian Eigenvector Projection = True -->
     <Parameter name="Eigenvalue Algorithm"           type="string"  value="Double Pass" /> <!-- Choose either "Nystrom" or "Double Pass" -->
