@@ -328,6 +328,41 @@ namespace HDSA
       Apply_Inverse_Hessian(z_mean,B_theta_bar,bayes_model_error_objects->OP_Objects_,Nom,grad_nominal);
       z_mean->scale(-1.0);
       z_mean->plus(*bayes_model_error_objects->OP_Objects_->z);
+
+      for(int s = 0; s < num_post_samps_; s++)
+	{
+	  HDSA::Ptr<HDSA::Vector<RealT> > zs = (*z_samples)[s];
+	  
+	  HDSA::Ptr<HDSA::Vector<RealT> > B_theta_hat = bayes_model_error_objects->OP_Objects_->z->Clone();
+	  u_vec_1->zero();
+	  u_vec_2->zero();
+	  for(int i = 0; i < post_data_->N; i++)
+	    {
+	      RealT c = gi_sum[i]/std::sqrt((*post_data_->Lambda)(i));
+	      u_vec_1->axpy(c,*(*post_data_->u_hat[s])[i]);
+	    }
+	  bayes_model_error_objects->OP_Objects_->fs_obj->hessVec_u_u(*u_vec_2, *u_vec_1, *bayes_model_error_objects->OP_Objects_->u,*bayes_model_error_objects->OP_Objects_->z,
+								      *bayes_model_error_objects->OP_Objects_->theta,false,bayes_model_error_objects->g_);
+	  bayes_model_error_objects->Apply_Solution_Operator_z_Jacobian_Transpose(*B_theta_hat, *u_vec_2);
+
+	  for(int i = 0; i < post_data_->N; i++)
+	    {
+	      RealT c = bayes_model_error_objects->g_->dot(*(*post_data_->u_hat[s])[i])/std::sqrt((*post_data_->Lambda)(i));
+	      B_theta_hat->axpy(c,*(*Gamma_inv_w)[i]);
+	    }
+	  B_theta_hat->scale(std::sqrt(post_data_->alpha));
+
+	  HDSA::Ptr<HDSA::Vector<RealT> > B_theta_tilde = bayes_model_error_objects->OP_Objects_->z->Clone();
+
+	  ////// NEED TO IMPLEMENT B_theta_tilde
+
+	  B_theta_tilde->plus(*B_theta_hat);
+	  Apply_Inverse_Hessian(zs,B_theta_tilde,bayes_model_error_objects->OP_Objects_,Nom,grad_nominal);
+	  zs->scale(-1.0);
+	  zs->plus(*z_mean);
+
+	}
+
     }
 
     // Invert in reduced space
