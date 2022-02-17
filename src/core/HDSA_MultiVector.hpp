@@ -33,6 +33,17 @@ public:
     return vecs_[k];
   }
 
+  std::vector<RealT> dot(HDSA::Vector<RealT> & x) const
+  {
+    std::vector<RealT> ips = std::vector<RealT>(num_vecs_,0.0);
+    for(int k = 0; k < num_vecs_; k++)
+      {
+	ips[k] = vecs_[k]->dot(x);
+      }
+    return ips;
+  }
+
+
   int Number_of_Vectors(void) const
   {
     return num_vecs_;

@@ -56,7 +56,7 @@ namespace HDSA
 
       Compute_Prior_Samples(bayes_model_error_objects,weight_matrices_subcomm,Sen_Op_subcomm);
       Compute_Posterior_Data(bayes_model_error_objects,weight_matrices_subcomm,Sen_Op_subcomm);   
-
+      Posterior_Sampling(bayes_model_error_objects);
     }
 
     void Compute_Prior_Samples(HDSA::Ptr<HDSA::Bayes_Model_Error_Objects<RealT> > & bayes_model_error_objects, HDSA::Ptr<HDSA::Weight_Matrices<RealT> > & weight_matrices, 
@@ -191,6 +191,83 @@ namespace HDSA
 
     }
 
+    void Posterior_Sampling(HDSA::Ptr<HDSA::Bayes_Model_Error_Objects<RealT> > & bayes_model_error_objects) const
+    {
+      for(int k = 0; k < post_data_->N; k++)
+	{
+	  HDSA::Ptr<HDSA::MultiVector<RealT> > delta_samples = HDSA::makePtr<HDSA::MultiVector<RealT> >(num_post_samps_,bayes_model_error_objects->OP_Objects_->u);
+	  HDSA::Ptr<HDSA::Vector<RealT> > delta_mean = bayes_model_error_objects->OP_Objects_->u;
+	  Posterior_Discrepancy(delta_samples,delta_mean,(*post_data_->Z)[k],bayes_model_error_objects);
+	  std::string name = "delta_mean_at_z" + std::to_string(k+1) + ".txt";
+	  delta_mean->Write_to_File(name);
+	  name = "delta_samples_at_z" + std::to_string(k+1) + ".txt";
+	  delta_samples->Write_to_File(name);
+	}
+      
+      HDSA::Ptr<HDSA::MultiVector<RealT> > z_samples = HDSA::makePtr<HDSA::MultiVector<RealT> >(num_post_samps_,bayes_model_error_objects->OP_Objects_->z);
+      HDSA::Ptr<HDSA::Vector<RealT> > z_mean = bayes_model_error_objects->OP_Objects_->z;
+      Posterior_Opt_z(z_samples,z_mean,bayes_model_error_objects);
+      std::string name = "opt_z_mean.txt";
+      z_mean->Write_to_File(name);
+      name = "opt_z_samples.txt";
+      z_samples->Write_to_File(name);
+    }
+
+    void Posterior_Discrepancy(HDSA::Ptr<HDSA::MultiVector<RealT> > & delta_samples, HDSA::Ptr<HDSA::Vector<RealT> > & delta_mean, 
+			       const HDSA::Ptr<HDSA::Vector<RealT> > & z, const HDSA::Ptr<HDSA::Bayes_Model_Error_Objects<RealT> > & bayes_model_error_objects) const
+    {
+      HDSA::Ptr<HDSA::Vector<RealT> > dz = z->Clone();
+      dz->set(*z);
+      dz->axpy(-1.0,*bayes_model_error_objects->OP_Objects_->z);
+      HDSA::Ptr<HDSA::Vector<RealT> > z_tmp = z->Clone();
+
+      RealT val = 1.0 - dz->dot(*bayes_model_error_objects->gamma_inv_z_star_);
+      std::vector<RealT> coeff_ell = post_data_->Gamma_inv_Z->dot(*dz);
+      for(int ell = 0; ell < post_data_->N; ell++)
+	{
+	  coeff_ell[ell] += val;
+	}
+      std::vector<RealT> coeff_i = std::vector<RealT>(post_data_->N,0.0);
+      for(int i = 0; i < post_data_->N; i++)
+	{
+	  RealT tmp = 0.0;
+	  for(int k = 0; k < post_data_->N; k++)
+	    {
+	      tmp += coeff_ell[k]*(*post_data_->g_vecs)(k,i);
+	    }
+	  coeff_i[i] = tmp;
+	}
+
+      delta_mean->zero();
+      for(int ell = 0; ell < post_data_->N; ell++)
+	{
+	  delta_mean->axpy(coeff_ell[ell],*(*post_data_->u_ell)[ell]);
+	  for(int i = 0; i < post_data_->N; i++)
+	    {
+	      RealT c = -1.0*coeff_i[i]*(*post_data_->b_i_ell)(i,ell);
+	      delta_mean->axpy(c,*(*post_data_->u_i_ell[i])[ell]);
+	    }
+	}
+      delta_mean->scale(1.0/post_data_->alpha);
+
+      for(int k = 0; k < num_post_samps_; k++)
+	{
+	  HDSA::Ptr<HDSA::Vector<RealT> > delta_k = (*delta_samples)[k];
+	  for(int i = 0; i < post_data_->N; i++)
+	    {
+	      RealT c = coeff_i[i]/std::sqrt((*post_data_->Lambda)(i));
+	      delta_k->axpy(c,*(*post_data_->u_hat[k])[i]);
+	    }
+	  delta_k->scale(std::sqrt(post_data_->alpha));
+	  delta_k->plus(*delta_mean);
+	}
+    }
+
+    void Posterior_Opt_z(HDSA::Ptr<HDSA::MultiVector<RealT> > & z_samples, HDSA::Ptr<HDSA::Vector<RealT> > & z_mean, 
+			 const HDSA::Ptr<HDSA::Bayes_Model_Error_Objects<RealT> > & bayes_model_error_objects) const
+    {
+
+    }
 
     // Invert in reduced space
     void Apply_Inverse_Hessian(HDSA::Ptr<HDSA::Vector<RealT> > & x_star, const HDSA::Ptr<HDSA::Vector<RealT> > & b, HDSA::Ptr<HDSA::Opt_Problem_Objects<RealT> > & OP_Objects,
