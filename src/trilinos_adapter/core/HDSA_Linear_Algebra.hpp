@@ -280,6 +280,29 @@ namespace Linear_Algebra
       }
   }
 
+  // Solve the symmetric linear system via a direct method
+  template <class RealT>
+  void Symmetric_Direct_Linear_Solve(const HDSA::Ptr<HDSA::Dense_Matrix<RealT> > & A, const HDSA::Ptr<HDSA::Vector<RealT> > & x, const HDSA::Ptr<HDSA::Vector<RealT> > & b) 
+  {
+    int n = b->dimension();
+    HDSA::Ptr<HDSA::Dense_Matrix<RealT> > R = HDSA::makePtr<HDSA::Dense_Matrix<RealT> >(n,n);
+    HDSA::Linear_Algebra::Cholesky_Factorization<RealT>(A,R);
+
+    HDSA::Ptr<HDSA::Vector<RealT> > y = x->Clone();
+    for(int i = 0; i < n; i++)
+      {
+	RealT val = (*b)(i);
+	for(int j = 0; j < i; j++)
+	  {
+	    val -= (*y)(i)*(*R)(j,i);
+	  }
+	val = val/(*R)(i,i);
+	y->Replace_Element(i,val);
+      }
+
+    HDSA::Linear_Algebra::Upper_Tri_Solve<RealT>( b, y, R);
+  }
+
   // Compute eigenvalue decomposition A=V*S*V^T for a symmetric matrix A, store eigenvalues in a length n std::vector S instead of nxn diagonal matrix
   template <class RealT>
   void Symmetric_Eig_Decomposition(const HDSA::Ptr<HDSA::Dense_Matrix<RealT> > & A, HDSA::Ptr<HDSA::Dense_Matrix<RealT> > & V, HDSA::Ptr<HDSA::Vector<RealT> > & S) 

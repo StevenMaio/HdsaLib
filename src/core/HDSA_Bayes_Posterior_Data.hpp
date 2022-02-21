@@ -9,6 +9,7 @@ namespace HDSA
 
   public:
     RealT alpha;
+    RealT g_Linv_norm;
     int N;
     HDSA::Ptr<HDSA::MultiVector<RealT> > Z;
     HDSA::Ptr<HDSA::MultiVector<RealT> > Y;

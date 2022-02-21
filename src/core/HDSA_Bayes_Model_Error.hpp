@@ -99,6 +99,7 @@ namespace HDSA
     {
       post_data_ = HDSA::makePtr<HDSA::Bayes_Posterior_Data<RealT> >();
       post_data_->alpha = parlist_sensitivity_->sublist("Bayes Model Error").get("alpha", 1.0);
+      post_data_->g_Linv_norm = std::sqrt(bayes_model_error_objects->coeff_g_Linv_g_/(1.0+bayes_model_error_objects->z_star_gamma_inv_z_star_));
       post_data_->Z = bayes_model_error_objects->Load_Z_Data();
       post_data_->Y = bayes_model_error_objects->Load_Y_Data();
       post_data_->N = post_data_->Z->Number_of_Vectors();
@@ -354,8 +355,32 @@ namespace HDSA
 
 	  HDSA::Ptr<HDSA::Vector<RealT> > B_theta_tilde = bayes_model_error_objects->OP_Objects_->z->Clone();
 
-	  ////// NEED TO IMPLEMENT B_theta_tilde
+	  HDSA::Ptr<HDSA::MultiVector<RealT> > Zhat = HDSA::makePtr<HDSA::MultiVector<RealT> >(post_data_->N-1,bayes_model_error_objects->OP_Objects_->z);
+	  HDSA::Ptr<HDSA::MultiVector<RealT> > Gamma_inv_Zhat = HDSA::makePtr<HDSA::MultiVector<RealT> >(post_data_->N-1,bayes_model_error_objects->OP_Objects_->z);
+	  for(int i = 0; i < post_data_->N-1; i++)
+	    {
+	      HDSA::Ptr<HDSA::Vector<RealT> > zi = (*Zhat)[i]; 
+	      zi->set(*(*post_data_->Z)[i+1]);
+	      zi->axpy(-1.0,*(*post_data_->Z)[0]);
 
+	      HDSA::Ptr<HDSA::Vector<RealT> > gzi = (*Gamma_inv_Zhat)[i]; 
+	      gzi->set(*(*post_data_->Gamma_inv_Z)[i+1]);
+	      gzi->axpy(-1.0,*(*post_data_->Gamma_inv_Z)[0]);
+	    }
+	  HDSA::Ptr<HDSA::Dense_Matrix<RealT> > D = Zhat->dot(*Gamma_inv_Zhat);
+
+	  HDSA::Ptr<HDSA::Vector<RealT> > z0_s = (*Z0_samps_)[s];
+	  HDSA::Ptr<HDSA::Vector<RealT> > rhs = Zhat->dot(*z0_s);
+	  HDSA::Ptr<HDSA::Vector<RealT> > x = rhs->Clone();
+	  HDSA::Linear_Algebra::Symmetric_Direct_Linear_Solve<RealT>(D,x,rhs);
+	  B_theta_tilde->set(*z0_s);
+	  for(int i = 0; i < post_data_->N-1; i++)
+	    {
+	      HDSA::Ptr<HDSA::Vector<RealT> > gzi = (*Gamma_inv_Zhat)[i]; 
+	      B_theta_tilde->axpy(-(*x)(i),*gzi);
+	    }
+	  B_theta_tilde->scale(post_data_->g_Linv_norm);
+	  
 	  B_theta_tilde->plus(*B_theta_hat);
 	  Apply_Inverse_Hessian(zs,B_theta_tilde,bayes_model_error_objects->OP_Objects_,Nom,grad_nominal);
 	  zs->scale(-1.0);
