@@ -52,7 +52,6 @@ classdef Bayesian_Model_Discrepancy_HDSA < handle
         function [] = Compute_Posterior_Data(obj,Z,Y,alpha)
             N = size(Y,2);
             Gamma_inv_Z = obj.hdsa_obj.Apply_Gamma_Mat_Inv(Z);
-            Mz_inv_Gamma_inv_Z = obj.hdsa_obj.Apply_z_Mass_Mat_Inv(Gamma_inv_Z);
             G = (1+obj.hdsa_obj.beta) - Z'*obj.hdsa_obj.gamma_inv_z_star - obj.hdsa_obj.gamma_inv_z_star'*Z + Z'*Gamma_inv_Z;
             [g_vecs,Lambda] = eig(G);
             
@@ -82,7 +81,6 @@ classdef Bayesian_Model_Discrepancy_HDSA < handle
             obj.post_data.Y = Y;
             obj.post_data.alpha = alpha;
             obj.post_data.Gamma_inv_Z = Gamma_inv_Z;
-            obj.post_data.Mz_inv_Gamma_inv_Z = Mz_inv_Gamma_inv_Z;
             obj.post_data.G = G;
             obj.post_data.g_vecs = g_vecs;
             obj.post_data.Lambda = Lambda;

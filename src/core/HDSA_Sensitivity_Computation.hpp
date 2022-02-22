@@ -340,8 +340,7 @@ namespace HDSA
 
       if(compute_bayes_model_error_sensitivities_)
 	{
-	  HDSA::Ptr<HDSA::Bayes_Model_Error<RealT> > solver = HDSA::makePtr<HDSA::Bayes_Model_Error<RealT> >(theta_, parlist_sensitivity_, comm_, OP_Objects_Factory_,
-													     weight_matrices_factory_, sample_index_);
+	  HDSA::Ptr<HDSA::Bayes_Model_Error<RealT> > solver = HDSA::makePtr<HDSA::Bayes_Model_Error<RealT> >(theta_, parlist_sensitivity_, comm_, OP_Objects_Factory_);
 	  solver->Compute();
 	}
 

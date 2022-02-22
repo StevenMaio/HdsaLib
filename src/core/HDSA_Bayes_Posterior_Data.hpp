@@ -14,7 +14,6 @@ namespace HDSA
     HDSA::Ptr<HDSA::MultiVector<RealT> > Z;
     HDSA::Ptr<HDSA::MultiVector<RealT> > Y;
     HDSA::Ptr<HDSA::MultiVector<RealT> > Gamma_inv_Z;
-    HDSA::Ptr<HDSA::MultiVector<RealT> > Mz_inv_Gamma_inv_Z;
     HDSA::Ptr<HDSA::Dense_Matrix<RealT> > G;
     HDSA::Ptr<HDSA::Dense_Matrix<RealT> > g_vecs;
     HDSA::Ptr<HDSA::Vector<RealT> > Lambda;
