@@ -61,7 +61,8 @@
   <ParameterList name="KKT Solve">
     <Parameter name="Maximum Iterations"  type="int"  value="51" /> 
     <Parameter name="Verbosity"  type="bool"  value="false" /> 
-    <Parameter name="Tolerance"   type="double"  value="1.e-5" /> 
+    <Parameter name="Tolerance"   type="double"  value="1.e-12" />
+    <Parameter name="Solver"      type="string"   value="GMRES" />
   </ParameterList>
   <ParameterList name="Parameter Weight Matrix Solve">
     <Parameter name="Maximum Iterations"  type="int"  value="1000" /> 

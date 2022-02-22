@@ -31,6 +31,10 @@ namespace HDSA
     {
       num_prior_samps_ = parlist_sensitivity_->sublist("Bayes Model Error").get("Number of Prior Samples", 5);
       num_post_samps_ = parlist_sensitivity_->sublist("Bayes Model Error").get("Number of Posterior Samples", 5);
+      if(num_post_samps_>num_prior_samps_)
+	{
+	  std::cout << "Number of prior samples must be greater than or equal to the number of posterior samples" << std::endl;
+	}
     }
     
     void Compute(void)
@@ -224,10 +228,10 @@ namespace HDSA
       HDSA::Ptr<HDSA::Vector<RealT> > z_tmp = z->Clone();
 
       RealT val = 1.0 - dz->dot(*bayes_model_error_objects->gamma_inv_z_star_);
-      std::vector<RealT> coeff_ell = post_data_->Gamma_inv_Z->dot(*dz);
+      HDSA::Ptr<HDSA::Vector<RealT> > coeff_ell = post_data_->Gamma_inv_Z->MatVec(*dz);
       for(int ell = 0; ell < post_data_->N; ell++)
 	{
-	  coeff_ell[ell] += val;
+	  coeff_ell->Replace_Element(ell,(*coeff_ell)(ell)+val);
 	}
       std::vector<RealT> coeff_i = std::vector<RealT>(post_data_->N,0.0);
       for(int i = 0; i < post_data_->N; i++)
@@ -235,7 +239,7 @@ namespace HDSA
 	  RealT tmp = 0.0;
 	  for(int k = 0; k < post_data_->N; k++)
 	    {
-	      tmp += coeff_ell[k]*(*post_data_->g_vecs)(k,i);
+	      tmp += (*coeff_ell)(k)*(*post_data_->g_vecs)(k,i);
 	    }
 	  coeff_i[i] = tmp;
 	}
@@ -243,7 +247,7 @@ namespace HDSA
       delta_mean->zero();
       for(int ell = 0; ell < post_data_->N; ell++)
 	{
-	  delta_mean->axpy(coeff_ell[ell],*(*post_data_->u_ell)[ell]);
+	  delta_mean->axpy((*coeff_ell)(ell),*(*post_data_->u_ell)[ell]);
 	  for(int i = 0; i < post_data_->N; i++)
 	    {
 	      RealT c = -1.0*coeff_i[i]*(*post_data_->b_i_ell)(i,ell);
@@ -330,6 +334,20 @@ namespace HDSA
       z_mean->scale(-1.0);
       z_mean->plus(*bayes_model_error_objects->OP_Objects_->z);
 
+      HDSA::Ptr<HDSA::MultiVector<RealT> > Zhat = HDSA::makePtr<HDSA::MultiVector<RealT> >(post_data_->N-1,bayes_model_error_objects->OP_Objects_->z);
+      HDSA::Ptr<HDSA::MultiVector<RealT> > Gamma_inv_Zhat = HDSA::makePtr<HDSA::MultiVector<RealT> >(post_data_->N-1,bayes_model_error_objects->OP_Objects_->z);
+      for(int i = 0; i < post_data_->N-1; i++)
+	{
+	  HDSA::Ptr<HDSA::Vector<RealT> > zi = (*Zhat)[i]; 
+	  zi->set(*(*post_data_->Z)[i+1]);
+	  zi->axpy(-1.0,*(*post_data_->Z)[0]);
+	  
+	  HDSA::Ptr<HDSA::Vector<RealT> > gzi = (*Gamma_inv_Zhat)[i]; 
+	  gzi->set(*(*post_data_->Gamma_inv_Z)[i+1]);
+	  gzi->axpy(-1.0,*(*post_data_->Gamma_inv_Z)[0]);
+	}
+      HDSA::Ptr<HDSA::Dense_Matrix<RealT> > D = Zhat->MatMat(*Gamma_inv_Zhat);
+
       for(int s = 0; s < num_post_samps_; s++)
 	{
 	  HDSA::Ptr<HDSA::Vector<RealT> > zs = (*z_samples)[s];
@@ -354,23 +372,8 @@ namespace HDSA
 	  B_theta_hat->scale(std::sqrt(post_data_->alpha));
 
 	  HDSA::Ptr<HDSA::Vector<RealT> > B_theta_tilde = bayes_model_error_objects->OP_Objects_->z->Clone();
-
-	  HDSA::Ptr<HDSA::MultiVector<RealT> > Zhat = HDSA::makePtr<HDSA::MultiVector<RealT> >(post_data_->N-1,bayes_model_error_objects->OP_Objects_->z);
-	  HDSA::Ptr<HDSA::MultiVector<RealT> > Gamma_inv_Zhat = HDSA::makePtr<HDSA::MultiVector<RealT> >(post_data_->N-1,bayes_model_error_objects->OP_Objects_->z);
-	  for(int i = 0; i < post_data_->N-1; i++)
-	    {
-	      HDSA::Ptr<HDSA::Vector<RealT> > zi = (*Zhat)[i]; 
-	      zi->set(*(*post_data_->Z)[i+1]);
-	      zi->axpy(-1.0,*(*post_data_->Z)[0]);
-
-	      HDSA::Ptr<HDSA::Vector<RealT> > gzi = (*Gamma_inv_Zhat)[i]; 
-	      gzi->set(*(*post_data_->Gamma_inv_Z)[i+1]);
-	      gzi->axpy(-1.0,*(*post_data_->Gamma_inv_Z)[0]);
-	    }
-	  HDSA::Ptr<HDSA::Dense_Matrix<RealT> > D = Zhat->dot(*Gamma_inv_Zhat);
-
 	  HDSA::Ptr<HDSA::Vector<RealT> > z0_s = (*Z0_samps_)[s];
-	  HDSA::Ptr<HDSA::Vector<RealT> > rhs = Zhat->dot(*z0_s);
+	  HDSA::Ptr<HDSA::Vector<RealT> > rhs = Zhat->MatVec(*z0_s);
 	  HDSA::Ptr<HDSA::Vector<RealT> > x = rhs->Clone();
 	  HDSA::Linear_Algebra::Symmetric_Direct_Linear_Solve<RealT>(D,x,rhs);
 	  B_theta_tilde->set(*z0_s);
@@ -385,7 +388,6 @@ namespace HDSA
 	  Apply_Inverse_Hessian(zs,B_theta_tilde,bayes_model_error_objects->OP_Objects_,Nom,grad_nominal);
 	  zs->scale(-1.0);
 	  zs->plus(*z_mean);
-
 	}
 
     }

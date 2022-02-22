@@ -294,13 +294,13 @@ namespace Linear_Algebra
 	RealT val = (*b)(i);
 	for(int j = 0; j < i; j++)
 	  {
-	    val -= (*y)(i)*(*R)(j,i);
+	    val -= (*y)(j)*(*R)(j,i);
 	  }
 	val = val/(*R)(i,i);
 	y->Replace_Element(i,val);
       }
 
-    HDSA::Linear_Algebra::Upper_Tri_Solve<RealT>( b, y, R);
+    HDSA::Linear_Algebra::Upper_Tri_Solve<RealT>( x, y, R);
   }
 
   // Compute eigenvalue decomposition A=V*S*V^T for a symmetric matrix A, store eigenvalues in a length n std::vector S instead of nxn diagonal matrix

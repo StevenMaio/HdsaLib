@@ -33,27 +33,27 @@ public:
     return vecs_[k];
   }
 
-  HDSA::Ptr<HDSA::Vector<RealT> > dot(HDSA::Vector<RealT> & x) const
+  HDSA::Ptr<HDSA::Vector<RealT> > MatVec(HDSA::Vector<RealT> & x) const
   {
-    HDSA::Ptr<HDSA::Vector<RealT> > ips = HDSA::makePtr<Std_Vector<RealT> >(num_vecs_);
+    HDSA::Ptr<HDSA::Vector<RealT> > Ax = HDSA::makePtr<Std_Vector<RealT> >(num_vecs_);
     for(int k = 0; k < num_vecs_; k++)
       {
-        ips->Replace_Element(k,vecs_[k]->dot(x));
+        Ax->Replace_Element(k,vecs_[k]->dot(x));
       }
-    return ips;
+    return Ax;
   }
 
-  HDSA::Ptr<HDSA::Dense_Matrix<RealT> > dot(HDSA::MultiVector<RealT> & x) const
+  HDSA::Ptr<HDSA::Dense_Matrix<RealT> > MatMat(HDSA::MultiVector<RealT> & x) const
   {
-    HDSA::Ptr<HDSA::Dense_Matrix<RealT> > D = HDSA::makePtr<HDSA::Dense_Matrix<RealT> >(x.Number_of_Vectors(),num_vecs_);
+    HDSA::Ptr<HDSA::Dense_Matrix<RealT> > C = HDSA::makePtr<HDSA::Dense_Matrix<RealT> >(x.Number_of_Vectors(),num_vecs_);
     for(int i = 0; i < x.Number_of_Vectors(); i++)
       {
 	for(int j = 0; j < num_vecs_; j++)
 	{
-	  D->Replace_Element(i,j,x[i]->dot(*vecs_[j]);
+	  C->Replace_Element(i,j,x[i]->dot(*vecs_[j]));
 	}
       }
-    return D;
+    return C;
   }
 
   int Number_of_Vectors(void) const
