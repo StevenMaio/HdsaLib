@@ -25,6 +25,11 @@ classdef Example_Bayes_HDSA < Bayesian_Model_Discrepancy_HDSA
             Linv_v = linsolve(sqrtm(obj.L + beta*eye(size(v,1))),v);
         end
         
+        % Compute Gamma^{1/2}*v
+        function [G_v] = Apply_Sqrt_Gamma_Mat(obj,v)
+           G_v = sqrtm(obj.Gamma)*v; 
+        end
+        
         % Compute Gamma^{-1/2}*v
         function [Ginv_v] = Apply_Sqrt_Gamma_Mat_Inv(obj,v)
             Ginv_v = linsolve(sqrtm(obj.Gamma),v);

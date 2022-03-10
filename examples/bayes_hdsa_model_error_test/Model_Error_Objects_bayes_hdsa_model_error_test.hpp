@@ -140,6 +140,24 @@ public:
     matvec->Write_Column_to_Vector(0,*u_out);
   }
 
+  void Apply_Sqrt_Gamma_Mat(HDSA::Ptr<HDSA::Vector<RealT> > & z_out, const HDSA::Ptr<HDSA::Vector<RealT> > & z_in) const 
+  {
+    int n = z_in->dimension();
+    HDSA::Ptr<HDSA::Dense_Matrix<RealT> > V = HDSA::makePtr<HDSA::Dense_Matrix<RealT> >(n,n);
+    HDSA::Ptr<HDSA::Vector<RealT> > S = HDSA::makePtr<Std_Vector<RealT> >(n);
+    HDSA::Linear_Algebra::Symmetric_Eig_Decomposition<RealT>(Gamma, V, S);
+
+    HDSA::Ptr<HDSA::Dense_Matrix<RealT> > Vt_z = V->Multiply(z_in, true);
+    for(int k = 0; k < n; k++)
+      {
+	RealT val = (*Vt_z)(k,0)*std::sqrt((*S)(k));
+	Vt_z->Replace_Element(k,0,val);
+      }
+    HDSA::Ptr<HDSA::Dense_Matrix<RealT> > z_out_mat = HDSA::makePtr<HDSA::Dense_Matrix<RealT> >(n,1);
+    V->Multiply(z_out_mat, Vt_z); 
+    z_out_mat->Write_Column_to_Vector(0,z_out);
+  }
+
   void Apply_Sqrt_Gamma_Mat_Inverse(HDSA::Ptr<HDSA::Vector<RealT> > & z_out, const HDSA::Ptr<HDSA::Vector<RealT> > & z_in) const 
   {
     int n = z_in->dimension();

@@ -54,10 +54,10 @@ for k = 2:N
 end
 Y = obj_hifi.State_Solve(Z) - obj.State_Solve(Z);
 
-alpha = 1e-2;
+alpha = 1e-4;
 bayes_hdsa.Compute_Posterior_Data(Z,Y,alpha);
 
-[delta_map_Z,delta_samps_Z,delta_map_Z0] = bayes_hdsa.Compute_Discrepancy_Posterior_Samples();
+[delta_map_Z,delta_samps_Z] = bayes_hdsa.Compute_Discrepancy_Posterior_Samples();
 
 figure,
 hold on

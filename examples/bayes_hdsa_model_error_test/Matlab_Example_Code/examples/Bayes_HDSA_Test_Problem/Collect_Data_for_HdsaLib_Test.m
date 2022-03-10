@@ -7,7 +7,7 @@ m = length(z_star);
 
 W = eye(m);
 beta = obj.reg_beta;
-D = obj.Gamma_bc/sqrt(40);
+D = obj.Gamma_bc_inv/sqrt(40);
 data = obj.d;
 u_star = obj.State_Solve(z_star);
 Gamma = hdsa.Gamma;

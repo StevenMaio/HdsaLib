@@ -30,9 +30,9 @@ classdef Example_HiFi < Constrained_Optimization
         
         %% Instantiation of base class pure virtual functions for gradient computation
         function [val,grad_u, grad_z] = Objective(obj,u,z)
-            val = .5*(u-obj.example_obj.d)'*(u-obj.example_obj.d) + .5*obj.example_obj.reg_beta*z'*(obj.example_obj.Gamma_bc/sqrt(40))*z;
+            val = .5*(u-obj.example_obj.d)'*(u-obj.example_obj.d) + .5*obj.example_obj.reg_beta*z'*(obj.example_obj.Gamma_bc_inv/sqrt(40))*z;
             grad_u = u-obj.example_obj.d;
-            grad_z = obj.example_obj.reg_beta*(obj.example_obj.Gamma_bc/sqrt(40))*z;
+            grad_z = obj.example_obj.reg_beta*(obj.example_obj.Gamma_bc_inv/sqrt(40))*z;
         end
         
         function [u] = State_Solve(obj,z) % Input z, evaluate u=S(z)
@@ -85,7 +85,7 @@ classdef Example_HiFi < Constrained_Optimization
         end
         
         function [Mv] = Objective_zz_Apply(obj,v,u,z)
-            Mv = obj.example_obj.reg_beta*(obj.example_obj.Gamma_bc/sqrt(40))*v;
+            Mv = obj.example_obj.reg_beta*(obj.example_obj.Gamma_bc_inv/sqrt(40))*v;
         end
 
         

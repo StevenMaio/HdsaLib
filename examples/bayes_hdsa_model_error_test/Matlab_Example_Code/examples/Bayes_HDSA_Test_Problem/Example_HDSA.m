@@ -12,7 +12,7 @@ classdef Example_HDSA < Constrained_Optimization_Model_Form_Error_HDSA
         
         function [Hinv_v] = Apply_Inv_Hessian_RS(obj,v,u,z)
             w = 9*z.^4 + 6*z.*(z.^3-obj.con_opt.d); 
-            Hr = diag(w) + obj.con_opt.reg_beta*(obj.Gamma/sqrt(40));
+            Hr = diag(w) + obj.con_opt.reg_beta*(obj.con_opt.Gamma_bc_inv/sqrt(40));
             Hinv_v = linsolve(Hr,v);
         end
         

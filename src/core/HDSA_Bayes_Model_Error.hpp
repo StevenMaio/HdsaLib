@@ -17,8 +17,6 @@ namespace HDSA
     int num_prior_samps_;
     int num_post_samps_;
     bool execute_only_prior_samples_;
-    HDSA::Ptr<HDSA::MultiVector<RealT> > Z0_samps_;
-    HDSA::Ptr<HDSA::MultiVector<RealT> > U0_samps_;
     HDSA::Ptr<HDSA::Bayes_Posterior_Data<RealT> > post_data_;    
 
   public:
@@ -30,10 +28,6 @@ namespace HDSA
       num_prior_samps_ = parlist_sensitivity_->sublist("Bayes Model Error").get("Number of Prior Samples", 5);
       num_post_samps_ = parlist_sensitivity_->sublist("Bayes Model Error").get("Number of Posterior Samples", 5);
       execute_only_prior_samples_ = parlist_sensitivity_->sublist("Bayes Model Error").get("Execute Only Prior Samples", false);
-      if(num_post_samps_>num_prior_samps_)
-	{
-	  std::cout << "Number of prior samples must be greater than or equal to the number of posterior samples" << std::endl;
-	}
     }
     
     void Compute(void)
@@ -59,35 +53,25 @@ namespace HDSA
       if(!execute_only_prior_samples_)
 	{
 	  Compute_Posterior_Data(bayes_model_error_objects_subcomm,Sen_Op_subcomm);   
-	  Posterior_Sampling(bayes_model_error_objects_subcomm,grad_nominal);
+	  Posterior_Sampling(bayes_model_error_objects_subcomm,Sen_Op_subcomm,grad_nominal);
 	}
     }
 
     void Compute_Prior_Samples(const HDSA::Ptr<HDSA::Bayes_Model_Error_Objects<RealT> > & bayes_model_error_objects, const HDSA::Ptr<HDSA::Sensitivity_Operators<RealT> > & Sen_Op)
     {
-      Z0_samps_ = HDSA::makePtr<HDSA::MultiVector<RealT> >(num_prior_samps_,bayes_model_error_objects->OP_Objects_->z);
-      U0_samps_ = HDSA::makePtr<HDSA::MultiVector<RealT> >(num_prior_samps_,bayes_model_error_objects->OP_Objects_->u);
       HDSA::Ptr<HDSA::MultiVector<RealT> > z_prior_samps = HDSA::makePtr<HDSA::MultiVector<RealT> >(num_prior_samps_,bayes_model_error_objects->OP_Objects_->z);
       HDSA::Ptr<HDSA::MultiVector<RealT> > delta_prior_samps = HDSA::makePtr<HDSA::MultiVector<RealT> >(num_prior_samps_,bayes_model_error_objects->OP_Objects_->u);
       for(int k = 0; k < num_prior_samps_; k++)
 	{
 	  HDSA::Ptr<HDSA::Vector<RealT> > z_vec = Sen_Op->Generate_Random_z_Vector();
-	  HDSA::Ptr<HDSA::Vector<RealT> > zk = (*Z0_samps_)[k];	  
-	  bayes_model_error_objects->Apply_Sqrt_Gamma_Mat_Inverse(zk,z_vec);
-
 	  HDSA::Ptr<HDSA::Vector<RealT> > zpk = (*z_prior_samps)[k];
-	  zpk->set(*zk);
+	  bayes_model_error_objects->Apply_Sqrt_Gamma_Mat(zpk,z_vec);
 	  zpk->plus(*bayes_model_error_objects->OP_Objects_->z);
 
 	  HDSA::Ptr<HDSA::Vector<RealT> > u_vec = Sen_Op->Generate_Random_u_Vector();
-	  HDSA::Ptr<HDSA::Vector<RealT> > uk = (*U0_samps_)[k];	  
-	  bayes_model_error_objects->Apply_Sqrt_L_Mat_Inverse(uk,u_vec);
-
-	  HDSA::Ptr<HDSA::Vector<RealT> > dpk = (*delta_prior_samps)[k];
-	  dpk->set(*uk);
-	  z_vec->zero();
-	  bayes_model_error_objects->Apply_Gamma_Mat_Inverse(z_vec,zk);
-	  RealT val = std::sqrt( 1.0 + z_vec->dot(*zk) );
+	  HDSA::Ptr<HDSA::Vector<RealT> > dpk = (*delta_prior_samps)[k]; 
+	  bayes_model_error_objects->Apply_Sqrt_L_Mat_Inverse(dpk,u_vec);
+	  RealT val = std::sqrt( 1.0 + z_vec->dot(*z_vec) );
 	  dpk->scale(val);
 	}
 
@@ -191,7 +175,8 @@ namespace HDSA
 
     }
 
-    void Posterior_Sampling(HDSA::Ptr<HDSA::Bayes_Model_Error_Objects<RealT> > & bayes_model_error_objects, HDSA::Ptr<HDSA::Vector<RealT> > & grad_nominal) const
+    void Posterior_Sampling(HDSA::Ptr<HDSA::Bayes_Model_Error_Objects<RealT> > & bayes_model_error_objects, const HDSA::Ptr<HDSA::Sensitivity_Operators<RealT> > & Sen_Op, 
+			    HDSA::Ptr<HDSA::Vector<RealT> > & grad_nominal) const
     {
       for(int k = 0; k < post_data_->N; k++)
 	{
@@ -206,7 +191,7 @@ namespace HDSA
       
       HDSA::Ptr<HDSA::MultiVector<RealT> > z_samples = HDSA::makePtr<HDSA::MultiVector<RealT> >(num_post_samps_,bayes_model_error_objects->OP_Objects_->z);
       HDSA::Ptr<HDSA::Vector<RealT> > z_mean = bayes_model_error_objects->OP_Objects_->z->Clone();
-      Posterior_Opt_z(z_samples,z_mean,bayes_model_error_objects, grad_nominal);
+      Posterior_Opt_z(z_samples,z_mean,bayes_model_error_objects, Sen_Op, grad_nominal);
       std::string name = "opt_z_mean.txt";
       z_mean->Write_to_File(name);
       name = "opt_z_samples.txt";
@@ -263,10 +248,8 @@ namespace HDSA
 	}
     }
 
-    void Posterior_Opt_z(HDSA::Ptr<HDSA::MultiVector<RealT> > & z_samples, HDSA::Ptr<HDSA::Vector<RealT> > & z_mean,
-			 HDSA::Ptr<HDSA::Bayes_Model_Error_Objects<RealT> > & bayes_model_error_objects, 
-			 HDSA::Ptr<HDSA::Vector<RealT> > & grad_nominal) const
-      
+    void Posterior_Opt_z(HDSA::Ptr<HDSA::MultiVector<RealT> > & z_samples, HDSA::Ptr<HDSA::Vector<RealT> > & z_mean, HDSA::Ptr<HDSA::Bayes_Model_Error_Objects<RealT> > & bayes_model_error_objects, 
+			 const HDSA::Ptr<HDSA::Sensitivity_Operators<RealT> > & Sen_Op, HDSA::Ptr<HDSA::Vector<RealT> > & grad_nominal) const
     {
       std::vector<RealT> gi_sum = std::vector<RealT>(post_data_->N,0.0);
       for(int i = 0; i < post_data_->N; i++)
@@ -366,7 +349,9 @@ namespace HDSA
 	  B_theta_hat->scale(std::sqrt(post_data_->alpha));
 
 	  HDSA::Ptr<HDSA::Vector<RealT> > B_theta_tilde = bayes_model_error_objects->OP_Objects_->z->Clone();
-	  HDSA::Ptr<HDSA::Vector<RealT> > z0_s = (*Z0_samps_)[s];
+	  HDSA::Ptr<HDSA::Vector<RealT> > z0_s = bayes_model_error_objects->OP_Objects_->z->Clone();
+	  HDSA::Ptr<HDSA::Vector<RealT> > z_vec = Sen_Op->Generate_Random_z_Vector();
+	  bayes_model_error_objects->Apply_Sqrt_Gamma_Mat_Inverse(z0_s,z_vec);
 	  HDSA::Ptr<HDSA::Vector<RealT> > rhs = Zhat->MatVec(*z0_s);
 	  HDSA::Ptr<HDSA::Vector<RealT> > x = rhs->Clone();
 	  HDSA::Linear_Algebra::Symmetric_Direct_Linear_Solve<RealT>(D,x,rhs);

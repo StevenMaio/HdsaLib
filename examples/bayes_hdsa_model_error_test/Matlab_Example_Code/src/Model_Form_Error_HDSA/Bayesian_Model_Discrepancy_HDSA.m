@@ -4,7 +4,6 @@ classdef Bayesian_Model_Discrepancy_HDSA < handle
         hdsa_obj;
         num_prior_samps;
         num_post_samps;
-        prior_data;
         post_data;
     end
     
@@ -20,6 +19,9 @@ classdef Bayesian_Model_Discrepancy_HDSA < handle
         
         % Compute (L+beta*I)^{-1/2}*v
         [Linv_v] = Apply_Sqrt_L_plus_shift_inv(obj,v,beta);
+
+        % Compute Gamma^{1/2}*v
+        [G_v] = Apply_Sqrt_Gamma_Mat(obj,v);
         
         % Compute Gamma^{-1/2}*v
         [Ginv_v] = Apply_Sqrt_Gamma_Mat_Inv(obj,v);
@@ -28,24 +30,17 @@ classdef Bayesian_Model_Discrepancy_HDSA < handle
     
     methods
         function obj = Bayesian_Model_Discrepancy_HDSA(hdsa_obj,num_prior_samps,num_post_samps)
-            if num_post_samps > num_prior_samps
-                num_prior_samps = num_post_samps;
-                disp('Setting number of prior samples equal to number of posterior samples')
-            end
             obj.hdsa_obj = hdsa_obj;
             obj.num_prior_samps = num_prior_samps;
             obj.num_post_samps = num_post_samps;
         end
         
         function [z_prior_samps,delta_prior_samps] = Compute_Prior_Samples(obj)
-            Z0_samps = obj.Apply_Sqrt_Gamma_Mat_Inv(randn(obj.hdsa_obj.n,obj.num_prior_samps));
-            Gamma_inv_Z0_samps = obj.hdsa_obj.Apply_Gamma_Mat_Inv(Z0_samps);
+            omega_n = randn(obj.hdsa_obj.n,obj.num_prior_samps);
+            Z0_samps = obj.Apply_Sqrt_Gamma_Mat(omega_n);
             U0_samps = obj.Apply_Sqrt_L_inv(randn(obj.hdsa_obj.m,obj.num_prior_samps));
             z_prior_samps = Z0_samps + obj.hdsa_obj.z_star;
-            delta_prior_samps = U0_samps*diag(sqrt(1+diag(Z0_samps'*Gamma_inv_Z0_samps)));
-            obj.prior_data = struct;
-            obj.prior_data.U0_samps = U0_samps;
-            obj.prior_data.Z0_samps = Z0_samps;
+            delta_prior_samps = U0_samps*diag(sqrt(1 + diag(omega_n'*omega_n)));
         end
         
         % Compute data to define Bayesian posterior for model discrepancy
@@ -108,11 +103,10 @@ classdef Bayesian_Model_Discrepancy_HDSA < handle
         end
         
         % Compute model discrepancy samples
-        function [delta_map_Z,delta_samps_Z,delta_map_Z0] = Compute_Discrepancy_Posterior_Samples(obj)
+        function [delta_map_Z,delta_samps_Z] = Compute_Discrepancy_Posterior_Samples(obj)
             N = size(obj.post_data.Y,2);
             
             delta_map_Z = obj.Compute_Mean_Discrepancy(obj.post_data.Z);
-            delta_map_Z0 = obj.Compute_Mean_Discrepancy(obj.prior_data.Z0_samps);
             
             delta_samps_Z = zeros(obj.hdsa_obj.m,obj.num_post_samps,size(delta_map_Z,2));
             Gamma_inv_w_vecs = obj.post_data.Gamma_inv_Z*obj.post_data.g_vecs - obj.hdsa_obj.gamma_inv_z_star*sum(obj.post_data.g_vecs,1);
@@ -151,10 +145,10 @@ classdef Bayesian_Model_Discrepancy_HDSA < handle
                 z_tmp2(:,k) = ( obj.post_data.Gamma_inv_Z*obj.post_data.g_vecs-obj.hdsa_obj.gamma_inv_z_star*sum(obj.post_data.g_vecs,1) )*coeffs;
             end
             
-            coeff = obj.hdsa_obj.Linv_g'*obj.hdsa_obj.g;
+            coeff = sqrt(obj.hdsa_obj.Linv_g'*obj.hdsa_obj.g);
             Zhat = obj.post_data.Z(:,2:end)-obj.post_data.Z(:,1)*ones(1,N-1);
             Gamma_inv_Zhat = obj.post_data.Gamma_inv_Z(:,2:end) - obj.post_data.Gamma_inv_Z(:,1)*ones(1,N-1);
-            z_hat = obj.prior_data.Z0_samps(:,1:obj.num_post_samps);
+            z_hat = obj.Apply_Sqrt_Gamma_Mat_Inv(randn(obj.hdsa_obj.n,obj.num_prior_samps));
             z_tmp3 = coeff*( z_hat - Gamma_inv_Zhat*linsolve(Zhat'*Gamma_inv_Zhat,Zhat'*z_hat) );
             
             Z_samps = -obj.hdsa_obj.Apply_Inv_Hessian_RS(z_tmp1+z_tmp2+z_tmp3,obj.hdsa_obj.u_star,obj.hdsa_obj.z_star) + z_map;

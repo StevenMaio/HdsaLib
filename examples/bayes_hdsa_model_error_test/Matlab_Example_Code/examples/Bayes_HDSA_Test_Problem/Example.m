@@ -10,7 +10,7 @@ classdef Example < Constrained_Optimization
         reg_beta;
         D;
         L;
-        Gamma_bc;
+        Gamma_bc_inv;
         Gamma;
         M;
         d;
@@ -39,16 +39,17 @@ classdef Example < Constrained_Optimization
             
             L = ( 10^1*M + D )'*inv(M)*( 10^1*M + D );
             Linv = linsolve(L,eye(n_mesh));
-            L = 5*10^2*diag(sqrt(diag(Linv)))*L*diag(sqrt(diag(Linv)));
+            L = 10^2*diag(sqrt(diag(Linv)))*L*diag(sqrt(diag(Linv)));
             
-            Gamma_bc = ( 10^1*M + D )'*inv(M)*( 10^1*M + D );
-            Gamma_bc_inv = linsolve(Gamma_bc,eye(n_mesh));
-            Gamma = 10^1*diag(sqrt(diag(Gamma_bc_inv)))*Gamma_bc*diag(sqrt(diag(Gamma_bc_inv)));
+            Gamma_bc_inv = ( 10*M + D )'*inv(M)*( 10*M + D );
+            Gamma_bc = linsolve(Gamma_bc_inv,eye(n_mesh));
+            %Gamma = (10^-10)*diag(sqrt(diag(Gamma_bc_inv)))*Gamma_bc*diag(sqrt(diag(Gamma_bc_inv)));
+            Gamma = (10^-2)*linsolve( (M + (10^-5)*D)'*inv(M)*( M + (10^-5)*D) , eye(n_mesh) );
             
             obj.n_mesh = n_mesh;
             obj.reg_beta = reg_beta;
             obj.D = D;
-            obj.Gamma_bc = Gamma_bc;
+            obj.Gamma_bc_inv = Gamma_bc_inv;
             obj.Gamma = Gamma;
             obj.M = M;
             obj.L = L;
@@ -62,9 +63,9 @@ classdef Example < Constrained_Optimization
         
         %% Instantiation of base class pure virtual functions for gradient computation
         function [val,grad_u, grad_z] = Objective(obj,u,z)
-            val = .5*(u-obj.d)'*(u-obj.d) + .5*obj.reg_beta*z'*(obj.Gamma_bc/sqrt(40))*z;
+            val = .5*(u-obj.d)'*(u-obj.d) + .5*obj.reg_beta*z'*(obj.Gamma_bc_inv/sqrt(40))*z;
             grad_u = u-obj.d;
-            grad_z = obj.reg_beta*(obj.Gamma_bc/sqrt(40))*z;
+            grad_z = obj.reg_beta*(obj.Gamma_bc_inv/sqrt(40))*z;
         end
         
         function [u] = State_Solve(obj,z) % Input z, evaluate u=S(z)
@@ -117,7 +118,7 @@ classdef Example < Constrained_Optimization
         end
         
         function [Mv] = Objective_zz_Apply(obj,v,u,z)
-            Mv = obj.reg_beta*(obj.Gamma_bc/sqrt(40))*v;
+            Mv = obj.reg_beta*(obj.Gamma_bc_inv/sqrt(40))*v;
         end
 
         
