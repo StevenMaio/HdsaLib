@@ -16,17 +16,28 @@ private:
   const HDSA::Ptr<DynamicPDE<RealT> > dyn_pde_;
   const HDSA::Ptr<Assembler<RealT> > assembler_;
   HDSA::Ptr<const Teuchos::Comm<int> > comm_;
+  bool primal_sim_;
 
 public:
-  
-  ROL_PDEOPT_Tpetra_Vector(const HDSA::Ptr<PDE<RealT> > & pde, const HDSA::Ptr<Assembler<RealT> > & assembler): pde_(pde), assembler_(assembler)
+   
+  ROL_PDEOPT_Tpetra_Vector(const HDSA::Ptr<PDE<RealT> > & pde, const HDSA::Ptr<Assembler<RealT> > & assembler, const bool & primal_sim = false): pde_(pde), assembler_(assembler), primal_sim_(primal_sim)
   {
-    vec_ptr_  = assembler->createControlVector();  
-    vec_ptr_->putScalar(0.0);
-    ROL_Vector<RealT>::rol_vec_ = HDSA::makePtr<PDE_PrimalOptVector<RealT> >(vec_ptr_,pde_,assembler_);
-    comm_ = vec_ptr_->getMap()->getComm();
+    if(primal_sim)
+      {
+	vec_ptr_  = assembler->createStateVector();  
+	vec_ptr_->putScalar(0.0);
+	ROL_Vector<RealT>::rol_vec_ = HDSA::makePtr<PDE_PrimalSimVector<RealT> >(vec_ptr_,pde_,assembler_);
+	comm_ = vec_ptr_->getMap()->getComm();
+      }
+    else
+      {
+	vec_ptr_  = assembler->createControlVector();  
+	vec_ptr_->putScalar(0.0);
+	ROL_Vector<RealT>::rol_vec_ = HDSA::makePtr<PDE_PrimalOptVector<RealT> >(vec_ptr_,pde_,assembler_);
+	comm_ = vec_ptr_->getMap()->getComm();
+      }
   }
- 
+
   ROL_PDEOPT_Tpetra_Vector(const HDSA::Ptr<DynamicPDE<RealT> > & dyn_pde, const HDSA::Ptr<Assembler<RealT> > & assembler): dyn_pde_(dyn_pde), assembler_(assembler)
   {
     vec_ptr_  = assembler->createControlVector();  
@@ -101,7 +112,7 @@ public:
     HDSA::Ptr<HDSA::Vector<RealT> > vec;
     if(pde_ != HDSA::nullPtr)
       {
-	vec = HDSA::makePtr<ROL_PDEOPT_Tpetra_Vector<RealT> >(pde_,assembler_);
+	vec = HDSA::makePtr<ROL_PDEOPT_Tpetra_Vector<RealT> >(pde_,assembler_,primal_sim_);
       }
     else
       {

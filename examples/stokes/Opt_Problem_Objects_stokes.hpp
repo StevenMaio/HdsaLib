@@ -97,9 +97,12 @@ public:
       robj->checkHessVec(*zp,*dzp,true,*outStream);
     }
     
+    HDSA::Opt_Problem_Objects<RealT>::fs_obj = HDSA::makePtr<ROL_FS_Objective_Model_Error<RealT> >(obj);
+    HDSA::Opt_Problem_Objects<RealT>::con = HDSA::makePtr<ROL_Constraint<RealT> >(con);
+    HDSA::Opt_Problem_Objects<RealT>::u = HDSA::makePtr<ROL_PDEOPT_Tpetra_Vector<RealT> >(pde,assembler,true);
     HDSA::Opt_Problem_Objects<RealT>::rs_obj = HDSA::makePtr<ROL_RS_Objective_Model_Error<RealT> >(robj);
     HDSA::Opt_Problem_Objects<RealT>::z = HDSA::makePtr<ROL_PDEOPT_Tpetra_Vector<RealT> >(pde,assembler);
-    HDSA::Opt_Problem_Objects<RealT>::theta = theta_in;  
+    HDSA::Opt_Problem_Objects<RealT>::theta = theta_in;
   }
 
   virtual ~Opt_Problem_Objects_stokes()
@@ -129,6 +132,22 @@ public:
       {
 	std::cout << "Error loading the optimal control solution" << std::endl;
       }    
+
+    // read in solution and write to Opt_Problem_Objects<RealT>::u
+    std::ifstream inputFile2("state_read.txt");          
+    count = 0;
+    // read the elements in the file into a vector  
+    // test file open   
+    if (inputFile2) {   
+      while ( inputFile2 >> value ) {
+	HDSA::Opt_Problem_Objects<RealT>::u->Replace_Element(count,value);
+	count += 1;
+      }
+    }
+    else
+      {
+	std::cout << "Error loading the optimal state solution" << std::endl;
+      }   
   }
   
   void Write_Optimal_Solution()

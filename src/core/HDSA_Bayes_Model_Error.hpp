@@ -49,10 +49,28 @@ namespace HDSA
       HDSA::Ptr<HDSA::Nominal_Data<RealT> > Nom_subcomm = HDSA::makePtr<HDSA::Nominal_Data<RealT> >(parlist_sensitivity_,OP_Objects_subcomm);
       HDSA::Ptr<HDSA::Sensitivity_Operators<RealT> > Sen_Op_subcomm = HDSA::makePtr<HDSA::Sensitivity_Operators_RS<RealT> >(OP_Objects_subcomm,Nom_subcomm,subcomm, proc_dist->Get_Comm_Split_Ranks());
 
+      if(comm_->getRank() == 0)
+      	{
+      	  std::cout << " " << std::endl;
+      	  std::cout << "Computing prior samples" << std::endl;
+      	  std::cout << " " << std::endl;
+      	}
       Compute_Prior_Samples(bayes_model_error_objects_subcomm,Sen_Op_subcomm);
       if(!execute_only_prior_samples_)
 	{
-	  Compute_Posterior_Data(bayes_model_error_objects_subcomm,Sen_Op_subcomm);   
+	  if(comm_->getRank() == 0)
+	    {
+	      std::cout << " " << std::endl;
+	      std::cout << "Computing posterior data" << std::endl;
+	      std::cout << " " << std::endl;
+	    }
+	  Compute_Posterior_Data(bayes_model_error_objects_subcomm,Sen_Op_subcomm); 
+	  if(comm_->getRank() == 0)
+	    {
+	      std::cout << " " << std::endl;
+	      std::cout << "Computing posterior samples" << std::endl;
+	      std::cout << " " << std::endl;
+	    }  
 	  Posterior_Sampling(bayes_model_error_objects_subcomm,Sen_Op_subcomm,grad_nominal);
 	}
     }
