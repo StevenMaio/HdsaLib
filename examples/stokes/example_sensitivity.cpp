@@ -10,6 +10,7 @@
 #include "../../../PDE-OPT/TOOLS/pdeobjective.hpp"
 #include "pde_stokes.hpp"
 #include "obj_stokes.hpp"
+#include "pde_elliptic.hpp"
 
 #include "../../src/source_file.hpp"
 #include "Opt_Problem_Objects_stokes.hpp"
@@ -37,7 +38,7 @@ int main(int argc, char *argv[]) {
   HDSA::Ptr<HDSA::Parameter_Sampler<RealT> > sampler = HDSA::makePtr<Parameter_Sampler_stokes<RealT> >();
 
   HDSA::Ptr<HDSA::Bayes_Model_Error_Objects<RealT> > bayes_model_error_obj 
-    = HDSA::makePtr<Bayes_Model_Error_Objects_stokes<RealT> >(parlist_sensitivity,OP_Objects_Factory,weight_matrices_factory);
+    = HDSA::makePtr<Bayes_Model_Error_Objects_stokes<RealT> >(parlist_sensitivity,OP_Objects_Factory,weight_matrices_factory,parlist);
   HDSA::Ptr<HDSA::Opt_Problem_Objects<RealT> > OP_Objects_Factory_model_error = HDSA::makePtr<HDSA::Opt_Problem_Objects_Bayes_Model_Error<RealT> >(bayes_model_error_obj);
 
   HDSA::Sample_Local_Sensitivities<RealT>(comm,parlist_sensitivity,OP_Objects_Factory_model_error,weight_matrices_factory,sampler);  
