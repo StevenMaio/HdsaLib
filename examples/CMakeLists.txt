@@ -12,3 +12,4 @@
 #ADD_SUBDIRECTORY(thermal-fluids)
 #ADD_SUBDIRECTORY(Mass_and_Stiffness_Matrices)
 ADD_SUBDIRECTORY(bayes_hdsa_model_error_test)
+ADD_SUBDIRECTORY(stokes)
