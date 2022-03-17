@@ -9,6 +9,9 @@
     <Parameter name="Gravity"                   type="double"  value="9.81"        />
     <!-- FINITE ELEMENT INFORMATION -->
     <Parameter name="Cubature Degree"             type="int"     value="4"           />
+    <!-- PRIOR SAMPLER INFORMATION -->
+    <Parameter name="Prior GSVD Rank"             type="int"     value="300"           />
+    <Parameter name="Prior GSVD Subspace Iterations"             type="int"     value="4"           />
   </ParameterList>
 
   <!-- ===========  GEOMETRY INPUT PARAMETER SUBLIST  =========== -->
