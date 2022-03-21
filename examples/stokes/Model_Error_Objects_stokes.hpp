@@ -215,6 +215,7 @@ public:
     HDSA::Ptr<ROL::Vector<RealT> > z_out_rol = HDSA::dynamicPtrCast<ROL_Vector<RealT> >(z_out)->get_rol_vec();
     RealT tol = 1.e-8;
     con_AG_->applyJacobian_1(*z_out_rol,*z_in_rol,*z_in_rol,*z_in_rol,tol);
+    z_out->Set_Zeros();
   }
 
   void Apply_A_G_Mat_Inv(HDSA::Ptr<HDSA::Vector<RealT> > & z_out, const HDSA::Ptr<HDSA::Vector<RealT> > & z_in) const
@@ -223,6 +224,7 @@ public:
     HDSA::Ptr<ROL::Vector<RealT> > z_out_rol = HDSA::dynamicPtrCast<ROL_Vector<RealT> >(z_out)->get_rol_vec();
     RealT tol = 1.e-8;
     con_AG_->applyInverseJacobian_1(*z_out_rol,*z_in_rol,*z_in_rol,*z_in_rol,tol);
+    z_out->Set_Zeros();
   }
 
   void Apply_A_L_Mat(HDSA::Ptr<HDSA::Vector<RealT> > & u_out, const HDSA::Ptr<HDSA::Vector<RealT> > & u_in) const
@@ -279,14 +281,24 @@ public:
 
   void Apply_L_Mat_Inverse(HDSA::Ptr<HDSA::Vector<RealT> > & u_out, const HDSA::Ptr<HDSA::Vector<RealT> > & u_in) const 
   {
-    HDSA::Ptr<HDSA::Vector<RealT> > tmp = u_in->Clone();
-    Apply_A_L_Mat_Inv(tmp,u_in);
-    for(int k = 0; k < tmp->dimension(); k++)
+    HDSA::Ptr<HDSA::Vector<RealT> > w = Ainv_V_->MatVec(*u_in);
+    int k = Ainv_sing_vals_->dimension();
+    RealT val = 0.0;
+    u_out->zero();
+    for(int i = 0; i < k; i++)
       {
-	RealT val = (*tmp)(k)*(*M_row_sum_)(k);
-	tmp->Replace_Element(k,val);
+        val = (*w)(i)*std::pow((*Ainv_sing_vals_)(i),2);
+	u_out->axpy(val,*(*Ainv_V_)[i]);
       }
-    Apply_A_L_Mat_Inv(u_out,tmp); 
+
+    // HDSA::Ptr<HDSA::Vector<RealT> > tmp = u_in->Clone();
+    // Apply_A_L_Mat_Inv(tmp,u_in);
+    // for(int k = 0; k < tmp->dimension(); k++)
+    //   {
+    // 	RealT val = (*tmp)(k)*(*M_row_sum_)(k);
+    // 	tmp->Replace_Element(k,val);
+    //   }
+    // Apply_A_L_Mat_Inv(u_out,tmp); 
   }
 
   void Apply_Sqrt_Gamma_Mat(HDSA::Ptr<HDSA::Vector<RealT> > & z_out, const HDSA::Ptr<HDSA::Vector<RealT> > & z_in) const 
@@ -311,24 +323,48 @@ public:
   
   void Apply_Sqrt_L_Mat_Inverse(HDSA::Ptr<HDSA::Vector<RealT> > & u_out, const HDSA::Ptr<HDSA::Vector<RealT> > & u_in) const 
   {
-    for(int k = 0; k < u_in->dimension(); k++)
+    HDSA::Ptr<HDSA::Vector<RealT> > w = Ainv_V_->MatVec(*u_in);
+    int k = Ainv_sing_vals_->dimension();
+    RealT val = 0.0;
+    u_out->zero();
+    for(int i = 0; i < k; i++)
       {
-	RealT val = (*u_in)(k)*std::sqrt((*M_row_sum_)(k));
-	u_in->Replace_Element(k,val);
+        val = (*w)(i)*(*Ainv_sing_vals_)(i);
+	u_out->axpy(val,*(*Ainv_V_)[i]);
       }
-    Apply_A_L_Mat_Inv(u_out,u_in);
+
+    // for(int k = 0; k < u_in->dimension(); k++)
+    //   {
+    // 	RealT val = (*u_in)(k)*std::sqrt((*M_row_sum_)(k));
+    // 	u_in->Replace_Element(k,val);
+    //   }
+    // Apply_A_L_Mat_Inv(u_out,u_in);
   }
   
-  // NEED TO IMPLEMENT
   void Apply_L_Plus_Shift_Mat_Inverse(HDSA::Ptr<HDSA::Vector<RealT> > & u_out, const HDSA::Ptr<HDSA::Vector<RealT> > & u_in, const RealT beta) const 
   {
-    u_out->set(*u_in);
+    HDSA::Ptr<HDSA::Vector<RealT> > w = Ainv_V_->MatVec(*u_in);
+    int k = Ainv_sing_vals_->dimension();
+    RealT val = 0.0;
+    u_out->zero();
+    for(int i = 0; i < k; i++)
+      {
+        val = (*w)(i)*(std::pow((*Ainv_sing_vals_)(i),2)/(1.0+beta*std::pow((*Ainv_sing_vals_)(i),2)));
+	u_out->axpy(val,*(*Ainv_V_)[i]);
+      }
   }
 
-  // NEED TO IMPLEMENT
   void Apply_Sqrt_L_Plus_Shift_Mat_Inverse(HDSA::Ptr<HDSA::Vector<RealT> > & u_out, const HDSA::Ptr<HDSA::Vector<RealT> > & u_in, const RealT beta) const 
   {
-    u_out->set(*u_in);
+    HDSA::Ptr<HDSA::Vector<RealT> > w = Ainv_V_->MatVec(*u_in);
+    int k = Ainv_sing_vals_->dimension();
+    RealT val = 0.0;
+    u_out->zero();
+    for(int i = 0; i < k; i++)
+      {
+        val = (*w)(i)*((*Ainv_sing_vals_)(i)/std::sqrt(1.0+beta*std::pow((*Ainv_sing_vals_)(i),2)));
+	u_out->axpy(val,*(*Ainv_V_)[i]);
+      }
   }
 
   HDSA::Ptr<HDSA::MultiVector<RealT> > Load_Z_Data(void) const 

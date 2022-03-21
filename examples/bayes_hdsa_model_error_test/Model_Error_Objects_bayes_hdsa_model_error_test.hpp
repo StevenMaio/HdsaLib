@@ -252,7 +252,7 @@ public:
 
   HDSA::Ptr<HDSA::MultiVector<RealT> > Load_Z_Data(void) const 
   {
-    int num_vecs = 3;
+    int num_vecs = 1;
     HDSA::Ptr<HDSA::MultiVector<RealT> > Z = HDSA::makePtr<HDSA::MultiVector<RealT> >(num_vecs,HDSA::Model_Error_Objects<RealT>::OP_Objects_->z);
     // read in data
     std::ifstream in_Z("Z.txt");           
@@ -278,7 +278,7 @@ public:
 
   HDSA::Ptr<HDSA::MultiVector<RealT> > Load_Y_Data(void) const 
   {
-    int num_vecs = 3;
+    int num_vecs = 1;
     HDSA::Ptr<HDSA::MultiVector<RealT> > Y = HDSA::makePtr<HDSA::MultiVector<RealT> >(num_vecs,HDSA::Model_Error_Objects<RealT>::OP_Objects_->u);
     // read in data
     std::ifstream in_Y("Y.txt");           

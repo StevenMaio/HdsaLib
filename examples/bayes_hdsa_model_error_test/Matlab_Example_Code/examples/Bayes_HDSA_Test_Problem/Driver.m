@@ -44,7 +44,7 @@ set(gca,'fontsize', 18)
 
 %%
 obj_hifi = Example_HiFi(obj);
-N = 3;
+N = 1;
 Z = zeros(hdsa.n,N);
 Z(:,1) = z_star;
 for k = 2:N

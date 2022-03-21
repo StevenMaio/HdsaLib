@@ -10,7 +10,7 @@
     <!-- FINITE ELEMENT INFORMATION -->
     <Parameter name="Cubature Degree"             type="int"     value="4"           />
     <!-- PRIOR SAMPLER INFORMATION -->
-    <Parameter name="Prior GSVD Rank"             type="int"     value="300"           />
+    <Parameter name="Prior GSVD Rank"             type="int"     value="30"           />
     <Parameter name="Prior GSVD Subspace Iterations"             type="int"     value="4"           />
   </ParameterList>
 
@@ -23,7 +23,7 @@
     <Parameter name="Step height"        type="double"  value="0.5" />
     <Parameter name="Observation width"  type="double"  value="0.5" />
     <Parameter name="Initiate Control"  type="double"  value="-1.0" />
-    <Parameter name="Refinement level"   type="int"     value="15"   />
+    <Parameter name="Refinement level"   type="int"     value="3"   />
     <Parameter name="Partition type"     type="int"     value="1"    />
   </ParameterList>
 
@@ -125,8 +125,8 @@
     <!-- ===========  TRUST REGION  =========== -->
     <ParameterList name="Trust Region">
       <Parameter name="Subproblem Solver"                    type="string" value="Truncated CG" />
-      <Parameter name="Initial Radius"                       type="double" value="10.0"         />
-      <Parameter name="Maximum Radius"                       type="double" value="5.e3"         />
+      <Parameter name="Initial Radius"                       type="double" value="1.e4"         />
+      <Parameter name="Maximum Radius"                       type="double" value="5.e6"         />
       <Parameter name="Step Acceptance Threshold"            type="double" value="0.05"         />
       <Parameter name="Radius Shrinking Threshold"           type="double" value="0.05"         />
       <Parameter name="Radius Growing Threshold"             type="double" value="0.9"          />

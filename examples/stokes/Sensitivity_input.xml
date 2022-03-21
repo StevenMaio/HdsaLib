@@ -11,7 +11,7 @@
     <Parameter name="Output Sensitivity Operator Columns"   type="bool" value="false" /> <!-- Output columns of the sensitivity operator when computing direct sensitivities -->
     <Parameter name="Randomized Hessian Eigenvector Projection"  type="bool"  value="false" /> <!-- This featured is only supported for reduced space formulations -->
     <Parameter name="Anasazi Hessian Eigen Decomposition"  type="bool"  value="false" /> <!-- This featured is only supported for reduced space formulations -->
-    <Parameter name="Enforce z Zeros"  type="bool"  value="false" />
+    <Parameter name="Enforce z Zeros"  type="bool"  value="true" />
     <Parameter name="Construct Weight Matrices"  type="bool"  value="false" /> 
     <Parameter name="Construct K"  type="bool"  value="false" /> 
     <Parameter name="Construct B"  type="bool"  value="false" /> 
@@ -30,8 +30,8 @@
     <Parameter name="Number of Subspace Iterations"  type="int"  value="1" />
   </ParameterList>
   <ParameterList name="Bayes Model Error">
-   <Parameter name="Number of Prior Samples"  type="int"  value="400" />
-   <Parameter name="Number of Posterior Samples"  type="int"  value="400" />
+   <Parameter name="Number of Prior Samples"  type="int"  value="4" />
+   <Parameter name="Number of Posterior Samples"  type="int"  value="4" />
    <Parameter name="alpha" type="double"  value="1.e-4" /> 
    <Parameter name="Execute Only Prior Samples" type="bool"  value="false" /> 
   </ParameterList>
@@ -60,10 +60,10 @@
     <Parameter name="Finite Difference Step"   type="double"  value="1.e-4" /> 
   </ParameterList>
   <ParameterList name="KKT Solve">
-    <Parameter name="Maximum Iterations"  type="int"  value="51" /> 
+    <Parameter name="Maximum Iterations"  type="int"  value="500" /> 
     <Parameter name="Verbosity"  type="bool"  value="false" /> 
-    <Parameter name="Tolerance"   type="double"  value="1.e-12" />
-    <Parameter name="Solver"      type="string"   value="GMRES" />
+    <Parameter name="Tolerance"   type="double"  value="1.e-6" />
+    <Parameter name="Solver"      type="string"   value="CG" />
   </ParameterList>
   <ParameterList name="Parameter Weight Matrix Solve">
     <Parameter name="Maximum Iterations"  type="int"  value="1000" /> 

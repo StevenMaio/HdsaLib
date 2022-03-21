@@ -370,14 +370,17 @@ namespace HDSA
 	  HDSA::Ptr<HDSA::Vector<RealT> > z0_s = bayes_model_error_objects->OP_Objects_->z->Clone();
 	  HDSA::Ptr<HDSA::Vector<RealT> > z_vec = Sen_Op->Generate_Random_z_Vector();
 	  bayes_model_error_objects->Apply_Sqrt_Gamma_Mat_Inverse(z0_s,z_vec);
-	  HDSA::Ptr<HDSA::Vector<RealT> > rhs = Zhat->MatVec(*z0_s);
-	  HDSA::Ptr<HDSA::Vector<RealT> > x = rhs->Clone();
-	  HDSA::Linear_Algebra::Symmetric_Direct_Linear_Solve<RealT>(D,x,rhs);
-	  B_theta_tilde->set(*z0_s);
-	  for(int i = 0; i < post_data_->N-1; i++)
+	  if(post_data_->N > 1)
 	    {
-	      HDSA::Ptr<HDSA::Vector<RealT> > gzi = (*Gamma_inv_Zhat)[i]; 
-	      B_theta_tilde->axpy(-(*x)(i),*gzi);
+	      HDSA::Ptr<HDSA::Vector<RealT> > rhs = Zhat->MatVec(*z0_s);
+	      HDSA::Ptr<HDSA::Vector<RealT> > x = rhs->Clone();
+	      HDSA::Linear_Algebra::Symmetric_Direct_Linear_Solve<RealT>(D,x,rhs);
+	      B_theta_tilde->set(*z0_s);
+	      for(int i = 0; i < post_data_->N-1; i++)
+		{
+		  HDSA::Ptr<HDSA::Vector<RealT> > gzi = (*Gamma_inv_Zhat)[i]; 
+		  B_theta_tilde->axpy(-(*x)(i),*gzi);
+		}
 	    }
 	  B_theta_tilde->scale(post_data_->g_Linv_norm);
 	  
