@@ -210,6 +210,7 @@ public:
     Intrepid::RealSpaceTools<Real>::scale(*J[0][0],eye_);
     ROL::Ptr<Intrepid::FieldContainer<Real> > laplace_term0 = ROL::makePtr<Intrepid::FieldContainer<Real> >(c, fv, fv);
     Intrepid::FunctionSpaceTools::integrate<Real>(*laplace_term0, *(feVel_->gradN()), *(feVel_->gradNdetJ()), Intrepid::COMP_CPP, false);
+    Intrepid::RealSpaceTools<Real>::scale(*laplace_term0,diff_);
     Intrepid::RealSpaceTools<Real>::add(*J[0][0],*laplace_term0);
 
     // Second component
@@ -220,6 +221,7 @@ public:
     Intrepid::RealSpaceTools<Real>::scale(*J[1][1],eye_);
     ROL::Ptr<Intrepid::FieldContainer<Real> > laplace_term1 = ROL::makePtr<Intrepid::FieldContainer<Real> >(c, fv, fv);
     Intrepid::FunctionSpaceTools::integrate<Real>(*laplace_term1, *(feVel_->gradN()), *(feVel_->gradNdetJ()), Intrepid::COMP_CPP, false);
+    Intrepid::RealSpaceTools<Real>::scale(*laplace_term1,diff_);
     Intrepid::RealSpaceTools<Real>::add(*J[1][1],*laplace_term1);
 
    // Second component
@@ -230,6 +232,7 @@ public:
     Intrepid::RealSpaceTools<Real>::scale(*J[2][2],eye_);
     ROL::Ptr<Intrepid::FieldContainer<Real> > laplace_term2 = ROL::makePtr<Intrepid::FieldContainer<Real> >(c, fp, fp);
     Intrepid::FunctionSpaceTools::integrate<Real>(*laplace_term2, *(fePrs_->gradN()), *(fePrs_->gradNdetJ()), Intrepid::COMP_CPP, false);
+    Intrepid::RealSpaceTools<Real>::scale(*laplace_term2,diff_);
     Intrepid::RealSpaceTools<Real>::add(*J[2][2],*laplace_term2);
  
     // Combine the jacobians.

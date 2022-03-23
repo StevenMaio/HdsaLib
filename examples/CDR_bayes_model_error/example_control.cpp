@@ -12,11 +12,11 @@
 #include "../../../PDE-OPT/TOOLS/pdeconstraint.hpp"
 #include "../../../PDE-OPT/TOOLS/pdevector.hpp"
 #include "../../../PDE-OPT/TOOLS/pdeobjective.hpp"
-#include "pde_stokes.hpp"
-#include "obj_stokes.hpp"
-
 #include "../../src/source_file.hpp"
-#include "Opt_Problem_Objects_stokes.hpp"
+#include "mesh_cdr.hpp"
+#include "pde_cdr.hpp"
+#include "obj_cdr.hpp"
+#include "Opt_Problem_Objects_cdr.hpp"
 
 typedef double RealT;
 
@@ -32,7 +32,7 @@ int main(int argc, char *argv[]) {
   int dim = 1;
   HDSA::Ptr<HDSA::Vector<RealT> > theta = HDSA::makePtr<Std_Vector<RealT> >(dim);
 
-  HDSA::Ptr<HDSA::Opt_Problem_Objects<RealT> > OP_Objects = HDSA::makePtr<Opt_Problem_Objects_stokes<RealT> >(parlist,theta,comm);
+  HDSA::Ptr<HDSA::Opt_Problem_Objects<RealT> > OP_Objects = HDSA::makePtr<Opt_Problem_Objects_CDR<RealT> >(parlist,theta,comm);
   OP_Objects->Solve_Optimization_Problem();
   OP_Objects->Write_Optimal_Solution();
 

@@ -1,10 +1,10 @@
-#ifndef BAYES_MODEL_ERROR_OBJECTS_STOKES_HPP
-#define BAYES_MODEL_ERROR_OBJECTS_STOKES_HPP
+#ifndef BAYES_MODEL_ERROR_OBJECTS_CDR_HPP
+#define BAYES_MODEL_ERROR_OBJECTS_CDR_HPP
 
 // Instantiation of Bayes_Model_Error_Objects
 
 template <class RealT>
-class Bayes_Model_Error_Objects_stokes : public HDSA::Bayes_Model_Error_Objects<RealT> {
+class Bayes_Model_Error_Objects_CDR : public HDSA::Bayes_Model_Error_Objects<RealT> {
 
 private:
   HDSA::Ptr<HDSA::ParameterList> parlist_;
@@ -18,14 +18,14 @@ private:
 
 public:
 
-  Bayes_Model_Error_Objects_stokes(const HDSA::Ptr<HDSA::ParameterList> & parlist_sensitivity, const HDSA::Ptr<HDSA::Opt_Problem_Objects<RealT> > & OP_Objects_Factory, 
-				   const HDSA::Ptr<HDSA::Weight_Matrices<RealT> > & weight_matrices_factory, const HDSA::Ptr<HDSA::ParameterList> & parlist):
+  Bayes_Model_Error_Objects_CDR(const HDSA::Ptr<HDSA::ParameterList> & parlist_sensitivity, const HDSA::Ptr<HDSA::Opt_Problem_Objects<RealT> > & OP_Objects_Factory, 
+				const HDSA::Ptr<HDSA::Weight_Matrices<RealT> > & weight_matrices_factory, const HDSA::Ptr<HDSA::ParameterList> & parlist):
     HDSA::Bayes_Model_Error_Objects<RealT>(parlist_sensitivity,OP_Objects_Factory,weight_matrices_factory)
   {
     parlist_ = parlist;
   }
 
-  virtual ~Bayes_Model_Error_Objects_stokes()
+  virtual ~Bayes_Model_Error_Objects_CDR()
   { }
 
   void Construct_Objects(const HDSA::Ptr<const HDSA::Comm<int> > & comm)
@@ -41,21 +41,21 @@ public:
       {	
 	outStream =  HDSA::makePtrFromRef(bhs);
       }
-    HDSA::Ptr<MeshManager<RealT> > meshMgr = HDSA::makePtr<MeshManager_BackwardFacingStepChannel<RealT> >(*parlist_);
+    HDSA::Ptr<MeshManager<RealT> > meshMgr = HDSA::makePtr<MeshManager_CDR<RealT> >(*parlist_);
 
     RealT Gamma_diff = parlist_->sublist("Problem").get("Prior Control Diff Coefficient",1.e-5);
     RealT Gamma_eye = parlist_->sublist("Problem").get("Prior Control Identity Coefficient",1.0);
-    HDSA::Ptr<PDE<RealT> > pde_AG = HDSA::makePtr<PDE_Elliptic<RealT> >(*parlist_,Gamma_diff,Gamma_eye);
+    HDSA::Ptr<PDE<RealT> > pde_AG = HDSA::makePtr<Elliptic_Op<RealT> >(*parlist_,Gamma_diff,Gamma_eye);
     con_AG_ = HDSA::makePtr<Linear_PDE_Constraint<RealT> >(pde_AG,meshMgr,comm->Get_Teuchos_Communicator(),*parlist_,*outStream);
     con_AG_->setSolveParameters(*parlist_);
 
     RealT L_diff = parlist_->sublist("Problem").get("Prior Discrepancy Diff Coefficient",1.0);
     RealT L_eye = parlist_->sublist("Problem").get("Prior Discrepancy Identity Coefficient",1.0);
-    HDSA::Ptr<PDE<RealT> > pde_AL = HDSA::makePtr<PDE_Elliptic<RealT> >(*parlist_,L_diff,L_eye);
+    HDSA::Ptr<PDE<RealT> > pde_AL = HDSA::makePtr<Elliptic_Op<RealT> >(*parlist_,L_diff,L_eye);
     con_AL_ = HDSA::makePtr<Linear_PDE_Constraint<RealT> >(pde_AL,meshMgr,comm->Get_Teuchos_Communicator(),*parlist_,*outStream);
     con_AL_->setSolveParameters(*parlist_);
 
-    HDSA::Ptr<PDE<RealT> > pde_M = HDSA::makePtr<PDE_Elliptic<RealT> >(*parlist_,0.0,1.0);
+    HDSA::Ptr<PDE<RealT> > pde_M = HDSA::makePtr<Elliptic_Op<RealT> >(*parlist_,0.0,1.0);
     con_M_ = HDSA::makePtr<Linear_PDE_Constraint<RealT> >(pde_M,meshMgr,comm->Get_Teuchos_Communicator(),*parlist_,*outStream);
     con_M_->setSolveParameters(*parlist_);
 

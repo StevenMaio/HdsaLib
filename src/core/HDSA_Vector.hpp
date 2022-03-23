@@ -2,6 +2,8 @@
 #define HDSA_VECTOR_HPP
 
 #include <fstream>
+#include <cmath>
+#include <ctime>
 #include <random>
 
 namespace HDSA
@@ -15,6 +17,8 @@ protected:
   std::vector<int> map_full_to_reduced_;
   std::vector<int> map_reduced_to_full_;
   std::vector<int> vec_zeros_;
+  unsigned seed_;
+  std::default_random_engine generator_;
   std::normal_distribution<RealT> distribution_;
 
 public:
@@ -22,6 +26,8 @@ public:
   Vector() 
   {
     enforce_zeros_ = false;
+    seed_ = time(NULL);
+    generator_.seed(seed_);
     distribution_ = std::normal_distribution<RealT>(0.0,1.0); 
   }
 
@@ -93,11 +99,10 @@ public:
   virtual HDSA::Ptr<HDSA::Vector<RealT> > Generate_Gaussian_Random_Vector(void)
   {
     // Populate vectors with standard normal samples
-    std::default_random_engine generator;
     HDSA::Ptr<HDSA::Vector<RealT> > vec = this->Clone();
     for(int l = 0; l < vec->dimension(); l++)
       {
-	vec->Replace_Element(l,distribution_(generator));
+	vec->Replace_Element(l,distribution_(generator_));
       }
     return vec;
   }

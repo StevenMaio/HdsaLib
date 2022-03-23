@@ -13,7 +13,7 @@ private:
   HDSA::Ptr<ROL::Objective_SimOpt<RealT> > obj;
   HDSA::Ptr<ROL::Constraint_SimOpt<RealT> > con;
   HDSA::Ptr<ROL::Constraint_SimOpt<RealT> > con_ns;
-  HDSA::Ptr<PDE_Constraint<RealT> > pdecon;
+  HDSA::Ptr<Linear_PDE_Constraint<RealT> > pdecon;
   HDSA::Ptr<Assembler<RealT> > assembler;
   HDSA::Ptr<Tpetra::MultiVector<> > u_ptr, z_ptr, p_ptr, r_ptr;
   HDSA::Ptr<ROL::Vector<RealT> > up, zp, pp, rp;
@@ -43,9 +43,9 @@ public:
     // Initialize PDE describing Stokes equations.
     HDSA::Ptr<PDE<RealT> > pde = HDSA::makePtr<PDE_Stokes<RealT> >(*parlist,0.0);
     HDSA::Ptr<PDE_Stokes<RealT> > pde_stokes = HDSA::dynamicPtrCast<PDE_Stokes<RealT> >(pde);
-    con = HDSA::makePtr<PDE_Constraint<RealT> >(pde,meshMgr,comm->Get_Teuchos_Communicator(),*parlist,*outStream);
+    con = HDSA::makePtr<Linear_PDE_Constraint<RealT> >(pde,meshMgr,comm->Get_Teuchos_Communicator(),*parlist,*outStream);
     // Cast the constraint and get the assembler.
-    pdecon = ROL::dynamicPtrCast<PDE_Constraint<RealT> >(con);
+    pdecon = ROL::dynamicPtrCast<Linear_PDE_Constraint<RealT> >(con);
     assembler = pdecon->getAssembler();
     con->setSolveParameters(*parlist);
     
