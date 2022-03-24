@@ -117,7 +117,7 @@ public:
 	    Y_mat->Write_Vector_to_Column(i,ui);
 	  }
 	HDSA::Ptr<HDSA::Dense_Matrix<RealT> > Q_Y = HDSA::makePtr<HDSA::Dense_Matrix<RealT> >(m, k);
-	HDSA::Ptr<HDSA::Dense_Matrix<RealT> > R_Y = HDSA::makePtr<HDSA::Dense_Matrix<RealT> >(k, k);
+	HDSA::Ptr<HDSA::Dense_Matrix<RealT> > R_Y = HDSA::makePtr<HDSA::Dense_Matrix<RealT> >(k, k);	
 	HDSA::Linear_Algebra::QR_Factorization<RealT>(Y_mat,Q_Y);
 	for(int i = 0; i < k; i++)
 	  {
@@ -140,7 +140,6 @@ public:
 	Apply_A_L_Mat_Inv(ui,MQi);
 	B->Write_Vector_to_Column(i,ui);	
       }
-
     // QR of projected matrix
     HDSA::Ptr<HDSA::Dense_Matrix<RealT> > Q_B = HDSA::makePtr<HDSA::Dense_Matrix<RealT> >(m, k);
     HDSA::Ptr<HDSA::Dense_Matrix<RealT> > R_B = HDSA::makePtr<HDSA::Dense_Matrix<RealT> >(k, k);

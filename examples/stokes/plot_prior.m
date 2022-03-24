@@ -7,15 +7,9 @@ adj = load('cell_to_node_quad.txt') + 1;  %% load node adjacency table, incremen
 nodes = load('nodes.txt');  %% load node coordinates
 N = 3*length(nodes);
 
-data_obj = importdata('map_uncontrolled_state.txt', ' ', 9);  %% we need to skip the first 9 lines
-map = data_obj.data;
-map = map(1:2:end)+1;
-[~, permute] = sort(map);
-
 %%
 data_obj = importdata('control.txt', ' ', 2);  %% we need to skip the first two lines
 control = data_obj.data;
-control = control(permute);  %% we need to permute the control according to parallel maps
 
 % Extract x-velocity
 z_prior_mean_X = control(1:3:N);
@@ -23,7 +17,6 @@ z_prior_mean_X = control(1:3:N);
 z_prior_mean_Y = control(2:3:N);
 
 z_prior_samples = load('z_prior_samples.txt');
-z_prior_samples(permute,:);
 z_prior_X = z_prior_samples(1:3:N,:);
 z_prior_Y = z_prior_samples(2:3:N,:);
 
@@ -67,10 +60,9 @@ colorbar()
 title('Y-velocity control prior standard deviation')
 
 %%
-plot_prior_control_samples = false;
+plot_prior_control_samples = 5;
 if plot_prior_control_samples
-    num_prior_samps = size(z_prior_samples,2);
-    for k = 1:num_prior_samps
+    for k = 1:plot_prior_control_samples
         figure,
         trisurf(adj, nodes(:,1), nodes(:,2), z_prior_X(:,k));
         shading interp;
@@ -93,7 +85,6 @@ end
 
 %%
 discrepancy_prior = load('delta_prior_samples.txt');
-discrepancy_prior = discrepancy_prior(permute,:);
 discrepancy_prior_Ux = discrepancy_prior(1:3:N,:);
 discrepancy_prior_Uy = discrepancy_prior(2:3:N,:);
 discrepancy_prior_P = discrepancy_prior(3:3:N,:);
@@ -129,9 +120,9 @@ colorbar()
 title('Pressure discrepancy prior standard deviation')
 
 %%
-plot_prior_discrepany_samples = true;
+plot_prior_discrepany_samples = 5;
 if plot_prior_discrepany_samples
-    for k = 1:num_prior_samps
+    for k = 1:plot_prior_discrepany_samples
 
         figure,
         trisurf(adj, nodes(:,1), nodes(:,2), discrepancy_prior_Ux(:,k));

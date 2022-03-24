@@ -39,7 +39,7 @@ public:
       }
 
     /*** Initialize main data structure. ***/
-    HDSA::Ptr<MeshManager<RealT> > meshMgr = HDSA::makePtr<MeshManager_BackwardFacingStepChannel<RealT> >(*parlist);
+    HDSA::Ptr<MeshManager<RealT> > meshMgr = HDSA::makePtr<MeshManager_Stokes<RealT> >(*parlist);
     // Initialize PDE describing Stokes equations.
     HDSA::Ptr<PDE<RealT> > pde = HDSA::makePtr<PDE_Stokes<RealT> >(*parlist,0.0);
     HDSA::Ptr<PDE_Stokes<RealT> > pde_stokes = HDSA::dynamicPtrCast<PDE_Stokes<RealT> >(pde);

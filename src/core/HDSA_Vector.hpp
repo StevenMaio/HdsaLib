@@ -100,9 +100,9 @@ public:
   {
     // Populate vectors with standard normal samples
     HDSA::Ptr<HDSA::Vector<RealT> > vec = this->Clone();
-    for(int l = 0; l < vec->dimension(); l++)
+    for(int l = 0; l < vec->Get_nonzero_dim(); l++)
       {
-	vec->Replace_Element(l,distribution_(generator_));
+	vec->Replace_Element(vec->Get_map_reduced_to_full(l),distribution_(generator_));
       }
     return vec;
   }

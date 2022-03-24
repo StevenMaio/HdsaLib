@@ -1,7 +1,6 @@
 #ifndef PDEOPT_QOI_STOKES_HPP
 #define PDEOPT_QOI_STOKES_HPP
 
-#include "../../../PDE-OPT/TOOLS/qoi.hpp"
 #include "pde_stokes.hpp"
 
 template <class Real>
@@ -11,14 +10,12 @@ private:
   const ROL::Ptr<FE<Real> > fePrs_;
   const ROL::Ptr<FieldHelper<Real> > fieldHelper_;
   ROL::Ptr<Intrepid::FieldContainer<Real> > weight_;
-  Real channelW_;
-  Real stepW_;
 
   const Real eps_;
 
   Real weightFunc(const std::vector<Real> & x) const {
     Real in_domain = 0.0;
-    if( (x[0] >= stepW_-eps_) && (x[0] <= channelW_-eps_) && (x[1] >= 0.2-eps_) && (x[1] <= 0.8+eps_) )
+    if( (x[0] >= 0.0) && (x[0] <= 1.0) && (x[1] >= 0.2-eps_) && (x[1] <= 0.8+eps_) )
       {
 	in_domain = 1.0;
       }
@@ -31,8 +28,6 @@ public:
 				     const ROL::Ptr<FieldHelper<Real> > &fieldHelper,
 				     Teuchos::ParameterList &parlist)
     : feVel_(feVel), fePrs_(fePrs), fieldHelper_(fieldHelper), eps_(std::sqrt(ROL::ROL_EPSILON<Real>())) {
-    channelW_ = parlist.sublist("Geometry").get(    "Channel width", 8.0);
-    stepW_    = parlist.sublist("Geometry").get(       "Step width", 1.0);
     int c = feVel_->cubPts()->dimension(0);
     int p = feVel_->cubPts()->dimension(1);
     int d = feVel_->cubPts()->dimension(2);

@@ -41,7 +41,7 @@ public:
       {	
 	outStream =  HDSA::makePtrFromRef(bhs);
       }
-    HDSA::Ptr<MeshManager<RealT> > meshMgr = HDSA::makePtr<MeshManager_BackwardFacingStepChannel<RealT> >(*parlist_);
+    HDSA::Ptr<MeshManager<RealT> > meshMgr = HDSA::makePtr<MeshManager_Stokes<RealT> >(*parlist_);
 
     RealT Gamma_diff = parlist_->sublist("Problem").get("Prior Control Diff Coefficient",1.e-5);
     RealT Gamma_eye = parlist_->sublist("Problem").get("Prior Control Identity Coefficient",1.0);
@@ -231,7 +231,6 @@ public:
     HDSA::Ptr<ROL::Vector<RealT> > z_out_rol = HDSA::dynamicPtrCast<ROL_Vector<RealT> >(z_out)->get_rol_vec();
     RealT tol = 1.e-8;
     con_AG_->applyJacobian_1(*z_out_rol,*z_in_rol,*z_in_rol,*z_in_rol,tol);
-    z_out->Set_Zeros();
   }
 
   void Apply_A_G_Mat_Inv(HDSA::Ptr<HDSA::Vector<RealT> > & z_out, const HDSA::Ptr<HDSA::Vector<RealT> > & z_in) const
@@ -240,7 +239,6 @@ public:
     HDSA::Ptr<ROL::Vector<RealT> > z_out_rol = HDSA::dynamicPtrCast<ROL_Vector<RealT> >(z_out)->get_rol_vec();
     RealT tol = 1.e-8;
     con_AG_->applyInverseJacobian_1(*z_out_rol,*z_in_rol,*z_in_rol,*z_in_rol,tol);
-    z_out->Set_Zeros();
   }
 
   void Apply_A_L_Mat(HDSA::Ptr<HDSA::Vector<RealT> > & u_out, const HDSA::Ptr<HDSA::Vector<RealT> > & u_in) const

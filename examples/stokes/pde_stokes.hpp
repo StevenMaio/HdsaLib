@@ -30,13 +30,14 @@ private:
   // Finite element definition
   ROL::Ptr<FE<Real> > feVel_;
   ROL::Ptr<FE<Real> > fePrs_;
-  std::vector<ROL::Ptr<FE<Real> > > feVelBdry_;
+  std::vector<std::vector<ROL::Ptr<FE<Real> > > > feVelBdry_;
+  std::vector<std::vector<ROL::Ptr<FE<Real> > > > fePrsBdry_;
   // Local degrees of freedom on boundary, for each side of the reference cell (first index).
   std::vector<std::vector<int> > fvidx_;
   std::vector<std::vector<int> > fpidx_;
   // Coordinates of degrees freedom on boundary cells.
   // Indexing:  [sideset number][local side id](cell number, value at dof)
-  std::vector<std::vector<ROL::Ptr<Intrepid::FieldContainer<Real> > > > bdryCellDofValues_;
+  std::vector<std::vector<ROL::Ptr<Intrepid::FieldContainer<Real> > > > bdryCellVDofValues_;
   // Field pattern, offsets, etc.
   std::vector<std::vector<int> > fieldPattern_;  // local Field/DOF pattern; set from DOF manager 
   int numFields_;                                // number of fields (equations in the PDE)
@@ -48,94 +49,52 @@ private:
   Real viscosity_;
   Real gravity_;
   Real advection_coeff_;
-  Real channelW_;
-  Real stepW_;
   ROL::Ptr<Intrepid::FieldContainer<Real> > ctrlWeight_;  
   Real initiate_control_;
 
   ROL::Ptr<FieldHelper<Real> > fieldHelper_;
 
-  Real DirichletFunc(const std::vector<Real> & coords, int sideset, int locSideId, int dir) const {
+
+  Real velocityDirichletFunc(const std::vector<Real> & coords, int sideset, int locSideId, int dir) const {
     Real val(0);
-    if ((sideset==4) && (dir==0)) { // Left upper x-velocity
-        val = 8.0*(coords[1]-0.5)*(1.0-coords[1]);
+    Real one(1);
+    if ((sideset==1) && (dir==0)) {
+      val = coords[1]*(one-coords[1]);
     }
-    if ((sideset==1) && (dir==0)) { // Right lower x-velocity
-      val = 12.0*coords[1]*(1.0-coords[1]);
-    }
-    if ((sideset==2) && (dir==0)) { // Right upper x-velocity
-      val = 12.0*coords[1]*(1.0-coords[1]);
-    }
-   if ((sideset==3) && (dir==0)) { // Top x-velocity
-     val = coords[0]/channelW_;
-    }
-   if ((sideset==0) && (dir==0)) { // Bottom x-velocity
-     val = coords[0]/channelW_;
-    }
-    if ((sideset==4) && (dir==1)) { // Left upper y-velocity
-        val = 0.0;
-    }
-   if ((sideset==5) && (dir==1)) { // Middle y-velocity
-      val = 0.0;
-    }
-    if ((sideset==1) && (dir==1)) { // Right lower y-velocity
-      val = -1.5 + coords[1];
-    }
-    if ((sideset==2) && (dir==1)) { // Right upper y-velocity
-      val = -1.5 + coords[1];
-    }
-   if ((sideset==3) && (dir==1)) { // Top y-velocity
-      val = -0.5*coords[0]/channelW_;
-    }
-   if ((sideset==0) && (dir==1)) { // Bottom y-velocity
-      val = -1.5*coords[0]/channelW_;
-    }
-   if ((sideset==4) && (dir==2)) { // Left upper pressure
-      val = 10.0;
-    }
-   if ((sideset==5) && (dir==2)) { // middle pressure
-      val = 10.0;
-    }
-   if ((sideset==6) && (dir==2)) { // Left lower pressure
-      val = 10.0;
-    }
-   if ((sideset==1) && (dir==2)) { // Right lower pressure
-      val = 2.0;
-    }
-   if ((sideset==2) && (dir==2)) { // Right upper pressure
-      val = 2.0;
+    else if ((sideset==2) && (dir==0)) {
+      val = coords[1]*(one-coords[1]);
     }
     return val;
   }
 
   void computeDirichlet(void) {
     // Compute Dirichlet values at DOFs.
-    int d = basisPtrVel_->getBaseCellTopology().getDimension();
+    int d  = basisPtrVel_->getBaseCellTopology().getDimension();
+    int fv = basisPtrVel_->getCardinality();
     int numSidesets = bdryCellLocIds_.size();
-    bdryCellDofValues_.resize(numSidesets);
+    bdryCellVDofValues_.resize(numSidesets);
     for (int i=0; i<numSidesets; ++i) {
       int numLocSides = bdryCellLocIds_[i].size();
-      bdryCellDofValues_[i].resize(numLocSides);
+      bdryCellVDofValues_[i].resize(numLocSides);
       for (int j=0; j<numLocSides; ++j) {
         int c = bdryCellLocIds_[i][j].size();
-        int f = basisPtrVel_->getCardinality();
-        bdryCellDofValues_[i][j] = ROL::makePtr<Intrepid::FieldContainer<Real>>(c, f, d+1);
-        ROL::Ptr<Intrepid::FieldContainer<Real> > coords =
-          ROL::makePtr<Intrepid::FieldContainer<Real>>(c, f, d);
+        bdryCellVDofValues_[i][j] = ROL::makePtr<Intrepid::FieldContainer<Real>>(c, fv, d);
+        ROL::Ptr<Intrepid::FieldContainer<Real> > Vcoords, Tcoords;
+        Vcoords = ROL::makePtr<Intrepid::FieldContainer<Real>>(c, fv, d);
         if (c > 0) {
-          feVel_->computeDofCoords(coords, bdryCellNodes_[i][j]);
+          feVel_->computeDofCoords(Vcoords, bdryCellNodes_[i][j]);
         }
         for (int k=0; k<c; ++k) {
-          for (int l=0; l<f; ++l) {
+          for (int l=0; l<fv; ++l) {
             std::vector<Real> dofpoint(d);
             //std::cout << "Sideset " << i << " LocalSide " << j << "  Cell " << k << "  Field " << l << "  Coord ";
             for (int m=0; m<d; ++m) {
-              dofpoint[m] = (*coords)(k, l, m);
+              dofpoint[m] = (*Vcoords)(k, l, m);
               //std::cout << dofpoint[m] << "  ";
             }
 
-            for (int m=0; m<d+1; ++m) {
-              (*bdryCellDofValues_[i][j])(k, l, m) = DirichletFunc(dofpoint, i, j, m);
+            for (int m=0; m<d; ++m) {
+              (*bdryCellVDofValues_[i][j])(k, l, m) = velocityDirichletFunc(dofpoint, i, j, m);
               //std::cout << "  " << m << "-Value " << DirichletFunc(dofpoint, i, j, m);
             }
             //std::cout << std::endl;
@@ -145,42 +104,6 @@ private:
     }
   }
 
-  // void computeDirichlet(void) {
-  //   // Compute Dirichlet values at DOFs.
-  //   int d = basisPtrVel_->getBaseCellTopology().getDimension();
-  //   int numSidesets = bdryCellLocIds_.size();
-  //   bdryCellDofValues_.resize(numSidesets);
-  //   for (int i=0; i<numSidesets; ++i) {
-  //     int numLocSides = bdryCellLocIds_[i].size();
-  //     bdryCellDofValues_[i].resize(numLocSides);
-  //     for (int j=0; j<numLocSides; ++j) {
-  //       int c = bdryCellLocIds_[i][j].size();
-  //       int f = basisPtrVel_->getCardinality();
-  //       bdryCellDofValues_[i][j] = ROL::makePtr<Intrepid::FieldContainer<Real>>(c, f, d);
-  //       ROL::Ptr<Intrepid::FieldContainer<Real> > coords =
-  //         ROL::makePtr<Intrepid::FieldContainer<Real>>(c, f, d);
-  //       if (c > 0) {
-  //         feVel_->computeDofCoords(coords, bdryCellNodes_[i][j]);
-  //       }
-  //       for (int k=0; k<c; ++k) {
-  //         for (int l=0; l<f; ++l) {
-  //           std::vector<Real> dofpoint(d);
-  //           //std::cout << "Sideset " << i << " LocalSide " << j << "  Cell " << k << "  Field " << l << "  Coord ";
-  //           for (int m=0; m<d; ++m) {
-  //             dofpoint[m] = (*coords)(k, l, m);
-  //             //std::cout << dofpoint[m] << "  ";
-  //           }
-
-  //           for (int m=0; m<d; ++m) {
-  //             (*bdryCellDofValues_[i][j])(k, l, m) = DirichletFunc(dofpoint, i, j, m);
-  //             //std::cout << "  " << m << "-Value " << DirichletFunc(dofpoint, i, j, m);
-  //           }
-  //           //std::cout << std::endl;
-  //         }
-  //       }
-  //     }
-  //   }
-  // }
 
   Real viscosityFunc(const std::vector<Real> & coords) const {
     return viscosity_;
@@ -266,8 +189,6 @@ public:
     viscosity_ = parlist.sublist("Problem").get("Viscosity", 5e-3);
     gravity_ = parlist.sublist("Problem").get("Gravity", 9.81);
     advection_coeff_ = advection_coeff;
-    channelW_ = parlist.sublist("Geometry").get(    "Channel width", 8.0);
-    stepW_    = parlist.sublist("Geometry").get(       "Step width", 1.0);
     initiate_control_ = parlist.sublist("Geometry").get("Initiate Control", -1.0);
 
     numDofs_ = 0;
@@ -438,88 +359,63 @@ public:
                                                   false);
     Intrepid::RealSpaceTools<Real>::scale(pres_res,static_cast<Real>(-1));
 
+    const Real zero(0), one(1);
+     /**************************************************************************/
+    /*** APPLY BOUNDARY CONDITIONS ********************************************/
+    /**************************************************************************/
+    // --> No slip boundaries: i=0,1,3
+    // -->     Lid boundaries: i=2
+    // -->       Pressure pin: i=4
     int numSideSets = bdryCellLocIds_.size();
     if (numSideSets > 0) {
-      // APPLY DIRICHLET CONDITIONS
-      computeDirichlet();
       for (int i = 0; i < numSideSets; ++i) {
-        // Apply Dirichlet conditions
+        // Velocity Boundary Conditions
+        if (i!=4) {
+          int numLocalSideIds = bdryCellLocIds_[i].size();
+          for (int j = 0; j < numLocalSideIds; ++j) {
+            int numCellsSide = bdryCellLocIds_[i][j].size();
+            int numVBdryDofs = fvidx_[j].size();
+            for (int k = 0; k < numCellsSide; ++k) {
+              int cidx = bdryCellLocIds_[i][j][k];
+              for (int l = 0; l < numVBdryDofs; ++l) {
+                //for (int m = 0; m < d; ++m) {
+		for (int m = 0; m < 1; ++m) {
+                  (*R[m])(cidx,fvidx_[j][l]) = (*U[m])(cidx,fvidx_[j][l]) - (*bdryCellVDofValues_[i][j])(k,fvidx_[j][l],m);
+                }
+              }
+            }
+          }
+        }
+        if (i==3) {
+          int numLocalSideIds = bdryCellLocIds_[i].size();
+          for (int j = 0; j < numLocalSideIds; ++j) {
+            int numCellsSide = bdryCellLocIds_[i][j].size();
+            int numVBdryDofs = fvidx_[j].size();
+            for (int k = 0; k < numCellsSide; ++k) {
+              int cidx = bdryCellLocIds_[i][j][k];
+              for (int l = 0; l < numVBdryDofs; ++l) {
+                //for (int m = 0; m < d; ++m) {
+		for (int m = 1; m < 2; ++m) {
+                  (*R[m])(cidx,fvidx_[j][l]) = (*U[m])(cidx,fvidx_[j][l]) - (*bdryCellVDofValues_[i][j])(k,fvidx_[j][l],m);
+                }
+              }
+            }
+          }
+        }
+        // Pressure pinning
         if (i==4) {
-	    int numLocalSideIds = bdryCellLocIds_[i].size();
-	    for (int j = 0; j < numLocalSideIds; ++j) {
-	      int numCellsSide = bdryCellLocIds_[i][j].size();
-	      int numBdryDofs = fvidx_[j].size();
-	      for (int k = 0; k < numCellsSide; ++k) {
-		int cidx = bdryCellLocIds_[i][j][k];
-		for (int l = 0; l < numBdryDofs; ++l) {
-		  (*R[0])(cidx,fvidx_[j][l]) = (*U[0])(cidx,fvidx_[j][l]) - (*bdryCellDofValues_[i][j])(k,fvidx_[j][l],0);
-		}
-	      }
-	    }
-	}
-        if ((i==4) || (i==5)) {
-	    int numLocalSideIds = bdryCellLocIds_[i].size();
-	    for (int j = 0; j < numLocalSideIds; ++j) {
-	      int numCellsSide = bdryCellLocIds_[i][j].size();
-	      int numBdryDofs = fvidx_[j].size();
-	      for (int k = 0; k < numCellsSide; ++k) {
-		int cidx = bdryCellLocIds_[i][j][k];
-		for (int l = 0; l < numBdryDofs; ++l) {
-		  (*R[1])(cidx,fvidx_[j][l]) = (*U[1])(cidx,fvidx_[j][l]) - (*bdryCellDofValues_[i][j])(k,fvidx_[j][l],1);
-		}
-	      }
-	    }
-	}
-        if ( (i==4) ) {
-	  int numLocalSideIds = bdryCellLocIds_[i].size();
-	  for (int j = 0; j < numLocalSideIds; ++j) {
-	    int numCellsSide = bdryCellLocIds_[i][j].size();
-	    int numBdryDofs = fpidx_[j].size();
-	    for (int k = 0; k < numCellsSide; ++k) {
-	      int cidx = bdryCellLocIds_[i][j][k];
-	      for (int l = 0; l < numBdryDofs; ++l) {
-		(*R[d])(cidx,fpidx_[j][l]) = (*U[d])(cidx,fpidx_[j][l]) - (*bdryCellDofValues_[i][j])(k,fpidx_[j][l],d);
-	      }
-	    }
-	  }
-	}
+          Real val = zero;
+          int numLocalSideIds = bdryCellLocIds_[i].size();
+          for (int j = 0; j < numLocalSideIds; ++j) {
+            int numCellsSide = bdryCellLocIds_[i][j].size();
+            for (int k = 0; k < numCellsSide; ++k) {
+              int l = 0, cidx = bdryCellLocIds_[i][j][k];
+              (*R[d])(cidx,fpidx_[j][l]) = (*U[d])(cidx,fpidx_[j][l]) - val;
+            }
+          }
+        }
       }
     }
-
-    // int numSideSets = bdryCellLocIds_.size();
-    // if (numSideSets > 0) {
-    //   // APPLY DIRICHLET CONDITIONS
-    //   computeDirichlet();
-    //   for (int i = 0; i < numSideSets; ++i) {
-    //     // Apply Dirichlet conditions
-    //     if (i!=9) {
-    // 	    int numLocalSideIds = bdryCellLocIds_[i].size();
-    // 	    for (int j = 0; j < numLocalSideIds; ++j) {
-    // 	      int numCellsSide = bdryCellLocIds_[i][j].size();
-    // 	      int numBdryDofs = fvidx_[j].size();
-    // 	      for (int k = 0; k < numCellsSide; ++k) {
-    // 		int cidx = bdryCellLocIds_[i][j][k];
-    // 		for (int l = 0; l < numBdryDofs; ++l) {
-    // 		  //std::cout << "\n  i=" << i << "   cidx=" << cidx << "   j=" << j << "  l=" << l << "  " << fvidx_[j][l] << " " << (*bdryCellDofValues_[i][j])(k,fvidx_[j][l],0);
-    // 		  //std::cout << "\n  i=" << i << "   cidx=" << cidx << "   j=" << j << "  l=" << l << "  " << fvidx_[j][l] << " " << (*bdryCellDofValues_[i][j])(k,fvidx_[j][l],1);
-    // 		  for (int m=0; m < d; ++m) {
-    // 		    (*R[m])(cidx,fvidx_[j][l]) = (*U[m])(cidx,fvidx_[j][l]) - (*bdryCellDofValues_[i][j])(k,fvidx_[j][l],m);
-    // 		  }
-    // 		}
-    // 	      }
-    // 	    }
-    // 	  }
-       
-    //     // Pressure pinning
-    //     if (i==9) {
-    //       int j = 2, l = 0;
-    //       if (bdryCellLocIds_[i][0].size() > 0) { 
-    //         int cidx = bdryCellLocIds_[i][0][0];
-    //         (*R[d])(cidx,fpidx_[j][l]) = (*U[d])(cidx,fpidx_[j][l]);
-    //       }
-    //     }
-    //   }
-    // }
 
     // Combine the residuals.
     fieldHelper_->combineFieldCoeff(res, R);
@@ -708,121 +604,88 @@ public:
     Intrepid::RealSpaceTools<Real>::scale(presvelX_jac,static_cast<Real>(-1));
     Intrepid::RealSpaceTools<Real>::scale(presvelY_jac,static_cast<Real>(-1));
 
-    // APPLY DIRICHLET CONDITIONS
+    const Real zero(0), one(1);
+    // APPLY BOUNDARY CONDITIONS
     int numSideSets = bdryCellLocIds_.size();
     if (numSideSets > 0) {
+      // DIRICHLET CONDITIONS
       for (int i = 0; i < numSideSets; ++i) {
+        // Velocity Boundary Conditions
+        if (i!=4) {
+          int numLocalSideIds = bdryCellLocIds_[i].size();
+          for (int j = 0; j < numLocalSideIds; ++j) {
+            int numCellsSide = bdryCellLocIds_[i][j].size();
+            int numVBdryDofs = fvidx_[j].size();
+            for (int k = 0; k < numCellsSide; ++k) {
+              int cidx = bdryCellLocIds_[i][j][k];
+              for (int l = 0; l < numVBdryDofs; ++l) {
+                for (int m = 0; m < fv; ++m) {
+                  //for (int n = 0; n < d; ++n) {
+		  for (int n = 0; n < 1; ++n) {
+                    for (int p = 0; p < d; ++p) {
+                      (*J[n][p])(cidx,fvidx_[j][l],m) = zero;
+                    }
+                    (*J[n][n])(cidx,fvidx_[j][l],fvidx_[j][l]) = one;
+                  }
+                }
+                //for (int m = 0; m < d; ++m) {
+		for (int m = 0; m < 1; ++m) {
+                  for (int n = 0; n < fp; ++n) {
+                    (*J[m][d])(cidx,fvidx_[j][l],n) = zero;
+                  }
+                }
+              }
+            }
+          }
+        }
+        if (i==3) {
+          int numLocalSideIds = bdryCellLocIds_[i].size();
+          for (int j = 0; j < numLocalSideIds; ++j) {
+            int numCellsSide = bdryCellLocIds_[i][j].size();
+            int numVBdryDofs = fvidx_[j].size();
+            for (int k = 0; k < numCellsSide; ++k) {
+              int cidx = bdryCellLocIds_[i][j][k];
+              for (int l = 0; l < numVBdryDofs; ++l) {
+                for (int m = 0; m < fv; ++m) {
+                  //for (int n = 0; n < d; ++n) {
+		  for (int n = 1; n < 2; ++n) {
+                    for (int p = 0; p < d; ++p) {
+                      (*J[n][p])(cidx,fvidx_[j][l],m) = zero;
+                    }
+                    (*J[n][n])(cidx,fvidx_[j][l],fvidx_[j][l]) = one;
+                  }
+                }
+                //for (int m = 0; m < d; ++m) {
+		for (int m = 1; m < 2; ++m) {
+                  for (int n = 0; n < fp; ++n) {
+                    (*J[m][d])(cidx,fvidx_[j][l],n) = zero;
+                  }
+                }
+              }
+            }
+          }
+        }
+        // Pressure pinning
         if (i==4) {
           int numLocalSideIds = bdryCellLocIds_[i].size();
           for (int j = 0; j < numLocalSideIds; ++j) {
             int numCellsSide = bdryCellLocIds_[i][j].size();
-            int numBdryDofs = fvidx_[j].size();
             for (int k = 0; k < numCellsSide; ++k) {
-              int cidx = bdryCellLocIds_[i][j][k];
-              for (int l = 0; l < numBdryDofs; ++l) {
-                for (int m=0; m < fv; ++m) {
-		  for (int p=0; p < d; ++p) {
-		    (*J[0][p])(cidx,fvidx_[j][l],m) = static_cast<Real>(0);
-		  }
-		  (*J[0][0])(cidx,fvidx_[j][l],fvidx_[j][l]) = static_cast<Real>(1);
-		  for (int m=0; m < fp; ++m) {
-		    (*J[0][2])(cidx,fvidx_[j][l],m) = static_cast<Real>(0);
-		  }
-		}
+              int l = 0, cidx = bdryCellLocIds_[i][j][k];
+              for (int m = 0; m < fv; ++m) {
+                for (int n = 0; n < d; ++n) {
+                  (*J[d][n])(cidx,fpidx_[j][l],m) = zero;
+                }
               }
-            }
-	  }
-	}
-        if ((i==4) || (i==5)) {
-          int numLocalSideIds = bdryCellLocIds_[i].size();
-          for (int j = 0; j < numLocalSideIds; ++j) {
-            int numCellsSide = bdryCellLocIds_[i][j].size();
-            int numBdryDofs = fvidx_[j].size();
-            for (int k = 0; k < numCellsSide; ++k) {
-              int cidx = bdryCellLocIds_[i][j][k];
-              for (int l = 0; l < numBdryDofs; ++l) {
-                for (int m=0; m < fv; ++m) {
-		  for (int p=0; p < d; ++p) {
-		    (*J[1][p])(cidx,fvidx_[j][l],m) = static_cast<Real>(0);
-		  }
-		  (*J[1][1])(cidx,fvidx_[j][l],fvidx_[j][l]) = static_cast<Real>(1);
-		  for (int m=0; m < fp; ++m) {
-		    (*J[1][2])(cidx,fvidx_[j][l],m) = static_cast<Real>(0);
-		  }
-		}
+              for (int m = 0; m < fp; ++m) {
+                (*J[d][d])(cidx,fpidx_[j][l],m) = zero;
               }
+              (*J[d][d])(cidx,fpidx_[j][l],fpidx_[j][l]) = one;
             }
-	  }
-	}
-        if ( (i==4) ) {
-          int numLocalSideIds = bdryCellLocIds_[i].size();
-          for (int j = 0; j < numLocalSideIds; ++j) {
-            int numCellsSide = bdryCellLocIds_[i][j].size();
-	    int numBdryDofs = fpidx_[j].size();
-	    for (int k = 0; k < numCellsSide; ++k) {
-	      int cidx = bdryCellLocIds_[i][j][k];
-	      for (int l = 0; l < numBdryDofs; ++l) {
-		for (int m = 0; m < fv; ++m) {
-		  for (int n = 0; n < d; ++n) {
-		    (*J[d][n])(cidx,fpidx_[j][l],m) = static_cast<Real>(0);
-		  }
-		}
-		for (int m = 0; m < fp; ++m) {
-		  (*J[d][d])(cidx,fpidx_[j][l],m) = static_cast<Real>(0);
-		}
-		(*J[d][d])(cidx,fpidx_[j][l],fpidx_[j][l]) = static_cast<Real>(1);
-	      }
-	    }
-	  }
-	}
+          }
+        }
       }
     }
-    // int numSideSets = bdryCellLocIds_.size();
-    // if (numSideSets > 0) {
-    //   for (int i = 0; i < numSideSets; ++i) {
-    //     if (i!=9) {
-    //       int numLocalSideIds = bdryCellLocIds_[i].size();
-    //       for (int j = 0; j < numLocalSideIds; ++j) {
-    //         int numCellsSide = bdryCellLocIds_[i][j].size();
-    //         int numBdryDofs = fvidx_[j].size();
-    //         for (int k = 0; k < numCellsSide; ++k) {
-    //           int cidx = bdryCellLocIds_[i][j][k];
-    //           for (int l = 0; l < numBdryDofs; ++l) {
-    //             for (int m=0; m < fv; ++m) {
-    //               for (int n=0; n < d; ++n) {
-    //                 for (int p=0; p < d; ++p) {
-    //                   (*J[n][p])(cidx,fvidx_[j][l],m) = static_cast<Real>(0);
-    //                 }
-    //                 (*J[n][n])(cidx,fvidx_[j][l],fvidx_[j][l]) = static_cast<Real>(1);
-    //               }
-    //             }
-    //             for (int m=0; m < fp; ++m) {
-    //               for (int n=0; n < d; ++n) {
-    //                 (*J[n][2])(cidx,fvidx_[j][l],m) = static_cast<Real>(0);
-    //               }
-    //             }
-    //           }
-    //         }
-    //       }
-    //     }
-    //     // Pressure pinning
-    //     if (i==9) {
-    //       int j = 2, l = 0;
-    //       if (bdryCellLocIds_[i][0].size() > 0) { 
-    //         int cidx = bdryCellLocIds_[i][0][0];
-    //         for (int m = 0; m < fv; ++m) {
-    //           for (int n = 0; n < d; ++n) {
-    //             (*J[d][n])(cidx,fpidx_[j][l],m) = static_cast<Real>(0);
-    //           }
-    //         }
-    //         for (int m = 0; m < fp; ++m) {
-    //           (*J[d][d])(cidx,fpidx_[j][l],m) = static_cast<Real>(0);
-    //         }
-    //         (*J[d][d])(cidx,fpidx_[j][l],fpidx_[j][l]) = static_cast<Real>(1);
-    //       }
-    //     }
-    //   }
-    // }
 
     // Combine the jacobians.
     fieldHelper_->combineFieldCoeff(jac, J);
@@ -867,97 +730,88 @@ public:
     Intrepid::FunctionSpaceTools::integrate<Real>(*J[1][1], *weight_Val_eval, *(feVel_->NdetJ()), Intrepid::COMP_CPP, false);
     Intrepid::RealSpaceTools<Real>::scale(*J[1][1],static_cast<Real>(-1));
 
-    // APPLY DIRICHLET CONDITIONS
+    const Real zero(0), one(1);
+    // APPLY BOUNDARY CONDITIONS
     int numSideSets = bdryCellLocIds_.size();
     if (numSideSets > 0) {
+      // DIRICHLET CONDITIONS
       for (int i = 0; i < numSideSets; ++i) {
-        // Apply Dirichlet conditions
+        // Velocity Boundary Conditions
+        if (i!=4) {
+          int numLocalSideIds = bdryCellLocIds_[i].size();
+          for (int j = 0; j < numLocalSideIds; ++j) {
+            int numCellsSide = bdryCellLocIds_[i][j].size();
+            int numVBdryDofs = fvidx_[j].size();
+            for (int k = 0; k < numCellsSide; ++k) {
+              int cidx = bdryCellLocIds_[i][j][k];
+              for (int l = 0; l < numVBdryDofs; ++l) {
+                for (int m = 0; m < fv; ++m) {
+                  //for (int n = 0; n < d; ++n) {
+		  for (int n = 0; n < 1; ++n) {
+                    for (int p = 0; p < d; ++p) {
+                      (*J[n][p])(cidx,fvidx_[j][l],m) = zero;
+                    }
+                    (*J[n][n])(cidx,fvidx_[j][l],fvidx_[j][l]) = zero;
+                  }
+                }
+		for (int m = 0; m < 1; ++m) {
+                //for (int m = 0; m < d; ++m) {
+                  for (int n = 0; n < fp; ++n) {
+                    (*J[m][d])(cidx,fvidx_[j][l],n) = zero;
+                  }
+                }
+              }
+            }
+          }
+        }
+        if (i==3) {
+          int numLocalSideIds = bdryCellLocIds_[i].size();
+          for (int j = 0; j < numLocalSideIds; ++j) {
+            int numCellsSide = bdryCellLocIds_[i][j].size();
+            int numVBdryDofs = fvidx_[j].size();
+            for (int k = 0; k < numCellsSide; ++k) {
+              int cidx = bdryCellLocIds_[i][j][k];
+              for (int l = 0; l < numVBdryDofs; ++l) {
+                for (int m = 0; m < fv; ++m) {
+                  //for (int n = 0; n < d; ++n) {
+		  for (int n = 1; n < 2; ++n) {
+                    for (int p = 0; p < d; ++p) {
+                      (*J[n][p])(cidx,fvidx_[j][l],m) = zero;
+                    }
+                    (*J[n][n])(cidx,fvidx_[j][l],fvidx_[j][l]) = zero;
+                  }
+                }
+		for (int m = 1; m < 2; ++m) {
+                //for (int m = 0; m < d; ++m) {
+                  for (int n = 0; n < fp; ++n) {
+                    (*J[m][d])(cidx,fvidx_[j][l],n) = zero;
+                  }
+                }
+              }
+            }
+          }
+        }
+        // Pressure pinning
         if (i==4) {
           int numLocalSideIds = bdryCellLocIds_[i].size();
           for (int j = 0; j < numLocalSideIds; ++j) {
             int numCellsSide = bdryCellLocIds_[i][j].size();
-            int numBdryDofs = fvidx_[j].size();
             for (int k = 0; k < numCellsSide; ++k) {
-              int cidx = bdryCellLocIds_[i][j][k];
-              for (int l = 0; l < numBdryDofs; ++l) {
-                for (int m=0; m < fv; ++m) {
-		  (*J[0][0])(cidx,fvidx_[j][l],m) = static_cast<Real>(0);
+              int l = 0, cidx = bdryCellLocIds_[i][j][k];
+              for (int m = 0; m < fv; ++m) {
+                for (int n = 0; n < d; ++n) {
+                  (*J[d][n])(cidx,fpidx_[j][l],m) = zero;
                 }
               }
+              for (int m = 0; m < fp; ++m) {
+                (*J[d][d])(cidx,fpidx_[j][l],m) = zero;
+              }
+              (*J[d][d])(cidx,fpidx_[j][l],fpidx_[j][l]) = zero;
             }
           }
         }
-        if ((i==4) || (i==5)) {
-          int numLocalSideIds = bdryCellLocIds_[i].size();
-          for (int j = 0; j < numLocalSideIds; ++j) {
-            int numCellsSide = bdryCellLocIds_[i][j].size();
-            int numBdryDofs = fvidx_[j].size();
-            for (int k = 0; k < numCellsSide; ++k) {
-              int cidx = bdryCellLocIds_[i][j][k];
-              for (int l = 0; l < numBdryDofs; ++l) {
-                for (int m=0; m < fv; ++m) {
-		  (*J[1][1])(cidx,fvidx_[j][l],m) = static_cast<Real>(0);
-                }
-              }
-            }
-          }
-        }
-        if ( (i==4) ) {
-          int numLocalSideIds = bdryCellLocIds_[i].size();
-          for (int j = 0; j < numLocalSideIds; ++j) {
-            int numCellsSide = bdryCellLocIds_[i][j].size();
-	    int numBdryDofs = fpidx_[j].size();
-	    for (int k = 0; k < numCellsSide; ++k) {
-	      int cidx = bdryCellLocIds_[i][j][k];
-	      for (int l = 0; l < numBdryDofs; ++l) {
-		for (int m=0; m < fp; m++){
-		  (*J[d][d])(cidx,fpidx_[j][l],m) = static_cast<Real>(0);
-		}
-	      }
-	    }
-	  }
-	}
       }
     }
-    // int numSideSets = bdryCellLocIds_.size();
-    // if (numSideSets > 0) {
-    //   for (int i = 0; i < numSideSets; ++i) {
-    //     // Apply Dirichlet conditions
-    //     if (i!=9) {
-    //       int numLocalSideIds = bdryCellLocIds_[i].size();
-    //       for (int j = 0; j < numLocalSideIds; ++j) {
-    //         int numCellsSide = bdryCellLocIds_[i][j].size();
-    //         int numBdryDofs = fvidx_[j].size();
-    //         for (int k = 0; k < numCellsSide; ++k) {
-    //           int cidx = bdryCellLocIds_[i][j][k];
-    //           for (int l = 0; l < numBdryDofs; ++l) {
-    //             //std::cout << "\n   j=" << j << "  l=" << l << "  " << fidx[j][l];
-    //             for (int m=0; m < fv; ++m) {
-    //               for (int n=0; n < d; ++n) {
-    //                 (*J[n][n])(cidx,fvidx_[j][l],m) = static_cast<Real>(0);
-    //               }
-    //             }
-    //           }
-    //         }
-    //       }
-    //     }
-    //     // Pressure pinning
-    //     if (i==9) {
-    //       int j = 2, l = 0;
-    //       if (bdryCellLocIds_[i][0].size() > 0) { 
-    //         int cidx = bdryCellLocIds_[i][0][0];
-    //         for (int m = 0; m < fv; ++m) {
-    //           for (int n = 0; n < d; ++n) {
-    //             (*J[d][n])(cidx,fpidx_[j][l],m) = static_cast<Real>(0);
-    //           }
-    //         }
-    //         for (int m = 0; m < fp; ++m) {
-    //           (*J[d][d])(cidx,fpidx_[j][l],m) = static_cast<Real>(0);
-    //         }
-    //       }
-    // 	}
-    //   }
-    // }
 
     // Combine the jacobians.
     fieldHelper_->combineFieldCoeff(jac, J);
@@ -1231,19 +1085,27 @@ public:
     bdryCellNodes_ = bdryCellNodes;
     bdryCellLocIds_ = bdryCellLocIds;
     // Finite element definition.
-    feVel_ = ROL::makePtr<FE<Real>>(volCellNodes_,basisPtrVel_,cellCub_);
-    fePrs_ = ROL::makePtr<FE<Real>>(volCellNodes_,basisPtrPrs_,cellCub_);
+    feVel_ = ROL::makePtr<FE<Real> >(volCellNodes_,basisPtrVel_,cellCub_);
+    fePrs_ = ROL::makePtr<FE<Real> >(volCellNodes_,basisPtrPrs_,cellCub_);
+    // Get boundary degrees of freedom.
     fvidx_ = feVel_->getBoundaryDofs();
     fpidx_ = fePrs_->getBoundaryDofs();
-    // Construct control boundary FE
-    int sideset = 6;
-    int numLocSides = bdryCellNodes[sideset].size();
-    feVelBdry_.resize(numLocSides);
-    for (int j = 0; j < numLocSides; ++j) {
-      if (bdryCellNodes[sideset][j] != ROL::nullPtr) {
-        feVelBdry_[j] = ROL::makePtr<FE<Real>>(bdryCellNodes[sideset][j],basisPtrVel_,bdryCub_,j);
+    // Construct boundary FEs
+    const int numSideSets = bdryCellNodes.size();
+    feVelBdry_.resize(numSideSets);
+    fePrsBdry_.resize(numSideSets);
+    for (int i = 0; i < numSideSets; ++i) {
+      int numLocSides = bdryCellNodes[i].size();
+      feVelBdry_[i].resize(numLocSides);
+      fePrsBdry_[i].resize(numLocSides);
+      for (int j = 0; j < numLocSides; ++j) {
+        if (bdryCellNodes[i][j] != ROL::nullPtr) {
+          feVelBdry_[i][j] = ROL::makePtr<FE<Real> >(bdryCellNodes[i][j],basisPtrVel_,bdryCub_,j);
+          fePrsBdry_[i][j] = ROL::makePtr<FE<Real> >(bdryCellNodes[i][j],basisPtrPrs_,bdryCub_,j);
+        }
       }
     }
+    computeDirichlet();
     computeControlWeight();
   }
 
@@ -1260,14 +1122,14 @@ public:
     return fePrs_;
   }
 
-  const std::vector<ROL::Ptr<FE<Real> > > getVelocityBdryFE(void) const {
+  const std::vector<std::vector<ROL::Ptr<FE<Real> > > > getVelocityBdryFE(void) const {
     return feVelBdry_;
   }
 
   const std::vector<std::vector<int> > getBdryCellLocIds(const int sideset = -1) const {
     int side = sideset;
     if ( sideset < 0 ) {
-      side = 6;
+      side = 4;
     }
     return bdryCellLocIds_[side];
   }
