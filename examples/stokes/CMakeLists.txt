@@ -20,10 +20,20 @@ INCLUDE_DIRECTORIES(${${PACKAGE_NAME}_SOURCE_DIR}/adapters/tpetra/src/vector)
     ADD_DIR_TO_NAME
   )
 
+  TRIBITS_ADD_EXECUTABLE_AND_TEST(
+    forward_solves
+    SOURCES forward_solves.cpp
+    ARGS PrintItAll
+    NUM_MPI_PROCS 4
+    NUM_TOTAL_CORES_USED 4
+    PASS_REGULAR_EXPRESSION "TEST PASSED"
+    ADD_DIR_TO_NAME
+  )
+
  TRIBITS_COPY_FILES_TO_BINARY_DIR(
     StokesHDSADataCopy
     SOURCE_FILES
-      input.xml Sensitivity_input.xml plotresults.m
+      input.xml Sensitivity_input.xml plot_posterior.m  plot_prior.m  plotresults.m  Process_Data.m
     SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}"
     DEST_DIR "${CMAKE_CURRENT_BINARY_DIR}"
   )

@@ -58,11 +58,11 @@ private:
   Real velocityDirichletFunc(const std::vector<Real> & coords, int sideset, int locSideId, int dir) const {
     Real val(0);
     Real one(1);
-    if ((sideset==1) && (dir==0)) {
-      val = coords[1]*(one-coords[1]);
+    if ((sideset==2) && (dir==0)) {
+      val = 6.0*coords[1]*(one-coords[1]);
     }
-    else if ((sideset==2) && (dir==0)) {
-      val = coords[1]*(one-coords[1]);
+    if ((sideset==3) && (dir==1)) {
+      val = -2.0*std::pow(std::sin(2*M_PI*coords[0]),2);
     }
     return val;
   }
@@ -370,7 +370,7 @@ public:
     if (numSideSets > 0) {
       for (int i = 0; i < numSideSets; ++i) {
         // Velocity Boundary Conditions
-        if (i!=4) {
+        if (i==2) {
           int numLocalSideIds = bdryCellLocIds_[i].size();
           for (int j = 0; j < numLocalSideIds; ++j) {
             int numCellsSide = bdryCellLocIds_[i][j].size();
@@ -378,10 +378,7 @@ public:
             for (int k = 0; k < numCellsSide; ++k) {
               int cidx = bdryCellLocIds_[i][j][k];
               for (int l = 0; l < numVBdryDofs; ++l) {
-                //for (int m = 0; m < d; ++m) {
-		for (int m = 0; m < 1; ++m) {
-                  (*R[m])(cidx,fvidx_[j][l]) = (*U[m])(cidx,fvidx_[j][l]) - (*bdryCellVDofValues_[i][j])(k,fvidx_[j][l],m);
-                }
+		(*R[0])(cidx,fvidx_[j][l]) = (*U[0])(cidx,fvidx_[j][l]) - (*bdryCellVDofValues_[i][j])(k,fvidx_[j][l],0);
               }
             }
           }
@@ -394,10 +391,7 @@ public:
             for (int k = 0; k < numCellsSide; ++k) {
               int cidx = bdryCellLocIds_[i][j][k];
               for (int l = 0; l < numVBdryDofs; ++l) {
-                //for (int m = 0; m < d; ++m) {
-		for (int m = 1; m < 2; ++m) {
-                  (*R[m])(cidx,fvidx_[j][l]) = (*U[m])(cidx,fvidx_[j][l]) - (*bdryCellVDofValues_[i][j])(k,fvidx_[j][l],m);
-                }
+		(*R[1])(cidx,fvidx_[j][l]) = (*U[1])(cidx,fvidx_[j][l]) - (*bdryCellVDofValues_[i][j])(k,fvidx_[j][l],1);
               }
             }
           }
@@ -611,7 +605,7 @@ public:
       // DIRICHLET CONDITIONS
       for (int i = 0; i < numSideSets; ++i) {
         // Velocity Boundary Conditions
-        if (i!=4) {
+        if (i==2) {
           int numLocalSideIds = bdryCellLocIds_[i].size();
           for (int j = 0; j < numLocalSideIds; ++j) {
             int numCellsSide = bdryCellLocIds_[i][j].size();
@@ -620,19 +614,13 @@ public:
               int cidx = bdryCellLocIds_[i][j][k];
               for (int l = 0; l < numVBdryDofs; ++l) {
                 for (int m = 0; m < fv; ++m) {
-                  //for (int n = 0; n < d; ++n) {
-		  for (int n = 0; n < 1; ++n) {
-                    for (int p = 0; p < d; ++p) {
-                      (*J[n][p])(cidx,fvidx_[j][l],m) = zero;
-                    }
-                    (*J[n][n])(cidx,fvidx_[j][l],fvidx_[j][l]) = one;
-                  }
+		  for (int p = 0; p < d; ++p) {
+		    (*J[0][p])(cidx,fvidx_[j][l],m) = zero;
+		  }
+		  (*J[0][0])(cidx,fvidx_[j][l],fvidx_[j][l]) = one;
                 }
-                //for (int m = 0; m < d; ++m) {
-		for (int m = 0; m < 1; ++m) {
-                  for (int n = 0; n < fp; ++n) {
-                    (*J[m][d])(cidx,fvidx_[j][l],n) = zero;
-                  }
+		for (int n = 0; n < fp; ++n) {
+		  (*J[0][d])(cidx,fvidx_[j][l],n) = zero;
                 }
               }
             }
@@ -647,20 +635,14 @@ public:
               int cidx = bdryCellLocIds_[i][j][k];
               for (int l = 0; l < numVBdryDofs; ++l) {
                 for (int m = 0; m < fv; ++m) {
-                  //for (int n = 0; n < d; ++n) {
-		  for (int n = 1; n < 2; ++n) {
-                    for (int p = 0; p < d; ++p) {
-                      (*J[n][p])(cidx,fvidx_[j][l],m) = zero;
-                    }
-                    (*J[n][n])(cidx,fvidx_[j][l],fvidx_[j][l]) = one;
-                  }
-                }
-                //for (int m = 0; m < d; ++m) {
-		for (int m = 1; m < 2; ++m) {
-                  for (int n = 0; n < fp; ++n) {
-                    (*J[m][d])(cidx,fvidx_[j][l],n) = zero;
-                  }
-                }
+		  for (int p = 0; p < d; ++p) {
+		    (*J[1][p])(cidx,fvidx_[j][l],m) = zero;
+		  }
+		  (*J[1][1])(cidx,fvidx_[j][l],fvidx_[j][l]) = one;
+		}
+		for (int n = 0; n < fp; ++n) {
+		  (*J[1][d])(cidx,fvidx_[j][l],n) = zero;
+		}
               }
             }
           }
@@ -737,7 +719,7 @@ public:
       // DIRICHLET CONDITIONS
       for (int i = 0; i < numSideSets; ++i) {
         // Velocity Boundary Conditions
-        if (i!=4) {
+        if (i==2) {
           int numLocalSideIds = bdryCellLocIds_[i].size();
           for (int j = 0; j < numLocalSideIds; ++j) {
             int numCellsSide = bdryCellLocIds_[i][j].size();
@@ -746,20 +728,14 @@ public:
               int cidx = bdryCellLocIds_[i][j][k];
               for (int l = 0; l < numVBdryDofs; ++l) {
                 for (int m = 0; m < fv; ++m) {
-                  //for (int n = 0; n < d; ++n) {
-		  for (int n = 0; n < 1; ++n) {
-                    for (int p = 0; p < d; ++p) {
-                      (*J[n][p])(cidx,fvidx_[j][l],m) = zero;
-                    }
-                    (*J[n][n])(cidx,fvidx_[j][l],fvidx_[j][l]) = zero;
-                  }
-                }
-		for (int m = 0; m < 1; ++m) {
-                //for (int m = 0; m < d; ++m) {
-                  for (int n = 0; n < fp; ++n) {
-                    (*J[m][d])(cidx,fvidx_[j][l],n) = zero;
-                  }
-                }
+		  for (int p = 0; p < d; ++p) {
+		    (*J[1][p])(cidx,fvidx_[j][l],m) = zero;
+		  }
+		  (*J[1][1])(cidx,fvidx_[j][l],fvidx_[j][l]) = zero;
+		}
+		for (int n = 0; n < fp; ++n) {
+		  (*J[1][d])(cidx,fvidx_[j][l],n) = zero;
+		}
               }
             }
           }
@@ -773,20 +749,14 @@ public:
               int cidx = bdryCellLocIds_[i][j][k];
               for (int l = 0; l < numVBdryDofs; ++l) {
                 for (int m = 0; m < fv; ++m) {
-                  //for (int n = 0; n < d; ++n) {
-		  for (int n = 1; n < 2; ++n) {
-                    for (int p = 0; p < d; ++p) {
-                      (*J[n][p])(cidx,fvidx_[j][l],m) = zero;
-                    }
-                    (*J[n][n])(cidx,fvidx_[j][l],fvidx_[j][l]) = zero;
-                  }
-                }
-		for (int m = 1; m < 2; ++m) {
-                //for (int m = 0; m < d; ++m) {
-                  for (int n = 0; n < fp; ++n) {
-                    (*J[m][d])(cidx,fvidx_[j][l],n) = zero;
-                  }
-                }
+		  for (int p = 0; p < d; ++p) {
+		    (*J[1][p])(cidx,fvidx_[j][l],m) = zero;
+		  }
+		  (*J[1][1])(cidx,fvidx_[j][l],fvidx_[j][l]) = zero;
+		}
+		for (int n = 0; n < fp; ++n) {
+		  (*J[1][d])(cidx,fvidx_[j][l],n) = zero;
+		}
               }
             }
           }

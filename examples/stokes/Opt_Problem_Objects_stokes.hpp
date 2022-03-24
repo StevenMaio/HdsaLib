@@ -180,6 +180,33 @@ public:
     *outStream << "Residual Norm: " << res[0] << std::endl;
   }
 
+  void Evaluate_High_Fidelity_Model()
+  {
+    RealT tol(1.e-8);
+    Teuchos::Array<RealT> res(1,0);
+    // read in solution and write to Opt_Problem_Objects<RealT>::z
+    std::ifstream inputFile("opt_z_mean.txt");          
+    RealT value;
+    int count = 0;
+    // read the elements in the file into a vector  
+    // test file open   
+    if (inputFile) {   
+      while ( inputFile >> value ) {
+	z_ptr->replaceGlobalValue(count,0,value);
+	count += 1;
+      }
+    }
+    else
+      {
+	std::cout << "Error loading the updated optimal control solution" << std::endl;
+      } 
+    con_ns->solve(*rp,*up,*zp,tol);
+    pdecon->outputTpetraVector(u_ptr,"updated_hifi_state.txt");
+    con_ns->value(*rp,*up,*zp,tol);
+    r_ptr->norm2(res.view(0,1));
+    *outStream << "Residual Norm: " << res[0] << std::endl;
+  }
+
 };
 
 
