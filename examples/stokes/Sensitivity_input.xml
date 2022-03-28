@@ -31,8 +31,8 @@
   </ParameterList>
   <ParameterList name="Bayes Model Error">
    <Parameter name="Number of Prior Samples"  type="int"  value="100" />
-   <Parameter name="Number of Posterior Samples"  type="int"  value="5" />
-   <Parameter name="alpha" type="double"  value="1.e-4" /> 
+   <Parameter name="Number of Posterior Samples"  type="int"  value="100" />
+   <Parameter name="alpha" type="double"  value="1.e-2" /> 
    <Parameter name="Execute Only Prior Samples" type="bool"  value="false" /> 
   </ParameterList>
   <ParameterList name="Randomized Hessian EVP"> <!-- Only applicable when Compute Hessian Eigenvector Projection = True -->

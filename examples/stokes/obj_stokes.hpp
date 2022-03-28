@@ -15,7 +15,7 @@ private:
 
   Real weightFunc(const std::vector<Real> & x) const {
     Real in_domain = 0.0;
-    if( (x[0] >= 0.0) && (x[0] <= 1.0) && (x[1] >= 0.2-eps_) && (x[1] <= 0.8+eps_) )
+    if( (x[0] >= 0.0) && (x[0] <= 1.0) && (x[1] >= 0.0-eps_) && (x[1] <= 0.5+eps_) )
       {
 	in_domain = 1.0;
       }

@@ -10,7 +10,8 @@ private:
 
   const HDSA::Ptr<HDSA::ParameterList > parlist;
   HDSA::Ptr<std::ostream> outStream;
-  HDSA::Ptr<ROL::Objective_SimOpt<RealT> > obj;
+  HDSA::Ptr<ROL::Objective_SimOpt<RealT> > obj_ns;
+  HDSA::Ptr<ROL::Reduced_Objective_SimOpt<RealT> > robj_ns;
   HDSA::Ptr<ROL::Constraint_SimOpt<RealT> > con;
   HDSA::Ptr<ROL::Constraint_SimOpt<RealT> > con_ns;
   HDSA::Ptr<Linear_PDE_Constraint<RealT> > pdecon;
@@ -72,10 +73,22 @@ public:
     HDSA::Ptr<ROL::Objective_SimOpt<RealT> > obj = HDSA::makePtr<PDE_Objective<RealT> >(qoi_vec,std_obj,assembler);
     HDSA::Ptr<ROL::Reduced_Objective_SimOpt<RealT> > robj = HDSA::makePtr<ROL::Reduced_Objective_SimOpt<RealT> >(obj, con, up, zp, pp, true, false);
     
-    // Initialize PDE describing Navier-Stokes equations.
+    // Initialize Navier-Stokes objects
     HDSA::Ptr<PDE_Stokes<RealT> > pde_ns = HDSA::makePtr<PDE_Stokes<RealT> >(*parlist,1.0);
     con_ns = HDSA::makePtr<PDE_Constraint<RealT> >(pde_ns,meshMgr,comm->Get_Teuchos_Communicator(),*parlist,*outStream);
     con_ns->setSolveParameters(*parlist);
+    std::vector<HDSA::Ptr<QoI<RealT> > > qoi_vec_ns(2,ROL::nullPtr);
+    qoi_vec_ns[0] = HDSA::makePtr<QoI_Vertical_Velocity_Stokes<RealT> >(pde_stokes->getVelocityFE(),
+									pde_stokes->getPressureFE(),
+									pde_stokes->getFieldHelper(),
+									*parlist);
+    qoi_vec_ns[1] = HDSA::makePtr<QoI_L2Penalty_Stokes<RealT> >(pde_stokes->getVelocityFE(),
+								pde_stokes->getPressureFE(),
+								pde_stokes->getFieldHelper());
+    HDSA::Ptr<StdObjective_Stokes<RealT> > std_obj_ns = HDSA::makePtr<StdObjective_Stokes<RealT> >(*parlist);
+    obj_ns = HDSA::makePtr<PDE_Objective<RealT> >(qoi_vec_ns,std_obj_ns,assembler);
+    robj_ns = HDSA::makePtr<ROL::Reduced_Objective_SimOpt<RealT> >(obj_ns, con_ns, up, zp, pp, true, false);
+
 
     // Run derivative checks
     bool checkDeriv = parlist->sublist("Problem").get("Check derivatives",false);
@@ -182,8 +195,17 @@ public:
 
   void Evaluate_High_Fidelity_Model()
   {
+    HDSA::Ptr<Std_Vector<RealT> > obj_vals = HDSA::makePtr<Std_Vector<RealT> >(3);
+
     RealT tol(1.e-8);
     Teuchos::Array<RealT> res(1,0);
+    zp->set(*dynamic_cast<const ROL_Vector<RealT>&>(*HDSA::Opt_Problem_Objects<RealT>::z).get_rol_vec());
+    con_ns->solve(*rp,*up,*zp,tol);
+    obj_ns->update(*up,*zp,true);
+    RealT val_nominal = obj_ns->value(*up,*zp,tol);
+    std::cout << "Nominal high-fidelity objective function value = " << val_nominal << std::endl;   
+    obj_vals->Replace_Element(0,val_nominal);
+
     // read in solution and write to Opt_Problem_Objects<RealT>::z
     std::ifstream inputFile("opt_z_mean.txt");          
     RealT value;
@@ -205,6 +227,31 @@ public:
     con_ns->value(*rp,*up,*zp,tol);
     r_ptr->norm2(res.view(0,1));
     *outStream << "Residual Norm: " << res[0] << std::endl;
+    obj_ns->update(*up,*zp,true);
+    RealT val_updated = obj_ns->value(*up,*zp,tol);
+    std::cout << "Updated high-fidelity objective function value = " << val_updated << std::endl;
+    obj_vals->Replace_Element(1,val_updated);
+
+    // Build optimization problem and check derivatives
+    ROL::OptimizationProblem<RealT> optProb(robj_ns,zp);
+    // Build optimization solver and solve
+    ROL::OptimizationSolver<RealT> optSolver(optProb,*parlist);
+    std::clock_t timer = std::clock();
+    optSolver.solve(*outStream);
+    *outStream << "Trust Region Time: "
+	       << static_cast<RealT>(std::clock()-timer)/static_cast<RealT>(CLOCKS_PER_SEC)
+	       << " seconds." << std::endl << std::endl;
+    con_ns->solve(*rp,*up,*zp,tol);
+    pdecon->outputTpetraVector(u_ptr,"NS_Opt_state.txt");
+    pdecon->outputTpetraVector(u_ptr,"NS_Opt_control.txt");
+    con_ns->value(*rp,*up,*zp,tol);
+    r_ptr->norm2(res.view(0,1));
+    RealT val_ns = obj_ns->value(*up,*zp,tol);
+    std::cout << "NS optimized high-fidelity objective function value = " << val_ns << std::endl;
+    obj_vals->Replace_Element(2,val_ns);
+
+    std::string name = "objective_fun_vals.txt";
+    obj_vals->Write_to_File(name);
   }
 
 };

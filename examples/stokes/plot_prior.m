@@ -3,6 +3,8 @@ clear
 close all
 clc
 
+write_to_file = false;
+
 adj = load('cell_to_node_quad.txt') + 1;  %% load node adjacency table, increment by 1 for 1-based indexing
 nodes = load('nodes.txt');  %% load node coordinates
 N = 3*length(nodes);
@@ -23,23 +25,17 @@ z_prior_Y = z_prior_samples(2:3:N,:);
 z_prior_X_std = std(z_prior_X,[],2);
 z_prior_Y_std = std(z_prior_Y,[],2);
 
-figure,
-trisurf(adj, nodes(:,1), nodes(:,2), z_prior_mean_X);
-shading interp;
-view(0,90)
-axis equal
-axis tight
-colorbar()
-title('X-velocity control prior mean')
+discrepancy_prior = load('delta_prior_samples.txt');
+discrepancy_prior_Ux = discrepancy_prior(1:3:N,:);
+discrepancy_prior_Uy = discrepancy_prior(2:3:N,:);
+discrepancy_prior_P = discrepancy_prior(3:3:N,:);
+discrepancy_prior_Ux_std = std(discrepancy_prior_Ux,[],2);
+discrepancy_prior_Uy_std = std(discrepancy_prior_Uy,[],2);
+discrepancy_prior_P_std = std(discrepancy_prior_P,[],2);
 
-figure,
-trisurf(adj, nodes(:,1), nodes(:,2), z_prior_mean_Y);
-shading interp;
-view(0,90)
-axis equal
-axis tight
-colorbar()
-title('Y-velocity control prior mean')
+if write_to_file
+    cd figures/
+end
 
 figure,
 trisurf(adj, nodes(:,1), nodes(:,2), z_prior_X_std);
@@ -82,15 +78,6 @@ if plot_prior_control_samples
         title('Y-velocity control prior sample')
     end
 end
-
-%%
-discrepancy_prior = load('delta_prior_samples.txt');
-discrepancy_prior_Ux = discrepancy_prior(1:3:N,:);
-discrepancy_prior_Uy = discrepancy_prior(2:3:N,:);
-discrepancy_prior_P = discrepancy_prior(3:3:N,:);
-discrepancy_prior_Ux_std = std(discrepancy_prior_Ux,[],2);
-discrepancy_prior_Uy_std = std(discrepancy_prior_Uy,[],2);
-discrepancy_prior_P_std = std(discrepancy_prior_P,[],2);
 
 figure,
 trisurf(adj, nodes(:,1), nodes(:,2), discrepancy_prior_Ux_std);
@@ -152,4 +139,8 @@ if plot_prior_discrepany_samples
         title('Pressure discrepancy prior sample')
 
     end
+end
+
+if write_to_file
+    cd ../
 end
