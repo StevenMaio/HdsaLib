@@ -35,8 +35,7 @@ hifi_Uy = hifi_state(2:3:N);
 % Extract pressure
 hifi_P  = hifi_state(3:3:N);
 
-data_obj = importdata('control.txt', ' ', 2);  %% we need to skip the first two lines
-control = data_obj.data;
+control = load('control_read.txt');
 % Extract x-velocity
 Zx = control(1:3:N);
 % Extract y-velocity

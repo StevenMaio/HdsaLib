@@ -243,7 +243,7 @@ public:
 	       << " seconds." << std::endl << std::endl;
     con_ns->solve(*rp,*up,*zp,tol);
     pdecon->outputTpetraVector(u_ptr,"NS_Opt_state.txt");
-    pdecon->outputTpetraVector(u_ptr,"NS_Opt_control.txt");
+    pdecon->outputTpetraVector(z_ptr,"NS_Opt_control.txt");
     con_ns->value(*rp,*up,*zp,tol);
     r_ptr->norm2(res.view(0,1));
     RealT val_ns = obj_ns->value(*up,*zp,tol);
