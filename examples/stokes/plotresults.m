@@ -17,8 +17,7 @@ uncon_Uy = uncon_state(2:3:N);
 % Extract pressure
 uncon_P  = uncon_state(3:3:N);
 
-data_obj = importdata('state.txt', ' ', 2);  %% we need to skip the first two lines
-state = data_obj.data;
+state = load('state_read.txt');
 % Extract x-velocity
 Ux = state(1:3:N);
 % Extract y-velocity

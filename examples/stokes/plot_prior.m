@@ -79,6 +79,7 @@ if plot_prior_control_samples
     end
 end
 
+%%
 figure,
 trisurf(adj, nodes(:,1), nodes(:,2), discrepancy_prior_Ux_std);
 shading interp;

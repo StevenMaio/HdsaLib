@@ -26,7 +26,7 @@ public:
   Vector() 
   {
     enforce_zeros_ = false;
-    seed_ = time(NULL);
+    seed_ = rand()*time(NULL);
     generator_.seed(seed_);
     distribution_ = std::normal_distribution<RealT>(0.0,1.0); 
   }

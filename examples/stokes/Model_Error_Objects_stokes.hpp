@@ -8,10 +8,14 @@ class Bayes_Model_Error_Objects_stokes : public HDSA::Bayes_Model_Error_Objects<
 
 private:
   HDSA::Ptr<HDSA::ParameterList> parlist_;
+  RealT prior_control_sd_scale_;
+  RealT prior_discrepancy_sd_scale_;
   HDSA::Ptr<ROL::Constraint_SimOpt<RealT> > con_AG_;
   HDSA::Ptr<ROL::Constraint_SimOpt<RealT> > con_AL_;
   HDSA::Ptr<ROL::Constraint_SimOpt<RealT> > con_M_;
   HDSA::Ptr<HDSA::Vector<RealT> > M_row_sum_;
+  HDSA::Ptr<HDSA::Vector<RealT> > G_ptw_var_;
+  HDSA::Ptr<HDSA::Vector<RealT> > Linv_ptw_var_;
   HDSA::Ptr<HDSA::Vector<RealT> > Ainv_sing_vals_;
   HDSA::Ptr<HDSA::MultiVector<RealT> > Ainv_U_;
   HDSA::Ptr<HDSA::MultiVector<RealT> > Ainv_V_;
@@ -44,18 +48,28 @@ public:
     HDSA::Ptr<MeshManager<RealT> > meshMgr = HDSA::makePtr<MeshManager_Stokes<RealT> >(*parlist_);
 
     RealT Gamma_diff = parlist_->sublist("Problem").get("Prior Control Diff Coefficient",1.e-5);
-    RealT Gamma_eye = parlist_->sublist("Problem").get("Prior Control Identity Coefficient",1.0);
-    HDSA::Ptr<PDE<RealT> > pde_AG = HDSA::makePtr<PDE_Elliptic<RealT> >(*parlist_,Gamma_diff,Gamma_eye);
+    prior_control_sd_scale_ = parlist_->sublist("Problem").get("Prior Control Standard Deviation",1.0);
+    std::string prior_control_robin_coeff_input_filename = "prior_control_robin_coeff_input.txt";
+    std::string prior_control_robin_coeff_filename = "prior_control_robin_coeff.txt";
+    int prior_control_robin_coeff_dim = 500;
+    HDSA::Ptr<PDE<RealT> > pde_AG = HDSA::makePtr<PDE_Elliptic<RealT> >(*parlist_,Gamma_diff,1.0,prior_control_robin_coeff_dim,
+									prior_control_robin_coeff_input_filename,prior_control_robin_coeff_filename);
     con_AG_ = HDSA::makePtr<Linear_PDE_Constraint<RealT> >(pde_AG,meshMgr,comm->Get_Teuchos_Communicator(),*parlist_,*outStream);
     con_AG_->setSolveParameters(*parlist_);
 
     RealT L_diff = parlist_->sublist("Problem").get("Prior Discrepancy Diff Coefficient",1.0);
-    RealT L_eye = parlist_->sublist("Problem").get("Prior Discrepancy Identity Coefficient",1.0);
-    HDSA::Ptr<PDE<RealT> > pde_AL = HDSA::makePtr<PDE_Elliptic<RealT> >(*parlist_,L_diff,L_eye);
+    prior_discrepancy_sd_scale_ = parlist_->sublist("Problem").get("Prior Discrepancy Standard Deviation",1.0);
+    std::string prior_discrepancy_robin_coeff_input_filename = "prior_discrepancy_robin_coeff_input.txt";
+    std::string prior_discrepancy_robin_coeff_filename = "prior_discrepancy_robin_coeff.txt";
+    int prior_discrepancy_robin_coeff_dim = 500;
+    HDSA::Ptr<PDE<RealT> > pde_AL = HDSA::makePtr<PDE_Elliptic<RealT> >(*parlist_,L_diff,1.0,prior_discrepancy_robin_coeff_dim,
+									prior_discrepancy_robin_coeff_input_filename, prior_discrepancy_robin_coeff_filename);
     con_AL_ = HDSA::makePtr<Linear_PDE_Constraint<RealT> >(pde_AL,meshMgr,comm->Get_Teuchos_Communicator(),*parlist_,*outStream);
     con_AL_->setSolveParameters(*parlist_);
 
-    HDSA::Ptr<PDE<RealT> > pde_M = HDSA::makePtr<PDE_Elliptic<RealT> >(*parlist_,0.0,1.0);
+    int zero = 0;
+    std::string dummy = "";
+    HDSA::Ptr<PDE<RealT> > pde_M = HDSA::makePtr<PDE_Elliptic<RealT> >(*parlist_,0.0,1.0,zero,dummy,dummy);
     con_M_ = HDSA::makePtr<Linear_PDE_Constraint<RealT> >(pde_M,meshMgr,comm->Get_Teuchos_Communicator(),*parlist_,*outStream);
     con_M_->setSolveParameters(*parlist_);
 
@@ -79,18 +93,128 @@ public:
     v2->setScalar(1.0);
     con_M_->applyJacobian_1(*v1,*v2,*v2,*v2,tol);
 
+    bool write_variance_to_file = parlist_->sublist("Problem").get("Write Pointwise Variance to File",true);
+    bool read_variance_from_file = parlist_->sublist("Problem").get("Read Pointwise Variance to File",false);
+    Pointwise_Variance_Scaling(write_variance_to_file, read_variance_from_file);
+
     int k = parlist_->sublist("Problem").get("Prior GSVD Rank",400);
     int p = parlist_->sublist("Problem").get("Prior GSVD Oversampling",20);
     int q = parlist_->sublist("Problem").get("Prior GSVD Subspace Iterations",1);
     bool write_gsvd_to_file = parlist_->sublist("Problem").get("Write GSVD to File",false);
     bool read_gsvd_from_file = parlist_->sublist("Problem").get("Read GSVD from File",false);
-    A_L_Decomposition(k,p,q,comm,write_gsvd_to_file,read_gsvd_from_file);
+    A_L_Decomposition(k,p,q,write_gsvd_to_file,read_gsvd_from_file);
 
     // Define Gamma = A_G^{-1}*M*A_G^{-1}
     // Define L = A_L*M^{-1}*A_L
   }
+
+  void Pointwise_Variance_Scaling(bool write_variance_to_file, bool read_variance_from_file)
+  {
+    if(read_variance_from_file)
+      {
+	G_ptw_var_ = HDSA::Model_Error_Objects<RealT>::OP_Objects_->z->Clone();
+	// read in solution 
+	std::ifstream inputFile("Gamma_Pointwise_Variance.txt");          
+	RealT value;
+	int count = 0;
+	// read the elements in the file into a vector  
+	// test file open   
+	if (inputFile) {   
+	  while ( inputFile >> value ) {
+	    G_ptw_var_->Replace_Element(count,value);
+	    count += 1;
+	  }
+	}
+	else
+	  {
+	    std::cout << "Error loading Gamma pointwise variance" << std::endl;
+	  }  
+	
+	Linv_ptw_var_ = HDSA::Model_Error_Objects<RealT>::OP_Objects_->u->Clone();
+	// read in solution 
+	std::ifstream inputFile2("Linv_Pointwise_Variance.txt");          
+	count = 0;
+	// read the elements in the file into a vector  
+	// test file open   
+	if (inputFile2) {   
+	  while ( inputFile2 >> value ) {
+	    Linv_ptw_var_->Replace_Element(count,value);
+	    count += 1;
+	  }
+	}
+	else
+	  {
+	    std::cout << "Error loading Linv pointwise variance" << std::endl;
+	  }  
+      }
+    else
+      {
+	int num_samps = 100;
+	
+	G_ptw_var_ = HDSA::Model_Error_Objects<RealT>::OP_Objects_->z->Clone();
+	HDSA::Ptr<HDSA::MultiVector<RealT> > Y = HDSA::makePtr<HDSA::MultiVector<RealT> >(num_samps,HDSA::Model_Error_Objects<RealT>::OP_Objects_->z);
+	for(int i = 0; i < num_samps; i++)
+	  {
+	    HDSA::Ptr<HDSA::Vector<RealT> > zi = (*Y)[i];
+	    HDSA::Ptr<HDSA::Vector<RealT> > z_vec = zi->Generate_Gaussian_Random_Vector();
+	    for(int k = 0; k < z_vec->dimension(); k++)
+	      {
+		RealT val = (*z_vec)(k)*std::sqrt((*M_row_sum_)(k));
+		z_vec->Replace_Element(k,val);
+	      }
+	    Apply_A_G_Mat_Inv(zi,z_vec); 	
+	  }
+	
+	for(int k = 0; k < G_ptw_var_->dimension(); k++)
+	  {
+	    RealT val = 0.0;
+	    for(int i = 0; i < num_samps; i++)
+	      {
+		HDSA::Ptr<HDSA::Vector<RealT> > z1 = (*Y)[i];
+		val = val + std::pow((*z1)(k),2);
+	      }
+	    G_ptw_var_->Replace_Element(k,val);
+	  }
+	G_ptw_var_->scale(1.0/static_cast<RealT>(num_samps));
+	
+	Linv_ptw_var_ = HDSA::Model_Error_Objects<RealT>::OP_Objects_->u->Clone();
+	HDSA::Ptr<HDSA::MultiVector<RealT> > W = HDSA::makePtr<HDSA::MultiVector<RealT> >(num_samps,HDSA::Model_Error_Objects<RealT>::OP_Objects_->u);
+	for(int i = 0; i < num_samps; i++)
+	  {
+	    HDSA::Ptr<HDSA::Vector<RealT> > ui = (*W)[i];
+	    HDSA::Ptr<HDSA::Vector<RealT> > u_vec = ui->Generate_Gaussian_Random_Vector();
+	    for(int k = 0; k < u_vec->dimension(); k++)
+	      {
+		RealT val = (*u_vec)(k)*std::sqrt((*M_row_sum_)(k));
+		u_vec->Replace_Element(k,val);
+	      }
+	    Apply_A_L_Mat_Inv(ui,u_vec); 	
+	  }
+	
+	for(int k = 0; k < Linv_ptw_var_->dimension(); k++)
+	  {
+	    RealT val = 0.0;
+	    for(int i = 0; i < num_samps; i++)
+	      {
+		HDSA::Ptr<HDSA::Vector<RealT> > u1 = (*W)[i];
+		val = val + std::pow((*u1)(k),2);
+	      }
+	    Linv_ptw_var_->Replace_Element(k,val);
+	  }
+	Linv_ptw_var_->scale(1.0/static_cast<RealT>(num_samps));
+
+	if(write_variance_to_file)
+	  {
+	    std::string name = "Gamma_Pointwise_Variance.txt";
+	    G_ptw_var_->Write_to_File(name);
+	    name = "Linv_Pointwise_Variance.txt";
+	    Linv_ptw_var_->Write_to_File(name);
+	  }
+      }
+
+  }
   
-  void A_L_Decomposition(int k, int p, int q, const HDSA::Ptr<const HDSA::Comm<int> > & comm, bool write_gsvd_to_file, bool read_gsvd_from_file)
+  void A_L_Decomposition(int k, int p, int q, bool write_gsvd_to_file, bool read_gsvd_from_file)
   {
     if(read_gsvd_from_file)
       {
@@ -200,7 +324,7 @@ public:
 	HDSA::Ptr<HDSA::Dense_Matrix<RealT> > U_Bt = HDSA::makePtr<HDSA::Dense_Matrix<RealT> >(k+p, k+p);
 	HDSA::Ptr<HDSA::Dense_Matrix<RealT> > V_B = HDSA::makePtr<HDSA::Dense_Matrix<RealT> >(k+p, k+p);
 	HDSA::Linear_Algebra::SVD(R_B, V_B,  U_Bt, sing_vals);
-	
+       
 	// Mapping to high dimensional vectors
 	HDSA::Ptr<HDSA::Dense_Matrix<RealT> > U = HDSA::makePtr<HDSA::Dense_Matrix<RealT> >(m, k+p);
 	HDSA::Ptr<HDSA::Dense_Matrix<RealT> > V = HDSA::makePtr<HDSA::Dense_Matrix<RealT> >(m, k+p);
@@ -322,26 +446,52 @@ public:
 
   void Apply_Gamma_Mat(HDSA::Ptr<HDSA::Vector<RealT> > & z_out, const HDSA::Ptr<HDSA::Vector<RealT> > & z_in) const 
   {
+    HDSA::Ptr<HDSA::Vector<RealT> > tmp1 = z_in->Clone();
+    for(int l = 0; l < z_in->Get_nonzero_dim(); l++)
+      {
+	int k = z_in->Get_map_reduced_to_full(l);
+	RealT val = (*z_in)(k)*prior_control_sd_scale_/std::sqrt((*G_ptw_var_)(k));
+	tmp1->Replace_Element(k,val);
+      }
     HDSA::Ptr<HDSA::Vector<RealT> > tmp = z_in->Clone();
-    Apply_A_G_Mat_Inv(tmp,z_in);
+    Apply_A_G_Mat_Inv(tmp,tmp1);
     for(int k = 0; k < tmp->dimension(); k++)
       {
 	RealT val = (*tmp)(k)*(*M_row_sum_)(k);
 	tmp->Replace_Element(k,val);
       }
     Apply_A_G_Mat_Inv(z_out,tmp); 
+    for(int l = 0; l < z_out->Get_nonzero_dim(); l++)
+      {
+	int k = z_out->Get_map_reduced_to_full(l);
+	RealT val = (*z_out)(k)*prior_control_sd_scale_/std::sqrt((*G_ptw_var_)(k));
+	z_out->Replace_Element(k,val);
+      }
   }
 
   void Apply_Gamma_Mat_Inverse(HDSA::Ptr<HDSA::Vector<RealT> > & z_out, const HDSA::Ptr<HDSA::Vector<RealT> > & z_in) const 
   {
+    HDSA::Ptr<HDSA::Vector<RealT> > tmp1 = z_in->Clone();
+    for(int l = 0; l < z_in->Get_nonzero_dim(); l++)
+      {
+	int k = z_in->Get_map_reduced_to_full(l);
+	RealT val = (*z_in)(k)*std::sqrt((*G_ptw_var_)(k))/prior_control_sd_scale_;
+	tmp1->Replace_Element(k,val);
+      }
     HDSA::Ptr<HDSA::Vector<RealT> > tmp = z_in->Clone();
-    Apply_A_G_Mat(tmp,z_in);
+    Apply_A_G_Mat(tmp,tmp1);
     for(int k = 0; k < tmp->dimension(); k++)
       {
 	RealT val = (*tmp)(k)/(*M_row_sum_)(k);
 	tmp->Replace_Element(k,val);
       }
-    Apply_A_G_Mat(z_out,tmp); 
+    Apply_A_G_Mat(z_out,tmp);
+    for(int l = 0; l < z_out->Get_nonzero_dim(); l++)
+      {
+	int k = z_out->Get_map_reduced_to_full(l);
+	RealT val = (*z_out)(k)*std::sqrt((*G_ptw_var_)(k))/prior_control_sd_scale_;
+	z_out->Replace_Element(k,val);
+      } 
   }
 
   void Apply_L_Mat(HDSA::Ptr<HDSA::Vector<RealT> > & u_out, const HDSA::Ptr<HDSA::Vector<RealT> > & u_in) const 
@@ -386,6 +536,12 @@ public:
 	z_in->Replace_Element(k,val);
       }
     Apply_A_G_Mat_Inv(z_out,z_in);
+    for(int l = 0; l < z_out->Get_nonzero_dim(); l++)
+      {
+	int k = z_out->Get_map_reduced_to_full(l);
+	RealT val = (*z_out)(k)*prior_control_sd_scale_/std::sqrt((*G_ptw_var_)(k));
+	z_out->Replace_Element(k,val);
+      }
   }
 
   void Apply_Sqrt_Gamma_Mat_Inverse(HDSA::Ptr<HDSA::Vector<RealT> > & z_out, const HDSA::Ptr<HDSA::Vector<RealT> > & z_in) const 
@@ -396,6 +552,12 @@ public:
 	z_in->Replace_Element(k,val);
       }
     Apply_A_G_Mat(z_out,z_in);
+    for(int l = 0; l < z_out->Get_nonzero_dim(); l++)
+      {
+	int k = z_out->Get_map_reduced_to_full(l);
+	RealT val = (*z_out)(k)*std::sqrt((*G_ptw_var_)(k))/prior_control_sd_scale_;
+	z_out->Replace_Element(k,val);
+      }
   }
   
   void Apply_Sqrt_L_Mat_Inverse(HDSA::Ptr<HDSA::Vector<RealT> > & u_out, const HDSA::Ptr<HDSA::Vector<RealT> > & u_in) const 

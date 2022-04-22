@@ -46,11 +46,112 @@ private:
   // Problem parameters.
   Real diff_;
   Real eye_;
+  std::vector<Real> robin_coeff_input;
+  std::vector<Real> robin_coeff;
 
   ROL::Ptr<FieldHelper<Real> > fieldHelper_;
 
+  Real AlphaFunc(const std::vector<Real> & coords, int sideSet) {
+    Real a = 0.0;
+    if(robin_coeff_input.size()>0)
+      {
+	Real scale = 1.0;
+	Real y;
+	if(sideSet == 0 || sideSet == 3)
+	  {
+	    y = coords[0];
+	    if( (coords[1] != 0.0) || coords[1] != 1.0)
+	      {
+		scale = 0.0;
+	      } 
+	  }
+	else
+	  {
+	    y = coords[1];
+	    if( (coords[0] != 0.0) || coords[0] != 1.0)
+	      {
+		scale = 0.0;
+	      } 
+	  }
+	int node2 = 1;
+	bool continue_check = true;
+	while(continue_check)
+	  {
+	    if(robin_coeff_input[node2] > y)
+	      {
+		continue_check = false;
+	      }
+	    else
+	      {
+		node2 = node2 + 1;
+	      }
+	  }
+	int node1 = node2 - 1;
+	a = robin_coeff[node1]*(y - robin_coeff_input[node2])/(robin_coeff_input[node1]-robin_coeff_input[node2]);
+	a = a + robin_coeff[node2]*(y - robin_coeff_input[node1])/(robin_coeff_input[node2]-robin_coeff_input[node1]);
+	a = scale*a;
+      }
+    return a;
+  }
+  
+  ROL::Ptr<Intrepid::FieldContainer<Real> > getBoundaryCoeff(const Intrepid::FieldContainer<Real> & cell_coeff, int sideSet, int cell, int field) const {
+    std::vector<int> bdryCellLocId = bdryCellLocIds_[sideSet][cell];
+    const int numCellsSide = bdryCellLocId.size();
+    const int f = basisPtrs_[field]->getCardinality();
+    
+    ROL::Ptr<Intrepid::FieldContainer<Real > > bdry_coeff = 
+      ROL::makePtr<Intrepid::FieldContainer<Real > >(numCellsSide, f);
+    for (int i = 0; i < numCellsSide; ++i) {
+      for (int j = 0; j < f; ++j) {
+	(*bdry_coeff)(i, j) = cell_coeff(bdryCellLocId[i], j);
+      }
+    }
+    return bdry_coeff;
+  }
+  
+  std::vector<std::vector<ROL::Ptr<Intrepid::FieldContainer<Real> > > > Generate_Boundary_Alpha_Values(int field)
+  {
+    std::vector<std::vector<ROL::Ptr<Intrepid::FieldContainer<Real> > > > bdryCellAlphaValues;
+    
+    // Compute alpha values at DOFs.
+    int d = basisPtrs_[field]->getBaseCellTopology().getDimension();
+    int numSidesets = bdryCellLocIds_.size();
+    bdryCellAlphaValues.resize(numSidesets);
+    for (int i=0; i<numSidesets; ++i) {
+      int numLocSides = bdryCellLocIds_[i].size();
+      bdryCellAlphaValues[i].resize(numLocSides);
+      for (int j=0; j<numLocSides; ++j) {
+        int c = bdryCellLocIds_[i][j].size();
+	int f = basisPtrs_[field]->getCardinality();
+        bdryCellAlphaValues[i][j] = ROL::makePtr<Intrepid::FieldContainer<Real> >(c, f);
+        ROL::Ptr<Intrepid::FieldContainer<Real> > coords =
+          ROL::makePtr<Intrepid::FieldContainer<Real> >(c, f, d);
+        if (c > 0) {
+	  if(field == 0 || field == 1)
+	    {
+	      feVel_->computeDofCoords(coords, bdryCellNodes_[i][j]);
+	    }
+	  else
+	    {
+	      fePrs_->computeDofCoords(coords, bdryCellNodes_[i][j]);
+	    }
+        }
+        for (int k=0; k<c; ++k) {
+          for (int l=0; l<f; ++l) {
+            std::vector<Real> dofpoint(d);
+            for (int m=0; m<d; ++m) {
+              dofpoint[m] = (*coords)(k, l, m);
+            }
+	    (*bdryCellAlphaValues[i][j])(k, l) = AlphaFunc(dofpoint,i);
+          }
+        }
+      }
+    }
+    return bdryCellAlphaValues;
+  }
+  
 public:
-  PDE_Elliptic(Teuchos::ParameterList &parlist, Real diff, Real eye) {
+  PDE_Elliptic(Teuchos::ParameterList &parlist, Real diff, Real eye, int robin_coeff_dim, std::string & robin_coeff_input_filename, std::string & robin_coeff_filename) {
     // Finite element fields.
     basisPtrVel_ = ROL::makePtr<Intrepid::Basis_HGRAD_QUAD_C2_FEM<Real, Intrepid::FieldContainer<Real> >>();
     basisPtrPrs_ = ROL::makePtr<Intrepid::Basis_HGRAD_QUAD_C1_FEM<Real, Intrepid::FieldContainer<Real> >>();
@@ -87,6 +188,44 @@ public:
       numFieldDofs_[i] = basisPtrs_[i]->getCardinality();
       numDofs_ += numFieldDofs_[i];
     }
+
+    if(robin_coeff_dim>0)
+      {
+	Real val = 0.0;
+	robin_coeff_input = std::vector<Real>(robin_coeff_dim);
+	// read in data
+	std::ifstream in1(robin_coeff_input_filename);           
+	// read the elements in the file into a vector  
+	// test file open   
+	if (in1) {   
+	  for(int i = 0; i < robin_coeff_dim; i++)
+	    {
+	      in1 >> val;
+	      robin_coeff_input[i] = val;
+	    }   
+	}
+	else
+	  {
+	    std::cout << "Error loading the data from robin_coeff_input" << std::endl;
+	  }  
+	robin_coeff = std::vector<Real>(robin_coeff_dim);
+	// read in data
+	std::ifstream in2(robin_coeff_filename);           
+	// read the elements in the file into a vector  
+	// test file open   
+	if (in2) {   
+	  for(int i = 0; i < robin_coeff_dim; i++)
+	    {
+	      in2 >> val;
+	      robin_coeff[i] = val;
+	    }   
+	}
+	else
+	  {
+	    std::cout << "Error loading the data from robin_coeff" << std::endl;
+	  } 
+      }
+
   }
 
   void residual(ROL::Ptr<Intrepid::FieldContainer<Real> > & res,
@@ -168,6 +307,72 @@ public:
     Intrepid::RealSpaceTools<Real>::scale(*laplace_term2,diff_);
     Intrepid::RealSpaceTools<Real>::add(*R[2],*laplace_term2);
 
+    // APPLY ROBIN CONDITIONS
+    for(int field = 0; field < 3; field++)
+      {
+	const int f = basisPtrs_[field]->getCardinality();
+	std::vector<std::vector<int> > fidx_;
+	if(field == 0 || field == 1)
+	  {
+	    fidx_ = fvidx_;
+	  }
+	else
+	  {
+	    fidx_ = fpidx_;
+	  }
+	std::vector<std::vector<ROL::Ptr<Intrepid::FieldContainer<Real> > > > bdryCellAlphaValues = Generate_Boundary_Alpha_Values(field);
+	int numSideSets = 4;
+	std::vector<std::vector<ROL::Ptr<FE<Real> > > > feBdry_;
+	feBdry_.resize(numSideSets);
+	for (int i=0; i<numSideSets; i++){
+	  int numLocSides = bdryCellNodes_[i].size();
+	  feBdry_[i].resize(numLocSides);
+	  for (int j=0; j<numLocSides; j++){
+	    if (bdryCellNodes_[i][j] != ROL::nullPtr) {
+	      feBdry_[i][j] = ROL::makePtr<FE<Real> >(bdryCellNodes_[i][j],basisPtrs_[field],bdryCub_,j);
+	    }
+	  }
+	}
+	const int numCubPerSide = bdryCub_->getNumPoints();
+	for (int i = 0; i < numSideSets; ++i) {
+	  int numLocalSideIds = bdryCellLocIds_[i].size();
+	  for (int j = 0; j < numLocalSideIds; ++j) {
+	    int numCellsSide = bdryCellLocIds_[i][j].size();
+	    int numBdryDofs = fidx_[j].size();
+	    
+	    if (numCellsSide) {
+	      
+	      ROL::Ptr<Intrepid::FieldContainer<Real> > robinRes = ROL::makePtr<Intrepid::FieldContainer<Real> >(numCellsSide, f);
+	      
+	      // Get u coefficients on Robin boundary
+	      ROL::Ptr<Intrepid::FieldContainer<Real> > u_coeff_bdry = getBoundaryCoeff(*u_coeff, i, j, field);    	  
+	      // Evaluate u on FE basis
+	      ROL::Ptr<Intrepid::FieldContainer<Real> > valU_eval_bdry = ROL::makePtr<Intrepid::FieldContainer<Real> >(numCellsSide, numCubPerSide);
+	      feBdry_[i][j]->evaluateValue(valU_eval_bdry, u_coeff_bdry);
+	      ROL::Ptr<Intrepid::FieldContainer<Real> > valAlpha_eval_bdry = ROL::makePtr<Intrepid::FieldContainer<Real> >(numCellsSide, numCubPerSide);
+	      feBdry_[i][j]->evaluateValue(valAlpha_eval_bdry, bdryCellAlphaValues[i][j]);
+	      ROL::Ptr<Intrepid::FieldContainer<Real> > valUalpha_eval_bdry = ROL::makePtr<Intrepid::FieldContainer<Real> >(numCellsSide, numCubPerSide);
+	      Intrepid::FunctionSpaceTools::scalarMultiplyDataData<Real>(*valUalpha_eval_bdry, *valU_eval_bdry, *valAlpha_eval_bdry);
+	      
+	      // Compute Neumann residual
+	      Intrepid::FunctionSpaceTools::integrate<Real>(*robinRes,
+							    *valUalpha_eval_bdry,
+							    *(feBdry_[i][j]->NdetJ()),
+							    Intrepid::COMP_CPP, false);
+	      
+	      for (int k = 0; k < numCellsSide; ++k) 
+		{
+		  int cidx = bdryCellLocIds_[i][j][k];
+		  for (int l = 0; l < numBdryDofs; ++l) 
+		    {
+		      (*R[field])(cidx,fidx_[j][l]) += (*robinRes)(k,fidx_[j][l]);
+		    }
+		}
+	    }
+	  }
+	}
+    }
+
     // Combine the residuals.
     fieldHelper_->combineFieldCoeff(res, R);
   }
@@ -235,6 +440,51 @@ public:
     Intrepid::RealSpaceTools<Real>::scale(*laplace_term2,diff_);
     Intrepid::RealSpaceTools<Real>::add(*J[2][2],*laplace_term2);
  
+    // APPLY ROBIN CONDITIONS
+    for(int field = 0; field < 3; field++)
+      {
+	const int f = basisPtrs_[field]->getCardinality();
+	std::vector<std::vector<int> > fidx_;
+	if(field == 0 || field == 1)
+	  {
+	    fidx_ = fvidx_;
+	  }
+	else
+	  {
+	    fidx_ = fpidx_;
+	  }
+	std::vector<std::vector<ROL::Ptr<Intrepid::FieldContainer<Real> > > > bdryCellAlphaValues = Generate_Boundary_Alpha_Values(field);
+	int numSideSets = 4;
+	std::vector<std::vector<ROL::Ptr<FE<Real> > > > feBdry_;
+	feBdry_.resize(numSideSets);
+	for (int i=0; i<numSideSets; i++){
+	  int numLocSides = bdryCellNodes_[i].size();
+	  feBdry_[i].resize(numLocSides);
+	  for (int j=0; j<numLocSides; j++){
+	    if (bdryCellNodes_[i][j] != ROL::nullPtr) {
+	      feBdry_[i][j] = ROL::makePtr<FE<Real> >(bdryCellNodes_[i][j],basisPtrs_[field],bdryCub_,j);
+	    }
+	  }
+	}
+	if (numSideSets > 0) {
+	  for (int i = 0; i < numSideSets; ++i) {
+	    int numLocalSideIds = bdryCellLocIds_[i].size();
+	    for (int j = 0; j < numLocalSideIds; ++j) {
+	      int numCellsSide = bdryCellLocIds_[i][j].size();
+	      int numBdryDofs = fidx_[j].size();
+	      for (int k = 0; k < numCellsSide; ++k) {
+		int cidx = bdryCellLocIds_[i][j][k];
+		for (int l = 0; l < numBdryDofs; ++l) {
+		  for (int m = 0; m < f; ++m) {
+		    (*J[field][field])(cidx,fidx_[j][l],m) += (*bdryCellAlphaValues[i][j])(k,fidx_[j][l])*(*feBdry_[i][j]->massMat())(k,fidx_[j][l],m);
+		  }
+		}
+	      }
+	    }
+	  }
+	}
+      }
+
     // Combine the jacobians.
     fieldHelper_->combineFieldCoeff(jac, J);
   }

@@ -7,15 +7,17 @@
     <Parameter name="Viscosity"                   type="double"  value="0.5"        />
     <Parameter name="Gravity"                   type="double"  value="9.81"        />
     <!-- PRIOR SAMPLER INFORMATION -->
-    <Parameter name="Write GSVD to File"           type="bool"    value="true" />
+    <Parameter name="Write GSVD to File"           type="bool"    value="false" />
     <Parameter name="Read GSVD from File"           type="bool"    value="false" />
-    <Parameter name="Prior GSVD Rank"             type="int"     value="300"           />
-    <Parameter name="Prior GSVD Oversampling"             type="int"     value="100"           />
-    <Parameter name="Prior GSVD Subspace Iterations"             type="int"     value="10"           />
-    <Parameter name="Prior Control Diff Coefficient"             type="double"  value="1.e-5"        />
-    <Parameter name="Prior Control Identity Coefficient"         type="double"  value="8.0"        />
+    <Parameter name="Write Pointwise Variance to File"           type="bool"    value="true" />
+    <Parameter name="Read Pointwise Variance from File"           type="bool"    value="false" />
+    <Parameter name="Prior GSVD Rank"             type="int"     value="3"           />
+    <Parameter name="Prior GSVD Oversampling"             type="int"     value="1"           />
+    <Parameter name="Prior GSVD Subspace Iterations"             type="int"     value="1"           />
+    <Parameter name="Prior Control Diff Coefficient"             type="double"  value="1.e-4"        />
+    <Parameter name="Prior Control Standard Deviation"         type="double"  value="20.0"        />
     <Parameter name="Prior Discrepancy Diff Coefficient"         type="double"  value="1.e-2"        />
-    <Parameter name="Prior Discrepancy Identity Coefficient"     type="double"  value="0.05"        />
+    <Parameter name="Prior Discrepancy Standard Deviation"         type="double"  value="8.0"        />
   </ParameterList>
 
   <!-- ===========  GEOMETRY INPUT PARAMETER SUBLIST  =========== -->
