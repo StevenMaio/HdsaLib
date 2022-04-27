@@ -35,7 +35,6 @@ int main(int argc, char *argv[]) {
   HDSA::Ptr<HDSA::Vector<RealT> > theta = HDSA::makePtr<Std_Vector<RealT> >(dim);
 
   HDSA::Ptr<Opt_Problem_Objects_stokes<RealT> > OP_Objects = HDSA::makePtr<Opt_Problem_Objects_stokes<RealT> >(parlist,theta,comm);
-  OP_Objects->Write_Optimal_Solution();
   OP_Objects->Evaluate_High_Fidelity_Model();
 
   return 0;

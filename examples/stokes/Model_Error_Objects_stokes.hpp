@@ -19,6 +19,7 @@ private:
   HDSA::Ptr<HDSA::Vector<RealT> > Ainv_sing_vals_;
   HDSA::Ptr<HDSA::MultiVector<RealT> > Ainv_U_;
   HDSA::Ptr<HDSA::MultiVector<RealT> > Ainv_V_;
+  HDSA::Ptr<HDSA::MultiVector<RealT> > Ainv_Q_;
 
 public:
 
@@ -218,29 +219,29 @@ public:
   {
     if(read_gsvd_from_file)
       {
-	Ainv_V_ = HDSA::makePtr<HDSA::MultiVector<RealT> >(k,HDSA::Model_Error_Objects<RealT>::OP_Objects_->u);
+	Ainv_Q_ = HDSA::makePtr<HDSA::MultiVector<RealT> >(k,HDSA::Model_Error_Objects<RealT>::OP_Objects_->u);
 	Ainv_sing_vals_ = HDSA::makePtr<Std_Vector<RealT> >(k);
 
 	int num_vecs = k;
 	int dim = HDSA::Model_Error_Objects<RealT>::OP_Objects_->u->dimension();
 	// read in data
-	std::ifstream in_V("V.txt");           
+	std::ifstream in_Q("Q.txt");           
 	// read the elements in the file into a vector  
 	// test file open   
 	RealT val;
-	if (in_V) {   
+	if (in_Q) {   
 	  for(int i = 0; i < dim; i++)
 	    {
 	      for(int j = 0; j < num_vecs; j++)
 		{
-		  in_V >> val;
-		  (*Ainv_V_)[k]->Replace_Element(i,val);
+		  in_Q >> val;
+		  (*Ainv_Q_)[j]->Replace_Element(i,val);
 		}
 	    }   
 	}
 	else
 	  {
-	    std::cout << "Error loading the data from V.txt" << std::endl;
+	    std::cout << "Error loading the data from Q.txt" << std::endl;
 	  } 
 
 	// read in data
@@ -263,6 +264,8 @@ public:
     else
       {
 	std::clock_t timer = std::clock();
+
+	std::cout << "Starting randomized solver" << std::endl;
 	
 	// Initial sketch
 	HDSA::Ptr<HDSA::MultiVector<RealT> > Y = HDSA::makePtr<HDSA::MultiVector<RealT> >(k+p,HDSA::Model_Error_Objects<RealT>::OP_Objects_->u);
@@ -273,52 +276,54 @@ public:
 	    HDSA::Ptr<HDSA::Vector<RealT> > u_vec = ui->Generate_Gaussian_Random_Vector();
 	    Apply_A_L_Mat_Inv(ui,u_vec);	
 	  }
+	
 	HDSA::Ptr<HDSA::MultiVector<RealT> > MQ = HDSA::makePtr<HDSA::MultiVector<RealT> >(k+p,HDSA::Model_Error_Objects<RealT>::OP_Objects_->u);
 	HDSA::Ptr<HDSA::MultiVector<RealT> > Q = HDSA::makePtr<HDSA::MultiVector<RealT> >(k+p,HDSA::Model_Error_Objects<RealT>::OP_Objects_->u);
 	CholQR_M(MQ,Q,Y);
-    
+
 	// Subspace iteration for improving sketch
 	for(int j = 0; j < q; j++)
 	  {
-	    HDSA::Ptr<HDSA::Dense_Matrix<RealT> > Y_mat = HDSA::makePtr<HDSA::Dense_Matrix<RealT> >(m, k+p);
 	    for(int i = 0; i < k+p; i++)
 	      {
 		HDSA::Ptr<HDSA::Vector<RealT> > ui = (*Y)[i];
 		ui->zero();
 		HDSA::Ptr<HDSA::Vector<RealT> > MQi = (*MQ)[i];
 		Apply_A_L_Mat_Inv(ui,MQi);	
-		Y_mat->Write_Vector_to_Column(i,ui);
 	      }
-	    HDSA::Ptr<HDSA::Dense_Matrix<RealT> > Q_Y = HDSA::makePtr<HDSA::Dense_Matrix<RealT> >(m, k+p);
-	    HDSA::Ptr<HDSA::Dense_Matrix<RealT> > R_Y = HDSA::makePtr<HDSA::Dense_Matrix<RealT> >(k+p, k+p);
-	    HDSA::Linear_Algebra::QR_Factorization<RealT>(Y_mat,Q_Y);
+
+	    HDSA::Ptr<HDSA::MultiVector<RealT> > TinvQ = HDSA::makePtr<HDSA::MultiVector<RealT> >(k+p,HDSA::Model_Error_Objects<RealT>::OP_Objects_->u);
+	    CholQR_Tinv(TinvQ, Q, Y);
+
 	    for(int i = 0; i < k+p; i++)
 	      {
 		HDSA::Ptr<HDSA::Vector<RealT> > ui = (*Y)[i];
 		ui->zero();
-		HDSA::Ptr<HDSA::Vector<RealT> > MQi = (*MQ)[i];
-		Q_Y->Write_Column_to_Vector(i,MQi);
-		Apply_A_L_Mat_Inv(ui,MQi);	
+		HDSA::Ptr<HDSA::Vector<RealT> > TinvQi = (*TinvQ)[i];
+		Apply_A_L_Mat_Inv(ui,TinvQi);	
 	      }
+
 	    CholQR_M(MQ,Q,Y);
 	  }
 	
 	// Projection on sketched subspace
-	HDSA::Ptr<HDSA::Dense_Matrix<RealT> > B = HDSA::makePtr<HDSA::Dense_Matrix<RealT> >(m, k+p);
 	for(int i = 0; i < k+p; i++)
 	  {
 	    HDSA::Ptr<HDSA::Vector<RealT> > ui = (*Y)[i];
 	    ui->zero();
 	    HDSA::Ptr<HDSA::Vector<RealT> > MQi = (*MQ)[i];
 	    Apply_A_L_Mat_Inv(ui,MQi);
-	    B->Write_Vector_to_Column(i,ui);	
+	    for(int l = 0; l < ui->dimension(); l++)
+	      {
+		ui->Replace_Element(l,(*ui)(l)*std::pow(prior_discrepancy_sd_scale_,2)/(*Linv_ptw_var_)(l));
+	      }
 	  }
 	
 	// QR of projected matrix
-	HDSA::Ptr<HDSA::Dense_Matrix<RealT> > Q_B = HDSA::makePtr<HDSA::Dense_Matrix<RealT> >(m, k+p);
+        HDSA::Ptr<HDSA::MultiVector<RealT> > Q_B = HDSA::makePtr<HDSA::MultiVector<RealT> >(k+p,HDSA::Model_Error_Objects<RealT>::OP_Objects_->u);
 	HDSA::Ptr<HDSA::Dense_Matrix<RealT> > R_B = HDSA::makePtr<HDSA::Dense_Matrix<RealT> >(k+p, k+p);
-	HDSA::Linear_Algebra::QR_Factorization<RealT>(B,Q_B,R_B);
-	
+	CholQR_T(Q_B,R_B,Y);	
+
 	// SVD of R_B^T
 	HDSA::Ptr<HDSA::Vector<RealT> > sing_vals = HDSA::makePtr<Std_Vector<RealT> >(k+p);
 	HDSA::Ptr<HDSA::Dense_Matrix<RealT> > U_Bt = HDSA::makePtr<HDSA::Dense_Matrix<RealT> >(k+p, k+p);
@@ -334,19 +339,30 @@ public:
 	    Q_mat->Write_Vector_to_Column(i,(*Q)[i]);
 	  }
 	Q_mat->Multiply(U,U_Bt,false,true);
-	Q_B->Multiply(V,V_B);
+	HDSA::Ptr<HDSA::Dense_Matrix<RealT> > QB_mat = HDSA::makePtr<HDSA::Dense_Matrix<RealT> >(m, k+p);
+	for(int i = 0; i < k+p; i++)
+	  {
+	    QB_mat->Write_Vector_to_Column(i,(*Q_B)[i]);
+	  }
+	QB_mat->Multiply(V,V_B);
 	Ainv_U_ = HDSA::makePtr<HDSA::MultiVector<RealT> >(k,HDSA::Model_Error_Objects<RealT>::OP_Objects_->u);
 	Ainv_V_ = HDSA::makePtr<HDSA::MultiVector<RealT> >(k,HDSA::Model_Error_Objects<RealT>::OP_Objects_->u);
+	Ainv_Q_ = HDSA::makePtr<HDSA::MultiVector<RealT> >(k,HDSA::Model_Error_Objects<RealT>::OP_Objects_->u);
 	Ainv_sing_vals_ = HDSA::makePtr<Std_Vector<RealT> >(k);
 	for(int i = 0; i < k; i++)
 	  {
 	    HDSA::Ptr<HDSA::Vector<RealT> > vi = (*Ainv_V_)[i];
 	    V->Write_Column_to_Vector(i,vi);
+	    HDSA::Ptr<HDSA::Vector<RealT> > Dvi = (*Ainv_Q_)[i];
+	    for(int l = 0; l < vi->dimension(); l++)
+	      {
+		Dvi->Replace_Element(l,(*vi)(l)*std::sqrt((*Linv_ptw_var_)(l))/prior_discrepancy_sd_scale_);
+	      }
 	    HDSA::Ptr<HDSA::Vector<RealT> > ui = (*Ainv_U_)[i];
 	    U->Write_Column_to_Vector(i,ui);
 	    Ainv_sing_vals_->Replace_Element(i,(*sing_vals)(i));
 	  }
-	
+
 	RealT Time = static_cast<RealT>(std::clock()-timer)/static_cast<RealT>(CLOCKS_PER_SEC);
 	std::cout << "GSVD took " << Time << " seconds to execute" << std::endl;
 	
@@ -354,8 +370,8 @@ public:
 
 	if(write_gsvd_to_file)
 	  {
-	    std::string name = "V.txt";
-	    Ainv_V_->Write_to_File(name);
+	    std::string name = "Q.txt";
+	    Ainv_Q_->Write_to_File(name);
 	    name = "S.txt";
 	    Ainv_sing_vals_->Write_to_File(name);
 	    name = "M.txt";
@@ -409,6 +425,99 @@ public:
 	    MQ_vec->Replace_Element(l,(*val)(l,0)*(*M_row_sum_)(l));
 	  }
       }
+  }
+
+  // Weighting with the diagonal matrix Tinv whose (i,i) entry is given by prior_discrepancy_sd_scale_^2/Linv_ptw_var_(i)
+  void CholQR_Tinv(HDSA::Ptr<HDSA::MultiVector<RealT> > & TinvQ, HDSA::Ptr<HDSA::MultiVector<RealT> > & Q, HDSA::Ptr<HDSA::MultiVector<RealT> > & Z)
+  {
+    int m = (*Z)[0]->dimension();
+    int k = Z->Number_of_Vectors();
+    HDSA::Ptr<HDSA::Dense_Matrix<RealT> > Z_mat = HDSA::makePtr<HDSA::Dense_Matrix<RealT> >(m, k); 
+    HDSA::Ptr<HDSA::Dense_Matrix<RealT> > Q_Z = HDSA::makePtr<HDSA::Dense_Matrix<RealT> >(m, k);
+    HDSA::Ptr<HDSA::Dense_Matrix<RealT> > R_Z = HDSA::makePtr<HDSA::Dense_Matrix<RealT> >(k, k);
+    for(int i = 0; i < k; i++)
+      {
+	Z_mat->Write_Vector_to_Column(i,(*Z)[i]);
+      }
+    HDSA::Linear_Algebra::QR_Factorization<RealT>(Z_mat,Q_Z,R_Z);
+    HDSA::Ptr<HDSA::Dense_Matrix<RealT> > C = HDSA::makePtr<HDSA::Dense_Matrix<RealT> >(k, k);
+    for(int j = 0; j < k; j++)
+      {
+	HDSA::Ptr<HDSA::Vector<RealT> > vec = HDSA::makePtr<Std_Vector<RealT> >(m);
+	for(int l = 0; l < m; l++)
+	  {
+	    vec->Replace_Element(l,(*Q_Z)(l,j)*std::pow(prior_discrepancy_sd_scale_,2)/(*Linv_ptw_var_)(l));
+	  }
+	HDSA::Ptr<HDSA::Dense_Matrix<RealT> > val = Q_Z->Multiply(vec, true);
+	for(int i = 0; i < k; i++)
+	  {
+	    C->Replace_Element(i,j,(*val)(i,0));
+	  }
+      }
+    HDSA::Ptr<HDSA::Dense_Matrix<RealT> > R_W = HDSA::makePtr<HDSA::Dense_Matrix<RealT> >(k, k);
+    HDSA::Linear_Algebra::Cholesky_Factorization<RealT>(C,R_W);
+    // TinvQ = Tinv*Q_Z*R_W^{-1}
+    for(int i = 0; i < k; i++)
+      {
+	HDSA::Ptr<HDSA::Vector<RealT> > x = HDSA::makePtr<Std_Vector<RealT> >(k);
+	HDSA::Ptr<HDSA::Vector<RealT> > b = HDSA::makePtr<Std_Vector<RealT> >(k);
+	b->basis(i);
+	HDSA::Linear_Algebra::Upper_Tri_Solve<RealT>(x,b,R_W);
+	HDSA::Ptr<HDSA::Dense_Matrix<RealT> > val = Q_Z->Multiply(x);
+	HDSA::Ptr<HDSA::Vector<RealT> > Q_vec = (*Q)[i];
+	HDSA::Ptr<HDSA::Vector<RealT> > TinvQ_vec = (*TinvQ)[i];
+	for(int l = 0; l < m; l++)
+	  {
+	    Q_vec->Replace_Element(l,(*val)(l,0));
+	    TinvQ_vec->Replace_Element(l,(*val)(l,0)*std::pow(prior_discrepancy_sd_scale_,2)/(*Linv_ptw_var_)(l));
+	  }
+      }
+  }
+
+ // Weighting with the diagonal matrix T whose (i,i) entry is given by Linv_ptw_var_(i)/prior_discrepancy_sd_scale_^2
+  void CholQR_T(HDSA::Ptr<HDSA::MultiVector<RealT> > & Q, HDSA::Ptr<HDSA::Dense_Matrix<RealT> > & R, HDSA::Ptr<HDSA::MultiVector<RealT> > & Z)
+  {
+    int m = (*Z)[0]->dimension();
+    int k = Z->Number_of_Vectors();
+    HDSA::Ptr<HDSA::Dense_Matrix<RealT> > Z_mat = HDSA::makePtr<HDSA::Dense_Matrix<RealT> >(m, k); 
+    HDSA::Ptr<HDSA::Dense_Matrix<RealT> > Q_Z = HDSA::makePtr<HDSA::Dense_Matrix<RealT> >(m, k);
+    HDSA::Ptr<HDSA::Dense_Matrix<RealT> > R_Z = HDSA::makePtr<HDSA::Dense_Matrix<RealT> >(k, k);
+    for(int i = 0; i < k; i++)
+      {
+	Z_mat->Write_Vector_to_Column(i,(*Z)[i]);
+      }
+    HDSA::Linear_Algebra::QR_Factorization<RealT>(Z_mat,Q_Z,R_Z);
+    HDSA::Ptr<HDSA::Dense_Matrix<RealT> > C = HDSA::makePtr<HDSA::Dense_Matrix<RealT> >(k, k);
+    for(int j = 0; j < k; j++)
+      {
+	HDSA::Ptr<HDSA::Vector<RealT> > vec = HDSA::makePtr<Std_Vector<RealT> >(m);
+	for(int l = 0; l < m; l++)
+	  {
+	    vec->Replace_Element(l,(*Q_Z)(l,j)*(*Linv_ptw_var_)(l)/std::pow(prior_discrepancy_sd_scale_,2));
+	  }
+	HDSA::Ptr<HDSA::Dense_Matrix<RealT> > val = Q_Z->Multiply(vec, true);
+	for(int i = 0; i < k; i++)
+	  {
+	    C->Replace_Element(i,j,(*val)(i,0));
+	  }
+      }
+    HDSA::Ptr<HDSA::Dense_Matrix<RealT> > R_W = HDSA::makePtr<HDSA::Dense_Matrix<RealT> >(k, k);
+    HDSA::Linear_Algebra::Cholesky_Factorization<RealT>(C,R_W);
+    // TQ = T*Q_Z*R_W^{-1}
+    for(int i = 0; i < k; i++)
+      {
+	HDSA::Ptr<HDSA::Vector<RealT> > x = HDSA::makePtr<Std_Vector<RealT> >(k);
+	HDSA::Ptr<HDSA::Vector<RealT> > b = HDSA::makePtr<Std_Vector<RealT> >(k);
+	b->basis(i);
+	HDSA::Linear_Algebra::Upper_Tri_Solve<RealT>(x,b,R_W);
+	HDSA::Ptr<HDSA::Dense_Matrix<RealT> > val = Q_Z->Multiply(x);
+	HDSA::Ptr<HDSA::Vector<RealT> > Q_vec = (*Q)[i];
+	for(int l = 0; l < m; l++)
+	  {
+	    Q_vec->Replace_Element(l,(*val)(l,0));
+	  }
+      }
+    R_W->Multiply(R,R_Z);
   }
 
 
@@ -496,36 +605,28 @@ public:
 
   void Apply_L_Mat(HDSA::Ptr<HDSA::Vector<RealT> > & u_out, const HDSA::Ptr<HDSA::Vector<RealT> > & u_in) const 
   {
-    HDSA::Ptr<HDSA::Vector<RealT> > tmp = u_in->Clone();
-    Apply_A_L_Mat(tmp,u_in);
-    for(int k = 0; k < tmp->dimension(); k++)
+    HDSA::Ptr<HDSA::Vector<RealT> > w = Ainv_Q_->MatVec(*u_in);
+    int k = Ainv_sing_vals_->dimension();
+    RealT val = 0.0;
+    u_out->zero();
+    for(int i = 0; i < k; i++)
       {
-	RealT val = (*tmp)(k)/(*M_row_sum_)(k);
-	tmp->Replace_Element(k,val);
+        val = (*w)(i)*(1.0/std::pow((*Ainv_sing_vals_)(i),2));
+	u_out->axpy(val,*(*Ainv_Q_)[i]);
       }
-    Apply_A_L_Mat(u_out,tmp); 
   }
 
   void Apply_L_Mat_Inverse(HDSA::Ptr<HDSA::Vector<RealT> > & u_out, const HDSA::Ptr<HDSA::Vector<RealT> > & u_in) const 
   {
-    HDSA::Ptr<HDSA::Vector<RealT> > w = Ainv_V_->MatVec(*u_in);
+    HDSA::Ptr<HDSA::Vector<RealT> > w = Ainv_Q_->MatVec(*u_in);
     int k = Ainv_sing_vals_->dimension();
     RealT val = 0.0;
     u_out->zero();
     for(int i = 0; i < k; i++)
       {
         val = (*w)(i)*std::pow((*Ainv_sing_vals_)(i),2);
-	u_out->axpy(val,*(*Ainv_V_)[i]);
+	u_out->axpy(val,*(*Ainv_Q_)[i]);
       }
-
-    // HDSA::Ptr<HDSA::Vector<RealT> > tmp = u_in->Clone();
-    // Apply_A_L_Mat_Inv(tmp,u_in);
-    // for(int k = 0; k < tmp->dimension(); k++)
-    //   {
-    // 	RealT val = (*tmp)(k)*(*M_row_sum_)(k);
-    // 	tmp->Replace_Element(k,val);
-    //   }
-    // Apply_A_L_Mat_Inv(u_out,tmp); 
   }
 
   void Apply_Sqrt_Gamma_Mat(HDSA::Ptr<HDSA::Vector<RealT> > & z_out, const HDSA::Ptr<HDSA::Vector<RealT> > & z_in) const 
@@ -562,47 +663,40 @@ public:
   
   void Apply_Sqrt_L_Mat_Inverse(HDSA::Ptr<HDSA::Vector<RealT> > & u_out, const HDSA::Ptr<HDSA::Vector<RealT> > & u_in) const 
   {
-    HDSA::Ptr<HDSA::Vector<RealT> > w = Ainv_V_->MatVec(*u_in);
+    HDSA::Ptr<HDSA::Vector<RealT> > w = Ainv_Q_->MatVec(*u_in);
     int k = Ainv_sing_vals_->dimension();
     RealT val = 0.0;
     u_out->zero();
     for(int i = 0; i < k; i++)
       {
         val = (*w)(i)*(*Ainv_sing_vals_)(i);
-	u_out->axpy(val,*(*Ainv_V_)[i]);
+	u_out->axpy(val,*(*Ainv_Q_)[i]);
       }
-
-    // for(int k = 0; k < u_in->dimension(); k++)
-    //   {
-    // 	RealT val = (*u_in)(k)*std::sqrt((*M_row_sum_)(k));
-    // 	u_in->Replace_Element(k,val);
-    //   }
-    // Apply_A_L_Mat_Inv(u_out,u_in);
   }
   
   void Apply_L_Plus_Shift_Mat_Inverse(HDSA::Ptr<HDSA::Vector<RealT> > & u_out, const HDSA::Ptr<HDSA::Vector<RealT> > & u_in, const RealT beta) const 
   {
-    HDSA::Ptr<HDSA::Vector<RealT> > w = Ainv_V_->MatVec(*u_in);
+    HDSA::Ptr<HDSA::Vector<RealT> > w = Ainv_Q_->MatVec(*u_in);
     int k = Ainv_sing_vals_->dimension();
     RealT val = 0.0;
     u_out->zero();
     for(int i = 0; i < k; i++)
       {
         val = (*w)(i)*(std::pow((*Ainv_sing_vals_)(i),2)/(1.0+beta*std::pow((*Ainv_sing_vals_)(i),2)));
-	u_out->axpy(val,*(*Ainv_V_)[i]);
+	u_out->axpy(val,*(*Ainv_Q_)[i]);
       }
   }
 
   void Apply_Sqrt_L_Plus_Shift_Mat_Inverse(HDSA::Ptr<HDSA::Vector<RealT> > & u_out, const HDSA::Ptr<HDSA::Vector<RealT> > & u_in, const RealT beta) const 
   {
-    HDSA::Ptr<HDSA::Vector<RealT> > w = Ainv_V_->MatVec(*u_in);
+    HDSA::Ptr<HDSA::Vector<RealT> > w = Ainv_Q_->MatVec(*u_in);
     int k = Ainv_sing_vals_->dimension();
     RealT val = 0.0;
     u_out->zero();
     for(int i = 0; i < k; i++)
       {
         val = (*w)(i)*((*Ainv_sing_vals_)(i)/std::sqrt(1.0+beta*std::pow((*Ainv_sing_vals_)(i),2)));
-	u_out->axpy(val,*(*Ainv_V_)[i]);
+	u_out->axpy(val,*(*Ainv_Q_)[i]);
       }
   }
 

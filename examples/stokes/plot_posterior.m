@@ -18,6 +18,9 @@ load('Y.txt')
 load('control_read.txt')
 load('objective_fun_vals.txt')
 
+M_mat = load('M.txt');
+M_mat = diag(M_mat);
+
 state = load('state_read.txt');
 
 data_obj = importdata('NS_Opt_state.txt', ' ', 2);  %% we need to skip the first two lines
@@ -191,57 +194,6 @@ if write_to_file
     saveas(gcf,'hifi_x_controller','epsc')
 end
 
-m = min(min(opt_z_samples(1:3:N,:)-opt_z_mean(1:3:N)));
-m = min(m,min(ns_opt_control(1:3:N)-opt_z_mean(1:3:N)));
-m = min(m,min(2*opt_z_std(1:3:N)));
-M = max(max(opt_z_samples(1:3:N,:)-opt_z_mean(1:3:N)));
-M = max(M,max(ns_opt_control(1:3:N)-opt_z_mean(1:3:N)));
-M = max(M,max(2*opt_z_std(1:3:N)));
-
-figure,
-trisurf(adj, nodes(:,1), nodes(:,2), 2*opt_z_std(1:3:N));
-shading interp;
-view(0,90)
-title('Updated controller $z_x$ 2 standard deviations','Interpreter','latex')
-colorbar(); axis equal
-colormap("cool")
-caxis([0,max(M,-m)])
-axis tight
-set(gca,'FontSize',18)
-if write_to_file
-    saveas(gcf,'x_velocity_control_std','epsc')
-end
-
-figure,
-trisurf(adj, nodes(:,1), nodes(:,2), ns_opt_control(1:3:N)-opt_z_mean(1:3:N));
-shading interp;
-view(0,90)
-title('Optimal controller $z_x$ difference','Interpreter','latex')
-colorbar(); axis equal
-caxis([m,M])
-axis tight
-set(gca,'FontSize',18)
-if write_to_file
-    saveas(gcf,'hifi_minus_update_x_controller','epsc')
-end
-
-% num_samps = 8;
-% S = randi(size(opt_z_samples,2),num_samps,1);
-% for k = 1:num_samps
-%     figure,
-%     trisurf(adj, nodes(:,1), nodes(:,2), opt_z_samples(1:3:N,S(k))-opt_z_mean(1:3:N));
-%     shading interp;
-%     view(0,90)
-%     caxis([m,M])
-%     title('Optimal controller $z_x$ sample','Interpreter','latex')
-%     colorbar(); axis equal
-%     axis tight
-%     set(gca,'FontSize',18)
-%     if write_to_file
-%         saveas(gcf,['x_controller_sample_',num2str(k)],'epsc')
-%     end
-% end
-
 m = min([opt_z_mean(2:3:N);control_read(2:3:N); ns_opt_control(2:3:N)]);
 M = max([opt_z_mean(2:3:N);control_read(2:3:N);ns_opt_control(2:3:N)]);
 
@@ -284,64 +236,19 @@ if write_to_file
     saveas(gcf,'hifi_y_controller','epsc')
 end
 
-m = min(min(opt_z_samples(2:3:N,:)-opt_z_mean(2:3:N)));
-m = min(m,min(ns_opt_control(2:3:N)-opt_z_mean(2:3:N)));
-m = min(m,min(2*opt_z_std(2:3:N)));
-M = max(max(opt_z_samples(2:3:N,:)-opt_z_mean(2:3:N)));
-M = max(M,max(ns_opt_control(2:3:N)-opt_z_mean(2:3:N)));
-M = max(M,max(2*opt_z_std(2:3:N)));
-
-figure,
-trisurf(adj, nodes(:,1), nodes(:,2), 2*opt_z_std(2:3:N));
-shading interp;
-view(0,90)
-title('Updated controller $z_y$ 2 standard deviations','Interpreter','latex')
-colorbar(); axis equal
-axis tight
-colormap("cool")
-caxis([0,max(M,-m)])
-set(gca,'FontSize',18)
-if write_to_file
-    saveas(gcf,'y_velocity_control_std','epsc')
-end
-
-figure,
-trisurf(adj, nodes(:,1), nodes(:,2), ns_opt_control(2:3:N)-opt_z_mean(2:3:N));
-shading interp;
-view(0,90)
-title('Optimal controller $z_y$ difference','Interpreter','latex')
-colorbar(); axis equal
-caxis([m,M])
-axis tight
-set(gca,'FontSize',18)
-if write_to_file
-    saveas(gcf,'hifi_minus_update_y_controller','epsc')
-end
-
-% for k = 1:num_samps
-%     figure,
-%     trisurf(adj, nodes(:,1), nodes(:,2), opt_z_samples(2:3:N,S(k))-opt_z_mean(2:3:N));
-%     shading interp;
-%     view(0,90)
-%     caxis([m,M])
-%     title('Optimal controller $z_y$ sample','Interpreter','latex')
-%     colorbar(); axis equal
-%     axis tight
-%     set(gca,'FontSize',18)
-%     if write_to_file
-%         saveas(gcf,['y_controller_sample_',num2str(k)],'epsc')
-%     end
-% end
-
-I = 1:N; I = setdiff(I,3:3:N);
-vec = opt_z_mean(I);
-%[V,Sigma,~] = svd([opt_z_samples(I,:)-vec,ns_opt_control(I)-vec],'econ');
-[V,Sigma,~] = svd(opt_z_samples(I,:)-vec,'econ');
-z_samps = V'*(opt_z_samples(I,:)-vec);
-nom_z = V'*(control_read(I)-vec);
-updated_z = V'*(opt_z_mean(I)-vec);
-ns_z = V'*(ns_opt_control(I)-vec);
-
+vec = opt_z_mean;
+A = sqrt(M_mat)*(opt_z_samples-vec);
+[V,Sigma,~] = svd(A,'econ');
+V = inv(sqrt(M_mat))*V;
+z_samps = V'*M_mat*(opt_z_samples-vec);
+nom_z = V'*M_mat*(control_read-vec);
+updated_z = V'*M_mat*(opt_z_mean-vec);
+ns_z = V'*M_mat*(ns_opt_control-vec);
+%[V,Sigma,~] = svd(opt_z_samples-vec,'econ');
+%z_samps = V'*(opt_z_samples-vec);
+%nom_z = V'*(control_read-vec);
+%updated_z = V'*(opt_z_mean-vec);
+%ns_z = V'*(ns_opt_control-vec);
 %[~,J] = sort(abs(ns_z),'descend');
 J = 1:4;
 
@@ -367,7 +274,7 @@ if write_to_file
 end
 
 figure,
-trisurf(adj, nodes(:,1), nodes(:,2), V(1:2:end,k));
+trisurf(adj, nodes(:,1), nodes(:,2), V(1:3:N,k));
 shading interp;
 view(0,90)
 title('First mode $z_x$ controller','Interpreter','latex')
@@ -380,7 +287,7 @@ if write_to_file
 end
 
 figure,
-trisurf(adj, nodes(:,1), nodes(:,2), V(2:2:end,k));
+trisurf(adj, nodes(:,1), nodes(:,2), V(2:3:N,k));
 shading interp;
 view(0,90)
 title('First mode $z_y$ controller','Interpreter','latex')
@@ -414,7 +321,7 @@ if write_to_file
 end
 
 figure,
-trisurf(adj, nodes(:,1), nodes(:,2), V(1:2:end,k));
+trisurf(adj, nodes(:,1), nodes(:,2), V(1:3:N,k));
 shading interp;
 view(0,90)
 title('Second mode $z_x$ controller','Interpreter','latex')
@@ -427,7 +334,7 @@ if write_to_file
 end
 
 figure,
-trisurf(adj, nodes(:,1), nodes(:,2), V(2:2:end,k));
+trisurf(adj, nodes(:,1), nodes(:,2), V(2:3:N,k));
 shading interp;
 view(0,90)
 title('Second mode $z_y$ controller','Interpreter','latex')
@@ -461,7 +368,7 @@ if write_to_file
 end
 
 figure,
-trisurf(adj, nodes(:,1), nodes(:,2), V(1:2:end,k));
+trisurf(adj, nodes(:,1), nodes(:,2), V(1:3:N,k));
 shading interp;
 view(0,90)
 title('Third mode $z_x$ controller','Interpreter','latex')
@@ -474,7 +381,7 @@ if write_to_file
 end
 
 figure,
-trisurf(adj, nodes(:,1), nodes(:,2), V(2:2:end,k));
+trisurf(adj, nodes(:,1), nodes(:,2), V(2:3:N,k));
 shading interp;
 view(0,90)
 title('Third mode $z_y$ controller','Interpreter','latex')
@@ -508,7 +415,7 @@ if write_to_file
 end
 
 figure,
-trisurf(adj, nodes(:,1), nodes(:,2), V(1:2:end,k));
+trisurf(adj, nodes(:,1), nodes(:,2), V(1:3:N,k));
 shading interp;
 view(0,90)
 title('Fourth mode $z_x$ controller','Interpreter','latex')
@@ -521,7 +428,7 @@ if write_to_file
 end
 
 figure,
-trisurf(adj, nodes(:,1), nodes(:,2), V(2:2:end,k));
+trisurf(adj, nodes(:,1), nodes(:,2), V(2:3:N,k));
 shading interp;
 view(0,90)
 title('Fourth mode $z_y$ controller','Interpreter','latex')

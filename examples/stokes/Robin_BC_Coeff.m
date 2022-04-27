@@ -54,8 +54,8 @@ clear
 clc
 
 % -gamma*Lap + alpha*I
-gamma = 10^-2;
-alpha = .05;
+gamma = 2*10^-1;
+alpha = 1;
 m = 2000;
 
 kappa = sqrt(alpha/gamma);
