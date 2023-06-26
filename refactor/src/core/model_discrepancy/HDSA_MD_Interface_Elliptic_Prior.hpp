@@ -53,7 +53,7 @@ public:
 
   virtual void Apply_Solution_Operator_z_Jacobian_Transpose(HDSA::Vector<RealT> & z_out, const HDSA::Vector<RealT> & u_in, const HDSA::Vector<RealT> & z) const = 0;
 
-  virtual void Apply_RS_Hessian_Inverse(HDSA::Vector<RealT> & z_out, const HDSA::Vector<RealT> & z_in, const HDSA::Vector<RealT> & z) const = 0;
+  virtual void Apply_RS_Hessian(HDSA::Vector<RealT> & z_out, const HDSA::Vector<RealT> & z_in, const HDSA::Vector<RealT> & z) const = 0;
 
   virtual void Misfit_Gradient(HDSA::Vector<RealT> & u_grad, const HDSA::Vector<RealT> & u, const HDSA::Vector<RealT> & z) const = 0;
 
@@ -105,7 +105,7 @@ public:
 	elliptic_prior_ = elliptic_prior;
       }
      
-      ~Elliptic_GSVD()
+      virtual ~Elliptic_GSVD()
       {}
 
       void Apply_Operator(HDSA::Vector<RealT> & vec_out, const HDSA::Vector<RealT> & vec_in) const 

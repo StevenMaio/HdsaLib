@@ -12,7 +12,7 @@ private:
   HDSA::Ptr<HDSA::Bayes_Posterior_Data<RealT> > post_data_;
   HDSA::Ptr<HDSA::Vector<RealT> > u_opt_;
   HDSA::Ptr<HDSA::Vector<RealT> > z_opt_;
-  
+
 public:
 
   Model_Discrepancy_Update(HDSA::Ptr<HDSA::Model_Discrepancy_Interface<RealT> > & md_interface)

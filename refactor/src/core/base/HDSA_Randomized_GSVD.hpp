@@ -35,8 +35,6 @@ namespace HDSA
 		      int num_sing_vals, int oversampling, int num_subspace_iters)
     {
       int kpp = num_sing_vals + oversampling;
-      int dim_in = vec_in_->dimension();
-      int dim_out = vec_out_->dimension();
 
       HDSA::Ptr<HDSA::MultiVector<RealT> > Y = HDSA::makePtr<HDSA::MultiVector<RealT> >(kpp,*vec_out_);   
       for(int k = 0; k < kpp; k++)

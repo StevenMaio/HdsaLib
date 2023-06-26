@@ -163,7 +163,7 @@ public:
   }
 
   // This implementation assumes that it is evaluated at the optimal z so that the adjoint=0, a more general implementation would include a term multiplied by the adjoint variable
-  void Apply_RS_Hessian_Inverse(HDSA::Vector<RealT> & z_out, const HDSA::Vector<RealT> & z_in, const HDSA::Vector<RealT> & z) const 
+  void Apply_RS_Hessian(HDSA::Vector<RealT> & z_out, const HDSA::Vector<RealT> & z_in, const HDSA::Vector<RealT> & z) const 
   {
     const Std_Vector<RealT> z_std = dynamic_cast<const Std_Vector<RealT>&>(z);
     const Std_Vector<RealT> z_in_std = dynamic_cast<const Std_Vector<RealT>&>(z_in);
@@ -171,13 +171,13 @@ public:
     HDSA::Ptr<HDSA::Dense_Matrix<RealT> > v = HDSA::makePtr<HDSA::Dense_Matrix<RealT> >(m_,1);
     for(int k = 0; k < m_; k++)
       {
-	v->Replace_Element(k,0,(1.0/9.0)*(z_in_std(k)/std::pow(z_std(k),2.0)));
+	v->Replace_Element(k,0,9.0*(z_in_std(k)*std::pow(z_std(k),2.0)));
       }
-    HDSA::Ptr<HDSA::Dense_Matrix<RealT> > Minv_v = HDSA::makePtr<HDSA::Dense_Matrix<RealT> >(m_,1);
-    Minv_->Multiply(*Minv_v,*v);
+    HDSA::Ptr<HDSA::Dense_Matrix<RealT> > M_v = HDSA::makePtr<HDSA::Dense_Matrix<RealT> >(m_,1);
+    M_->Multiply(*M_v,*v);
     for(int k = 0; k < m_; k++)
       {
-	z_out_std.Replace_Element(k,(*Minv_v)(k,0)/std::pow(z_std(k),2.0));
+	z_out_std.Replace_Element(k,(*M_v)(k,0)*std::pow(z_std(k),2.0));
       }						
   }
 

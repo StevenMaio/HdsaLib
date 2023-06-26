@@ -1,6 +1,11 @@
 #ifndef HDSA_LINEAR_ALGEBRA_HPP
 #define HDSA_LINEAR_ALGEBRA_HPP
 
+#include "BelosConfigDefs.hpp"
+#include "BelosLinearProblem.hpp"
+#include "BelosBlockCGSolMgr.hpp"
+#include "BelosBlockGmresSolMgr.hpp"
+
 #include "Teuchos_SerialDenseMatrix.hpp"
 #include "Teuchos_SerialDenseVector.hpp"
 #include "Teuchos_LAPACK.hpp"
@@ -12,6 +17,99 @@ namespace HDSA
 
 namespace Linear_Algebra
 {
+
+  // Solve the linear system A*x = b
+  template <class RealT>
+  void Iterative_Linear_Solve(HDSA::Vector<RealT> & x, const HDSA::Vector<RealT> & b, const HDSA::Linear_Operator<RealT> & A, 
+			      RealT tol, std::string solver = "CG", bool verbose = false)
+  {
+    // Build the problem matrix
+    HDSA::Ptr<HDSA_Belos_Operator<RealT> > A_Belos = HDSA::makePtr<HDSA_Belos_Operator<RealT> >(&A);
+    
+    int frequency = 1;  // how often residuals are printed by solver
+    int blocksize = 1;
+    int numrhs = 1;
+    
+    Teuchos::CommandLineProcessor cmdp(false,true);
+    cmdp.setOption("verbose","quiet",&verbose,"Print messages and results.");
+    cmdp.setOption("frequency",&frequency,"Solvers frequency for printing residuals (#iters).");
+    cmdp.setOption("tol",&tol,"Relative residual tolerance used by CG solver.");
+    cmdp.setOption("num-rhs",&numrhs,"Number of right-hand sides to be solved for.");
+    cmdp.setOption("blocksize",&blocksize,"Block size used by CG .");
+           
+    int maxits = b.dimension();  
+    Teuchos::ParameterList belosList;
+    belosList.set( "Block Size", blocksize );                // Blocksize to be used by iterative solver
+    belosList.set( "Num Blocks", maxits );                   // Number of blocks
+    belosList.set( "Maximum Iterations", maxits );           // Maximum number of iterations allowed
+    belosList.set( "Convergence Tolerance", tol );           // Relative convergence tolerance requested
+    if (verbose) {
+      belosList.set( "Verbosity", Belos::Errors + Belos::Warnings +
+		     Belos::TimingDetails + Belos::FinalSummary + Belos::StatusTestDetails );
+      belosList.set( "Output Frequency", frequency );
+    }
+    else
+      belosList.set( "Verbosity", Belos::Errors + Belos::Warnings );
+    
+    HDSA::Ptr<HDSA_Belos_Vector<RealT> > soln = HDSA::makePtr<HDSA_Belos_Vector<RealT> >(b,numrhs);
+    HDSA::Ptr<HDSA_Belos_Vector<RealT> > rhs = HDSA::makePtr<HDSA_Belos_Vector<RealT> >(b,numrhs);
+    rhs->vec[0]->set(b);
+
+    RealT rhs_norm = b.norm();
+    if(rhs_norm != 0.0)
+      {
+	rhs->vec[0]->scale(1.0/rhs_norm);
+	Belos::OperatorTraits<RealT,Belos::MultiVec<RealT>,Belos::Operator<RealT> >::Apply( *A_Belos, *rhs, *soln );
+	
+	HDSA::Ptr<Belos::LinearProblem<RealT,Belos::MultiVec<RealT>,Belos::Operator<RealT> > > problem =	
+	  HDSA::makePtr<Belos::LinearProblem<RealT,Belos::MultiVec<RealT>,Belos::Operator<RealT> > >( A_Belos, soln, rhs );
+	bool set = problem->setProblem();
+	if (set == false) 
+	  {
+	    if (verbose)
+	      {
+		std::cout << std::endl << "ERROR:  Belos::LinearProblem failed to set up correctly!" << std::endl;
+	      }
+	    verbose = true;
+	  }
+	
+	HDSA::Ptr< Belos::SolverManager<RealT,Belos::MultiVec<RealT>,Belos::Operator<RealT>> > belos_solver;
+	if(solver == "CG")
+	  {
+	    belos_solver = HDSA::makePtr<Belos::BlockCGSolMgr<RealT,Belos::MultiVec<RealT>,Belos::Operator<RealT> > >( problem, HDSA::makePtrFromRef(belosList) );
+	  }
+	else if(solver == "GMRES")
+	  {
+	    belos_solver = HDSA::makePtr<Belos::BlockGmresSolMgr<RealT,Belos::MultiVec<RealT>,Belos::Operator<RealT> > >( problem, HDSA::makePtrFromRef(belosList) );
+	  }
+	else
+	  {
+	    std::cout << "Error specifying the linear solver" << std::endl;
+	  }
+
+	Belos::ReturnType ret = belos_solver->solve();
+
+	if(ret != Belos::Converged)
+	  {
+	    std::cout << "Belos solver did not converge for linear solve" << std::endl;
+	  }
+
+	x.set(*soln->vec[0]);
+	x.scale(rhs_norm);
+
+	// Test achievedTol output
+	RealT ach_tol = belos_solver->achievedTol();
+	if (verbose)
+	  {
+	    std::cout << "Achieved tol : "<<ach_tol<<std::endl;
+	  }	
+      }
+    else
+      {
+	x.zeros();
+      }
+  }
+
 
   // Compute the SVD of A=U*S*V^T where U and V are orthogonal matrix and S is a diagaonal matrix, stored as a nx1 matrix
   template <class RealT>

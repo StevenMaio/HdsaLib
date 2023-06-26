@@ -52,12 +52,7 @@ public:
 
  // Multiply this*B (a matrix multiply) with options to transpose this and/or B
   void Multiply(HDSA::Dense_Matrix<RealT> & C, const HDSA::Dense_Matrix<RealT> & B, bool A_Trans = false, bool B_Trans = false) const 
-  {
-    int Am = numRows();
-    int An = numCols();
-    int Bm = B.numRows();
-    int Bn = B.numCols();
-    
+  { 
     if(!A_Trans && !B_Trans)
       {
 	// No transposes
