@@ -77,16 +77,21 @@ namespace HDSA
       HDSA::Linear_Algebra::Symmetric_Eig_Decomposition<RealT>(*G, *g_vecs, *Lambda);
 
       u_ell = HDSA::makePtr<HDSA::MultiVector<RealT> >(N,*(*Y)[0]);      
+      for(int ell = 0; ell < N; ell++)
+	{
+	  HDSA::Ptr<HDSA::Vector<RealT> > yl = (*Y)[ell];
+	  HDSA::Ptr<HDSA::Vector<RealT> > ul = (*u_ell)[ell];
+	  md_interface.Apply_L_Mat_Inverse(*ul,*yl);
+	}
+
       u_i_ell.resize(N);
       for(int i = 0; i < N; i++)
 	{
 	  u_i_ell[i] = HDSA::makePtr<HDSA::MultiVector<RealT> >(N,*(*Y)[0]);
 	  for(int ell = 0; ell < N; ell++)
 	    {
-	      HDSA::Ptr<HDSA::Vector<RealT> > yl = (*Y)[ell];
-	      HDSA::Ptr<HDSA::Vector<RealT> > ul = (*u_ell)[ell];
-	      md_interface.Apply_L_Mat_Inverse(*ul,*yl);
 	      HDSA::Ptr<HDSA::Vector<RealT> > uil = (*u_i_ell[i])[ell];
+	      HDSA::Ptr<HDSA::Vector<RealT> > ul = (*u_ell)[ell];
 	      md_interface.Apply_L_Plus_beta_Identity_Mat_Inverse(*uil,*ul,(*Lambda)(i,0)/alpha);
 	      uil->scale(1.0/alpha);
 	    }
