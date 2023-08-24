@@ -19,3 +19,8 @@
 #include "core/model_discrepancy/HDSA_Bayes_Posterior_Data.hpp"
 #include "core/model_discrepancy/HDSA_MD_Update.hpp"
 
+#include "../interfaces/HDSA_Vector_Mrhyde.hpp"
+#include "../interfaces/obj_mrhyde.hpp"
+#include "../interfaces/MD_Interface_Mrhyde.hpp"
+
+

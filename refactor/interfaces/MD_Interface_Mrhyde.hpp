@@ -12,13 +12,17 @@ private:
   HDSA::Ptr<HDSA::Dense_Matrix<RealT> > Minv_; // Mass matrix inverse
   HDSA::Ptr<HDSA::Dense_Matrix<RealT> > E_L_; // State elliptic operator
   HDSA::Ptr<HDSA::Dense_Matrix<RealT> > Gamma_; // Control weighting matrix
-  Teuchos::RCP<ROL::Objective_MILO<RealT> > obj_;
+  Teuchos::RCP<HDSA::Objective_Mrhyde<RealT> > obj_;
+  Teuchos::RCP<HDSA::Objective_Mrhyde<RealT> > obj_solop_;
   Teuchos::RCP<MrHyDE::PostprocessManager<SolverNode> > postproc_;
 public:
 
-  Model_Discrepancy_Interface_Mrhyde( HDSA::Ptr<ROL::Objective_MILO<RealT> > & obj, Teuchos::RCP<MrHyDE::PostprocessManager<SolverNode> > & postproc)
+  Model_Discrepancy_Interface_Mrhyde( HDSA::Ptr<MrHyDE::SolverManager<SolverNode> > & solver, Teuchos::RCP<MrHyDE::PostprocessManager<SolverNode> > & postproc, Teuchos::RCP<MrHyDE::ParameterManager<SolverNode> > & params)
   {  
-    obj_ = obj;
+    //obj_ = obj;
+    obj_ = Teuchos::rcp( new HDSA::Objective_Mrhyde<RealT> (solver, postproc, params));
+    obj_solop_ = Teuchos::rcp( new HDSA::Objective_Mrhyde<RealT> (solver, postproc, params));
+
     postproc_ = postproc;
     // Need access: full space objective function derivative J_u, J_uu
     //              elliptic operator, mass matrix which depend on mesh. discretization, communicator
@@ -197,41 +201,23 @@ public:
 
   void Apply_Solution_Operator_z_Jacobian_Transpose(HDSA::Vector<RealT> & z_out, const HDSA::Vector<RealT> & u_in, const HDSA::Vector<RealT> & z) const 
   {
-    // expose Jacobians of PDE state, adjoint solve, mat vec PDE residual (in gradient eqt)
-    // need a adjoint solve with different RHS
-    const Std_Vector<RealT> u_in_std = dynamic_cast<const Std_Vector<RealT>&>(u_in);
-    const Std_Vector<RealT> z_std = dynamic_cast<const Std_Vector<RealT>&>(z);
-    Std_Vector<RealT> z_out_std = dynamic_cast<const Std_Vector<RealT>&>(z_out);
-    for(int k = 0; k < m_; k++)
-      {
-	z_out_std.Replace_Element(k,3.0*std::pow(z_std(k),2.0)*u_in_std(k));
-      }
+      //solutionStorage type for datagen_soln
+      //create two postproc objective each with a different objective function
+      //datagen = u_in;
+    RealT tol = 1.0E-7;
+    obj_solop_->gradient(z_out,z,tol);
   }
 
   // This implementation assumes that it is evaluated at the optimal z so that the adjoint=0, a more general implementation would include a term multiplied by the adjoint variable
-  //bvbw  void Apply_RS_Hessian_Inverse(HDSA::Vector<RealT> & z_out, const HDSA::Vector<RealT> & z_in, const HDSA::Vector<RealT> & z) const
+  //bvbw  void Apply_RS_Hessian_Inverse(HDSA::Vector<RealT> & z_out,í ¼í·±í ¼í·° const HDSA::Vector<RealT> & z_in, const HDSA::Vector<RealT> & z) const
   void Apply_RS_Hessian(HDSA::Vector<RealT> & z_out, const HDSA::Vector<RealT> & z_in, const HDSA::Vector<RealT> & z) const 
   {
-    // Reduced space Hessian inverse, FD gradient and pass to GMRESS
-    // need to access the gradient ROL::obj.grad()
-
-    //bvbw compile error    obj_.gradient();
-    // need to setu pa Belos interface, Joey needs to refactor HDSA_LinearAlgebra before I can pul it over to the refactored version.
-    // wrap define matvex by FD of the gradient
-    const Std_Vector<RealT> z_std = dynamic_cast<const Std_Vector<RealT>&>(z);
-    const Std_Vector<RealT> z_in_std = dynamic_cast<const Std_Vector<RealT>&>(z_in);
-    Std_Vector<RealT> z_out_std = dynamic_cast<const Std_Vector<RealT>&>(z_out);
-    HDSA::Ptr<HDSA::Dense_Matrix<RealT> > v = HDSA::makePtr<HDSA::Dense_Matrix<RealT> >(m_,1);
-    for(int k = 0; k < m_; k++)
-      {
-	v->Replace_Element(k,0,(1.0/9.0)*(z_in_std(k)/std::pow(z_std(k),2.0)));
-      }
-    HDSA::Ptr<HDSA::Dense_Matrix<RealT> > Minv_v = HDSA::makePtr<HDSA::Dense_Matrix<RealT> >(m_,1);
-    Minv_->Multiply(*Minv_v,*v);
-    for(int k = 0; k < m_; k++)
-      {
-	z_out_std.Replace_Element(k,(*Minv_v)(k,0)/std::pow(z_std(k),2.0));
-      }						
+    //    HDSA::Vector_Mrhyde<RealT> &ez_out = dynamic_cast<HDSA::Vector_Mrhyde<RealT>&>(z_out);
+    //const HDSA::Vector_Mrhyde<RealT> &ez_in = dynamic_cast<const HDSA::Vector_Mrhyde<RealT>&>(z_in);
+    //const HDSA::Vector_Mrhyde<RealT> &ez = dynamic_cast<const HDSA::Vector_Mrhyde<RealT>&>(z);
+    RealT tol = 1E-8;
+    obj_->hessVec(z_out, z_in, z, tol );
+    
   }
 
   void Misfit_Gradient(HDSA::Vector<RealT> & u_grad, const HDSA::Vector<RealT> & u, const HDSA::Vector<RealT> & z) const 
