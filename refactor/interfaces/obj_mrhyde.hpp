@@ -40,38 +40,24 @@ namespace HDSA {
   private:
     
     Real noise_;                                            //standard deviation of normal additive noise to add to data (0 for now)
-    Teuchos::RCP<MrHyDE::SolverManager<SolverNode> > solver;                                     // Solver object for MILO (solves FWD, ADJ, computes gradient, etc.)
-    Teuchos::RCP<MrHyDE::PostprocessManager<SolverNode> > postproc;                              // Postprocessing object for MILO (write solution, computes response, etc.)
-    Teuchos::RCP<MrHyDE::ParameterManager<SolverNode> > params;
+    Teuchos::RCP<MrHyDE::SolverManager<SolverNode> > solver_;                                     // Solver object for MILO (solves FWD, ADJ, computes gradient, etc.)
+    Teuchos::RCP<MrHyDE::PostprocessManager<SolverNode> > postproc_;                              // Postprocessing object for MILO (write solution, computes response, etc.)
+    Teuchos::RCP<MrHyDE::ParameterManager<SolverNode> > params_;
   public:
     
     /*!
      \brief A constructor generating data
      */
-    Objective_Mrhyde(Teuchos::RCP<MrHyDE::SolverManager<SolverNode> > solver_,
-                   Teuchos::RCP<MrHyDE::PostprocessManager<SolverNode> > postproc_,
-                   Teuchos::RCP<MrHyDE::ParameterManager<SolverNode> > & params_) :
-    solver(solver_), postproc(postproc_), params(params_) {
+    Objective_Mrhyde(Teuchos::RCP<MrHyDE::SolverManager<SolverNode> > solver,
+                   Teuchos::RCP<MrHyDE::PostprocessManager<SolverNode> > postproc,
+                   Teuchos::RCP<MrHyDE::ParameterManager<SolverNode> > & params) :
+    solver_(solver), postproc_(postproc), params_(params) {
       
     } //end constructor
     
     ////////////////////////////////////////////////////////////////////////////////
     ////////////////////////////////////////////////////////////////////////////////
     
-    Real value(const HDSA::Vector<Real> &Params, Real &tol){
-      
-      MrHyDE_OptVector Paramsp = 
-      Teuchos::dyn_cast<MrHyDE_OptVector >(const_cast<HDSA::Vector<Real> &>(Params));
-      
-      params->updateParams(Paramsp);
-      
-      DFAD val = 0.0;
-      solver->forwardModel(val);
-      
-      params->stashParams(); //dumping to file, for long runs...
-      
-      return val.val();
-    }
     
     //! Compute gradient of objective function with respect to parameters
     void gradient(HDSA::Vector<Real> &g, const HDSA::Vector<Real> &Params, Real &tol){
@@ -82,16 +68,16 @@ namespace HDSA {
         MrHyDE_OptVector Paramsp = 
         Teuchos::dyn_cast<MrHyDE_OptVector >(const_cast<HDSA::Vector<Real> &>(Params));
       
-        params->updateParams(Paramsp);
+        params_->updateParams(Paramsp);
         DFAD val = 0.0;
-        solver->forwardModel(val);
+        solver_->forwardModel(val);
 
       }
       MrHyDE_OptVector sens = 
       Teuchos::dyn_cast<MrHyDE_OptVector >(const_cast<HDSA::Vector<Real> &>(g));
       sens.zero();
       
-      solver->adjointModel(sens);
+      solver_->adjointModel(sens);
 
     }
 
@@ -104,9 +90,9 @@ namespace HDSA {
         MrHyDE_OptVector Paramsp = 
         Teuchos::dyn_cast<MrHyDE_OptVector >(const_cast<HDSA::Vector<Real> &>(Params));
       
-        params->updateParams(Paramsp);
+        params_->updateParams(Paramsp);
         DFAD val = 0.0;
-        solver->forwardModel(val);
+        solver_->forwardModel(val);
 
       }
       // MrHyDE_OptVector sens = 
@@ -118,7 +104,7 @@ namespace HDSA {
     }
     
     bool checkNewParams(const HDSA::Vector<Real> &Params) {
-      MrHyDE_OptVector curr_params = params->getCurrentVector();
+      MrHyDE_OptVector curr_params = params_->getCurrentVector();
       ROL::Ptr<ROL::Vector<Real> > diff = curr_params.clone();
       MrHyDE_OptVector ediff = 
       Teuchos::dyn_cast<MrHyDE_OptVector >(const_cast<ROL::Vector<Real> &>(*diff));
@@ -255,9 +241,15 @@ namespace HDSA {
       }
       output.close();
     }
+
+    void do_solop(bool solop_flag)
+    {
+      postproc_->hdsa_solop = solop_flag;
+    }
     
   }; //end description of Objective class
-  
+
+
   /*!
    \brief Inequality constraints on optimization parameters
    

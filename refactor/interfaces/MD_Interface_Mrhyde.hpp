@@ -20,9 +20,12 @@ public:
   Model_Discrepancy_Interface_Mrhyde( HDSA::Ptr<MrHyDE::SolverManager<SolverNode> > & solver, Teuchos::RCP<MrHyDE::PostprocessManager<SolverNode> > & postproc, Teuchos::RCP<MrHyDE::ParameterManager<SolverNode> > & params)
   {  
     //obj_ = obj;
-    obj_ = Teuchos::rcp( new HDSA::Objective_Mrhyde<RealT> (solver, postproc, params));
-    obj_solop_ = Teuchos::rcp( new HDSA::Objective_Mrhyde<RealT> (solver, postproc, params));
 
+    obj_ = Teuchos::rcp( new HDSA::Objective_Mrhyde<RealT> (solver, postproc, params));
+    //    obj_solop_ = Teuchos::rcp( new HDSA::Objective_Mrhyde<RealT> (solver, postproc, params));
+
+    HDSA::Ptr<HDSA::Vector<RealT> > state_vec = HDSA::makePtr<HDSA::Vector_Mrhyde_State<RealT> > (solver); 
+    
     postproc_ = postproc;
     // Need access: full space objective function derivative J_u, J_uu
     //              elliptic operator, mass matrix which depend on mesh. discretization, communicator
@@ -204,8 +207,9 @@ public:
       //solutionStorage type for datagen_soln
       //create two postproc objective each with a different objective function
       //datagen = u_in;
+    obj_->do_solop(true);
     RealT tol = 1.0E-7;
-    obj_solop_->gradient(z_out,z,tol);
+    obj_->gradient(z_out,z,tol);
   }
 
   // This implementation assumes that it is evaluated at the optimal z so that the adjoint=0, a more general implementation would include a term multiplied by the adjoint variable
@@ -215,6 +219,7 @@ public:
     //    HDSA::Vector_Mrhyde<RealT> &ez_out = dynamic_cast<HDSA::Vector_Mrhyde<RealT>&>(z_out);
     //const HDSA::Vector_Mrhyde<RealT> &ez_in = dynamic_cast<const HDSA::Vector_Mrhyde<RealT>&>(z_in);
     //const HDSA::Vector_Mrhyde<RealT> &ez = dynamic_cast<const HDSA::Vector_Mrhyde<RealT>&>(z);
+    obj_->do_solop(false);
     RealT tol = 1E-8;
     obj_->hessVec(z_out, z_in, z, tol );
     
