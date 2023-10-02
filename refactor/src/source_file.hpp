@@ -19,6 +19,9 @@
 #include "core/model_discrepancy/HDSA_Bayes_Posterior_Data.hpp"
 #include "core/model_discrepancy/HDSA_MD_Update.hpp"
 
+#include "../interfaces/rol/HDSA_ROL_Vector.hpp"
+#include "../interfaces/rol/HDSA_ROL_MD_Interface.hpp"
+
 #include "../interfaces/HDSA_Vector_Mrhyde.hpp"
 #include "../interfaces/HDSA_Mrhyde_State_Vector.hpp"
 #include "../interfaces/obj_mrhyde.hpp"
