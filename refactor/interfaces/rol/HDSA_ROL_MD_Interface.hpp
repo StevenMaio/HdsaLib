@@ -18,7 +18,7 @@ public:
 				  ROL::Ptr<ROL::Vector<RealT> > & u, ROL::Ptr<ROL::Vector<RealT> > & z): obj_simopt_(obj_simopt), con_simopt_(con_simopt)
   {  
     ROL::Ptr<ROL::Vector<RealT> > p = u->clone();
-    ROL::Ptr<ROL::Reduced_Objective_SimOpt<RealT> > red_obj_ = ROL::makePtr<ROL::Reduced_Objective_SimOpt<RealT> >(obj_simopt,con_simopt,u,z,p);
+    red_obj_ = ROL::makePtr<ROL::Reduced_Objective_SimOpt<RealT> >(obj_simopt,con_simopt,u,z,p);
   }
   
   virtual ~ROL_Model_Discrepancy_Interface()
@@ -62,6 +62,7 @@ public:
     con_simopt_->solve(*c_rol_vec, *u_rol_vec, *z_rol.rol_vec, tol);
     con_simopt_->applyInverseAdjointJacobian_1(*u_tmp, *u_in_rol.rol_vec, *u_rol_vec, *z_rol.rol_vec, tol);
     con_simopt_->applyAdjointJacobian_2(*z_out_rol.rol_vec, *u_tmp, *u_rol_vec, *z_rol.rol_vec, tol);
+    z_out.scale(-1.0);
   }
 
   void Apply_RS_Hessian(HDSA::Vector<RealT> & z_out, const HDSA::Vector<RealT> & z_in, const HDSA::Vector<RealT> & z) const 

@@ -12,7 +12,6 @@
 #include <iostream>
 #include <fstream>
 #include <math.h>
-#include "/gpfs/joshart/Trilinos/hdsalib/refactor/src/source_file.hpp"
 
 typedef double RealT;
 
@@ -107,10 +106,6 @@ int main(int argc, char *argv[]) {
     {
       std::cout << (*z_std)[i] << std::endl;
     }
-
-  HDSA::Ptr<HDSA::Vector<RealT> > hdsa_vec = HDSA::makePtr<HDSA::ROL_Vector<RealT> >(*zp);
-  hdsa_vec->Test_Vector();
-  hdsa_vec->randomize_standard_normal();
 
   if (errorFlag != 0)
     std::cout << "End Result: TEST FAILED\n";
