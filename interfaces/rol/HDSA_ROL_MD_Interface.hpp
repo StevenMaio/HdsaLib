@@ -1,6 +1,11 @@
 #ifndef HDSA_ROL_MD_INTERFACE_HPP
 #define HDSA_ROL_MD_INTERFACE_HPP
 
+#include "ROL_Objective_SimOpt.hpp"
+#include "ROL_Constraint_SimOpt.hpp"
+#include "ROL_Reduced_Objective_SimOpt.hpp"
+#include "ROL_Vector.hpp"
+
 namespace HDSA
 {
 

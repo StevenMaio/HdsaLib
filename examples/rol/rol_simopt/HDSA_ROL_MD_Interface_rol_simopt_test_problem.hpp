@@ -1,8 +1,8 @@
-#ifndef HDSA_ROL_MD_INTERFACE_HDSA_TEST_PROBLEM_HPP
-#define HDSA_ROL_MD_INTERFACE_HDSA_TEST_PROBLEM_HPP
+#ifndef HDSA_ROL_MD_INTERFACE_SIMOPT_TEST_PROBLEM_HPP
+#define HDSA_ROL_MD_INTERFACE_SIMOPT_TEST_PROBLEM_HPP
 
 template <class RealT>
-class ROL_Model_Discrepancy_Interface_hdsa_test_problem : public HDSA::ROL_Model_Discrepancy_Interface<RealT> {
+class ROL_Model_Discrepancy_Interface_simopt_test_problem : public HDSA::ROL_Model_Discrepancy_Interface<RealT> {
 
 private:
   int m_; // Mesh resolution
@@ -15,7 +15,7 @@ private:
   
 public:
 
-  ROL_Model_Discrepancy_Interface_hdsa_test_problem(ROL::Ptr<ROL::Objective_SimOpt<RealT> > & obj_simopt, ROL::Ptr<ROL::Constraint_SimOpt<RealT> > & con_simopt, 
+  ROL_Model_Discrepancy_Interface_simopt_test_problem(ROL::Ptr<ROL::Objective_SimOpt<RealT> > & obj_simopt, ROL::Ptr<ROL::Constraint_SimOpt<RealT> > & con_simopt, 
 						    ROL::Ptr<ROL::Vector<RealT> > & u, ROL::Ptr<ROL::Vector<RealT> > & z, int m): 
     HDSA::ROL_Model_Discrepancy_Interface<RealT>(obj_simopt,con_simopt,u,z) 
   {  
@@ -88,7 +88,7 @@ public:
 
   }
 
-  virtual ~ROL_Model_Discrepancy_Interface_hdsa_test_problem()
+  virtual ~ROL_Model_Discrepancy_Interface_simopt_test_problem()
   { }
 
   void Apply_u_Elliptic_Operator_Inverse(HDSA::Vector<RealT> & u_out, const HDSA::Vector<RealT> & u_in) const 

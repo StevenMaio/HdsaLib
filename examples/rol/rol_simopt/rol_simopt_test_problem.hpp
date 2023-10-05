@@ -1,5 +1,5 @@
-#ifndef HDSA_TEST_PROBLEM_HPP
-#define HDSA_TEST_PROBLEM_HPP
+#ifndef SIMOPT_TEST_PROBLEM_HPP
+#define SIMOPT_TEST_PROBLEM_HPP
 
 #include "ROL_Algorithm.hpp"
 #include "ROL_TrustRegionStep.hpp"
@@ -28,14 +28,14 @@
 
 
 template<class Real>
-class Constraint_HdsaTestProb : public ROL::Constraint_SimOpt<Real> {
+class Constraint_SimOptTestProb : public ROL::Constraint_SimOpt<Real> {
 
 private:
   int m_;
 
 public:
   
-  Constraint_HdsaTestProb(int m){
+  Constraint_SimOptTestProb(int m){
     m_ = m;
   }
   
@@ -173,15 +173,15 @@ public:
 };
 
 template<class Real>
-class Objective_HdsaTestProb : public ROL::Objective_SimOpt<Real> {
+class Objective_SimOptTestProb : public ROL::Objective_SimOpt<Real> {
 private:
 
   int m_;
   std::vector<Real> target_;
 
 public: 
-  
-  Objective_HdsaTestProb(int m){
+
+  Objective_SimOptTestProb(int m){
     m_ = m;
     target_.resize(m_);
     for (int i = 0; i < m_; i++)

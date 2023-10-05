@@ -1,4 +1,4 @@
-#include "hdsa_test_problem.hpp"
+#include "rol_simopt_test_problem.hpp"
 #include "ROL_Algorithm.hpp"
 #include "ROL_TrustRegionStep.hpp"
 #include "ROL_StatusTest.hpp"
@@ -12,8 +12,8 @@
 #include <iostream>
 #include <fstream>
 #include <math.h>
-#include "/gpfs/joshart/Trilinos/hdsalib/refactor/src/source_file.hpp"
-#include "HDSA_ROL_MD_Interface_hdsa_test_problem.hpp"
+#include "../../../src/source_file.hpp"
+#include "HDSA_ROL_MD_Interface_rol_simopt_test_problem.hpp"
 
 typedef double RealT;
 
@@ -34,8 +34,8 @@ int main(int argc, char *argv[]) {
   auto parlist = ROL::getParametersFromXmlFile( filename );
   
   int m = 51;
-  Constraint_HdsaTestProb<RealT> con(m);
-  Objective_HdsaTestProb<RealT> obj(m);
+  Constraint_SimOptTestProb<RealT> con(m);
+  Objective_SimOptTestProb<RealT> obj(m);
   ROL::Ptr<ROL::Objective_SimOpt<RealT> > pobj  = ROL::makePtrFromRef(obj);
   ROL::Ptr<ROL::Constraint_SimOpt<RealT> > pcon = ROL::makePtrFromRef(con);
 
@@ -46,7 +46,7 @@ int main(int argc, char *argv[]) {
   ROL::StdVector<RealT> u(u_ptr);
   ROL::Ptr<ROL::Vector<RealT> > up  = ROL::makePtrFromRef(u);
 
-  HDSA::Ptr<HDSA::Model_Discrepancy_Interface<RealT> > md_interface = HDSA::makePtr<ROL_Model_Discrepancy_Interface_hdsa_test_problem<RealT> >(pobj, pcon, up, zp, m);
+  HDSA::Ptr<HDSA::Model_Discrepancy_Interface<RealT> > md_interface = HDSA::makePtr<ROL_Model_Discrepancy_Interface_simopt_test_problem<RealT> >(pobj, pcon, up, zp, m);
   HDSA::Ptr<HDSA::Model_Discrepancy_Update<RealT> > md_update = HDSA::makePtr<HDSA::Model_Discrepancy_Update<RealT> >(md_interface);
   
   RealT alpha = 1.e-3;

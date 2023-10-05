@@ -1,6 +1,8 @@
 #ifndef HDSA_ROL_VECTOR_HPP
 #define HDSA_ROL_VECTOR_HPP
 
+#include "ROL_Vector.hpp"
+
 namespace HDSA
 {
 

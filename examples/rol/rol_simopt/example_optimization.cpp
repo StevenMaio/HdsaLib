@@ -1,8 +1,7 @@
-#include "hdsa_test_problem.hpp"
+#include "rol_simopt_test_problem.hpp"
 #include "ROL_Algorithm.hpp"
 #include "ROL_TrustRegionStep.hpp"
 #include "ROL_StatusTest.hpp"
-#include "ROL_CompositeStep.hpp"
 #include "ROL_ConstraintStatusTest.hpp"
 #include "ROL_ParameterList.hpp"
 
@@ -34,8 +33,8 @@ int main(int argc, char *argv[]) {
   auto parlist = ROL::getParametersFromXmlFile( filename );
   
   int m = 51;
-  Constraint_HdsaTestProb<RealT> con(m);
-  Objective_HdsaTestProb<RealT> obj(m);
+  Constraint_SimOptTestProb<RealT> con(m);
+  Objective_SimOptTestProb<RealT> obj(m);
     
   // Initialize iteration vectors.
   ROL::Ptr<std::vector<RealT> > z_ptr    = ROL::makePtr<std::vector<RealT> >(m, 0.0);
