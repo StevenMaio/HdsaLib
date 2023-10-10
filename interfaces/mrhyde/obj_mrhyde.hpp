@@ -43,6 +43,7 @@ namespace HDSA {
     Teuchos::RCP<MrHyDE::SolverManager<SolverNode> > solver_;                                     // Solver object for MILO (solves FWD, ADJ, computes gradient, etc.)
     Teuchos::RCP<MrHyDE::PostprocessManager<SolverNode> > postproc_;                              // Postprocessing object for MILO (write solution, computes response, etc.)
     Teuchos::RCP<MrHyDE::ParameterManager<SolverNode> > params_;
+
   public:
     
     /*!
@@ -65,19 +66,29 @@ namespace HDSA {
       bool newparams = this->checkNewParams(Params);
 
       if (newparams) {
+	MrHyDE_OptVector curr_params = params_->getCurrentVector();
+	ROL::Ptr<ROL::Vector<Real> > rparams = curr_params.clone();
+
+	// correct cast
         MrHyDE_OptVector Paramsp = 
-        Teuchos::dyn_cast<MrHyDE_OptVector >(const_cast<HDSA::Vector<Real> &>(Params));
+        Teuchos::dyn_cast<MrHyDE_OptVector >(const_cast<ROL::Vector<Real> &>(*rparams));
+
+        // MrHyDE_OptVector Paramsp = 
+        // Teuchos::dyn_cast<MrHyDE_OptVector >(const_cast<HDSA::Vector<Real> &>(Params));
       
         params_->updateParams(Paramsp);
         DFAD val = 0.0;
         solver_->forwardModel(val);
 
       }
-      MrHyDE_OptVector sens = 
-      Teuchos::dyn_cast<MrHyDE_OptVector >(const_cast<HDSA::Vector<Real> &>(g));
-      sens.zero();
+       HDSA::Vector_Mrhyde<Real> sens = 
+	 Teuchos::dyn_cast<HDSA::Vector_Mrhyde<Real> >(const_cast<HDSA::Vector<Real> &>(g));
+
+      sens.zeros();
+        MrHyDE_OptVector esens = 
+        Teuchos::dyn_cast<MrHyDE_OptVector >(const_cast<ROL::Vector<Real> &>(*sens.mrhyde_vec));
       
-      solver_->adjointModel(sens);
+      solver_->adjointModel(esens);
 
     }
 
@@ -105,14 +116,19 @@ namespace HDSA {
     
     bool checkNewParams(const HDSA::Vector<Real> &Params) {
       MrHyDE_OptVector curr_params = params_->getCurrentVector();
+      //      std::cout << "curr_params" << curr_params << std::endl;
+      // curr_params.print(std::cout);
+      //      Kokkos::View<ScalarT***,HostDevice> cparams("curr_params", curr_params);
+      // KokkosTools::print(cparams,"curr_params");
+
       ROL::Ptr<ROL::Vector<Real> > diff = curr_params.clone();
       MrHyDE_OptVector ediff = 
       Teuchos::dyn_cast<MrHyDE_OptVector >(const_cast<ROL::Vector<Real> &>(*diff));
-      MrHyDE_OptVector eParams = 
-      Teuchos::dyn_cast<MrHyDE_OptVector >(const_cast<HDSA::Vector<Real> &>(Params));
+      HDSA::Vector_Mrhyde<Real> eParams = 
+	Teuchos::dyn_cast<HDSA::Vector_Mrhyde<Real> >(const_cast<HDSA::Vector<Real> &>(Params));
       ediff.zero();
       ediff.set(curr_params);
-      ediff.axpy(-1.0,eParams);
+      ediff.axpy(-1.0,*eParams.mrhyde_vec);
       ScalarT dnorm = ediff.norm();
       ScalarT refnorm = curr_params.norm();
       dnorm = dnorm/refnorm;

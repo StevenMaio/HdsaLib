@@ -57,11 +57,12 @@ public:
     int numsets = solver_->setnames.size();
     RealT xy(0);    
     for (int set=0; set<numsets; set++) {
-      int n = ex.mrhyde_state_vec[set][0]->getNumVectors();
-      Teuchos::Array<RealT> val(n,0);
-      ex.mrhyde_state_vec[set][0]->dot(*ex.mrhyde_state_vec[set][0],val.view(0,n)); 
+      //      int n = ex.mrhyde_state_vec[set][0]->getNumVectors();
+      int n = ex.mrhyde_state_vec[set].size();
+      Teuchos::Array<RealT> val(1,0);
       for (int i = 0; i < n; ++i) {
-        xy += val[i];
+	mrhyde_state_vec[set][i]->dot(*ex.mrhyde_state_vec[set][i],val.view(0,1)); 
+        xy += val[0];
       }
     }
     return xy;
@@ -87,7 +88,7 @@ public:
     int numsets = solver_->setnames.size();
     for (int set=0; set<numsets; set++) {
       for (int i=0; i<solver_->numsteps[set]; i++) {
-	spatialdim += mrhyde_state_vec[set][i]->getNumVectors();
+	spatialdim += mrhyde_state_vec[set][i]->getGlobalLength();
 	//    return numsets*numsteps*spatialdim;
       }
     }
