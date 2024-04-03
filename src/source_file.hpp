@@ -2,6 +2,7 @@
 #include "trilinos_adapter/core/HDSA_Comm.hpp"
 #include "trilinos_adapter/core/HDSA_ParameterList.hpp"
 #include "trilinos_adapter/core/HDSA_Dense_Matrix.hpp"
+#include "trilinos_adapter/core/HDSA_Stack_Trace.hpp"
 
 #include "core/base/HDSA_Vector.hpp"
 #include "core/base/HDSA_Linear_Operator.hpp"
@@ -22,11 +23,14 @@
 #include "../interfaces/rol/HDSA_ROL_Vector.hpp"
 #include "../interfaces/rol/HDSA_ROL_MD_Interface.hpp"
 
-#include "../interfaces/mrhyde/Mrhyde_userInterface.hpp"
-#include "../interfaces/mrhyde/HDSA_Vector_Mrhyde.hpp"
-#include "../interfaces/mrhyde/HDSA_Mrhyde_State_Vector.hpp"
-#include "../interfaces/mrhyde/obj_mrhyde.hpp"
-#include "../interfaces/mrhyde/MD_Interface_Mrhyde.hpp"
-#include "../interfaces/mrhyde/Mrhyde_userInterface.hpp"
+//#include "../interfaces/mrhyde/Mrhyde_userInterface.hpp"
+//#include "../interfaces/mrhyde/HDSA_Vector_Mrhyde.hpp"
+//#include "../interfaces/mrhyde/HDSA_Mrhyde_State_Vector.hpp"
+//#include "../interfaces/mrhyde/obj_mrhyde.hpp"
+//#include "../interfaces/mrhyde/MD_Interface_Mrhyde.hpp"
+//#include "../interfaces/mrhyde/Mrhyde_userInterface.hpp"
 
-
+#include "core/model_discrepancy/interfaces/HDSA_MD_Data_Interface.hpp"
+#include "core/model_discrepancy/interfaces/HDSA_MD_Opt_Prob_Interface.hpp"
+#include "core/model_discrepancy/interfaces/HDSA_MD_u_Prior_Interface.hpp"
+#include "core/model_discrepancy/interfaces/HDSA_MD_z_Prior_Interface.hpp"

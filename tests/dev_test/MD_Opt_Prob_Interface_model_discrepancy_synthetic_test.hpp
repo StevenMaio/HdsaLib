@@ -1,0 +1,108 @@
+#ifndef HDSA_MD_OPT_PROB_INTERFACE_MODEL_DISCREPANCY_SYNTHETIC_TEST_HPP
+#define HDSA_MD_OPT_PROB_INTERFACE_MODEL_DISCREPANCY_SYNTHETIC_TEST_HPP
+
+template <class RealT>
+class MD_Opt_Prob_Interface_model_discrepancy_synthetic_test : public HDSA::MD_Opt_Prob_Interface<RealT> {
+
+private:
+  int m_; // Mesh resolution                                                                                                                                                                                                   
+  HDSA::Ptr<HDSA::Dense_Matrix<RealT> > x_; // Mesh nodes on [0,1]    
+  HDSA::Ptr<HDSA::Dense_Matrix<RealT> > M_; // Mass matrix   
+
+public:
+  MD_Opt_Prob_Interface_model_discrepancy_synthetic_test()
+  { 
+    m_ = 51;
+    RealT h = 1.0/static_cast<RealT>(m_-1);
+    x_ = HDSA::makePtr<HDSA::Dense_Matrix<RealT> >(m_,1);
+    for(int k = 0; k < m_; k++)
+      {
+	x_->Replace_Element(k,0,static_cast<RealT>(k)/static_cast<RealT>(m_-1));
+      }
+    
+    M_->Replace_Element(0,0,(1.0/3.0)*h);
+    M_->Replace_Element(0,1,(1.0/6.0)*h);
+    for(int i = 1; i < m_-1; i++)
+      {
+	M_->Replace_Element(i,i,(2.0/3.0)*h);
+	M_->Replace_Element(i,i-1,(1.0/6.0)*h);
+	M_->Replace_Element(i,i+1,(1.0/6.0)*h);
+      }
+    M_->Replace_Element(m_-1,m_-2,(1.0/6.0)*h);
+    M_->Replace_Element(m_-1,m_-1,(1.0/3.0)*h);    
+  }
+
+  virtual ~MD_Opt_Prob_Interface_model_discrepancy_synthetic_test()
+  { }
+
+  // Assume a constraint u = z^3 nodewise on the mesh defined by nodes in x_                                                                                                                                                
+  // Assume an objective (1/2)*(u-T)^t*M*(u-T) where T = (x_+1.0)^3 so that the optimal solution is u_opt=(x_+1.0)^3 and z_opt=x_+1.0                                                                              
+  // Assume a high-fidelity model u = z^3 + .2*z^2                                                                                                                                                                          
+
+  void Apply_Solution_Operator_z_Jacobian_Transpose(HDSA::Vector<RealT> & z_out, const HDSA::Vector<RealT> & u_in, const HDSA::Vector<RealT> & z) const
+  {
+    const Std_Vector<RealT> u_in_std = dynamic_cast<const Std_Vector<RealT>&>(u_in);
+    const Std_Vector<RealT> z_std = dynamic_cast<const Std_Vector<RealT>&>(z);
+    Std_Vector<RealT> z_out_std = dynamic_cast<const Std_Vector<RealT>&>(z_out);
+    for(int k = 0; k < m_; k++)
+      {
+	z_out_std.Replace_Element(k,3.0*std::pow(z_std(k),2.0)*u_in_std(k));
+      }
+  }
+  
+  // This implementation assumes that it is evaluated at the optimal z so that the adjoint=0, a more general implementation would include a term multiplied by the adjoint variable                                              
+  void Apply_RS_Hessian(HDSA::Vector<RealT> & z_out, const HDSA::Vector<RealT> & z_in, const HDSA::Vector<RealT> & z) const
+  {
+    const Std_Vector<RealT> z_std = dynamic_cast<const Std_Vector<RealT>&>(z);
+    const Std_Vector<RealT> z_in_std = dynamic_cast<const Std_Vector<RealT>&>(z_in);
+    Std_Vector<RealT> z_out_std = dynamic_cast<const Std_Vector<RealT>&>(z_out);
+    HDSA::Ptr<HDSA::Dense_Matrix<RealT> > v = HDSA::makePtr<HDSA::Dense_Matrix<RealT> >(m_,1);
+    for(int k = 0; k < m_; k++)
+      {
+	v->Replace_Element(k,0,9.0*(z_in_std(k)*std::pow(z_std(k),2.0)));
+      }
+    HDSA::Ptr<HDSA::Dense_Matrix<RealT> > M_v = HDSA::makePtr<HDSA::Dense_Matrix<RealT> >(m_,1);
+    M_->Multiply(*M_v,*v);
+    for(int k = 0; k < m_; k++)
+      {
+	z_out_std.Replace_Element(k,(*M_v)(k,0)*std::pow(z_std(k),2.0));
+      }
+  }
+  
+  void Misfit_Gradient(HDSA::Vector<RealT> & u_grad, const HDSA::Vector<RealT> & u, const HDSA::Vector<RealT> & z) const
+  {
+    HDSA::Ptr<HDSA::Dense_Matrix<RealT> > v = HDSA::makePtr<HDSA::Dense_Matrix<RealT> >(m_,1);
+    const Std_Vector<RealT> u_std = dynamic_cast<const Std_Vector<RealT>&>(u);
+    Std_Vector<RealT> u_grad_std = dynamic_cast<Std_Vector<RealT>&>(u_grad);
+    for(int k = 0; k < m_; k++)
+      {
+	v->Replace_Element(k,0,u_std(k)-std::pow((*x_)(k,0)+1.0,3.0));
+      }
+    HDSA::Ptr<HDSA::Dense_Matrix<RealT> > grad = HDSA::makePtr<HDSA::Dense_Matrix<RealT> >(m_,1);
+    M_->Multiply(*grad,*v);
+    for(int k = 0; k < m_; k++)
+      {
+	u_grad_std.Replace_Element(k,(*grad)(k,0));
+      }
+  }
+  
+  void Apply_Misfit_Hessian(HDSA::Vector<RealT> & u_out, const HDSA::Vector<RealT> & u_in, const HDSA::Vector<RealT> & u, const HDSA::Vector<RealT> & z) const
+  {
+    HDSA::Ptr<HDSA::Dense_Matrix<RealT> > v = HDSA::makePtr<HDSA::Dense_Matrix<RealT> >(m_,1);
+    const Std_Vector<RealT> u_in_std = dynamic_cast<const Std_Vector<RealT>&>(u_in);
+    Std_Vector<RealT> u_out_std = dynamic_cast<Std_Vector<RealT>&>(u_out);
+    for(int k = 0; k < m_; k++)
+      {
+	v->Replace_Element(k,0,u_in_std(k));
+      }
+    HDSA::Ptr<HDSA::Dense_Matrix<RealT> > Hv = HDSA::makePtr<HDSA::Dense_Matrix<RealT> >(m_,1);
+    M_->Multiply(*Hv,*v);
+    for(int k = 0; k < m_; k++)
+      {
+	u_out_std.Replace_Element(k,(*Hv)(k,0));
+      }
+  }
+  
+};
+
+#endif
