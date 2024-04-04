@@ -20,6 +20,7 @@ public:
 	x_->Replace_Element(k,0,static_cast<RealT>(k)/static_cast<RealT>(m_-1));
       }
     
+    M_ = HDSA::makePtr<HDSA::Dense_Matrix<RealT> >(m_,m_);
     M_->Replace_Element(0,0,(1.0/3.0)*h);
     M_->Replace_Element(0,1,(1.0/6.0)*h);
     for(int i = 1; i < m_-1; i++)

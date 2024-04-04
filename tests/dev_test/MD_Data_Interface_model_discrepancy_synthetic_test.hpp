@@ -12,7 +12,6 @@ public:
   MD_Data_Interface_model_discrepancy_synthetic_test()
   {  
     m_ = 51;
-    RealT h = 1.0/static_cast<RealT>(m_-1);
     x_ = HDSA::makePtr<HDSA::Dense_Matrix<RealT> >(m_,1);
     for(int k = 0; k < m_; k++)
       {

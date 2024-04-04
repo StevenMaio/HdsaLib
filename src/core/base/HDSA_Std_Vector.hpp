@@ -82,6 +82,17 @@ public:
       }
   }
 
+  void Write_to_File(std::string & name) const
+  {
+    std::ofstream fout;
+    fout.open(name);
+    for(int i = 0; i < dim_; i++)
+      {
+        fout << std::setprecision(16) << (*vec_)[i] << "  ";
+      }
+    fout.close();
+  }
+
   //////////////////////////////////////////////////////////////////////////////////
   // Function specific to this class for convenience
   //////////////////////////////////////////////////////////////////////////////////

@@ -7,13 +7,12 @@ namespace HDSA
   template <class RealT>
   class MD_Data_Interface {
 
-  private:
+  public:
     HDSA::Ptr<HDSA::Vector<RealT> > u_opt_;
     HDSA::Ptr<HDSA::Vector<RealT> > z_opt_;
     HDSA::Ptr<HDSA::MultiVector<RealT> > Z_;
     HDSA::Ptr<HDSA::MultiVector<RealT> > D_;
 
-  public:
     MD_Data_Interface()
     { }
 

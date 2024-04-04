@@ -67,6 +67,33 @@ public:
       }
   }
 
+  void randomize_standard_normal(void)
+  {
+    for(int k = 0; k < num_vecs_; k++)
+      {
+	vecs_[k]->randomize_standard_normal();
+      }
+  }
+
+  std::vector<RealT> norms(void) const
+  {
+    std::vector<RealT> n = std::vector<RealT>(num_vecs_);
+    for(int k = 0; k < num_vecs_; k++)
+      {
+	n[k] = vecs_[k]->norm();
+      }
+    return n;
+  }
+
+  void Write_to_File(std::string & name)
+  {
+    for(int k = 0; k < num_vecs_; k++)
+      {
+	std::string name_k = name + "_" + std::to_string(k+1) + ".txt";
+	vecs_[k]->Write_to_File(name_k);
+      }
+  }
+
 };
 
 }

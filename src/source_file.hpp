@@ -34,3 +34,4 @@
 #include "core/model_discrepancy/interfaces/HDSA_MD_Opt_Prob_Interface.hpp"
 #include "core/model_discrepancy/interfaces/HDSA_MD_u_Prior_Interface.hpp"
 #include "core/model_discrepancy/interfaces/HDSA_MD_z_Prior_Interface.hpp"
+#include "core/model_discrepancy/analysis/HDSA_MD_Prior_Sampling.hpp"
