@@ -35,3 +35,6 @@
 #include "core/model_discrepancy/interfaces/HDSA_MD_u_Prior_Interface.hpp"
 #include "core/model_discrepancy/interfaces/HDSA_MD_z_Prior_Interface.hpp"
 #include "core/model_discrepancy/analysis/HDSA_MD_Prior_Sampling.hpp"
+#include "core/model_discrepancy/analysis/HDSA_MD_Posterior_Vectors.hpp"
+#include "core/model_discrepancy/analysis/HDSA_MD_Posterior_Data.hpp"
+#include "core/model_discrepancy/analysis/HDSA_MD_Posterior_Sampling.hpp"

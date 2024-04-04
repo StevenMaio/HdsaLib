@@ -8,10 +8,10 @@ namespace HDSA
   class MD_Data_Interface {
 
   public:
-    HDSA::Ptr<HDSA::Vector<RealT> > u_opt_;
-    HDSA::Ptr<HDSA::Vector<RealT> > z_opt_;
-    HDSA::Ptr<HDSA::MultiVector<RealT> > Z_;
-    HDSA::Ptr<HDSA::MultiVector<RealT> > D_;
+    HDSA::Ptr<HDSA::Vector<RealT> > u_opt;
+    HDSA::Ptr<HDSA::Vector<RealT> > z_opt;
+    HDSA::Ptr<HDSA::MultiVector<RealT> > Z;
+    HDSA::Ptr<HDSA::MultiVector<RealT> > D;
 
     MD_Data_Interface()
     { }
@@ -33,10 +33,10 @@ namespace HDSA
 
     void Load_Data(void)
     {
-      u_opt_ = Load_Optimal_u();
-      z_opt_ = Load_Optimal_z();
-      Z_ = Load_Z_Data();
-      D_ = Load_D_Data();
+      u_opt = Load_Optimal_u();
+      z_opt = Load_Optimal_z();
+      Z = Load_Z_Data();
+      D = Load_D_Data();
     }
 
   };
