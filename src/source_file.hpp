@@ -13,6 +13,7 @@
 #include "core/base/HDSA_MultiVector.hpp"
 #include "core/base/HDSA_Stream.hpp"
 #include "core/base/HDSA_Randomized_GSVD.hpp"
+#include "core/base/HDSA_Randomized_GEVP.hpp"
 #include "core/base/HDSA_Hessian_Inversion.hpp"
 
 #include "core/model_discrepancy/HDSA_MD_Interface.hpp"
