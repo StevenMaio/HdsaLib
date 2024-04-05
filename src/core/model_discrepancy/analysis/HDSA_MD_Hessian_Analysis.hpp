@@ -1,0 +1,84 @@
+#ifndef HDSA_MD_HESSIAN_ANALYSIS_HPP
+#define HDSA_MD_HESSIAN_ANALYSIS_HPP
+
+namespace HDSA
+{
+
+  template <class RealT>
+  class MD_Hessian_Analysis {
+
+  private:
+    HDSA::Ptr<HDSA::MD_Opt_Prob_Interface<RealT> > opt_prob_interface_;
+    HDSA::Ptr<HDSA::MD_z_Prior_Interface<RealT> > z_prior_interface_;
+    HDSA::Ptr<HDSA::Vector<RealT> > z_current_;
+    HDSA::Ptr<HDSA::MultiVector<RealT> > evecs_;
+    HDSA::Ptr<HDSA::Dense_Matrix<RealT> > evals_;
+    bool use_projector_;
+
+  public:
+    MD_Hessian_Analysis(HDSA::Ptr<HDSA::MD_Opt_Prob_Interface<RealT> > & opt_prob_interface, HDSA::Ptr<HDSA::MD_z_Prior_Interface<RealT> > & z_prior_interface): opt_prob_interface_(opt_prob_interface), z_prior_interface_(z_prior_interface)
+    { 
+      use_projector_ = false;
+    }
+
+    virtual ~MD_Hessian_Analysis()
+    { }
+
+    void Compute_Hessian_GEVP(const HDSA::Vector<RealT> & z, const int & num_evals, const int & oversampling)
+    {
+      HDSA::Ptr<HDSA::Randomized_GEVP<RealT> > hessian_gevp = HDSA::makePtr<HDSA::Hessian_GEVP<RealT> >(opt_prob_interface_, z_prior_interface_, z);
+      evecs_ = HDSA::makePtr<HDSA::MultiVector<RealT> >(num_evals,z);
+      evals_ = HDSA::makePtr<HDSA::Dense_Matrix<RealT> >(num_evals,1);
+      z_current_ = z.clone();
+      z_current_->set(z);
+      hessian_gevp->Compute_GEVP(*evecs_,*evals_,num_evals,oversampling);
+      use_projector_ = true;
+    }
+
+    void Apply_RS_Hessian_Inverse(HDSA::Vector<RealT> & z_out, const HDSA::Vector<RealT> & z_in, const HDSA::Vector<RealT> & z) const
+    {
+      if(use_projector_)
+	{
+	  HDSA::Ptr<HDSA::Vector<RealT> > z_tmp = z.clone();
+	  z_tmp->set(z);
+	  z_tmp->axpy(-1.0,*z_current_);
+	  if(z_tmp->norm() > 0.0)
+	    {
+	      HDSA_TEST_FOR_EXCEPTION( true, std::logic_error,
+				       "The z input has changed. Need to recompute the GEVP." << std::endl);
+	    }
+	  else
+	    {
+	      Apply_Projected_RS_Hessian_Inverse(z_out,z_in);
+	    }
+	}
+      else
+	{
+	  Apply_RS_Hessian_Inverse_Krylov(z_out,z_in,z);
+	}
+
+    }
+
+    void Apply_Projected_RS_Hessian_Inverse(HDSA::Vector<RealT> & z_out, const HDSA::Vector<RealT> & z_in) const
+    {
+      HDSA::Ptr<HDSA::Dense_Matrix<RealT> > coeffs = evecs_->MatVec(z_in);
+      z_out.zeros();
+      int r = evecs_->Number_of_Vectors();
+      for(int k = 0; k < r; k++)
+	{
+	  RealT val = (*coeffs)(k,0)/(*evals_)(k,0);
+	  z_out.axpy(val,*(*evecs_)[k]);
+	}
+    }
+
+    void Apply_RS_Hessian_Inverse_Krylov(HDSA::Vector<RealT> & z_out, const HDSA::Vector<RealT> & z_in, const HDSA::Vector<RealT> & z) const
+    {
+      // Need to interface with "HDSA_Hessian_Inversion" class to implement iterative solver
+      z_out.set(z_in);
+    }
+
+  };
+
+}
+
+#endif

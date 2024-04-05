@@ -94,6 +94,11 @@ int main(int argc, char *argv[]) {
   name = "posterior_discrepancy_samples_3";
   post_discrepancy_samples[2]->samples->Write_to_File(name);
 
+  HDSA::Ptr<HDSA::MD_Hessian_Analysis<RealT> > hessian_analysis = HDSA::makePtr<HDSA::MD_Hessian_Analysis<RealT> >(opt_prob_interface,z_prior_interface);
+  
+  int num_evals = 5;
+  int oversampling = 10;
+  hessian_analysis->Compute_Hessian_GEVP(*data_interface->z_opt,num_evals,oversampling);
 
   return 0;
 }

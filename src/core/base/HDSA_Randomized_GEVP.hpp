@@ -35,7 +35,7 @@ namespace HDSA
       vec_out.set(vec_in);
     }
 
-    void Compute_GEVP(HDSA::MultiVector<RealT> & evecs, HDSA::Dense_Matrix<RealT> & evals, int & num_evals, int & oversampling)
+    void Compute_GEVP(HDSA::MultiVector<RealT> & evecs, HDSA::Dense_Matrix<RealT> & evals, const int & num_evals, const int & oversampling)
     {
       int kpp = num_evals + oversampling;
 
