@@ -32,14 +32,15 @@ namespace HDSA
       post_data->Compute_Posterior_Data(*data_interface_,*u_prior_interface_,*z_prior_interface_,alpha_d,num_samples);
     }
 
-    HDSA::Ptr<HDSA::MD_Posterior_Vectors<RealT> > Posterior_Discrepancy_Samples(std::vector<HDSA::Ptr<HDSA::Vector<RealT> > > & z) const
+    std::vector<HDSA::Ptr<HDSA::MD_Posterior_Vectors<RealT> > > Posterior_Discrepancy_Samples(std::vector<HDSA::Ptr<HDSA::Vector<RealT> > > & z) const
     {
       int p = z.size();
-      HDSA::Ptr<HDSA::MD_Posterior_Vectors<RealT> > delta = HDSA::makePtr<HDSA::MD_Posterior_Vectors<RealT> >(p,*z[0]);
+      std::vector<HDSA::Ptr<HDSA::MD_Posterior_Vectors<RealT> > > delta;
+      delta.resize(p);
       
-      HDSA::Ptr<HDSA::MultiVector<RealT> > Zc = HDSA::makePtr<HDSA::MultiVector<RealT> >(p-1,*z[0]);
-      HDSA::Ptr<HDSA::MultiVector<RealT> > W_z_inv_Zc =HDSA::makePtr<HDSA::MultiVector<RealT> >(p-1,*z[0]);
-      for(int k = 0; k < p-1; k++)
+      HDSA::Ptr<HDSA::MultiVector<RealT> > Zc = HDSA::makePtr<HDSA::MultiVector<RealT> >(post_data->N-1,*z[0]);
+      HDSA::Ptr<HDSA::MultiVector<RealT> > W_z_inv_Zc =HDSA::makePtr<HDSA::MultiVector<RealT> >(post_data->N-1,*z[0]);
+      for(int k = 0; k < post_data->N-1; k++)
 	{
 	  (*Zc)[k]->set(*(*post_data->Z)[k+1]);
 	  (*Zc)[k]->axpy(-1.0,*data_interface_->z_opt);
@@ -47,17 +48,84 @@ namespace HDSA
 	  (*W_z_inv_Zc)[k]->set(*(*post_data->W_z_inv_Z)[k+1]);
 	  (*W_z_inv_Zc)[k]->axpy(-1.0,*post_data->W_z_inv_z_opt);
 	}
-
       HDSA::Ptr<HDSA::Dense_Matrix<RealT> > Zc_W_z_inv_Zc = Zc->MatMat(*W_z_inv_Zc);
 
       for(int k = 0; k < p; k++)
 	{
-	  HDSA::Ptr<HDSA::Vector<RealT> > dz = z[k]->clone();
-	  dz->set(*z[k]);
-	  dz->axpy(-1.0,*post_data->W_z_inv_z_opt);
+	  delta[k] = HDSA::makePtr<HDSA::MD_Posterior_Vectors<RealT> >(post_data->num_samples,*z[k]);
+	  HDSA::Ptr<HDSA::Vector<RealT> > delta_mean_k = delta[k]->mean;
+	  HDSA::Ptr<HDSA::MultiVector<RealT> > delta_samples_k = delta[k]->samples;
 
-	  // Continue implementation at line 85 of the Sabl version
+	  HDSA::Ptr<HDSA::Vector<RealT> > dz_k = z[k]->clone();
+	  dz_k->set(*z[k]);
+	  dz_k->axpy(-1.0,*data_interface_->z_opt);
 
+	  for(int ell = 0; ell < post_data->N; ell++)
+	    {
+	      RealT coeff = 1.0 + (*post_data->W_z_inv_Z)[ell]->dot(*dz_k) - post_data->W_z_inv_z_opt->dot(*dz_k);
+	      delta_mean_k->axpy(coeff,*(*post_data->u_ell)[ell]);
+	    }
+
+	  for(int i = 0; i < post_data->N; i++)
+	    {
+
+	      // Compute sum(g_i)
+	      RealT sgi = 0.0;
+	      for(int j = 0; j < post_data->N; j++)
+		{
+		  sgi += (*post_data->g_vecs)(j,i);
+		}
+
+	      // Compute W_z_inv_yi
+	      HDSA::Ptr<HDSA::Vector<RealT> > W_z_inv_yi = dz_k->clone();
+	      W_z_inv_yi->axpy(-sgi,*post_data->W_z_inv_z_opt);
+	      for(int j = 0; j < post_data->N; j++)
+		{
+		  W_z_inv_yi->axpy((*post_data->g_vecs)(j,i),*(*post_data->W_z_inv_Z)[j]);
+		}
+
+	      // Add terms to delta_mean_k
+	      RealT dz_k_W_z_inv_yi = W_z_inv_yi->dot(*dz_k);
+	      for(int ell = 0; ell < post_data->N; ell++)
+		{
+		  RealT coeff = (*post_data->b_i_ell)(i,ell)*(sgi + dz_k_W_z_inv_yi);
+		  delta_mean_k->axpy(-coeff,*(*post_data->u_i_ell[i])[ell]);
+		}
+
+	      // Add delta_hat terms to delta_samples_k
+	      RealT coeff = (1.0/std::sqrt((*post_data->Mu)(i,0)))*(sgi + dz_k_W_z_inv_yi);
+	      delta_samples_k->axpy(coeff,*post_data->u_i_hat[i]);
+	    }
+	  delta_mean_k->scale(1.0/post_data->alpha_d);
+	  delta_samples_k->scale(std::sqrt(post_data->alpha_d));
+
+	  // Add delta_breve terms to delta_samples_k
+	  HDSA::Ptr<HDSA::Vector<RealT> > W_z_inv_dz_k = dz_k->clone();
+	  z_prior_interface_->Apply_W_z_Inverse(*W_z_inv_dz_k,*dz_k);
+	  
+	  // Compute z_tmp = dz_k - Zc * linsolve(Zc_W_z_inv_Zc, Zc' * W_z_inv_dz_k)  
+	  HDSA::Ptr<HDSA::Vector<RealT> > z_tmp = dz_k->clone();
+	  z_tmp->set(*dz_k);
+	  
+	  HDSA::Ptr<HDSA::Dense_Matrix<RealT> > b = Zc->MatVec(*W_z_inv_dz_k);
+	  HDSA::Ptr<HDSA::Dense_Matrix<RealT> > x = HDSA::makePtr<HDSA::Dense_Matrix<RealT> >(post_data->N-1,1);
+	  HDSA::Linear_Algebra::Symmetric_Direct_Linear_Solve<RealT>(*Zc_W_z_inv_Zc, *x, *b);
+	  for(int j = 0; j < post_data->N-1; j++)
+	    {
+	      z_tmp->axpy(-(*x)(j,0),*(*Zc)[j]);
+	    }
+	  
+	  RealT tmp = W_z_inv_dz_k->dot(*z_tmp);
+	  if(tmp < -1.e-13)
+	    {
+	      HDSA_TEST_FOR_EXCEPTION( true, std::logic_error,
+				       "Error in posterior sampling" << std::endl);
+	    }
+	  RealT breve_coeff = std::sqrt(std::abs(tmp));
+	  delta_samples_k->axpy(breve_coeff,*post_data->u_breve);
+
+	  // Add delta_mean term to delta_samples_k
+	  delta_samples_k->axpy(1.0,*delta_mean_k);
 
 	}
 

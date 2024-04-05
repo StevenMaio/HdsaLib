@@ -85,6 +85,35 @@ public:
     return n;
   }
 
+  void axpy(const RealT & alpha, const HDSA::MultiVector<RealT> & y)
+  {
+    if(y.Number_of_Vectors() != num_vecs_)
+      {
+	HDSA_TEST_FOR_EXCEPTION( true, std::logic_error,
+				 "Called axpy on HDSA::MultiVector, but x and y do not have the same number of vectors" << std::endl);
+      }
+    for(int k = 0; k < num_vecs_; k++)
+      {
+	vecs_[k]->axpy(alpha,*y[k]);
+      }
+  }
+
+  void axpy(const RealT & alpha, const HDSA::Vector<RealT> & y)
+  {
+    for(int k = 0; k < num_vecs_; k++)
+      {
+	vecs_[k]->axpy(alpha,y);
+      }
+  }
+
+  void scale(const RealT & alpha)
+  {
+    for(int k = 0; k < num_vecs_; k++)
+      {
+	vecs_[k]->scale(alpha);
+      }
+  }
+
   void Write_to_File(std::string & name)
   {
     for(int k = 0; k < num_vecs_; k++)

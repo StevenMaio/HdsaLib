@@ -38,14 +38,15 @@ int main(int argc, char *argv[]) {
     {
       x->Replace_Element(k,0,static_cast<RealT>(k)/static_cast<RealT>(m-1));
     }
+  RealT pi = 3.14159265358979323846;
   for(int k = 0; k < m; k++)
     {
-      z0_std.Replace_Element(k,(*x)(k,0)+1.5);
-      z1_std.Replace_Element(k,(*x)(k,0) + std::pow((*x)(k,0),2.0));
-      z2_std.Replace_Element(k,(*x)(k,0) + std::pow((*x)(k,0),2.0) - 2.0);
+      z0_std.Replace_Element(k,(*x)(k,0));
+      z1_std.Replace_Element(k,1.0 + std::pow((*x)(k,0),2.0));
+      z2_std.Replace_Element(k,std::sin(2*pi*(*x)(k,0)));
     }
 
-  int num_prior_samples = 10;
+  int num_prior_samples = 100;
   std::vector<HDSA::Ptr<HDSA::MultiVector<RealT> > > prior_samples = prior_sampling->Prior_Discrepancy_Samples(*z,num_prior_samples);
 
   for(int i = 0; i < num_prior_samples; i++)
@@ -62,19 +63,37 @@ int main(int argc, char *argv[]) {
 
   HDSA::Ptr<HDSA::MD_Posterior_Sampling<RealT> > post_sampling = HDSA::makePtr<HDSA::MD_Posterior_Sampling<RealT> >(data_interface,u_prior_interface,z_prior_interface);
   RealT alpha_d = 1.e-5;
-  int num_post_samples = 10;
+  int num_post_samples = 100;
   post_sampling->Compute_Posterior_Data(alpha_d,num_post_samples);
 
   std::vector<HDSA::Ptr<HDSA::Vector<RealT> > > z_test;
   z_test.resize(3);
   z_test[0] = z0->clone();
-  z_test[0]->randomize_standard_normal();
+  z_test[0]->set(*(*data_interface->Z)[0]);
   z_test[1] = z0->clone();
-  z_test[1]->randomize_standard_normal();
+  z_test[1]->set(*(*data_interface->Z)[1]);
   z_test[2] = z0->clone();
-  z_test[2]->randomize_standard_normal();
+  Std_Vector<RealT> ztest2_std = dynamic_cast<Std_Vector<RealT>&>(*z_test[2]);
+  for(int k = 0; k < m; k++)
+    {
+      ztest2_std.Replace_Element(k,1.5);
+    }
 
-  HDSA::Ptr<HDSA::MD_Posterior_Vectors<RealT> > post_discrepancy_samples = post_sampling->Posterior_Discrepancy_Samples(z_test);
+  std::vector<HDSA::Ptr<HDSA::MD_Posterior_Vectors<RealT> > > post_discrepancy_samples = post_sampling->Posterior_Discrepancy_Samples(z_test);
+
+  name = "posterior_discrepancy_mean_1.txt";
+  post_discrepancy_samples[0]->mean->Write_to_File(name);
+  name = "posterior_discrepancy_mean_2.txt";
+  post_discrepancy_samples[1]->mean->Write_to_File(name);
+  name = "posterior_discrepancy_mean_3.txt";
+  post_discrepancy_samples[2]->mean->Write_to_File(name);
+  name = "posterior_discrepancy_samples_1";
+  post_discrepancy_samples[0]->samples->Write_to_File(name);
+  name = "posterior_discrepancy_samples_2";
+  post_discrepancy_samples[1]->samples->Write_to_File(name);
+  name = "posterior_discrepancy_samples_3";
+  post_discrepancy_samples[2]->samples->Write_to_File(name);
+
 
   return 0;
 }

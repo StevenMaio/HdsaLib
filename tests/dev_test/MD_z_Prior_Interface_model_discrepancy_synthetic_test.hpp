@@ -106,7 +106,7 @@ public:
         b->Replace_Element(k,0,z_in_std(k));
       }
     HDSA::Ptr<HDSA::Dense_Matrix<RealT> > x = HDSA::makePtr<HDSA::Dense_Matrix<RealT> >(m_,1);
-    HDSA::Linear_Algebra::Upper_Tri_Solve<RealT>(*R,*x,*b);
+    HDSA::Linear_Algebra::Upper_Tri_Solve<RealT>(*x,*b,*R);
     for(int k = 0; k < m_; k++)
       {
         z_out_std.Replace_Element(k,(*x)(k,0));

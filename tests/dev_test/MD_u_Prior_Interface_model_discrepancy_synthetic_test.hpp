@@ -111,7 +111,7 @@ public:
 	    Wu_beta_Mu->Replace_Element(i,j,(*W_u_)(i,j) + beta*(*M_)(i,j));
 	  }
       }
-    HDSA::Linear_Algebra::Symmetric_Direct_Linear_Solve<RealT>(*Wu_beta_Mu,*x_,*b);
+    HDSA::Linear_Algebra::Symmetric_Direct_Linear_Solve<RealT>(*Wu_beta_Mu,*x,*b);
     for(int k = 0; k < m_; k++)
       {
 	u_out_std.Replace_Element(k,(*x)(k,0));
@@ -128,7 +128,7 @@ public:
         b->Replace_Element(k,0,u_in_std(k));
       }
     HDSA::Ptr<HDSA::Dense_Matrix<RealT> > x = HDSA::makePtr<HDSA::Dense_Matrix<RealT> >(m_,1);
-    HDSA::Linear_Algebra::Symmetric_Direct_Linear_Solve<RealT>(*W_u_,*x_,*b);
+    HDSA::Linear_Algebra::Symmetric_Direct_Linear_Solve<RealT>(*W_u_,*x,*b);
     for(int k = 0; k < m_; k++)
       {
         u_out_std.Replace_Element(k,(*x)(k,0));

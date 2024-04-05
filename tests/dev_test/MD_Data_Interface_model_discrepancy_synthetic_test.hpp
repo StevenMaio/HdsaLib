@@ -73,8 +73,8 @@ public:
 
     for(int k = 0; k < m_; k++)
       {
-	d0_std.Replace_Element(k,0.2*std::pow((*x_)(k,0)+1.0,2.0));
-	d1_std.Replace_Element(k,0.2*std::pow((*x_)(k,0) + std::pow((*x_)(k,0),2.0),2.0));
+	d0_std.Replace_Element(k,0.2*std::pow((*x_)(k,0)+1.0,3.0));
+	d1_std.Replace_Element(k,0.2*std::pow((*x_)(k,0) + std::pow((*x_)(k,0),2.0),3.0));
       }
     return D;
   }

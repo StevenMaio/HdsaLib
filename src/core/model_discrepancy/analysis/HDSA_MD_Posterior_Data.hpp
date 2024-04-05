@@ -81,9 +81,11 @@ namespace HDSA
       u_ell = HDSA::makePtr<HDSA::MultiVector<RealT> >(N,*(*D)[0]);      
       for(int ell = 0; ell < N; ell++)
 	{
-	  HDSA::Ptr<HDSA::Vector<RealT> > yl = (*D)[ell];
+	  HDSA::Ptr<HDSA::Vector<RealT> > dl = (*D)[ell];
 	  HDSA::Ptr<HDSA::Vector<RealT> > ul = (*u_ell)[ell];
-	  u_prior_interface.Apply_W_u_Inverse(*ul,*yl);
+	  HDSA::Ptr<HDSA::Vector<RealT> > u_tmp = ul->clone();
+	  u_prior_interface.Apply_M_u(*u_tmp,*dl);
+	  u_prior_interface.Apply_W_u_Inverse(*ul,*u_tmp);
 	}
 
       u_i_ell.resize(N);
@@ -94,7 +96,9 @@ namespace HDSA
 	    {
 	      HDSA::Ptr<HDSA::Vector<RealT> > uil = (*u_i_ell[i])[ell];
 	      HDSA::Ptr<HDSA::Vector<RealT> > ul = (*u_ell)[ell];
-	      u_prior_interface.Apply_W_u_Plus_scalar_M_u_Inverse(*uil,*ul,(*Mu)(i,0)/alpha_d);
+	      HDSA::Ptr<HDSA::Vector<RealT> > u_tmp = ul->clone();
+	      u_prior_interface.Apply_M_u(*u_tmp,*ul);
+	      u_prior_interface.Apply_W_u_Plus_scalar_M_u_Inverse(*uil,*u_tmp,(*Mu)(i,0)/alpha_d);
 	      uil->scale(1.0/alpha_d);
 	    }
 	}
