@@ -51,12 +51,12 @@ int main(int argc, char *argv[]) {
 
   for(int i = 0; i < num_prior_samples; i++)
     {
-      std::string name = "delta_sample_" + std::to_string(i+1) + "_evaluated_at_z";
+      std::string name = "prior_discrepancy_evaluated_at_z_" + std::to_string(i+1);
       prior_samples[i]->Write_to_File(name);
     }
 
   HDSA::Ptr<HDSA::MultiVector<RealT> > prior_samples_at_z_opt = prior_sampling->Prior_Discrepancy_Samples_at_z_opt(num_prior_samples);
-  std::string name = "delta_sample_evaluated_at_z_opt";
+  std::string name = "prior_discrepancy_evaluated_at_z_opt";
   prior_samples_at_z_opt->Write_to_File(name);
     
   HDSA::Ptr<HDSA::MD_Posterior_Data<RealT> > post_data = HDSA::makePtr<HDSA::MD_Posterior_Data<RealT> >();
@@ -96,9 +96,17 @@ int main(int argc, char *argv[]) {
 
   HDSA::Ptr<HDSA::MD_Hessian_Analysis<RealT> > hessian_analysis = HDSA::makePtr<HDSA::MD_Hessian_Analysis<RealT> >(opt_prob_interface,z_prior_interface);
   
-  int num_evals = 5;
-  int oversampling = 10;
-  hessian_analysis->Compute_Hessian_GEVP(*data_interface->z_opt,num_evals,oversampling);
+  //int num_evals = 5;
+  //int oversampling = 10;
+  //hessian_analysis->Compute_Hessian_GEVP(*data_interface->z_opt,num_evals,oversampling);
+
+  HDSA::Ptr<HDSA::MD_Update<RealT> > update = HDSA::makePtr<HDSA::MD_Update<RealT> >(data_interface,u_prior_interface,z_prior_interface,opt_prob_interface,post_sampling,hessian_analysis);
+ 
+  HDSA::Ptr<HDSA::MD_Posterior_Vectors<RealT> > posterior_update_samples = update->Posterior_Update_Samples();
+  name = "posterior_update_mean.txt";
+  posterior_update_samples->mean->Write_to_File(name);
+  name = "posterior_update_samples";
+  posterior_update_samples->samples->Write_to_File(name);
 
   return 0;
 }

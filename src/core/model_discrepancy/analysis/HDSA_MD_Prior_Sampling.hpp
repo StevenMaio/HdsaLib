@@ -26,7 +26,7 @@ namespace HDSA
       for(int i = 0; i < num_samples; i++)
 	{
 	  // Apply W_u^{-1} to random vector                   
-	  HDSA::Ptr<HDSA::Vector<RealT> > u_in = data_interface_->u_opt;
+	  HDSA::Ptr<HDSA::Vector<RealT> > u_in = data_interface_->u_opt->clone();
 	  u_in->randomize_standard_normal();
 	  HDSA::Ptr<HDSA::Vector<RealT> > u_out = (*delta_samples)[i];
 	  u_prior_interface_->Apply_W_u_Inverse_Factor(*u_out,*u_in);

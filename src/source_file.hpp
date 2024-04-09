@@ -19,7 +19,7 @@
 #include "core/model_discrepancy/HDSA_MD_Interface.hpp"
 #include "core/model_discrepancy/HDSA_MD_Interface_Elliptic_Prior.hpp"
 #include "core/model_discrepancy/HDSA_Bayes_Posterior_Data.hpp"
-#include "core/model_discrepancy/HDSA_MD_Update.hpp"
+//#include "core/model_discrepancy/HDSA_MD_Update.hpp"
 
 #include "../interfaces/rol/HDSA_ROL_Vector.hpp"
 #include "../interfaces/rol/HDSA_ROL_MD_Interface.hpp"
@@ -41,3 +41,4 @@
 #include "core/model_discrepancy/analysis/HDSA_MD_Posterior_Data.hpp"
 #include "core/model_discrepancy/analysis/HDSA_MD_Posterior_Sampling.hpp"
 #include "core/model_discrepancy/analysis/HDSA_MD_Hessian_Analysis.hpp"
+#include "core/model_discrepancy/analysis/HDSA_MD_Update.hpp"

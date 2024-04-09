@@ -8,10 +8,10 @@ namespace HDSA
   class MD_Data_Interface {
 
   public:
-    HDSA::Ptr<HDSA::Vector<RealT> > u_opt;
-    HDSA::Ptr<HDSA::Vector<RealT> > z_opt;
-    HDSA::Ptr<HDSA::MultiVector<RealT> > Z;
-    HDSA::Ptr<HDSA::MultiVector<RealT> > D;
+    HDSA::Ptr<const HDSA::Vector<RealT> > u_opt;
+    HDSA::Ptr<const HDSA::Vector<RealT> > z_opt;
+    HDSA::Ptr<const HDSA::MultiVector<RealT> > Z;
+    HDSA::Ptr<const HDSA::MultiVector<RealT> > D;
 
     MD_Data_Interface()
     { }

@@ -13,11 +13,11 @@ private:
   bool verbose_;
 
 public:
-  Hessian_Inversion() 
+  Hessian_Inversion(RealT tol = 1.e-8, std::string solver = "CG", bool verbose = false) 
   {
-    tol_ = 1.e-8;
-    solver_ = "GMRES";
-    verbose_ = false;
+    tol_ = tol;
+    solver_ = solver;
+    verbose_ = verbose;
   }
 
   virtual ~Hessian_Inversion()

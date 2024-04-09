@@ -14,11 +14,13 @@ namespace HDSA
     HDSA::Ptr<HDSA::MultiVector<RealT> > evecs_;
     HDSA::Ptr<HDSA::Dense_Matrix<RealT> > evals_;
     bool use_projector_;
+    HDSA::Ptr<HDSA::Hessian_Inversion<RealT> > hess_invert_;
 
   public:
-    MD_Hessian_Analysis(HDSA::Ptr<HDSA::MD_Opt_Prob_Interface<RealT> > & opt_prob_interface, HDSA::Ptr<HDSA::MD_z_Prior_Interface<RealT> > & z_prior_interface): opt_prob_interface_(opt_prob_interface), z_prior_interface_(z_prior_interface)
+    MD_Hessian_Analysis(const HDSA::Ptr<HDSA::MD_Opt_Prob_Interface<RealT> > & opt_prob_interface, const HDSA::Ptr<HDSA::MD_z_Prior_Interface<RealT> > & z_prior_interface): opt_prob_interface_(opt_prob_interface), z_prior_interface_(z_prior_interface)
     { 
       use_projector_ = false;
+      hess_invert_ = HDSA::makePtr<MD_Hessian_Inversion<RealT> >(opt_prob_interface);
     }
 
     virtual ~MD_Hessian_Analysis()
@@ -73,9 +75,28 @@ namespace HDSA
 
     void Apply_RS_Hessian_Inverse_Krylov(HDSA::Vector<RealT> & z_out, const HDSA::Vector<RealT> & z_in, const HDSA::Vector<RealT> & z) const
     {
-      // Need to interface with "HDSA_Hessian_Inversion" class to implement iterative solver
-      z_out.set(z_in);
+      hess_invert_->Apply_RS_Hessian_Inverse(z_out,z_in,z);
     }
+
+    template <class ScalarType>
+    class MD_Hessian_Inversion : public HDSA::Hessian_Inversion<ScalarType>
+    {
+    private:
+      HDSA::Ptr<HDSA::MD_Opt_Prob_Interface<ScalarType> > opt_prob_interface_;
+
+    public:
+      MD_Hessian_Inversion(const HDSA::Ptr<HDSA::MD_Opt_Prob_Interface<ScalarType> > opt_prob_interface): opt_prob_interface_(opt_prob_interface)
+      { }
+
+      ~MD_Hessian_Inversion()
+      {}
+
+      void Apply_RS_Hessian(HDSA::Vector<RealT> & z_out, const HDSA::Vector<RealT> & z_in, const HDSA::Vector<RealT> & z) const
+      {
+	opt_prob_interface_->Apply_RS_Hessian(z_out,z_in,z);
+      }
+
+    };
 
   };
 
