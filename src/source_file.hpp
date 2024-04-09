@@ -16,13 +16,8 @@
 #include "core/base/HDSA_Randomized_GEVP.hpp"
 #include "core/base/HDSA_Hessian_Inversion.hpp"
 
-#include "core/model_discrepancy/HDSA_MD_Interface.hpp"
-#include "core/model_discrepancy/HDSA_MD_Interface_Elliptic_Prior.hpp"
-#include "core/model_discrepancy/HDSA_Bayes_Posterior_Data.hpp"
-//#include "core/model_discrepancy/HDSA_MD_Update.hpp"
-
-#include "../interfaces/rol/HDSA_ROL_Vector.hpp"
-#include "../interfaces/rol/HDSA_ROL_MD_Interface.hpp"
+//#include "../interfaces/rol/HDSA_ROL_Vector.hpp"
+//#include "../interfaces/rol/HDSA_ROL_MD_Interface.hpp"
 
 //#include "../interfaces/mrhyde/Mrhyde_userInterface.hpp"
 //#include "../interfaces/mrhyde/HDSA_Vector_Mrhyde.hpp"
