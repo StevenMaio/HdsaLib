@@ -30,6 +30,13 @@ namespace HDSA
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////                                                                      
     // Virtual functions which must be implemented to enable the Hessian GEVP 
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////  
+
+    // Compute samples from a mean zero Gaussian with covariance W_z^{-1}                                                                                                                                                              
+    virtual void Sample_with_Covariance_W_z_Inverse(HDSA::MultiVector<RealT> & samples) const
+    {
+      HDSA_TEST_FOR_EXCEPTION( true, std::logic_error,
+                               "Sample_with_Covariance_W_z_Inverse must be implemented to use sampling algorithms" << std::endl);
+    }   
     
     virtual void Apply_E_z(HDSA::Vector<RealT> & z_out, const HDSA::Vector<RealT> & z_in) const 
     {
@@ -72,13 +79,6 @@ namespace HDSA
       Apply_E_z_Transpose(z_out,*z_tmp2);
       z_out.scale(1.0/alpha_z_);
     }
-
-    // Factorize W_z^{-1} = F*F^T and compute the matvec z_out = F*z_in                                                                                                                              
-    virtual void Apply_W_z_Inverse_Factor(HDSA::Vector<RealT> & z_out, const HDSA::Vector<RealT> & z_in) const
-    {
-
-    }
-
 
   };
 

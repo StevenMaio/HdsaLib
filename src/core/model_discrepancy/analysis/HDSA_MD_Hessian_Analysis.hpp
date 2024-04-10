@@ -147,10 +147,17 @@ namespace HDSA
 	vec_out.scale(normalization_coeff_);
       }
 
-      void Apply_Weighting_Operator_Preconditioner_Factor(HDSA::Vector<ScalarType> & vec_out, const HDSA::Vector<ScalarType> & vec_in)
+      void Generate_Random_Samples(HDSA::MultiVector<RealT> & samples) const 
       {
-	z_prior_interface_->Apply_W_z_Inverse_Factor(vec_out,vec_in);
-	vec_out.scale(std::sqrt(normalization_coeff_));
+	z_prior_interface_->Sample_with_Covariance_W_z_Inverse(samples);
+	if( samples[0]->norm() > 0.0 )
+	  {
+	    samples.scale(std::sqrt(normalization_coeff_));
+	  }
+	else
+	  {
+	    samples.randomize_standard_normal();
+	  }
       }
 
     };

@@ -28,25 +28,19 @@ namespace HDSA
 
     virtual void Apply_Weighting_Operator_Inverse(HDSA::Vector<RealT> & vec_out, const HDSA::Vector<RealT> & vec_in) const = 0;
 
-    // Defaults to identity
-    // Ideally, we for a weighting operator W, this function should apply vec_out = F*vec_in, where W^{-1} = F*F^T
-    virtual void Apply_Weighting_Operator_Preconditioner_Factor(HDSA::Vector<RealT> & vec_out, const HDSA::Vector<RealT> & vec_in)
-    {
-      vec_out.set(vec_in);
-    }
-
+    virtual void Generate_Random_Samples(HDSA::MultiVector<RealT> & samples) const = 0;
+  
     void Compute_GEVP(HDSA::MultiVector<RealT> & evecs, HDSA::Dense_Matrix<RealT> & evals, const int & num_evals, const int & oversampling)
     {
       int kpp = num_evals + oversampling;
 
       HDSA::Ptr<HDSA::MultiVector<RealT> > Y = HDSA::makePtr<HDSA::MultiVector<RealT> >(kpp,*vec_);   
+      HDSA::Ptr<HDSA::MultiVector<RealT> > tmp = HDSA::makePtr<HDSA::MultiVector<RealT> >(kpp,*vec_);
+      Generate_Random_Samples(*tmp);
       for(int k = 0; k < kpp; k++)
       	{
 	  HDSA::Ptr<HDSA::Vector<RealT> >  vec_tmp1 = vec_->clone();
-	  HDSA::Ptr<HDSA::Vector<RealT> > vec_tmp2 = vec_->clone();
-	  vec_tmp1->randomize_standard_normal();
-	  Apply_Weighting_Operator_Preconditioner_Factor(*vec_tmp2,*vec_tmp1);
-	  Apply_Operator(*vec_tmp1,*vec_tmp2);
+	  Apply_Operator(*vec_tmp1,*(*tmp)[k]);
 	  Apply_Weighting_Operator_Inverse(*(*Y)[k],*vec_tmp1);
       	}
 

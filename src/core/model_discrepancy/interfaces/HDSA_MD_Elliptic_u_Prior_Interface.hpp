@@ -72,16 +72,16 @@ namespace HDSA
       u_out.scale(alpha_u_);
     }
 
-    // Factorize W_u^{-1} = F*F^T and compute the matvec u_out = F*u_in
-    virtual void Apply_W_u_Inverse_Factor(HDSA::Vector<RealT> & u_out, const HDSA::Vector<RealT> & u_in) const 
+    // Compute samples from a mean zero Gaussian with covariance W_u^{-1}                                                                                                                                                                                    
+    virtual void Sample_with_Covariance_W_u_Inverse(HDSA::MultiVector<RealT> & samples) const
     {
 
     }
 
-    // Factorize (W_u+scalar*M_u)^{-1} = F*F^T and compute the matvec u_out = F*u_in                                                                                                              
-    virtual void Apply_W_u_Plus_scalar_M_u_Inverse_Factor(HDSA::Vector<RealT> & u_out, const HDSA::Vector<RealT> & u_in, const RealT & beta) const
+    // Compute samples from a mean zero Gaussian with covariance W_u^{-1}                                                                                                                                                                                  
+    virtual void Sample_with_Covariance_W_u_Plus_scalar_M_u_Inverse(HDSA::MultiVector<RealT> & samples, const RealT & scalar) const
     {
-
+    
     }
 
     template <class ScalarType>

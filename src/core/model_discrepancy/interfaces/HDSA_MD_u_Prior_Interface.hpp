@@ -27,21 +27,21 @@ namespace HDSA
     virtual void Apply_W_u_Inverse(HDSA::Vector<RealT> & u_out, const HDSA::Vector<RealT> & u_in) const = 0;
 
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////                                                                                                                
-    // Virtual functions which must be implemented to enable posterior sampling                                                                                                                                                                                                     
+    // Virtual functions which must be implemented to enable posterior sampling                                                                                                                                                                             
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////  
     
-    // Factorize W_u^{-1} = F*F^T and compute the matvec u_out = F*u_in
-    virtual void Apply_W_u_Inverse_Factor(HDSA::Vector<RealT> & u_out, const HDSA::Vector<RealT> & u_in) const 
+    // Compute samples from a mean zero Gaussian with covariance W_u^{-1}
+    virtual void Sample_with_Covariance_W_u_Inverse(HDSA::MultiVector<RealT> & samples) const
     {
       HDSA_TEST_FOR_EXCEPTION( true, std::logic_error,
-			       "The method Apply_W_u_Inverse_Factor was called, but not implemented" << std::endl);
+			       "The method Sample_with_Covariance_W_u_Inverse was called, but not implemented" << std::endl);
     }
 
-    // Factorize (W_u+scalar*M_u)^{-1} = F*F^T and compute the matvec u_out = F*u_in                                                                                                                                                                                                           
-    virtual void Apply_W_u_Plus_scalar_M_u_Inverse_Factor(HDSA::Vector<RealT> & u_out, const HDSA::Vector<RealT> & u_in, const RealT & beta) const
+    // Compute samples from a mean zero Gaussian with covariance W_u^{-1}                                                                                                                                                                               
+    virtual void Sample_with_Covariance_W_u_Plus_scalar_M_u_Inverse(HDSA::MultiVector<RealT> & samples, const RealT & scalar) const
     {
       HDSA_TEST_FOR_EXCEPTION( true, std::logic_error,
-                               "Apply_W_u_Plus_scalar_M_u_Inverse_Factor must be implemented to use the sampling algorithms" << std::endl);
+                               "The method Sample_with_Covariance_W_u_Plus_scalar_M_u_Inverse was called, but not implemented" << std::endl);
     }
 
   };

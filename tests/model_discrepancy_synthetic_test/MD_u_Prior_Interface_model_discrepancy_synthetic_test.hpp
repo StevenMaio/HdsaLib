@@ -135,36 +135,42 @@ public:
       }
   }
 
-  // Factorize W_u^{-1} = F*F^T and compute the matvec u_out = F*u_in                                                                                                                                                                                                                                                                                             
-  virtual void Apply_W_u_Inverse_Factor(HDSA::Vector<RealT> & u_out, const HDSA::Vector<RealT> & u_in) const
+  // Compute samples from a mean zero Gaussian with covariance W_u^{-1}                                                                                                                                                                                                     
+  virtual void Sample_with_Covariance_W_u_Inverse(HDSA::MultiVector<RealT> & samples) const
   {
-    HDSA::Ptr<HDSA::Dense_Matrix<RealT> > R = HDSA::makePtr<HDSA::Dense_Matrix<RealT> >(m_,m_); 
+    HDSA::Ptr<HDSA::Dense_Matrix<RealT> > R = HDSA::makePtr<HDSA::Dense_Matrix<RealT> >(m_,m_);
     HDSA::Linear_Algebra::Cholesky_Factorization(*W_u_,*R);
 
-    HDSA::Ptr<HDSA::Dense_Matrix<RealT> > b = HDSA::makePtr<HDSA::Dense_Matrix<RealT> >(m_,1);
-    const Std_Vector<RealT>& u_in_std = dynamic_cast<const Std_Vector<RealT>&>(u_in);
-    Std_Vector<RealT>& u_out_std = dynamic_cast<Std_Vector<RealT>&>(u_out);
-    for(int k = 0; k < m_; k++)
+    int num_samples = samples.Number_of_Vectors();
+    for(int i = 0; i < num_samples; i++)
       {
-        b->Replace_Element(k,0,u_in_std(k));
-      }
-    HDSA::Ptr<HDSA::Dense_Matrix<RealT> > x = HDSA::makePtr<HDSA::Dense_Matrix<RealT> >(m_,1);
-    HDSA::Linear_Algebra::Upper_Tri_Solve<RealT>(*x,*b,*R);
-    for(int k = 0; k < m_; k++)
-      {
-        u_out_std.Replace_Element(k,(*x)(k,0));
+
+	HDSA::Ptr<HDSA::Dense_Matrix<RealT> > b = HDSA::makePtr<HDSA::Dense_Matrix<RealT> >(m_,1);
+	HDSA::Ptr<Std_Vector<RealT> > vec_in_std = HDSA::makePtr<Std_Vector<RealT> >(m_);
+        vec_in_std->randomize_standard_normal();
+        for(int k = 0; k < m_; k++)
+          {
+            b->Replace_Element(k,0,(*vec_in_std)(k));
+          }
+	HDSA::Ptr<HDSA::Dense_Matrix<RealT> > x = HDSA::makePtr<HDSA::Dense_Matrix<RealT> >(m_,1);
+	HDSA::Linear_Algebra::Upper_Tri_Solve<RealT>(*x,*b,*R);
+        Std_Vector<RealT>& vec_out_std = dynamic_cast<Std_Vector<RealT>&>(*samples[i]);
+        for(int k = 0; k < m_; k++)
+          {
+            vec_out_std.Replace_Element(k,(*x)(k,0));
+          }
       }
   }
 
-  // Factorize (W_u+scalar*M_u)^{-1} = F*F^T and compute the matvec u_out = F*u_in                                                                                                                                                                                                                                                                                
-  virtual void Apply_W_u_Plus_scalar_M_u_Inverse_Factor(HDSA::Vector<RealT> & u_out, const HDSA::Vector<RealT> & u_in, const RealT & beta) const
+  // Compute samples from a mean zero Gaussian with covariance W_u^{-1}                                                                                                                                                                                                     
+  virtual void Sample_with_Covariance_W_u_Plus_scalar_M_u_Inverse(HDSA::MultiVector<RealT> & samples, const RealT & scalar) const
   {
     HDSA::Ptr<HDSA::Dense_Matrix<RealT> > A = HDSA::makePtr<HDSA::Dense_Matrix<RealT> >(m_,m_);
     for(int i = 0; i < m_; i++)
       {
-	for(int j = 0; j < m_; j++)
+        for(int j = 0; j < m_; j++)
           {
-            RealT val = (*W_u_)(i,j) + beta*(*M_)(i,j);
+            RealT val = (*W_u_)(i,j) + scalar*(*M_)(i,j);
             A->Replace_Element(i,j,val);
           }
       }
@@ -172,23 +178,26 @@ public:
     HDSA::Ptr<HDSA::Dense_Matrix<RealT> > R = HDSA::makePtr<HDSA::Dense_Matrix<RealT> >(m_,m_);
     HDSA::Linear_Algebra::Cholesky_Factorization(*A,*R);
 
-    HDSA::Ptr<HDSA::Dense_Matrix<RealT> > b = HDSA::makePtr<HDSA::Dense_Matrix<RealT> >(m_,1);
-    const Std_Vector<RealT>& u_in_std = dynamic_cast<const Std_Vector<RealT>&>(u_in);
-    Std_Vector<RealT>& u_out_std = dynamic_cast<Std_Vector<RealT>&>(u_out);
-    for(int k = 0; k < m_; k++)
+    int num_samples = samples.Number_of_Vectors();
+    for(int i = 0; i < num_samples; i++)
       {
-        b->Replace_Element(k,0,u_in_std(k));
-      }
-    HDSA::Ptr<HDSA::Dense_Matrix<RealT> > x = HDSA::makePtr<HDSA::Dense_Matrix<RealT> >(m_,1);
-    HDSA::Linear_Algebra::Upper_Tri_Solve<RealT>(*x,*b,*R);
-    for(int k = 0; k < m_; k++)
-      {
-        u_out_std.Replace_Element(k,(*x)(k,0));
-      }
 
+	HDSA::Ptr<HDSA::Dense_Matrix<RealT> > b = HDSA::makePtr<HDSA::Dense_Matrix<RealT> >(m_,1);
+	HDSA::Ptr<Std_Vector<RealT> > vec_in_std = HDSA::makePtr<Std_Vector<RealT> >(m_);
+        vec_in_std->randomize_standard_normal();
+        for(int k = 0; k < m_; k++)
+          {
+            b->Replace_Element(k,0,(*vec_in_std)(k));
+          }
+	HDSA::Ptr<HDSA::Dense_Matrix<RealT> > x = HDSA::makePtr<HDSA::Dense_Matrix<RealT> >(m_,1);
+	HDSA::Linear_Algebra::Upper_Tri_Solve<RealT>(*x,*b,*R);
+        Std_Vector<RealT>& vec_out_std = dynamic_cast<Std_Vector<RealT>&>(*samples[i]);
+        for(int k = 0; k < m_; k++)
+          {
+            vec_out_std.Replace_Element(k,(*x)(k,0));
+          }
+      }
   }
-
-
 
   };
 

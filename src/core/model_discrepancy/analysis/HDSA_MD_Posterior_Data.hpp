@@ -148,36 +148,15 @@ namespace HDSA
 	  u_i_hat.resize(N);
 	  for(int i = 0; i < N; i++)
 	    {
-
 	      u_i_hat[i] = HDSA::makePtr<HDSA::MultiVector<RealT> >(num_samples,*(*data_interface.D)[0]);
-	      for(int j = 0; j < num_samples; j++)
-		{
-		  HDSA::Ptr<HDSA::Vector<RealT> > uij = (*u_i_hat[i])[j];
-		  HDSA::Ptr<HDSA::Vector<RealT> > uj = uij->clone();
-		  uj->randomize_standard_normal();
-		  u_prior_interface.Apply_W_u_Plus_scalar_M_u_Inverse_Factor(*uij,*uj,(*Mu)(i,0)/alpha_d);
-		  uij->scale(1.0/std::sqrt(alpha_d));
-		}
+	      u_prior_interface.Sample_with_Covariance_W_u_Plus_scalar_M_u_Inverse(*u_i_hat[i],(*Mu)(i,0)/alpha_d);
+	      u_i_hat[i]->scale(1.0/std::sqrt(alpha_d));
 	    }
 
           u_breve = HDSA::makePtr<HDSA::MultiVector<RealT> >(num_samples,*(*data_interface.D)[0]);
-          z_breve = HDSA::makePtr<HDSA::MultiVector<RealT> >(num_samples,*(*data_interface.Z)[0]);
-	  for(int j = 0; j < num_samples; j++)
-	    {
-
-	      HDSA::Ptr<HDSA::Vector<RealT> > uj = (*u_breve)[j];
-	      HDSA::Ptr<HDSA::Vector<RealT> > u = uj->clone();
-	      u->randomize_standard_normal();
-	      u_prior_interface.Apply_W_u_Inverse_Factor(*uj,*u);
-
-	      HDSA::Ptr<HDSA::Vector<RealT> > zj = (*z_breve)[j];
-	      HDSA::Ptr<HDSA::Vector<RealT> > z = zj->clone();
-	      z->randomize_standard_normal();
-	      z_prior_interface.Apply_W_z_Inverse_Factor(*zj,*z);
-
-	    }
-
-
+          u_prior_interface.Sample_with_Covariance_W_u_Inverse(*u_breve);
+	  z_breve = HDSA::makePtr<HDSA::MultiVector<RealT> >(num_samples,*(*data_interface.Z)[0]);
+	  z_prior_interface.Sample_with_Covariance_W_z_Inverse(*z_breve);	  
 
 	}
  

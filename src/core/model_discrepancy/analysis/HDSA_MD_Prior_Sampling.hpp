@@ -22,16 +22,7 @@ namespace HDSA
     HDSA::Ptr<HDSA::MultiVector<RealT> > Prior_Discrepancy_Samples_at_z_opt(const int & num_samples)
     {
       HDSA::Ptr<HDSA::MultiVector<RealT> > delta_samples = HDSA::makePtr<HDSA::MultiVector<RealT> >(num_samples,*data_interface_->u_opt);
-
-      for(int i = 0; i < num_samples; i++)
-	{
-	  // Apply W_u^{-1} to random vector                   
-	  HDSA::Ptr<HDSA::Vector<RealT> > u_in = data_interface_->u_opt->clone();
-	  u_in->randomize_standard_normal();
-	  HDSA::Ptr<HDSA::Vector<RealT> > u_out = (*delta_samples)[i];
-	  u_prior_interface_->Apply_W_u_Inverse_Factor(*u_out,*u_in);
-	}
-
+      u_prior_interface_->Sample_with_Covariance_W_u_Inverse(*delta_samples);
       return delta_samples;
     }
 
@@ -66,24 +57,17 @@ namespace HDSA
 	 delta_samples[i] = HDSA::makePtr<HDSA::MultiVector<RealT> >(N,*data_interface_->u_opt);
 
 	 // Generate random sample i 
-	 HDSA::Ptr<HDSA::Vector<RealT> > u_intercept = data_interface_->u_opt->clone();
-	 u_intercept->randomize_standard_normal();
-	 HDSA::Ptr<HDSA::MultiVector<RealT> > u_rand = HDSA::makePtr<HDSA::MultiVector<RealT> >(N,*data_interface_->u_opt);
-	 u_rand->randomize_standard_normal();
+	 HDSA::Ptr<HDSA::MultiVector<RealT> > u_rand = HDSA::makePtr<HDSA::MultiVector<RealT> >(N+1,*data_interface_->u_opt);
+	 u_prior_interface_->Sample_with_Covariance_W_u_Inverse(*u_rand);
 
 	 for(int k = 0; k < N; k++)
 	   {
-	     // Form random sample for input z[k]
-	     HDSA::Ptr<HDSA::Vector<RealT> > u_in = data_interface_->u_opt->clone();
-	     u_in->set(*u_intercept);
+	     HDSA::Ptr<HDSA::Vector<RealT> > u_out = (*delta_samples[i])[k];
+	     u_out->set(*(*u_rand)[N]);
 	     for(int j = 0; j < k; j++)
 	       {
-		 u_in->axpy((*R)(j,k),*(*u_rand)[j]);
+		 u_out->axpy((*R)(j,k),*(*u_rand)[j]);
 	       }
-
-	     // Apply W_u^{-1} to random vector
-	     HDSA::Ptr<HDSA::Vector<RealT> > u_out = (*delta_samples[i])[k];
-	     u_prior_interface_->Apply_W_u_Inverse_Factor(*u_out,*u_in);
 	   }
 
 	}

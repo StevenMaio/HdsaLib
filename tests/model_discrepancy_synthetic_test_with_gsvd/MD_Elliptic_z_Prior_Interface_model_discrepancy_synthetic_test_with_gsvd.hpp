@@ -84,6 +84,38 @@ public:
     Apply_E_z_Inverse(z_out,z_in);
   }
 
+  // Compute samples from a mean zero Gaussian with covariance W_z^{-1}                                                                                                                                                                                                      
+  virtual void Sample_with_Covariance_W_z_Inverse(HDSA::MultiVector<RealT> & samples) const
+  {
+    HDSA::Ptr<HDSA::Dense_Matrix<RealT> > R = HDSA::makePtr<HDSA::Dense_Matrix<RealT> >(m_,m_);
+    HDSA::Linear_Algebra::Cholesky_Factorization(*M_,*R);
+
+    int num_samples = samples.Number_of_Vectors();
+    for(int i = 0; i < num_samples; i++)
+      {
+
+	HDSA::Ptr<HDSA::Dense_Matrix<RealT> > b = HDSA::makePtr<HDSA::Dense_Matrix<RealT> >(m_,1);
+	HDSA::Ptr<Std_Vector<RealT> > vec_in_std = HDSA::makePtr<Std_Vector<RealT> >(m_);
+        vec_in_std->randomize_standard_normal();
+        for(int k = 0; k < m_; k++)
+          {
+            b->Replace_Element(k,0,(*vec_in_std)(k));
+          }
+	HDSA::Ptr<HDSA::Dense_Matrix<RealT> > x = HDSA::makePtr<HDSA::Dense_Matrix<RealT> >(m_,1);
+	
+	// Should be E_z^{-1}*R^T*b
+	HDSA::Ptr<HDSA::Dense_Matrix<RealT> > tmp = HDSA::makePtr<HDSA::Dense_Matrix<RealT> >(m_,1);
+	R->Multiply(*tmp, *b, true);
+	HDSA::Linear_Algebra::Symmetric_Direct_Linear_Solve<RealT>(*E_z_,*x,*tmp);
+
+	Std_Vector<RealT>& vec_out_std = dynamic_cast<Std_Vector<RealT>&>(*samples[i]);
+        for(int k = 0; k < m_; k++)
+          {
+            vec_out_std.Replace_Element(k,(*x)(k,0));
+          }
+      }
+  }
+
   void Apply_M_z(HDSA::Vector<RealT> & z_out, const HDSA::Vector<RealT> & z_in) const
   {
     HDSA::Ptr<HDSA::Dense_Matrix<RealT> > b = HDSA::makePtr<HDSA::Dense_Matrix<RealT> >(m_,1);
