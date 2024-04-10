@@ -23,7 +23,7 @@ namespace HDSA
     virtual void Apply_W_z_Inverse(HDSA::Vector<RealT> & z_out, const HDSA::Vector<RealT> & z_in) const = 0;
 
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////                                                                                                                
-    // Virtual functions which must be implemented to enable posterior sampling and the Hessian GEVP                                                                                                                                                                                                     
+    // Virtual functions which must be implemented to enable posterior sampling and the Hessian GEVP                                                                                                                                                           
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////  
     
     // Factorize W_z^{-1} = F*F^T and compute the matvec z_out = F*z_in
@@ -36,7 +36,7 @@ namespace HDSA
     virtual void Apply_W_z(HDSA::Vector<RealT> & z_out, const HDSA::Vector<RealT> & z_in) const
     {
       HDSA_TEST_FOR_EXCEPTION( true, std::logic_error,
-                               "Apply_W_z must be implemented to use the Hessian GEVD implemented" << std::endl);
+                               "Apply_W_z must be implemented to use the Hessian GEVD implementation" << std::endl);
     }
 
   };

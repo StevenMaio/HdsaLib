@@ -25,8 +25,6 @@ namespace HDSA
 
     virtual void Apply_Operator_Transpose(HDSA::Vector<RealT> & vec_out, const HDSA::Vector<RealT> & vec_in) const = 0;
 
-    virtual void Apply_Input_Weighting_Operator(HDSA::Vector<RealT> & vec_out, const HDSA::Vector<RealT> & vec_in) const = 0;
-
     virtual void Apply_Input_Weighting_Operator_Inverse(HDSA::Vector<RealT> & vec_out, const HDSA::Vector<RealT> & vec_in) const = 0;
 
     virtual void Apply_Output_Weighting_Operator(HDSA::Vector<RealT> & vec_out, const HDSA::Vector<RealT> & vec_in) const = 0;    
@@ -146,11 +144,7 @@ namespace HDSA
       HDSA::Ptr<HDSA::MultiVector<RealT> > W_Q_Z = HDSA::makePtr<HDSA::MultiVector<RealT> >(n,*Z[0]);
       for(int k = 0; k < n; k++)
 	{
-	  if(type=="input_weighting")
-	    {
-	      Apply_Input_Weighting_Operator(*(*W_Q_Z)[k],*(*Q_Z)[k]);
-	    }
-	  else if(type=="input_weighting_inverse")
+	  if(type=="input_weighting_inverse")
 	    {
               Apply_Input_Weighting_Operator_Inverse(*(*W_Q_Z)[k],*(*Q_Z)[k]);
 	    }
