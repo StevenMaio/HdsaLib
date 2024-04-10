@@ -28,7 +28,7 @@ namespace HDSA
 
     void Compute_Hessian_GEVP(const HDSA::Vector<RealT> & z, const int & num_evals, const int & oversampling)
     {
-      HDSA::Ptr<HDSA::Randomized_GEVP<RealT> > hessian_gevp = HDSA::makePtr<HDSA::Hessian_GEVP<RealT> >(opt_prob_interface_, z_prior_interface_, z);
+      HDSA::Ptr<HDSA::Randomized_GEVP<RealT> > hessian_gevp = HDSA::makePtr<MD_Hessian_GEVP<RealT> >(opt_prob_interface_, z_prior_interface_, z);
       evecs_ = HDSA::makePtr<HDSA::MultiVector<RealT> >(num_evals,z);
       evals_ = HDSA::makePtr<HDSA::Dense_Matrix<RealT> >(num_evals,1);
       z_current_ = z.clone();
@@ -94,6 +94,63 @@ namespace HDSA
       void Apply_RS_Hessian(HDSA::Vector<RealT> & z_out, const HDSA::Vector<RealT> & z_in, const HDSA::Vector<RealT> & z) const
       {
 	opt_prob_interface_->Apply_RS_Hessian(z_out,z_in,z);
+      }
+
+    };
+
+    template <class ScalarType>
+    class MD_Hessian_GEVP : public HDSA::Randomized_GEVP<ScalarType> {
+
+    private:
+      HDSA::Ptr<HDSA::Vector<ScalarType> > z_;
+      HDSA::Ptr<HDSA::MD_Opt_Prob_Interface<ScalarType> > opt_prob_interface_;
+      HDSA::Ptr<HDSA::MD_z_Prior_Interface<ScalarType> > z_prior_interface_;
+      ScalarType normalization_coeff_;
+
+    public:
+      MD_Hessian_GEVP(const HDSA::Ptr<HDSA::MD_Opt_Prob_Interface<ScalarType> > & opt_prob_interface, const HDSA::Ptr<HDSA::MD_z_Prior_Interface<ScalarType> > & z_prior_interface,
+		   const HDSA::Vector<ScalarType> & z):
+	HDSA::Randomized_GEVP<ScalarType>(z)
+      {
+	z_ = z.clone();
+	z_->set(z);
+	opt_prob_interface_ = opt_prob_interface;
+	z_prior_interface_ = z_prior_interface;
+	HDSA::Ptr<HDSA::Vector<ScalarType> > z_tmp = z.clone();
+	z_prior_interface_->Apply_W_z(*z_tmp,*z_);
+	normalization_coeff_ = z_->dot(*z_tmp);
+      }
+
+      virtual ~MD_Hessian_GEVP()
+      { }
+
+      void Compute_Hessian_GEVP(HDSA::MultiVector<ScalarType> & evecs, HDSA::Dense_Matrix<ScalarType> & evals, int & num_evals, int & oversampling)
+      {
+	Compute_GEVP(evecs, evals, num_evals, oversampling);
+      }
+
+      void Apply_Operator(HDSA::Vector<ScalarType> & vec_out, const HDSA::Vector<ScalarType> & vec_in) const
+      {
+	opt_prob_interface_->Apply_RS_Hessian(vec_out,vec_in,*z_);
+	vec_out.set(vec_in);
+      }
+
+      void Apply_Weighting_Operator(HDSA::Vector<ScalarType> & vec_out, const HDSA::Vector<ScalarType> & vec_in) const
+      {
+	z_prior_interface_->Apply_W_z(vec_out,vec_in);
+	vec_out.scale(1.0/normalization_coeff_);
+      }
+
+      void Apply_Weighting_Operator_Inverse(HDSA::Vector<ScalarType> & vec_out, const HDSA::Vector<ScalarType> & vec_in) const
+      {
+	z_prior_interface_->Apply_W_z_Inverse(vec_out,vec_in);
+	vec_out.scale(normalization_coeff_);
+      }
+
+      void Apply_Weighting_Operator_Preconditioner_Factor(HDSA::Vector<ScalarType> & vec_out, const HDSA::Vector<ScalarType> & vec_in)
+      {
+	z_prior_interface_->Apply_W_z_Inverse_Factor(vec_out,vec_in);
+	vec_out.scale(std::sqrt(normalization_coeff_));
       }
 
     };

@@ -17,9 +17,9 @@ namespace HDSA
     virtual ~MD_Elliptic_z_Prior_Interface()
     { }
 
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////                                                                                                                                                                    
-    // Pure virtual functions                                                                                                                                                                                                                                                         
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////                                                                                                                                                                    
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////                                                                     
+    // Pure virtual functions                                                                                                                                                                   
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     virtual void Apply_E_z_Inverse(HDSA::Vector<RealT> & z_out, const HDSA::Vector<RealT> & z_in) const = 0;
 
@@ -27,7 +27,7 @@ namespace HDSA
 
     virtual void Apply_M_z(HDSA::Vector<RealT> & z_out, const HDSA::Vector<RealT> & z_in) const = 0;
 
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////                                                                                                                
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////                                                                      
     // Virtual functions which must be implemented to enable the Hessian GEVP 
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////  
     
@@ -49,8 +49,8 @@ namespace HDSA
                                "Apply_M_z_Inverse must be implemented to use the Hessian GEVD implementation" << std::endl);
     }
 
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////                                                                                                                                                                    
-    // Implementation of base class Virtual functions                                                                                                                                                                                                                                 
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////                                                                                    
+    // Implementation of base class Virtual functions                                                                                                                                              
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////  
 
     virtual void Apply_W_z_Inverse(HDSA::Vector<RealT> & z_out, const HDSA::Vector<RealT> & z_in) const 
@@ -73,7 +73,7 @@ namespace HDSA
       z_out.scale(1.0/alpha_z_);
     }
 
-    // Factorize W_z^{-1} = F*F^T and compute the matvec z_out = F*z_in                                                                                                                                                                                                               
+    // Factorize W_z^{-1} = F*F^T and compute the matvec z_out = F*z_in                                                                                                                              
     virtual void Apply_W_z_Inverse_Factor(HDSA::Vector<RealT> & z_out, const HDSA::Vector<RealT> & z_in) const
     {
 
