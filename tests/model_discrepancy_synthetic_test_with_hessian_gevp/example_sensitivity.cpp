@@ -16,16 +16,13 @@ int main(int argc, char *argv[]) {
   HDSA::Ptr<const HDSA::Comm<int> > comm = HDSA::makePtr<HDSA::Comm<int> >();
  
   HDSA::Ptr<HDSA::MD_Data_Interface<RealT> > data_interface = HDSA::makePtr<MD_Data_Interface_model_discrepancy_synthetic_test_with_hessian_gevp<RealT> >();
-  data_interface->Load_Data();
-
   HDSA::Ptr<HDSA::MD_Opt_Prob_Interface<RealT> > opt_prob_interface = HDSA::makePtr<MD_Opt_Prob_Interface_model_discrepancy_synthetic_test_with_hessian_gevp<RealT> >();
-
   HDSA::Ptr<HDSA::MD_u_Prior_Interface<RealT> > u_prior_interface = HDSA::makePtr<MD_u_Prior_Interface_model_discrepancy_synthetic_test_with_hessian_gevp<RealT> >();
   HDSA::Ptr<HDSA::MD_z_Prior_Interface<RealT> > z_prior_interface = HDSA::makePtr<MD_z_Prior_Interface_model_discrepancy_synthetic_test_with_hessian_gevp<RealT> >();
 
   HDSA::Ptr<HDSA::MD_Prior_Sampling<RealT> > prior_sampling = HDSA::makePtr<HDSA::MD_Prior_Sampling<RealT> >(data_interface,u_prior_interface,z_prior_interface);
 
-  HDSA::Ptr<HDSA::MultiVector<RealT> > z = HDSA::makePtr<HDSA::MultiVector<RealT> >(3,*data_interface->z_opt);
+  HDSA::Ptr<HDSA::MultiVector<RealT> > z = HDSA::makePtr<HDSA::MultiVector<RealT> >(3,*data_interface->get_z_opt());
   HDSA::Ptr<HDSA::Vector<RealT> > z0 = (*z)[0];
   HDSA::Ptr<HDSA::Vector<RealT> > z1 = (*z)[1];
   HDSA::Ptr<HDSA::Vector<RealT> > z2 = (*z)[2];
@@ -69,9 +66,9 @@ int main(int argc, char *argv[]) {
   std::vector<HDSA::Ptr<HDSA::Vector<RealT> > > z_test;
   z_test.resize(3);
   z_test[0] = z0->clone();
-  z_test[0]->set(*(*data_interface->Z)[0]);
+  z_test[0]->set(*(*data_interface->get_Z())[0]);
   z_test[1] = z0->clone();
-  z_test[1]->set(*(*data_interface->Z)[1]);
+  z_test[1]->set(*(*data_interface->get_Z())[1]);
   z_test[2] = z0->clone();
   Std_Vector<RealT> ztest2_std = dynamic_cast<Std_Vector<RealT>&>(*z_test[2]);
   for(int k = 0; k < m; k++)
@@ -98,7 +95,7 @@ int main(int argc, char *argv[]) {
   
   int num_evals = 20;
   int oversampling = 10;
-  hessian_analysis->Compute_Hessian_GEVP(*data_interface->z_opt,num_evals,oversampling);
+  hessian_analysis->Compute_Hessian_GEVP(*data_interface->get_z_opt(),num_evals,oversampling);
 
   HDSA::Ptr<HDSA::MD_Update<RealT> > update = HDSA::makePtr<HDSA::MD_Update<RealT> >(data_interface,u_prior_interface,z_prior_interface,opt_prob_interface,post_sampling,hessian_analysis);
  

@@ -7,11 +7,17 @@ namespace HDSA
   template <class RealT>
   class MD_Data_Interface {
 
+  private:
+    HDSA::Ptr<const HDSA::Vector<RealT> > u_opt_;
+    HDSA::Ptr<const HDSA::Vector<RealT> > z_opt_;
+    HDSA::Ptr<const HDSA::MultiVector<RealT> > Z_;
+    HDSA::Ptr<const HDSA::MultiVector<RealT> > D_;
+    bool is_u_opt_loaded_;
+    bool is_z_opt_loaded_;
+    bool is_Z_loaded_;
+    bool is_D_loaded_;
+
   public:
-    HDSA::Ptr<const HDSA::Vector<RealT> > u_opt;
-    HDSA::Ptr<const HDSA::Vector<RealT> > z_opt;
-    HDSA::Ptr<const HDSA::MultiVector<RealT> > Z;
-    HDSA::Ptr<const HDSA::MultiVector<RealT> > D;
 
     MD_Data_Interface()
     { }
@@ -28,12 +34,44 @@ namespace HDSA
 
     virtual HDSA::Ptr<HDSA::MultiVector<RealT> > Load_D_Data(void) const = 0;
 
-    void Load_Data(void)
+    HDSA::Ptr<const HDSA::Vector<RealT> > get_u_opt(void)
     {
-      u_opt = Load_Optimal_u();
-      z_opt = Load_Optimal_z();
-      Z = Load_Z_Data();
-      D = Load_D_Data();
+      if(!is_u_opt_loaded_)
+	{
+	  u_opt_ = Load_Optimal_u();
+	  is_u_opt_loaded_ = true;
+	}
+      return u_opt_;
+    }
+
+    HDSA::Ptr<const HDSA::Vector<RealT> > get_z_opt(void)
+    {
+      if(!is_z_opt_loaded_)
+	{
+          z_opt_ = Load_Optimal_z();
+          is_z_opt_loaded_ = true;
+	}
+      return z_opt_;
+    }
+
+    HDSA::Ptr<const HDSA::MultiVector<RealT> > get_Z(void)
+    {
+      if(!is_Z_loaded_)
+	{
+          Z_ = Load_Z_Data();
+          is_Z_loaded_ = true;
+        }
+      return Z_;
+    }
+
+    HDSA::Ptr<const HDSA::MultiVector<RealT> > get_D(void)
+    {
+      if(!is_D_loaded_)
+        {
+          D_ = Load_D_Data();
+          is_D_loaded_ = true;
+        }
+      return D_;
     }
 
   };

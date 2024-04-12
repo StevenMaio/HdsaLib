@@ -45,7 +45,7 @@ namespace HDSA
 
 	  HDSA::Ptr<HDSA::Vector<RealT> > dz_k = z[k]->clone();
 	  dz_k->set(*z[k]);
-	  dz_k->axpy(-1.0,*data_interface_->z_opt);
+	  dz_k->axpy(-1.0,*data_interface_->get_z_opt());
 
 	  for(int ell = 0; ell < post_data->N; ell++)
 	    {

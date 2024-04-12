@@ -34,28 +34,28 @@ namespace HDSA
     ~MD_Posterior_Data(void)
     { }
   
-    void Compute_Posterior_Data(const HDSA::MD_Data_Interface<RealT> & data_interface, const HDSA::MD_u_Prior_Interface<RealT> & u_prior_interface, const HDSA::MD_z_Prior_Interface<RealT> & z_prior_interface, RealT alpha_d_in, int num_samples_in)
+    void Compute_Posterior_Data(HDSA::MD_Data_Interface<RealT> & data_interface, const HDSA::MD_u_Prior_Interface<RealT> & u_prior_interface, const HDSA::MD_z_Prior_Interface<RealT> & z_prior_interface, RealT alpha_d_in, int num_samples_in)
     {
       alpha_d = alpha_d_in;
       num_samples = num_samples_in;
-      N = data_interface.Z->Number_of_Vectors();
+      N = data_interface.get_Z()->Number_of_Vectors();
           
-      W_z_inv_Z = HDSA::makePtr<HDSA::MultiVector<RealT> >(N,*data_interface.z_opt);
+      W_z_inv_Z = HDSA::makePtr<HDSA::MultiVector<RealT> >(N,*data_interface.get_z_opt());
       for(int k = 0; k < N; k++)
 	{
-	  HDSA::Ptr<HDSA::Vector<RealT> > zk = (*data_interface.Z)[k];
+	  HDSA::Ptr<HDSA::Vector<RealT> > zk = (*data_interface.get_Z())[k];
 	  HDSA::Ptr<HDSA::Vector<RealT> > gzk = (*W_z_inv_Z)[k];
 	  z_prior_interface.Apply_W_z_Inverse(*gzk,*zk);
 	}
-      W_z_inv_z_opt = data_interface.z_opt->clone();
-      z_prior_interface.Apply_W_z_Inverse(*W_z_inv_z_opt,*data_interface.z_opt);
+      W_z_inv_z_opt = data_interface.get_z_opt()->clone();
+      z_prior_interface.Apply_W_z_Inverse(*W_z_inv_z_opt,*data_interface.get_z_opt());
 
-      Zc = HDSA::makePtr<HDSA::MultiVector<RealT> >(N-1,*data_interface.z_opt);
-      W_z_inv_Zc =HDSA::makePtr<HDSA::MultiVector<RealT> >(N-1,*data_interface.z_opt);
+      Zc = HDSA::makePtr<HDSA::MultiVector<RealT> >(N-1,*data_interface.get_z_opt());
+      W_z_inv_Zc =HDSA::makePtr<HDSA::MultiVector<RealT> >(N-1,*data_interface.get_z_opt());
       for(int k = 0; k < N-1; k++)
         {
-          (*Zc)[k]->set(*(*data_interface.Z)[k+1]);
-          (*Zc)[k]->axpy(-1.0,*data_interface.z_opt);
+          (*Zc)[k]->set(*(*data_interface.get_Z())[k+1]);
+          (*Zc)[k]->axpy(-1.0,*data_interface.get_z_opt());
 
           (*W_z_inv_Zc)[k]->set(*(*W_z_inv_Z)[k+1]);
           (*W_z_inv_Zc)[k]->axpy(-1.0,*W_z_inv_z_opt);
@@ -63,15 +63,15 @@ namespace HDSA
       Zc_W_z_inv_Zc = Zc->MatMat(*W_z_inv_Zc);
 
       G = HDSA::makePtr<HDSA::Dense_Matrix<RealT> >(N,N);
-      RealT z_opt_W_z_inv_z_opt = data_interface.z_opt->dot(*W_z_inv_z_opt);
+      RealT z_opt_W_z_inv_z_opt = data_interface.get_z_opt()->dot(*W_z_inv_z_opt);
       for(int i = 0; i < N; i++)
 	{
-	  HDSA::Ptr<HDSA::Vector<RealT> > zi = (*data_interface.Z)[i];
+	  HDSA::Ptr<HDSA::Vector<RealT> > zi = (*data_interface.get_Z())[i];
 	  HDSA::Ptr<HDSA::Vector<RealT> > gzi = (*W_z_inv_Z)[i];
 	  RealT vali = 1.0 + z_opt_W_z_inv_z_opt - zi->dot(*W_z_inv_z_opt);
 	  for(int j = 0; j < i+1; j++)
 	    {
-	      HDSA::Ptr<HDSA::Vector<RealT> > zj = (*data_interface.Z)[j];
+	      HDSA::Ptr<HDSA::Vector<RealT> > zj = (*data_interface.get_Z())[j];
 	      RealT val = vali;
 	      val -= zj->dot(*W_z_inv_z_opt);
 	      val += zj->dot(*gzi);
@@ -99,10 +99,10 @@ namespace HDSA
 	    }	  
 	}
 
-      u_ell = HDSA::makePtr<HDSA::MultiVector<RealT> >(N,*(*data_interface.D)[0]);      
+      u_ell = HDSA::makePtr<HDSA::MultiVector<RealT> >(N,*(*data_interface.get_D())[0]);      
       for(int ell = 0; ell < N; ell++)
 	{
-	  HDSA::Ptr<HDSA::Vector<RealT> > dl = (*data_interface.D)[ell];
+	  HDSA::Ptr<HDSA::Vector<RealT> > dl = (*data_interface.get_D())[ell];
 	  HDSA::Ptr<HDSA::Vector<RealT> > ul = (*u_ell)[ell];
 	  HDSA::Ptr<HDSA::Vector<RealT> > u_tmp = ul->clone();
 	  u_prior_interface.Apply_M_u(*u_tmp,*dl);
@@ -112,7 +112,7 @@ namespace HDSA
       u_i_ell.resize(N);
       for(int i = 0; i < N; i++)
 	{
-	  u_i_ell[i] = HDSA::makePtr<HDSA::MultiVector<RealT> >(N,*(*data_interface.D)[0]);
+	  u_i_ell[i] = HDSA::makePtr<HDSA::MultiVector<RealT> >(N,*(*data_interface.get_D())[0]);
 	  for(int ell = 0; ell < N; ell++)
 	    {
 	      HDSA::Ptr<HDSA::Vector<RealT> > uil = (*u_i_ell[i])[ell];
@@ -128,7 +128,7 @@ namespace HDSA
       b_i_ell = HDSA::makePtr<HDSA::Dense_Matrix<RealT> >(N,N);
       for(int ell = 0; ell < N; ell++)
 	{
-	  HDSA::Ptr<HDSA::Vector<RealT> > zl = (*data_interface.Z)[ell];
+	  HDSA::Ptr<HDSA::Vector<RealT> > zl = (*data_interface.get_Z())[ell];
 	  RealT val_a = 1.0 - zl->dot(*W_z_inv_z_opt) + z_opt_W_z_inv_z_opt;
 	  a_ell->Replace_Element(ell,0,val_a);
 	  for(int i = 0; i < N; i++)
@@ -137,7 +137,7 @@ namespace HDSA
 	      for(int k = 0; k < N; k++)
 		{
 		  HDSA::Ptr<HDSA::Vector<RealT> > gzk = (*W_z_inv_Z)[k];
-		  val_b += (*g_vecs)(k,i)*(zl->dot(*gzk) - gzk->dot(*data_interface.z_opt) + (*a_ell)(ell,0));
+		  val_b += (*g_vecs)(k,i)*(zl->dot(*gzk) - gzk->dot(*data_interface.get_z_opt()) + (*a_ell)(ell,0));
 		}
 	      b_i_ell->Replace_Element(i,ell,val_b);
 	    }
@@ -148,14 +148,14 @@ namespace HDSA
 	  u_i_hat.resize(N);
 	  for(int i = 0; i < N; i++)
 	    {
-	      u_i_hat[i] = HDSA::makePtr<HDSA::MultiVector<RealT> >(num_samples,*(*data_interface.D)[0]);
+	      u_i_hat[i] = HDSA::makePtr<HDSA::MultiVector<RealT> >(num_samples,*(*data_interface.get_D())[0]);
 	      u_prior_interface.Sample_with_Covariance_W_u_Plus_scalar_M_u_Inverse(*u_i_hat[i],(*Mu)(i,0)/alpha_d);
 	      u_i_hat[i]->scale(1.0/std::sqrt(alpha_d));
 	    }
 
-          u_breve = HDSA::makePtr<HDSA::MultiVector<RealT> >(num_samples,*(*data_interface.D)[0]);
+          u_breve = HDSA::makePtr<HDSA::MultiVector<RealT> >(num_samples,*(*data_interface.get_D())[0]);
           u_prior_interface.Sample_with_Covariance_W_u_Inverse(*u_breve);
-	  z_breve = HDSA::makePtr<HDSA::MultiVector<RealT> >(num_samples,*(*data_interface.Z)[0]);
+	  z_breve = HDSA::makePtr<HDSA::MultiVector<RealT> >(num_samples,*(*data_interface.get_Z())[0]);
 	  z_prior_interface.Sample_with_Covariance_W_z_Inverse(*z_breve);	  
 
 	}
