@@ -34,14 +34,14 @@ namespace HDSA
     virtual void Sample_with_Covariance_W_u_Inverse(HDSA::MultiVector<RealT> & samples) const
     {
       HDSA_TEST_FOR_EXCEPTION( true, std::logic_error,
-			       "The method Sample_with_Covariance_W_u_Inverse was called, but not implemented" << std::endl);
+			       "MD_u_Prior_Interface::Sample_with_Covariance_W_u_Inverse must be implemented to use sampling algorithms" << std::endl);
     }
 
-    // Compute samples from a mean zero Gaussian with covariance W_u^{-1}                                                                                                                                                                               
+    // Compute samples from a mean zero Gaussian with covariance W_u^{-1}                                                                                                                                                                      
     virtual void Sample_with_Covariance_W_u_Plus_scalar_M_u_Inverse(HDSA::MultiVector<RealT> & samples, const RealT & scalar) const
     {
       HDSA_TEST_FOR_EXCEPTION( true, std::logic_error,
-                               "The method Sample_with_Covariance_W_u_Plus_scalar_M_u_Inverse was called, but not implemented" << std::endl);
+                               "Sample_with_Covariance_W_u_Plus_scalar_M_u_Inverse must be implemented to use sampling algorithms" << std::endl);
     }
 
   };
