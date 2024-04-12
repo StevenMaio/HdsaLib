@@ -22,7 +22,7 @@ namespace HDSA
 
     virtual void Apply_M_u(HDSA::Vector<RealT> & u_out, const HDSA::Vector<RealT> & u_in) const = 0;
 
-    virtual void Apply_W_u_Plus_scalar_M_u_Inverse(HDSA::Vector<RealT> & u_out, const HDSA::Vector<RealT> & u_in, const RealT & beta) const = 0;
+    virtual void Apply_W_u_Plus_scalar_M_u_Inverse(HDSA::Vector<RealT> & u_out, const HDSA::Vector<RealT> & u_in, const RealT & scalar) const = 0;
 
     virtual void Apply_W_u_Inverse(HDSA::Vector<RealT> & u_out, const HDSA::Vector<RealT> & u_in) const = 0;
 

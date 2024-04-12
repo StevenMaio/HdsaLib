@@ -1,6 +1,10 @@
 #ifndef HDSA_MD_ELLIPTIC_U_PRIOR_INTERFACE_HPP
 #define HDSA_MD_ELLIPTIC_U_PRIOR_INTERFACE_HPP
 
+#include <algorithm>
+#include <cstdlib>
+#include <random>
+
 namespace HDSA
 {
 
@@ -13,10 +17,12 @@ namespace HDSA
     HDSA::Ptr<HDSA::MultiVector<RealT> > sing_vecs_output_;
     HDSA::Ptr<HDSA::Dense_Matrix<RealT> > sing_vals_;
     RealT alpha_u_;
+    bool fix_random_seed_;
 
   public:
-    MD_Elliptic_u_Prior_Interface(RealT & alpha_u): alpha_u_(alpha_u)  
-    { }
+    MD_Elliptic_u_Prior_Interface(RealT & alpha_u, bool fix_random_seed = false): alpha_u_(alpha_u), fix_random_seed_(fix_random_seed)  
+    {
+    }
 
     virtual ~MD_Elliptic_u_Prior_Interface()
     { }
@@ -48,13 +54,13 @@ namespace HDSA
     // Implementation of base class Virtual functions 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////// 
 
-    virtual void Apply_W_u_Plus_scalar_M_u_Inverse(HDSA::Vector<RealT> & u_out, const HDSA::Vector<RealT> & u_in, const RealT & beta) const 
+    virtual void Apply_W_u_Plus_scalar_M_u_Inverse(HDSA::Vector<RealT> & u_out, const HDSA::Vector<RealT> & u_in, const RealT & scalar) const 
     {
       u_out.zeros();
       HDSA::Ptr<HDSA::Dense_Matrix<RealT> > c = sing_vecs_output_->MatVec(u_in);
       for(int k = 0; k < c->numRows(); k++)
 	{
-	  RealT coeff = (*c)(k,0)*std::pow((*sing_vals_)(k,0),2.0)/(1.0+beta*std::pow((*sing_vals_)(k,0),2.0));
+	  RealT coeff = (*c)(k,0)*std::pow((*sing_vals_)(k,0),2.0)/(1.0+scalar*alpha_u_*std::pow((*sing_vals_)(k,0),2.0));
 	  u_out.axpy(coeff,*(*sing_vecs_output_)[k]);
 	}
       u_out.scale(alpha_u_);
@@ -72,16 +78,56 @@ namespace HDSA
       u_out.scale(alpha_u_);
     }
 
-    // Compute samples from a mean zero Gaussian with covariance W_u^{-1}                                                                                                                                                                                    
+    // Compute samples from a mean zero Gaussian with covariance W_u^{-1}                                                                                
     virtual void Sample_with_Covariance_W_u_Inverse(HDSA::MultiVector<RealT> & samples) const
     {
+      unsigned seed = time(NULL);
+      if(fix_random_seed_)
+	{
+	  unsigned seed = 14232;
+	}
+      std::default_random_engine generator;
+      generator.seed(seed);
+      std::normal_distribution<RealT> distribution = std::normal_distribution<RealT>(0.0,1.0);
 
+      int num_samples = samples.Number_of_Vectors();
+      for(int k = 0; k < num_samples; k++)
+	{
+	  HDSA::Ptr<HDSA::Vector<RealT> > vec = samples[k];	
+	  for(int i = 0; i < sing_vals_->numRows(); i++)
+	    {
+	      RealT rand = distribution(generator);
+	      RealT coeff = (*sing_vals_)(i,0)*rand;
+	      vec->axpy(coeff,*(*sing_vecs_output_)[i]);
+	    }	
+	}
+      samples.scale(std::sqrt(alpha_u_));
     }
 
-    // Compute samples from a mean zero Gaussian with covariance W_u^{-1}                                                                                                                                                                                  
+    // Compute samples from a mean zero Gaussian with covariance W_u^{-1}                                                                                     
     virtual void Sample_with_Covariance_W_u_Plus_scalar_M_u_Inverse(HDSA::MultiVector<RealT> & samples, const RealT & scalar) const
     {
-    
+      unsigned seed = time(NULL);
+      if(fix_random_seed_)
+	{
+          unsigned seed = 235632;
+	}
+      std::default_random_engine generator;
+      generator.seed(seed);
+      std::normal_distribution<RealT> distribution = std::normal_distribution<RealT>(0.0,1.0);
+
+      int num_samples = samples.Number_of_Vectors();
+      for(int k = 0; k < num_samples; k++)
+        {
+	  HDSA::Ptr<HDSA::Vector<RealT> > vec = samples[k];
+          for(int i = 0; i < sing_vals_->numRows(); i++)
+            {
+	      RealT rand = distribution(generator);
+	      RealT coeff = rand*std::pow((*sing_vals_)(i,0),2.0)/(1.0+scalar*alpha_u_*std::pow((*sing_vals_)(i,0),2.0));
+              vec->axpy(coeff,*(*sing_vecs_output_)[i]);
+            }
+        }
+      samples.scale(std::sqrt(alpha_u_));
     }
 
     template <class ScalarType>

@@ -92,7 +92,7 @@ public:
       }
   }
 
-  void Apply_W_u_Plus_scalar_M_u_Inverse(HDSA::Vector<RealT> & u_out, const HDSA::Vector<RealT> & u_in, const RealT & beta) const 
+  void Apply_W_u_Plus_scalar_M_u_Inverse(HDSA::Vector<RealT> & u_out, const HDSA::Vector<RealT> & u_in, const RealT & scalar) const 
   {
     HDSA::Ptr<HDSA::Dense_Matrix<RealT> > b = HDSA::makePtr<HDSA::Dense_Matrix<RealT> >(m_,1);
     const Std_Vector<RealT>& u_in_std = dynamic_cast<const Std_Vector<RealT>&>(u_in);
@@ -103,15 +103,15 @@ public:
       }
     HDSA::Ptr<HDSA::Dense_Matrix<RealT> > x = HDSA::makePtr<HDSA::Dense_Matrix<RealT> >(m_,1);
     
-    HDSA::Ptr<HDSA::Dense_Matrix<RealT> > Wu_beta_Mu = HDSA::makePtr<HDSA::Dense_Matrix<RealT> >(m_,m_);
+    HDSA::Ptr<HDSA::Dense_Matrix<RealT> > Wu_scalar_Mu = HDSA::makePtr<HDSA::Dense_Matrix<RealT> >(m_,m_);
     for(int i = 0; i < m_; i++)
       {
 	for(int j = 0; j < m_; j++)
 	  {
-	    Wu_beta_Mu->Replace_Element(i,j,(*W_u_)(i,j) + beta*(*M_)(i,j));
+	    Wu_scalar_Mu->Replace_Element(i,j,(*W_u_)(i,j) + scalar*(*M_)(i,j));
 	  }
       }
-    HDSA::Linear_Algebra::Symmetric_Direct_Linear_Solve<RealT>(*Wu_beta_Mu,*x,*b);
+    HDSA::Linear_Algebra::Symmetric_Direct_Linear_Solve<RealT>(*Wu_scalar_Mu,*x,*b);
     for(int k = 0; k < m_; k++)
       {
 	u_out_std.Replace_Element(k,(*x)(k,0));
