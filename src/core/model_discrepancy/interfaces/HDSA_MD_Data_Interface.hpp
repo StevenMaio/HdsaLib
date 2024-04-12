@@ -18,9 +18,13 @@ namespace HDSA
     bool is_D_loaded_;
 
   public:
-
     MD_Data_Interface()
-    { }
+    { 
+      is_u_opt_loaded_ = false;
+      is_z_opt_loaded_ = false;
+      is_Z_loaded_ = false;
+      is_D_loaded_ = false;
+    }
 
     virtual ~MD_Data_Interface()
     { }
