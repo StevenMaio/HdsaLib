@@ -29,16 +29,19 @@ namespace HDSA
 
     virtual void Apply_Output_Weighting_Operator(HDSA::Vector<RealT> & vec_out, const HDSA::Vector<RealT> & vec_in) const = 0;    
 
+    virtual void Generate_Random_Samples(HDSA::MultiVector<RealT> & samples) const = 0;
+
     void Compute_GSVD(HDSA::MultiVector<RealT> & sing_vecs_input, HDSA::MultiVector<RealT> & sing_vecs_output, HDSA::Dense_Matrix<RealT> & sing_vals, 
 		      int num_sing_vals, int oversampling, int num_subspace_iters)
     {
       int kpp = num_sing_vals + oversampling;
 
+      HDSA::Ptr<HDSA::MultiVector<RealT> > samples = HDSA::makePtr<HDSA::MultiVector<RealT> >(kpp,*vec_in_);
+      Generate_Random_Samples(*samples);
       HDSA::Ptr<HDSA::MultiVector<RealT> > Y = HDSA::makePtr<HDSA::MultiVector<RealT> >(kpp,*vec_out_);   
       for(int k = 0; k < kpp; k++)
       	{
-	  HDSA::Ptr<HDSA::Vector<RealT> >  vec_in_random = vec_in_->clone();
-	  vec_in_random->randomize_standard_normal();
+	  HDSA::Ptr<HDSA::Vector<RealT> >  vec_in_random = (*samples)[k];
 	  Apply_Operator(*(*Y)[k],*vec_in_random);
       	}
 

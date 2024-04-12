@@ -52,7 +52,7 @@ public:
       {
         for(int j = 0; j < m_; j++)
           {
-            RealT val = 2.0*( (5.e-2)*(*S_)(i,j) + (*M_)(i,j) );
+            RealT val = (5.e-2)*(*S_)(i,j) + (*M_)(i,j);
             E_u_->Replace_Element(i,j,val);
 	  }
       }

@@ -166,6 +166,11 @@ namespace HDSA
 	u_prior_interface_->Apply_M_u(vec_out,vec_in);
       }
 
+      void Generate_Random_Samples(HDSA::MultiVector<RealT> & samples) const 
+      {
+	samples.randomize_standard_normal();
+      }
+
     };
 
 
