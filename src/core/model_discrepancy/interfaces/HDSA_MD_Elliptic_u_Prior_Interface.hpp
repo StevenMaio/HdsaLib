@@ -123,7 +123,7 @@ namespace HDSA
           for(int i = 0; i < sing_vals_->numRows(); i++)
             {
 	      RealT rand = distribution(generator);
-	      RealT coeff = rand*std::pow((*sing_vals_)(i,0),2.0)/(1.0+scalar*alpha_u_*std::pow((*sing_vals_)(i,0),2.0));
+	      RealT coeff = rand*std::sqrt( std::pow((*sing_vals_)(i,0),2.0)/(1.0+scalar*alpha_u_*std::pow((*sing_vals_)(i,0),2.0)) );
               vec->axpy(coeff,*(*sing_vecs_output_)[i]);
             }
         }
