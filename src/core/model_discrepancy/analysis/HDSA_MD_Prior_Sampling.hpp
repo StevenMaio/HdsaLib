@@ -64,7 +64,7 @@ namespace HDSA
 	   {
 	     HDSA::Ptr<HDSA::Vector<RealT> > u_out = (*delta_samples[i])[k];
 	     u_out->set(*(*u_rand)[N]);
-	     for(int j = 0; j < k; j++)
+	     for(int j = 0; j < k+1; j++)
 	       {
 		 u_out->axpy((*R)(j,k),*(*u_rand)[j]);
 	       }

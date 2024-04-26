@@ -17,12 +17,22 @@ namespace HDSA
     HDSA::Ptr<HDSA::MultiVector<RealT> > sing_vecs_output_;
     HDSA::Ptr<HDSA::Dense_Matrix<RealT> > sing_vals_;
     RealT alpha_u_;
-    bool fix_random_seed_;
+    const HDSA::Ptr<HDSA::Random_Number_Generator<RealT> > random_number_generator_;
 
   public:
-    MD_Elliptic_u_Prior_Interface(RealT & alpha_u, bool fix_random_seed = false): alpha_u_(alpha_u), fix_random_seed_(fix_random_seed)  
+    MD_Elliptic_u_Prior_Interface(RealT & alpha_u): alpha_u_(alpha_u)  
     {
+      *random_number_generator_ = HDSA::Random_Number_Generator<RealT>();
     }
+
+    MD_Elliptic_u_Prior_Interface(RealT & alpha_u, int & seed): alpha_u_(alpha_u)
+    {
+      *random_number_generator_ = HDSA::Random_Number_Generator<RealT>(seed);
+    }
+
+    MD_Elliptic_u_Prior_Interface(RealT & alpha_u, HDSA::Ptr<HDSA::Random_Number_Generator<RealT> > & random_number_generator)
+      : alpha_u_(alpha_u), random_number_generator_(random_number_generator)
+    { }
 
     virtual ~MD_Elliptic_u_Prior_Interface()
     { }
@@ -81,22 +91,13 @@ namespace HDSA
     // Compute samples from a mean zero Gaussian with covariance W_u^{-1}                                                                                
     virtual void Sample_with_Covariance_W_u_Inverse(HDSA::MultiVector<RealT> & samples) const
     {
-      unsigned seed = time(NULL);
-      if(fix_random_seed_)
-	{
-	  unsigned seed = 14232;
-	}
-      std::default_random_engine generator;
-      generator.seed(seed);
-      std::normal_distribution<RealT> distribution = std::normal_distribution<RealT>(0.0,1.0);
-
       int num_samples = samples.Number_of_Vectors();
       for(int k = 0; k < num_samples; k++)
 	{
 	  HDSA::Ptr<HDSA::Vector<RealT> > vec = samples[k];	
 	  for(int i = 0; i < sing_vals_->numRows(); i++)
 	    {
-	      RealT rand = distribution(generator);
+	      RealT rand = random_number_generator_->Generate_Standard_Normal_Sample();
 	      RealT coeff = (*sing_vals_)(i,0)*rand;
 	      vec->axpy(coeff,*(*sing_vecs_output_)[i]);
 	    }	
@@ -107,22 +108,13 @@ namespace HDSA
     // Compute samples from a mean zero Gaussian with covariance W_u^{-1}                                                                                     
     virtual void Sample_with_Covariance_W_u_Plus_scalar_M_u_Inverse(HDSA::MultiVector<RealT> & samples, const RealT & scalar) const
     {
-      unsigned seed = time(NULL);
-      if(fix_random_seed_)
-	{
-          unsigned seed = 235632;
-	}
-      std::default_random_engine generator;
-      generator.seed(seed);
-      std::normal_distribution<RealT> distribution = std::normal_distribution<RealT>(0.0,1.0);
-
       int num_samples = samples.Number_of_Vectors();
       for(int k = 0; k < num_samples; k++)
         {
 	  HDSA::Ptr<HDSA::Vector<RealT> > vec = samples[k];
           for(int i = 0; i < sing_vals_->numRows(); i++)
             {
-	      RealT rand = distribution(generator);
+              RealT rand = random_number_generator_->Generate_Standard_Normal_Sample();
 	      RealT coeff = rand*std::sqrt( std::pow((*sing_vals_)(i,0),2.0)/(1.0+scalar*alpha_u_*std::pow((*sing_vals_)(i,0),2.0)) );
               vec->axpy(coeff,*(*sing_vecs_output_)[i]);
             }

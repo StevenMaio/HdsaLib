@@ -9,6 +9,7 @@
 #include "trilinos_adapter/adapters/HDSA_Belos_Adapter.hpp"
 #include "trilinos_adapter/core/HDSA_Linear_Algebra.hpp"
 
+#include "core/base/HDSA_Random_Number_Generator.hpp"
 #include "core/base/HDSA_Std_Vector.hpp"
 #include "core/base/HDSA_MultiVector.hpp"
 #include "core/base/HDSA_Stream.hpp"

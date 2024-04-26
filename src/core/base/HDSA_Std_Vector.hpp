@@ -1,27 +1,31 @@
 #ifndef HDSA_STDVECTOR_HPP
 #define HDSA_STDVECTOR_HPP
 
-#include <algorithm>
-#include <cstdlib>
-#include <random>
-
 template <class RealT>
 class Std_Vector : public HDSA::Vector<RealT> {
   
 private:
   int dim_;
+  const HDSA::Ptr<HDSA::Random_Number_Generator<RealT> > random_number_generator_;
   HDSA::Ptr<std::vector<RealT> > vec_;
-  unsigned seed_;
-  std::default_random_engine generator_;
-  std::normal_distribution<RealT> distribution_;
 
 public:  
   Std_Vector(int dim): dim_(dim)
   {
+    *random_number_generator_ = HDSA::Random_Number_Generator<RealT>();
     vec_ = HDSA::makePtr<std::vector<RealT> >(dim,0.0);
-    seed_ = std::rand();
-    generator_.seed(seed_);
-    distribution_ = std::normal_distribution<RealT>(0.0,1.0); 
+  }
+
+  Std_Vector(int dim, int seed): dim_(dim)
+  {
+    *random_number_generator_ = HDSA::Random_Number_Generator<RealT>(seed);
+    vec_ = HDSA::makePtr<std::vector<RealT> >(dim,0.0);
+  }
+
+  Std_Vector(int dim, const HDSA::Ptr<HDSA::Random_Number_Generator<RealT> > & random_number_generator)
+    : dim_(dim), random_number_generator_(random_number_generator)
+  {
+    vec_ = HDSA::makePtr<std::vector<RealT> >(dim,0.0);
   }
   
   ~Std_Vector()
@@ -33,7 +37,7 @@ public:
   
   HDSA::Ptr<HDSA::Vector<RealT> > clone() const
   {
-    HDSA::Ptr<HDSA::Vector<RealT> > vec = HDSA::makePtr<Std_Vector<RealT> >(dim_);
+    HDSA::Ptr<HDSA::Vector<RealT> > vec = HDSA::makePtr<Std_Vector<RealT> >(dim_,random_number_generator_);
     return vec;
   }
 
@@ -78,7 +82,7 @@ public:
   {
     for(int k = 0; k < dim_; k++)
       {
-	(*vec_)[k] = distribution_(generator_);
+	(*vec_)[k] = random_number_generator_->Generate_Standard_Normal_Sample();
       }
   }
 
