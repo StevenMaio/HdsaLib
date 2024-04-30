@@ -68,7 +68,7 @@ public:
 
   RealT Generate_Standard_Normal_Sample(void)
   {
-    RealT val;
+    RealT val = 0.0;
 
     if(use_numbers_from_file_)
       {

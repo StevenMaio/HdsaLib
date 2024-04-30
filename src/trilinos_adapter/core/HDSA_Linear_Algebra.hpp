@@ -227,9 +227,14 @@ namespace Linear_Algebra
     for(int j = 0; j < n; j++)
       {
 	S.Replace_Element(j,0,(*S_rev)(n-1-j));
+	RealT sign = 1.0;
+	if( (*B)(0,n-1-j) < 0.0 )
+	  {
+	    sign = -1.0;
+	  }
 	for(int i = 0; i < n; i++)
 	  {
-	    V.Replace_Element(i,j,(*B)(i,n-1-j));
+	    V.Replace_Element(i,j,sign*(*B)(i,n-1-j));
 	  }
       }
   }
