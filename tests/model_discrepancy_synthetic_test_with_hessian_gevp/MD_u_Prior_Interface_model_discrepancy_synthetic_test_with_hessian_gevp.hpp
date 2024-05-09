@@ -10,9 +10,10 @@ private:
   HDSA::Ptr<HDSA::Dense_Matrix<RealT> > S_; // Stiffness matrix                                                                                                                                                                  
   HDSA::Ptr<HDSA::Dense_Matrix<RealT> > M_; // Mass matrix                                                                                                                                                                       
   HDSA::Ptr<HDSA::Dense_Matrix<RealT> > W_u_; // State weighting matrix                                                                                                                                                         
-
+  const HDSA::Ptr<HDSA::Random_Number_Generator<RealT> > random_number_generator_;
+  
 public:
-  MD_u_Prior_Interface_model_discrepancy_synthetic_test_with_hessian_gevp()
+  MD_u_Prior_Interface_model_discrepancy_synthetic_test_with_hessian_gevp(const HDSA::Ptr<HDSA::Random_Number_Generator<RealT> > & random_number_generator): random_number_generator_(random_number_generator)
   { 
     m_ = 51;
     RealT h = 1.0/static_cast<RealT>(m_-1);
@@ -144,13 +145,10 @@ public:
     int num_samples = samples.Number_of_Vectors();
     for(int i = 0; i < num_samples; i++)
       {
-
 	HDSA::Ptr<HDSA::Dense_Matrix<RealT> > b = HDSA::makePtr<HDSA::Dense_Matrix<RealT> >(m_,1);
-	HDSA::Ptr<Std_Vector<RealT> > vec_in_std = HDSA::makePtr<Std_Vector<RealT> >(m_);
-        vec_in_std->randomize_standard_normal();
         for(int k = 0; k < m_; k++)
           {
-            b->Replace_Element(k,0,(*vec_in_std)(k));
+            b->Replace_Element(k,0,random_number_generator_->Generate_Standard_Normal_Sample());
           }
 	HDSA::Ptr<HDSA::Dense_Matrix<RealT> > x = HDSA::makePtr<HDSA::Dense_Matrix<RealT> >(m_,1);
 	HDSA::Linear_Algebra::Upper_Tri_Solve<RealT>(*x,*b,*R);
@@ -181,13 +179,10 @@ public:
     int num_samples = samples.Number_of_Vectors();
     for(int i = 0; i < num_samples; i++)
       {
-
 	HDSA::Ptr<HDSA::Dense_Matrix<RealT> > b = HDSA::makePtr<HDSA::Dense_Matrix<RealT> >(m_,1);
-	HDSA::Ptr<Std_Vector<RealT> > vec_in_std = HDSA::makePtr<Std_Vector<RealT> >(m_);
-        vec_in_std->randomize_standard_normal();
         for(int k = 0; k < m_; k++)
           {
-            b->Replace_Element(k,0,(*vec_in_std)(k));
+            b->Replace_Element(k,0,random_number_generator_->Generate_Standard_Normal_Sample());
           }
 	HDSA::Ptr<HDSA::Dense_Matrix<RealT> > x = HDSA::makePtr<HDSA::Dense_Matrix<RealT> >(m_,1);
 	HDSA::Linear_Algebra::Upper_Tri_Solve<RealT>(*x,*b,*R);
@@ -198,8 +193,8 @@ public:
           }
       }
   }
-
-  };
+  
+};
 
 #endif
 

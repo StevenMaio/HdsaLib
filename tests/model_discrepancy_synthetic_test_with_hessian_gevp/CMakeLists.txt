@@ -13,7 +13,7 @@ INCLUDE_DIRECTORIES(${${PACKAGE_NAME}_SOURCE_DIR}/adapters/tpetra/src/vector)
  TRIBITS_COPY_FILES_TO_BINARY_DIR(
     ModelDiscrepancySyntheticTestWithHessianGEVPDataCopy
     SOURCE_FILES
-	Plotting_Script.m reference_solution.mat
+	Plotting_Script.m Sabl_Output.mat random_numbers.txt
     SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}"
     DEST_DIR "${CMAKE_CURRENT_BINARY_DIR}"
   )

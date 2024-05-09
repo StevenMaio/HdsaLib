@@ -14,11 +14,15 @@ int main(int argc, char *argv[]) {
   HDSA::nullstream bhs;
   Teuchos::GlobalMPISession mpiSession (&argc, &argv, &bhs);
   HDSA::Ptr<const HDSA::Comm<int> > comm = HDSA::makePtr<HDSA::Comm<int> >();
- 
-  HDSA::Ptr<HDSA::MD_Data_Interface<RealT> > data_interface = HDSA::makePtr<MD_Data_Interface_model_discrepancy_synthetic_test_with_hessian_gevp<RealT> >();
+
+  int num_random_numbers = 1.e5;
+  std::string random_number_file = "random_numbers.txt";
+  HDSA::Ptr<HDSA::Random_Number_Generator<RealT> > random_number_generator = HDSA::makePtr<HDSA::Random_Number_Generator<RealT> >(num_random_numbers,random_number_file);
+  
+  HDSA::Ptr<HDSA::MD_Data_Interface<RealT> > data_interface = HDSA::makePtr<MD_Data_Interface_model_discrepancy_synthetic_test_with_hessian_gevp<RealT> >(random_number_generator);
   HDSA::Ptr<HDSA::MD_Opt_Prob_Interface<RealT> > opt_prob_interface = HDSA::makePtr<MD_Opt_Prob_Interface_model_discrepancy_synthetic_test_with_hessian_gevp<RealT> >();
-  HDSA::Ptr<HDSA::MD_u_Prior_Interface<RealT> > u_prior_interface = HDSA::makePtr<MD_u_Prior_Interface_model_discrepancy_synthetic_test_with_hessian_gevp<RealT> >();
-  HDSA::Ptr<HDSA::MD_z_Prior_Interface<RealT> > z_prior_interface = HDSA::makePtr<MD_z_Prior_Interface_model_discrepancy_synthetic_test_with_hessian_gevp<RealT> >();
+  HDSA::Ptr<HDSA::MD_u_Prior_Interface<RealT> > u_prior_interface = HDSA::makePtr<MD_u_Prior_Interface_model_discrepancy_synthetic_test_with_hessian_gevp<RealT> >(random_number_generator);
+  HDSA::Ptr<HDSA::MD_z_Prior_Interface<RealT> > z_prior_interface = HDSA::makePtr<MD_z_Prior_Interface_model_discrepancy_synthetic_test_with_hessian_gevp<RealT> >(random_number_generator);
 
   HDSA::Ptr<HDSA::MD_Prior_Sampling<RealT> > prior_sampling = HDSA::makePtr<HDSA::MD_Prior_Sampling<RealT> >(data_interface,u_prior_interface,z_prior_interface);
 

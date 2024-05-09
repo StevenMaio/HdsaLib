@@ -12,7 +12,7 @@ private:
   HDSA::Ptr<HDSA::Dense_Matrix<RealT> > E_u_; // State precision matrix elliptic operator                                                                                                                                                         
 
 public:
-  MD_Elliptic_u_Prior_Interface_model_discrepancy_synthetic_test_with_gsvd(RealT & alpha_u): HDSA::MD_Elliptic_u_Prior_Interface<RealT>(alpha_u)
+  MD_Elliptic_u_Prior_Interface_model_discrepancy_synthetic_test_with_gsvd(RealT & alpha_u, const HDSA::Ptr<HDSA::Random_Number_Generator<RealT> > & random_number_generator): HDSA::MD_Elliptic_u_Prior_Interface<RealT>(alpha_u,random_number_generator)
   { 
     m_ = 51;
     RealT h = 1.0/static_cast<RealT>(m_-1);

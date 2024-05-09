@@ -20,17 +20,13 @@ namespace HDSA
     const HDSA::Ptr<HDSA::Random_Number_Generator<RealT> > random_number_generator_;
 
   public:
-    MD_Elliptic_u_Prior_Interface(RealT & alpha_u): alpha_u_(alpha_u)  
-    {
-      *random_number_generator_ = HDSA::Random_Number_Generator<RealT>();
-    }
+    MD_Elliptic_u_Prior_Interface(RealT & alpha_u): alpha_u_(alpha_u), random_number_generator_(HDSA::makePtr<HDSA::Random_Number_Generator<RealT> >())  
+    { }
 
-    MD_Elliptic_u_Prior_Interface(RealT & alpha_u, int & seed): alpha_u_(alpha_u)
-    {
-      *random_number_generator_ = HDSA::Random_Number_Generator<RealT>(seed);
-    }
+    MD_Elliptic_u_Prior_Interface(RealT & alpha_u, int & seed): alpha_u_(alpha_u), random_number_generator_(HDSA::Random_Number_Generator<RealT>(seed))
+    { }
 
-    MD_Elliptic_u_Prior_Interface(RealT & alpha_u, HDSA::Ptr<HDSA::Random_Number_Generator<RealT> > & random_number_generator)
+    MD_Elliptic_u_Prior_Interface(RealT & alpha_u, const HDSA::Ptr<HDSA::Random_Number_Generator<RealT> > & random_number_generator)
       : alpha_u_(alpha_u), random_number_generator_(random_number_generator)
     { }
 
