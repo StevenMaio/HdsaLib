@@ -109,12 +109,19 @@ namespace HDSA
       sing_vecs_output.zeros();
       for(int k = 0; k < num_sing_vals; k++)
         {
+
           for(int i = 0; i < kpp; i++)
             {
               sing_vecs_input[k]->axpy((*V)(i,k),*(*Q_B)[i]);
               sing_vecs_output[k]->axpy((*UT)(k,i),*(*Q)[i]);
 	      sing_vals.Replace_Element(k,0,(*S)(k,0));
             }
+
+	  if( (*V)(0,k) < 0.0 )
+	    {
+	      sing_vecs_input[k]->scale(-1.0);
+	      sing_vecs_output[k]->scale(-1.0);
+	    }
         }
 
     }
