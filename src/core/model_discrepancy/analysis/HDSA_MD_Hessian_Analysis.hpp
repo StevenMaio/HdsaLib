@@ -132,7 +132,6 @@ namespace HDSA
       void Apply_Operator(HDSA::Vector<ScalarType> & vec_out, const HDSA::Vector<ScalarType> & vec_in) const
       {
 	opt_prob_interface_->Apply_RS_Hessian(vec_out,vec_in,*z_);
-	vec_out.set(vec_in);
       }
 
       void Apply_Weighting_Operator(HDSA::Vector<ScalarType> & vec_out, const HDSA::Vector<ScalarType> & vec_in) const

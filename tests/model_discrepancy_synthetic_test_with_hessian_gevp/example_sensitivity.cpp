@@ -26,6 +26,11 @@ int main(int argc, char *argv[]) {
 
   HDSA::Ptr<HDSA::MD_Prior_Sampling<RealT> > prior_sampling = HDSA::makePtr<HDSA::MD_Prior_Sampling<RealT> >(data_interface,u_prior_interface,z_prior_interface);
 
+  int num_prior_samples = 100;
+  HDSA::Ptr<HDSA::MultiVector<RealT> > prior_samples_at_z_opt = prior_sampling->Prior_Discrepancy_Samples_at_z_opt(num_prior_samples);
+  std::string name = "prior_discrepancy_evaluated_at_z_opt";
+  prior_samples_at_z_opt->Write_to_File(name);
+  
   HDSA::Ptr<HDSA::MultiVector<RealT> > z = HDSA::makePtr<HDSA::MultiVector<RealT> >(3,*data_interface->get_z_opt());
   HDSA::Ptr<HDSA::Vector<RealT> > z0 = (*z)[0];
   HDSA::Ptr<HDSA::Vector<RealT> > z1 = (*z)[1];
@@ -47,19 +52,17 @@ int main(int argc, char *argv[]) {
       z2_std.Replace_Element(k,std::sin(2*pi*(*x)(k,0)));
     }
 
-  int num_prior_samples = 100;
-  std::vector<HDSA::Ptr<HDSA::MultiVector<RealT> > > prior_samples = prior_sampling->Prior_Discrepancy_Samples(*z,num_prior_samples);
 
+
+  
+  std::vector<HDSA::Ptr<HDSA::MultiVector<RealT> > > prior_samples = prior_sampling->Prior_Discrepancy_Samples(*z,num_prior_samples);
   for(int i = 0; i < num_prior_samples; i++)
     {
-      std::string name = "prior_discrepancy_evaluated_at_z_" + std::to_string(i+1);
+      std::string name = "prior_discrepancy_sample_" + std::to_string(i+1);
       prior_samples[i]->Write_to_File(name);
     }
 
-  HDSA::Ptr<HDSA::MultiVector<RealT> > prior_samples_at_z_opt = prior_sampling->Prior_Discrepancy_Samples_at_z_opt(num_prior_samples);
-  std::string name = "prior_discrepancy_evaluated_at_z_opt";
-  prior_samples_at_z_opt->Write_to_File(name);
-    
+  
   HDSA::Ptr<HDSA::MD_Posterior_Data<RealT> > post_data = HDSA::makePtr<HDSA::MD_Posterior_Data<RealT> >();
 
   HDSA::Ptr<HDSA::MD_Posterior_Sampling<RealT> > post_sampling = HDSA::makePtr<HDSA::MD_Posterior_Sampling<RealT> >(data_interface,u_prior_interface,z_prior_interface);
