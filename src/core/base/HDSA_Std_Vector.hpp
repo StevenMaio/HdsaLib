@@ -10,15 +10,15 @@ private:
   HDSA::Ptr<std::vector<RealT> > vec_;
 
 public:  
-  Std_Vector(int dim): dim_(dim)
+  Std_Vector(int dim):
+    dim_(dim), random_number_generator_(HDSA::makePtr<HDSA::Random_Number_Generator<RealT> >())  
   {
-    *random_number_generator_ = HDSA::Random_Number_Generator<RealT>();
     vec_ = HDSA::makePtr<std::vector<RealT> >(dim,0.0);
   }
 
-  Std_Vector(int dim, int seed): dim_(dim)
+  Std_Vector(int dim, int seed):
+    dim_(dim), random_number_generator_(HDSA::Random_Number_Generator<RealT>(seed))
   {
-    *random_number_generator_ = HDSA::Random_Number_Generator<RealT>(seed);
     vec_ = HDSA::makePtr<std::vector<RealT> >(dim,0.0);
   }
 

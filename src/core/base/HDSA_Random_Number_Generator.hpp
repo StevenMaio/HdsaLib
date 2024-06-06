@@ -81,7 +81,7 @@ public:
       }
     else
       {
-	distribution_(generator_);
+	val = distribution_(generator_);
       }
     return val;
   }

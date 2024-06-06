@@ -11,10 +11,14 @@ int main(int argc, char *argv[]) {
   HDSA::nullstream bhs;
   Teuchos::GlobalMPISession mpiSession (&argc, &argv, &bhs);
   HDSA::Ptr<const HDSA::Comm<int> > comm = HDSA::makePtr<HDSA::Comm<int> >();
- 
+
+  int num_random_numbers = 1.e5;
+  std::string random_number_file = "random_numbers.txt";
+  HDSA::Ptr<HDSA::Random_Number_Generator<RealT> > random_number_generator = HDSA::makePtr<HDSA::Random_Number_Generator<RealT> >(num_random_numbers,random_number_file);
+
   int m = 50;
   HDSA::Ptr<HDSA::Vector<RealT> > vec = HDSA::makePtr<Std_Vector<RealT> >(m);
-  HDSA::Ptr<HDSA::Randomized_GEVP<RealT> > gevp = HDSA::makePtr<Randomized_GEVP_test<RealT> >(*vec);
+  HDSA::Ptr<HDSA::Randomized_GEVP<RealT> > gevp = HDSA::makePtr<Randomized_GEVP_test<RealT> >(*vec, random_number_generator);
 
   int num_evals = 20;
   int oversampling = 20;

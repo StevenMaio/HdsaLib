@@ -96,6 +96,10 @@ namespace HDSA
               evecs[k]->axpy((*U)(i,k),*(*WQ)[i]);
 	      evals.Replace_Element(k,0,std::pow((*S)(k,0),2.0));
             }
+	  if( (*U)(0,k) < 0.0 )
+	    {
+	      evecs[k]->scale(-1.0);
+	    }
         }
 
     }

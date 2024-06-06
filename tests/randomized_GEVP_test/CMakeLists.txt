@@ -13,7 +13,7 @@ INCLUDE_DIRECTORIES(${${PACKAGE_NAME}_SOURCE_DIR}/adapters/tpetra/src/vector)
  TRIBITS_COPY_FILES_TO_BINARY_DIR(
     RandomizedGEVPTestDataCopy
     SOURCE_FILES
-	tmp.txt
+	Plotting_Script.m random_numbers.txt Sabl_Output.mat
     SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}"
     DEST_DIR "${CMAKE_CURRENT_BINARY_DIR}"
   )
