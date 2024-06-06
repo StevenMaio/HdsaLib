@@ -9,9 +9,12 @@ private:
   HDSA::Ptr<HDSA::Dense_Matrix<RealT> > S_; // Stiffness matrix
   HDSA::Ptr<HDSA::Dense_Matrix<RealT> > M_; // Mass matrix
   HDSA::Ptr<HDSA::Dense_Matrix<RealT> > E_z_; // Control elliptic
-
+  const HDSA::Ptr<HDSA::Random_Number_Generator<RealT> > random_number_generator_;
+  RealT alpha_z_;
+  
 public:
-  MD_Elliptic_z_Prior_Interface_PDE_Test_Problem(RealT & alpha_z): HDSA::MD_Elliptic_z_Prior_Interface<RealT>(alpha_z)
+  MD_Elliptic_z_Prior_Interface_PDE_Test_Problem(RealT & alpha_z, const HDSA::Ptr<HDSA::Random_Number_Generator<RealT> > & random_number_generator):
+    HDSA::MD_Elliptic_z_Prior_Interface<RealT>(alpha_z), random_number_generator_(random_number_generator), alpha_z_(alpha_z)
   { 
     m_ = 200;
     RealT h = 1.0/static_cast<RealT>(m_-1);
@@ -89,11 +92,9 @@ public:
       {
 
 	HDSA::Ptr<HDSA::Dense_Matrix<RealT> > b = HDSA::makePtr<HDSA::Dense_Matrix<RealT> >(m_,1);
-	HDSA::Ptr<Std_Vector<RealT> > vec_in_std = HDSA::makePtr<Std_Vector<RealT> >(m_);
-        vec_in_std->randomize_standard_normal();
         for(int k = 0; k < m_; k++)
           {
-            b->Replace_Element(k,0,(*vec_in_std)(k));
+            b->Replace_Element(k,0,random_number_generator_->Generate_Standard_Normal_Sample());
           }
 	HDSA::Ptr<HDSA::Dense_Matrix<RealT> > x = HDSA::makePtr<HDSA::Dense_Matrix<RealT> >(m_,1);
 	
@@ -107,6 +108,7 @@ public:
           {
             vec_out_std.Replace_Element(k,(*x)(k,0));
           }
+	vec_out_std.scale(std::sqrt(alpha_z_));
       }
   }
 

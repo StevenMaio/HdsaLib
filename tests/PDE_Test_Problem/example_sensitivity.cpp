@@ -14,23 +14,32 @@ int main(int argc, char *argv[]) {
   HDSA::nullstream bhs;
   Teuchos::GlobalMPISession mpiSession (&argc, &argv, &bhs);
   HDSA::Ptr<const HDSA::Comm<int> > comm = HDSA::makePtr<HDSA::Comm<int> >();
- 
-  HDSA::Ptr<HDSA::MD_Data_Interface<RealT> > data_interface = HDSA::makePtr<MD_Data_Interface_PDE_Test_Problem<RealT> >();
+
+  int num_random_numbers = 4.e5;
+  std::string random_number_file = "random_numbers.txt";
+  HDSA::Ptr<HDSA::Random_Number_Generator<RealT> > random_number_generator = HDSA::makePtr<HDSA::Random_Number_Generator<RealT> >(num_random_numbers,random_number_file);
+  
+  HDSA::Ptr<HDSA::MD_Data_Interface<RealT> > data_interface = HDSA::makePtr<MD_Data_Interface_PDE_Test_Problem<RealT> >(random_number_generator);
   HDSA::Ptr<HDSA::MD_Opt_Prob_Interface<RealT> > opt_prob_interface = HDSA::makePtr<MD_Opt_Prob_Interface_PDE_Test_Problem<RealT> >();
   RealT alpha_u = 1.0/std::pow(2.0,2.0);
-  RealT alpha_z = 1.0/std::pow(100.00,2.0);
-  HDSA::Ptr<HDSA::MD_u_Prior_Interface<RealT> > u_prior_interface = HDSA::makePtr<MD_Elliptic_u_Prior_Interface_PDE_Test_Problem<RealT> >(alpha_u);
-  HDSA::Ptr<HDSA::MD_z_Prior_Interface<RealT> > z_prior_interface = HDSA::makePtr<MD_Elliptic_z_Prior_Interface_PDE_Test_Problem<RealT> >(alpha_z);
+  RealT alpha_z = 1.0/std::pow(600.0,2.0);
+  HDSA::Ptr<HDSA::MD_u_Prior_Interface<RealT> > u_prior_interface = HDSA::makePtr<MD_Elliptic_u_Prior_Interface_PDE_Test_Problem<RealT> >(alpha_u,random_number_generator);
+  HDSA::Ptr<HDSA::MD_z_Prior_Interface<RealT> > z_prior_interface = HDSA::makePtr<MD_Elliptic_z_Prior_Interface_PDE_Test_Problem<RealT> >(alpha_z,random_number_generator);
 
-  int num_sing_vals = 50;
-  int oversampling = 1;
-  int num_subspace_iters = 2;
+  int num_sing_vals = 200;
+  int oversampling = 0;
+  int num_subspace_iters = 1;
   HDSA::Ptr<HDSA::Vector<RealT> > u_vec = data_interface->get_u_opt()->clone();
   HDSA::Ptr<HDSA::MD_Elliptic_u_Prior_Interface<RealT> > elliptic_u_prior_interface = HDSA::dynamicPtrCast<HDSA::MD_Elliptic_u_Prior_Interface<RealT> >(u_prior_interface);
   elliptic_u_prior_interface->Compute_E_u_Inverse_GSVD(num_sing_vals, oversampling, num_subspace_iters, *u_vec);
 
   HDSA::Ptr<HDSA::MD_Prior_Sampling<RealT> > prior_sampling = HDSA::makePtr<HDSA::MD_Prior_Sampling<RealT> >(data_interface,u_prior_interface,z_prior_interface);
 
+  int num_prior_samples = 100;
+  HDSA::Ptr<HDSA::MultiVector<RealT> > prior_samples_at_z_opt = prior_sampling->Prior_Discrepancy_Samples_at_z_opt(num_prior_samples);
+  std::string name = "prior_discrepancy_evaluated_at_z_opt";
+  prior_samples_at_z_opt->Write_to_File(name);
+  
   HDSA::Ptr<HDSA::MultiVector<RealT> > z = HDSA::makePtr<HDSA::MultiVector<RealT> >(3,*data_interface->get_z_opt());
   HDSA::Ptr<HDSA::Vector<RealT> > z0 = (*z)[0];
   HDSA::Ptr<HDSA::Vector<RealT> > z1 = (*z)[1];
@@ -47,23 +56,19 @@ int main(int argc, char *argv[]) {
   RealT pi = 3.14159265358979323846;
   for(int k = 0; k < m; k++)
     {
-      z0_std.Replace_Element(k,(*x)(k,0));
-      z1_std.Replace_Element(k,1.0 + std::pow((*x)(k,0),2.0));
-      z2_std.Replace_Element(k,std::sin(2*pi*(*x)(k,0)));
+      z0_std.Replace_Element(k,1.0 + std::sin(2*pi*(*x)(k,0)));
+      z1_std.Replace_Element(k,1.0 + std::cos(2*pi*(*x)(k,0)));
+      z2_std.Replace_Element(k,1.0 + std::sin(20*pi*(*x)(k,0)));
     }
 
-  int num_prior_samples = 100;
+
   std::vector<HDSA::Ptr<HDSA::MultiVector<RealT> > > prior_samples = prior_sampling->Prior_Discrepancy_Samples(*z,num_prior_samples);
 
   for(int i = 0; i < num_prior_samples; i++)
     {
-      std::string name = "prior_discrepancy_evaluated_at_z_" + std::to_string(i+1);
+      std::string name = "prior_discrepancy_sample_" + std::to_string(i+1);
       prior_samples[i]->Write_to_File(name);
     }
-
-  HDSA::Ptr<HDSA::MultiVector<RealT> > prior_samples_at_z_opt = prior_sampling->Prior_Discrepancy_Samples_at_z_opt(num_prior_samples);
-  std::string name = "prior_discrepancy_evaluated_at_z_opt";
-  prior_samples_at_z_opt->Write_to_File(name);
     
   HDSA::Ptr<HDSA::MD_Posterior_Data<RealT> > post_data = HDSA::makePtr<HDSA::MD_Posterior_Data<RealT> >();
 

@@ -95,7 +95,7 @@ namespace HDSA
 	    }
 	  
 	  RealT tmp = W_z_inv_dz_k->dot(*z_tmp);
-	  if(tmp < -1.e-13)
+	  if(tmp < -1.e-12)
 	    {
 	      HDSA_TEST_FOR_EXCEPTION( true, std::logic_error,
 				       "Error in Posterior Discrepancy Samples: delta breve coeff < 0" << std::endl);

@@ -13,7 +13,7 @@ INCLUDE_DIRECTORIES(${${PACKAGE_NAME}_SOURCE_DIR}/adapters/tpetra/src/vector)
  TRIBITS_COPY_FILES_TO_BINARY_DIR(
     PDETestProblemDataCopy
     SOURCE_FILES
-	u_opt.txt z_opt.txt Z.txt D.txt reference_solution.mat Plotting_Script.m
+	u_opt.txt z_opt.txt Z.txt D.txt random_numbers.txt Sabl_Output.mat Plotting_Script.m
     SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}"
     DEST_DIR "${CMAKE_CURRENT_BINARY_DIR}"
   )
