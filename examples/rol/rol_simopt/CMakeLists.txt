@@ -8,8 +8,8 @@ TRIBITS_ADD_EXECUTABLE_AND_TEST(
 )
 
 TRIBITS_ADD_EXECUTABLE_AND_TEST(
-  example_hdsa
-  SOURCES example_hdsa.cpp
+  example_sensitivity
+  SOURCES example_sensitivity.cpp
   ARGS PrintItAll
   NUM_MPI_PROCS 1
   PASS_REGULAR_EXPRESSION "TEST PASSED"

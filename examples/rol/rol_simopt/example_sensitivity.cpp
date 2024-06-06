@@ -13,7 +13,6 @@
 #include <fstream>
 #include <math.h>
 #include "../../../src/source_file.hpp"
-#include "HDSA_ROL_MD_Interface_rol_simopt_test_problem.hpp"
 
 typedef double RealT;
 
@@ -46,24 +45,29 @@ int main(int argc, char *argv[]) {
   ROL::StdVector<RealT> u(u_ptr);
   ROL::Ptr<ROL::Vector<RealT> > up  = ROL::makePtrFromRef(u);
 
-  HDSA::Ptr<HDSA::Model_Discrepancy_Interface<RealT> > md_interface = HDSA::makePtr<ROL_Model_Discrepancy_Interface_simopt_test_problem<RealT> >(pobj, pcon, up, zp, m);
-  HDSA::Ptr<HDSA::Model_Discrepancy_Update<RealT> > md_update = HDSA::makePtr<HDSA::Model_Discrepancy_Update<RealT> >(md_interface);
+  HDSA::Ptr<HDSA::MD_Opt_Prob_Interface<RealT> > opt_prob_interface = HDSA::makePtr<HDSA::MD_ROL_Opt_Prob_Interface<RealT> >(pobj, pcon, up, zp);
+
+
+
+
   
-  RealT alpha = 1.e-3;
-  md_update->Compute_Posterior_Data(alpha);
-  HDSA::Ptr<HDSA::Vector<RealT> > z_update = md_update->Posterior_Update_Mean();
+  // HDSA::Ptr<HDSA::Model_Discrepancy_Update<RealT> > md_update = HDSA::makePtr<HDSA::Model_Discrepancy_Update<RealT> >(md_interface);
+  
+  // RealT alpha = 1.e-3;
+  // md_update->Compute_Posterior_Data(alpha);
+  // HDSA::Ptr<HDSA::Vector<RealT> > z_update = md_update->Posterior_Update_Mean();
 
-  HDSA::ROL_Vector<RealT>& z_update_rol = dynamic_cast<HDSA::ROL_Vector<RealT>&>(*z_update);
-  ROL::Ptr<std::vector<RealT> > z_update_std = dynamic_cast<ROL::StdVector<RealT>&>(*z_update_rol.rol_vec).getVector();
+  // HDSA::ROL_Vector<RealT>& z_update_rol = dynamic_cast<HDSA::ROL_Vector<RealT>&>(*z_update);
+  // ROL::Ptr<std::vector<RealT> > z_update_std = dynamic_cast<ROL::StdVector<RealT>&>(*z_update_rol.rol_vec).getVector();
 
-  std::string name = "z_update.txt";
-  std::ofstream fout;
-  fout.open(name);
-  for(int k = 0; k < z_update->dimension(); k++)
-    {
-      fout << std::setprecision(16) << (*z_update_std)[k] << std::endl;
-    }
-  fout.close();
+  // std::string name = "z_update.txt";
+  // std::ofstream fout;
+  // fout.open(name);
+  // for(int k = 0; k < z_update->dimension(); k++)
+  //   {
+  //     fout << std::setprecision(16) << (*z_update_std)[k] << std::endl;
+  //   }
+  // fout.close();
 
   return 0;
 }
