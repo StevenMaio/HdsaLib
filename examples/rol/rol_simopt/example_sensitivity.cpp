@@ -13,6 +13,9 @@
 #include <fstream>
 #include <math.h>
 #include "../../../src/source_file.hpp"
+#include "Elliptic_u_Prior_Interface_rol_simopt_test_problem.hpp"
+#include "Elliptic_z_Prior_Interface_rol_simopt_test_problem.hpp"
+#include "Data_Interface_rol_simopt_test_problem.hpp"
 
 typedef double RealT;
 
@@ -47,6 +50,13 @@ int main(int argc, char *argv[]) {
 
   HDSA::Ptr<HDSA::MD_Opt_Prob_Interface<RealT> > opt_prob_interface = HDSA::makePtr<HDSA::MD_ROL_Opt_Prob_Interface<RealT> >(pobj, pcon, up, zp);
 
+  // Need to check hyper-parameter values
+  HDSA::Ptr<HDSA::Random_Number_Generator<RealT> > random_number_generator = HDSA::makePtr<HDSA::Random_Number_Generator<RealT> >();
+  HDSA::Ptr<HDSA::MD_Data_Interface<RealT> > data_interface = HDSA::makePtr<Data_Interface_SimOptTestProb<RealT> >(m);
+  RealT alpha_u = 1.0/std::pow(2.0,2.0);
+  RealT alpha_z = 1.0/std::pow(100.00,2.0);
+  HDSA::Ptr<HDSA::MD_u_Prior_Interface<RealT> > u_prior_interface = HDSA::makePtr<Elliptic_u_Prior_Interface_SimOptTestProb<RealT> >(alpha_u,m);
+  HDSA::Ptr<HDSA::MD_z_Prior_Interface<RealT> > z_prior_interface = HDSA::makePtr<Elliptic_z_Prior_Interface_SimOptTestProb<RealT> >(alpha_z,m,random_number_generator);
 
 
 
