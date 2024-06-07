@@ -79,7 +79,7 @@ public:
     ROL::StdVector<RealT> u(u_ptr);
     ROL::Ptr<ROL::Vector<RealT> > up  = ROL::makePtrFromRef(u);
     for (int i=0;i<m_;i++){
-      (*u_ptr)[i] = 0.2*std::pow(1.0+(*x_)(i,0),2.0);
+      (*u_ptr)[i] = 0.2*std::pow(1.0+(*x_)(i,0),3.0);
     }
     HDSA::Ptr<HDSA::Vector<RealT> > u_hdsa = HDSA::makePtr<HDSA::ROL_Vector<RealT> >(*up);
     HDSA::ROL_Vector<RealT>& u_hdsa_rol = dynamic_cast<HDSA::ROL_Vector<RealT>&>(*u_hdsa);
@@ -88,7 +88,7 @@ public:
     (*Y)[0]->set(*u_hdsa);
 
     for (int i=0;i<m_;i++){
-      (*u_ptr)[i] = 0.2*std::pow((*x_)(i,0)+std::pow((*x_)(i,0),2.0),2.0);
+      (*u_ptr)[i] = 0.2*std::pow((*x_)(i,0)+std::pow((*x_)(i,0),2.0),3.0);
     }
     u_hdsa_rol.rol_vec->set(*up);
     (*Y)[1]->set(*u_hdsa);

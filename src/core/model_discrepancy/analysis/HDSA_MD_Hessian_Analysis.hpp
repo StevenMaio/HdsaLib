@@ -35,6 +35,14 @@ namespace HDSA
       z_current_->set(z);
       hessian_gevp->Compute_GEVP(*evecs_,*evals_,num_evals,oversampling);
       use_projector_ = true;
+      std::ofstream fout;
+      std::string name = "hessian_evals.txt";
+      fout.open(name);
+      for(int i = 0; i < num_evals; i++)
+	{
+	  fout << std::setprecision(16) << (*evals_)(i,0) << "  ";
+	}
+      fout.close();
     }
 
     void Apply_RS_Hessian_Inverse(HDSA::Vector<RealT> & z_out, const HDSA::Vector<RealT> & z_in, const HDSA::Vector<RealT> & z) const

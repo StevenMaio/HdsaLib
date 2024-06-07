@@ -13,7 +13,7 @@ private:
   const HDSA::Ptr<HDSA::Random_Number_Generator<RealT> > random_number_generator_;
   
 public:
-  Elliptic_z_Prior_Interface_SimOptTestProb(RealT & alpha_z, int & m, const HDSA::Ptr<HDSA::Random_Number_Generator<RealT> > & random_number_generator)
+  Elliptic_z_Prior_Interface_SimOptTestProb(RealT & alpha_z, RealT & beta_z, int & m, const HDSA::Ptr<HDSA::Random_Number_Generator<RealT> > & random_number_generator)
     : HDSA::MD_Elliptic_z_Prior_Interface<RealT>(alpha_z), random_number_generator_(random_number_generator)
   {
     m_ = m;
@@ -50,7 +50,7 @@ public:
       {
 	for(int j = 0; j < m_; j++)
 	  {
-	    RealT val = (5.e-2)*(*S_)(i,j) + (*M_)(i,j);
+	    RealT val = beta_z*(*S_)(i,j) + (*M_)(i,j);
 	    E_z_->Replace_Element(i,j,val);
 	  }
       }
@@ -128,10 +128,11 @@ public:
 	R->Multiply(*tmp, *b, true);
 	HDSA::Linear_Algebra::Symmetric_Direct_Linear_Solve<RealT>(*E_z_,*x,*tmp);
 
-	Std_Vector<RealT>& vec_out_std = dynamic_cast<Std_Vector<RealT>&>(*samples[i]);
+	HDSA::ROL_Vector<RealT>& z_i = dynamic_cast<HDSA::ROL_Vector<RealT>&>(*samples[i]);
+	ROL::Ptr<std::vector<RealT> > z_i_std = dynamic_cast<ROL::StdVector<RealT>&>(*z_i.rol_vec).getVector();
         for(int k = 0; k < m_; k++)
           {
-            vec_out_std.Replace_Element(k,(*x)(k,0));
+	    (*z_i_std)[k] = (*x)(k,0);
           }
       } 
   }   

@@ -13,7 +13,7 @@ private:
 
   
 public:
-  Elliptic_u_Prior_Interface_SimOptTestProb(RealT & alpha_u, int & m): HDSA::MD_Elliptic_u_Prior_Interface<RealT>(alpha_u)
+  Elliptic_u_Prior_Interface_SimOptTestProb(RealT & alpha_u, RealT & beta_u, int & m): HDSA::MD_Elliptic_u_Prior_Interface<RealT>(alpha_u)
   {
     m_ = m;
 
@@ -49,7 +49,7 @@ public:
       {
 	for(int j = 0; j < m_; j++)
 	  {
-	    RealT val = (5.e-2)*(*S_)(i,j) + (*M_)(i,j);
+	    RealT val = beta_u*(*S_)(i,j) + (*M_)(i,j);
 	    E_u_->Replace_Element(i,j,val);
 	  }
       }
