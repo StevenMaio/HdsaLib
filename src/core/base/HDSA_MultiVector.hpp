@@ -1,7 +1,7 @@
 #ifndef HDSA_MULTIVECTOR_HPP
 #define HDSA_MULTIVECTOR_HPP
 
-#include <filesystem>
+#include <sys/stat.h>
 
 namespace HDSA
 {
@@ -118,7 +118,7 @@ public:
 
   void Write_to_File(std::string & name)
   {
-    std::filesystem::create_directory(name);
+    mkdir(name.c_str(),S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
     for(int k = 0; k < num_vecs_; k++)
       {
 	std::string name_k = name + "/Vector_" + std::to_string(k+1) + ".txt";

@@ -30,6 +30,9 @@
 #include "core/model_discrepancy/analysis/HDSA_MD_Hessian_Analysis.hpp"
 #include "core/model_discrepancy/analysis/HDSA_MD_Update.hpp"
 
+#include "core/parametric_continuation/interfaces/HDSA_PC_Sensitivity_Operator_Interface.hpp"
+#include "core/parametric_continuation/analysis/HDSA_PC_Pseudo_Time_Continuation.hpp"
+
 #include "../interfaces/rol/HDSA_ROL_Vector.hpp"
 #include "../interfaces/rol/HDSA_MD_ROL_Opt_Prob_Interface.hpp"
 
