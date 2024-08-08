@@ -4,7 +4,7 @@
 template <class RealT>
 class Adv_Diff_Constraint {
 
-private:
+public:
   int m_; // Mesh resolution
   HDSA::Ptr<HDSA::Dense_Matrix<RealT> > x_; // Mesh nodes on [0,1]
   HDSA::Ptr<HDSA::Dense_Matrix<RealT> > S_; // Stiffness matrix
@@ -29,8 +29,6 @@ private:
       }
     VT->Multiply(x,*tmp,true,false);    
   }
-  
-public:
 
   void State_Solve(HDSA::Vector<RealT> & u, const HDSA::Vector<RealT> & z, const HDSA::Vector<RealT> & theta) const
   {
@@ -64,7 +62,7 @@ public:
   {
     Std_Vector<RealT>& u_out_std = dynamic_cast<Std_Vector<RealT>&>(u_out);
     const Std_Vector<RealT>& u_in_std = dynamic_cast<const Std_Vector<RealT>&>(u_in);
-    const Std_Vector<RealT>& u_std = dynamic_cast<const Std_Vector<RealT>&>(u);
+    //const Std_Vector<RealT>& u_std = dynamic_cast<const Std_Vector<RealT>&>(u);
     const Std_Vector<RealT>& z_std = dynamic_cast<const Std_Vector<RealT>&>(z);
     const Std_Vector<RealT>& theta_std = dynamic_cast<const Std_Vector<RealT>&>(theta);
 
@@ -81,12 +79,17 @@ public:
 	  }
       }
 
-    HDSA::Ptr<HDSA::Dense_Matrix<RealT> > u_tmp = HDSA::makePtr<HDSA::Dense_Matrix<RealT> >(m_,1);
-    Dense_Linear_Solve(*c_u_trans,*u_tmp,*forcing_);
+    HDSA::Ptr<HDSA::Dense_Matrix<RealT> > u_tmp1 = HDSA::makePtr<HDSA::Dense_Matrix<RealT> >(m_,1);
+    for(int k = 0; k < m_; k++)
+      {
+	u_tmp1->Replace_Element(k,0,u_in_std(k));
+      }
+    HDSA::Ptr<HDSA::Dense_Matrix<RealT> > u_tmp2 = HDSA::makePtr<HDSA::Dense_Matrix<RealT> >(m_,1);
+    Dense_Linear_Solve(*c_u_trans,*u_tmp2,*u_tmp1);
     
     for(int k = 0; k < m_; k++)
       {
-	u_out_std.Replace_Element(k,(*u_tmp)(k,0));
+	u_out_std.Replace_Element(k,(*u_tmp2)(k,0));
       }
   }
 
@@ -94,7 +97,7 @@ public:
   {
     Std_Vector<RealT>& u_out_std = dynamic_cast<Std_Vector<RealT>&>(u_out);
     const Std_Vector<RealT>& u_in_std = dynamic_cast<const Std_Vector<RealT>&>(u_in);
-    const Std_Vector<RealT>& u_std = dynamic_cast<const Std_Vector<RealT>&>(u);
+    //const Std_Vector<RealT>& u_std = dynamic_cast<const Std_Vector<RealT>&>(u);
     const Std_Vector<RealT>& z_std = dynamic_cast<const Std_Vector<RealT>&>(z);
     const Std_Vector<RealT>& theta_std = dynamic_cast<const Std_Vector<RealT>&>(theta);
 
@@ -111,12 +114,17 @@ public:
 	  }
       }
 
-    HDSA::Ptr<HDSA::Dense_Matrix<RealT> > u_tmp = HDSA::makePtr<HDSA::Dense_Matrix<RealT> >(m_,1);
-    Dense_Linear_Solve(*c_u,*u_tmp,*forcing_);
+    HDSA::Ptr<HDSA::Dense_Matrix<RealT> > u_tmp1 = HDSA::makePtr<HDSA::Dense_Matrix<RealT> >(m_,1);
+    for(int k = 0; k < m_; k++)
+      {
+	u_tmp1->Replace_Element(k,0,u_in_std(k));
+      }
+    HDSA::Ptr<HDSA::Dense_Matrix<RealT> > u_tmp2 = HDSA::makePtr<HDSA::Dense_Matrix<RealT> >(m_,1);
+    Dense_Linear_Solve(*c_u,*u_tmp2,*u_tmp1);
     
     for(int k = 0; k < m_; k++)
       {
-	u_out_std.Replace_Element(k,(*u_tmp)(k,0));
+	u_out_std.Replace_Element(k,(*u_tmp2)(k,0));
       }
   }
 
@@ -125,15 +133,15 @@ public:
     Std_Vector<RealT>& z_out_std = dynamic_cast<Std_Vector<RealT>&>(z_out);
     const Std_Vector<RealT>& u_in_std = dynamic_cast<const Std_Vector<RealT>&>(u_in);
     const Std_Vector<RealT>& u_std = dynamic_cast<const Std_Vector<RealT>&>(u);
-    const Std_Vector<RealT>& z_std = dynamic_cast<const Std_Vector<RealT>&>(z);
-    const Std_Vector<RealT>& theta_std = dynamic_cast<const Std_Vector<RealT>&>(theta);
+    //const Std_Vector<RealT>& z_std = dynamic_cast<const Std_Vector<RealT>&>(z);
+    //const Std_Vector<RealT>& theta_std = dynamic_cast<const Std_Vector<RealT>&>(theta);
 
     HDSA::Ptr<HDSA::Dense_Matrix<RealT> > D = Diff_Assembly_z_Jacobian(*u_std.get_std_vec());
 
     HDSA::Ptr<HDSA::Dense_Matrix<RealT> > u_tmp = HDSA::makePtr<HDSA::Dense_Matrix<RealT> >(m_,1);
     for(int k = 0; k < m_; k++)
       {
-	u_tmp->Replace_Element(k,0,u_in_std[k]);
+	u_tmp->Replace_Element(k,0,u_in_std(k));
       }
     HDSA::Ptr<HDSA::Dense_Matrix<RealT> > z_tmp = HDSA::makePtr<HDSA::Dense_Matrix<RealT> >(m_,1);
     D->Multiply(*z_tmp,*u_tmp,true);
@@ -149,15 +157,15 @@ public:
     Std_Vector<RealT>& u_out_std = dynamic_cast<Std_Vector<RealT>&>(u_out);
     const Std_Vector<RealT>& z_in_std = dynamic_cast<const Std_Vector<RealT>&>(z_in);
     const Std_Vector<RealT>& u_std = dynamic_cast<const Std_Vector<RealT>&>(u);
-    const Std_Vector<RealT>& z_std = dynamic_cast<const Std_Vector<RealT>&>(z);
-    const Std_Vector<RealT>& theta_std = dynamic_cast<const Std_Vector<RealT>&>(theta);
+    //const Std_Vector<RealT>& z_std = dynamic_cast<const Std_Vector<RealT>&>(z);
+    //const Std_Vector<RealT>& theta_std = dynamic_cast<const Std_Vector<RealT>&>(theta);
 
     HDSA::Ptr<HDSA::Dense_Matrix<RealT> > D = Diff_Assembly_z_Jacobian(*u_std.get_std_vec());
 
     HDSA::Ptr<HDSA::Dense_Matrix<RealT> > z_tmp = HDSA::makePtr<HDSA::Dense_Matrix<RealT> >(m_,1);
     for(int k = 0; k < m_; k++)
       {
-	z_tmp->Replace_Element(k,0,z_in_std[k]);
+	z_tmp->Replace_Element(k,0,z_in_std(k));
       }
     HDSA::Ptr<HDSA::Dense_Matrix<RealT> > u_tmp = HDSA::makePtr<HDSA::Dense_Matrix<RealT> >(m_,1);
     D->Multiply(*u_tmp,*z_tmp);
@@ -177,17 +185,17 @@ public:
   {
     Std_Vector<RealT>& u_out_std = dynamic_cast<Std_Vector<RealT>&>(u_out);
     const Std_Vector<RealT>& z_in_std = dynamic_cast<const Std_Vector<RealT>&>(z_in);
-    const Std_Vector<RealT>& u_std = dynamic_cast<const Std_Vector<RealT>&>(u);
-    const Std_Vector<RealT>& z_std = dynamic_cast<const Std_Vector<RealT>&>(z);
+    //const Std_Vector<RealT>& u_std = dynamic_cast<const Std_Vector<RealT>&>(u);
+    //const Std_Vector<RealT>& z_std = dynamic_cast<const Std_Vector<RealT>&>(z);
     const Std_Vector<RealT>& lambda_std = dynamic_cast<const Std_Vector<RealT>&>(lambda);
-    const Std_Vector<RealT>& theta_std = dynamic_cast<const Std_Vector<RealT>&>(theta);
+    //const Std_Vector<RealT>& theta_std = dynamic_cast<const Std_Vector<RealT>&>(theta);
 
     HDSA::Ptr<HDSA::Dense_Matrix<RealT> > D = Diff_Assembly_z_Jacobian(*lambda_std.get_std_vec());
 
     HDSA::Ptr<HDSA::Dense_Matrix<RealT> > z_tmp = HDSA::makePtr<HDSA::Dense_Matrix<RealT> >(m_,1);
     for(int k = 0; k < m_; k++)
       {
-	z_tmp->Replace_Element(k,0,z_in_std[k]);
+	z_tmp->Replace_Element(k,0,z_in_std(k));
       }
     HDSA::Ptr<HDSA::Dense_Matrix<RealT> > u_tmp = HDSA::makePtr<HDSA::Dense_Matrix<RealT> >(m_,1);
     D->Multiply(*u_tmp,*z_tmp);
@@ -202,17 +210,17 @@ public:
   {
     Std_Vector<RealT>& z_out_std = dynamic_cast<Std_Vector<RealT>&>(z_out);
     const Std_Vector<RealT>& u_in_std = dynamic_cast<const Std_Vector<RealT>&>(u_in);
-    const Std_Vector<RealT>& u_std = dynamic_cast<const Std_Vector<RealT>&>(u);
-    const Std_Vector<RealT>& z_std = dynamic_cast<const Std_Vector<RealT>&>(z);
+    //const Std_Vector<RealT>& u_std = dynamic_cast<const Std_Vector<RealT>&>(u);
+    //const Std_Vector<RealT>& z_std = dynamic_cast<const Std_Vector<RealT>&>(z);
     const Std_Vector<RealT>& lambda_std = dynamic_cast<const Std_Vector<RealT>&>(lambda);
-    const Std_Vector<RealT>& theta_std = dynamic_cast<const Std_Vector<RealT>&>(theta);
+    //const Std_Vector<RealT>& theta_std = dynamic_cast<const Std_Vector<RealT>&>(theta);
 
     HDSA::Ptr<HDSA::Dense_Matrix<RealT> > D = Diff_Assembly_z_Jacobian(*lambda_std.get_std_vec());
 
     HDSA::Ptr<HDSA::Dense_Matrix<RealT> > u_tmp = HDSA::makePtr<HDSA::Dense_Matrix<RealT> >(m_,1);
     for(int k = 0; k < m_; k++)
       {
-	u_tmp->Replace_Element(k,0,u_in_std[k]);
+	u_tmp->Replace_Element(k,0,u_in_std(k));
       }
     HDSA::Ptr<HDSA::Dense_Matrix<RealT> > z_tmp = HDSA::makePtr<HDSA::Dense_Matrix<RealT> >(m_,1);
     D->Multiply(*z_tmp,*u_tmp,true);
@@ -228,6 +236,30 @@ public:
     z_out.zeros();
   }
 
+  void c_theta_Apply(HDSA::Vector<RealT> & u_out, const HDSA::Vector<RealT> & theta_in, const HDSA::Vector<RealT> & u, const HDSA::Vector<RealT> & z, const HDSA::Vector<RealT> & theta) const
+  {
+    Std_Vector<RealT>& u_out_std = dynamic_cast<Std_Vector<RealT>&>(u_out);
+    const Std_Vector<RealT>& theta_in_std = dynamic_cast<const Std_Vector<RealT>&>(theta_in);
+    const Std_Vector<RealT>& u_std = dynamic_cast<const Std_Vector<RealT>&>(u);
+    //const Std_Vector<RealT>& z_std = dynamic_cast<const Std_Vector<RealT>&>(z);
+    //const Std_Vector<RealT>& theta_std = dynamic_cast<const Std_Vector<RealT>&>(theta);
+
+    HDSA::Ptr<HDSA::Dense_Matrix<RealT> > V = Velocity_Assembly_theta_Jacobian(*u_std.get_std_vec());
+
+    HDSA::Ptr<HDSA::Dense_Matrix<RealT> > theta_tmp = HDSA::makePtr<HDSA::Dense_Matrix<RealT> >(m_,1);
+    for(int k = 0; k < m_; k++)
+      {
+	theta_tmp->Replace_Element(k,0,theta_in_std(k));
+      }
+    HDSA::Ptr<HDSA::Dense_Matrix<RealT> > u_tmp = HDSA::makePtr<HDSA::Dense_Matrix<RealT> >(m_,1);
+    V->Multiply(*u_tmp,*theta_tmp);
+    
+    for(int k = 0; k < m_; k++)
+      {
+	u_out_std.Replace_Element(k,(*u_tmp)(k,0));
+      }
+  }
+  
   void c_ztheta_Apply(HDSA::Vector<RealT> & z_out, const HDSA::Vector<RealT> & theta_in, const HDSA::Vector<RealT> & u, const HDSA::Vector<RealT> & z, const HDSA::Vector<RealT> & lambda, const HDSA::Vector<RealT> & theta) const
   {
     z_out.zeros();
@@ -237,17 +269,17 @@ public:
   {
     Std_Vector<RealT>& u_out_std = dynamic_cast<Std_Vector<RealT>&>(u_out);
     const Std_Vector<RealT>& theta_in_std = dynamic_cast<const Std_Vector<RealT>&>(theta_in);
-    const Std_Vector<RealT>& u_std = dynamic_cast<const Std_Vector<RealT>&>(u);
-    const Std_Vector<RealT>& z_std = dynamic_cast<const Std_Vector<RealT>&>(z);
+    //const Std_Vector<RealT>& u_std = dynamic_cast<const Std_Vector<RealT>&>(u);
+    //const Std_Vector<RealT>& z_std = dynamic_cast<const Std_Vector<RealT>&>(z);
     const Std_Vector<RealT>& lambda_std = dynamic_cast<const Std_Vector<RealT>&>(lambda);
-    const Std_Vector<RealT>& theta_std = dynamic_cast<const Std_Vector<RealT>&>(theta);
+    //const Std_Vector<RealT>& theta_std = dynamic_cast<const Std_Vector<RealT>&>(theta);
 
     HDSA::Ptr<HDSA::Dense_Matrix<RealT> > V = Velocity_Assembly_utheta_Hessian(*lambda_std.get_std_vec());
 
     HDSA::Ptr<HDSA::Dense_Matrix<RealT> > theta_tmp = HDSA::makePtr<HDSA::Dense_Matrix<RealT> >(m_,1);
     for(int k = 0; k < m_; k++)
       {
-	theta_tmp->Replace_Element(k,0,theta_in_std[k]);
+	theta_tmp->Replace_Element(k,0,theta_in_std(k));
       }
     HDSA::Ptr<HDSA::Dense_Matrix<RealT> > u_tmp = HDSA::makePtr<HDSA::Dense_Matrix<RealT> >(m_,1);
     V->Multiply(*u_tmp,*theta_tmp);
@@ -458,9 +490,9 @@ public:
     return yL + dydx * ( x_pt - xL );      
   }
   
-  Adv_Diff_Constraint()
+  Adv_Diff_Constraint(int m)
   { 
-    m_ = 100;
+    m_ = m;
     RealT h = 1.0/static_cast<RealT>(m_-1);
     x_ = HDSA::makePtr<HDSA::Dense_Matrix<RealT> >(m_,1);
     for(int k = 0; k < m_; k++)

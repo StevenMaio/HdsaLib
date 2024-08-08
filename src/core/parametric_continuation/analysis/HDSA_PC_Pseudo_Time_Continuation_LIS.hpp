@@ -17,8 +17,8 @@ namespace HDSA
     
   public:
     
-    PC_Pseudo_Time_Continuation_LIS(const HDSA::Ptr<HDSA::Vector<RealT> > & z_bar, const HDSA::Ptr<HDSA::Vector<RealT> > & theta_bar, const HDSA::Ptr<HDSA::PC_Sensitivity_Operator_Interface<RealT> > & sen_op, const HDSA::Ptr<HDSA::PC_LIS_Interface<RealT> > & lis_interface): 
-      HDSA::PC_Pseudo_Time_Continuation<RealT>(z_bar,theta_bar,sen_op), lis_interface_(lis_interface), z_bar_(z_bar), theta_bar_(theta_bar)
+    PC_Pseudo_Time_Continuation_LIS(const HDSA::Ptr<HDSA::Vector<RealT> > & z_bar, const HDSA::Ptr<HDSA::Vector<RealT> > & theta_bar, const HDSA::Ptr<HDSA::PC_Sensitivity_Operator_Interface<RealT> > & sen_op_interface, const HDSA::Ptr<HDSA::PC_LIS_Interface<RealT> > & lis_interface): 
+      HDSA::PC_Pseudo_Time_Continuation<RealT>(z_bar,theta_bar,sen_op_interface), lis_interface_(lis_interface), z_bar_(z_bar), theta_bar_(theta_bar)
     {
       rank_ = 0;
     }
@@ -30,7 +30,7 @@ namespace HDSA
     {
       rank_ = num_evals;
       HDSA::Ptr<HDSA::Randomized_GEVP<RealT> > hessian_gevp = HDSA::makePtr<PC_LIS_Hessian_GEVP<RealT> >(lis_interface_,*z_bar_,*theta_bar_);
-      evecs_ = HDSA::makePtr<HDSA::MultiVector<RealT> >(num_evals,z_bar_);
+      evecs_ = HDSA::makePtr<HDSA::MultiVector<RealT> >(num_evals,*z_bar_);
       evals_ = HDSA::makePtr<HDSA::Dense_Matrix<RealT> >(num_evals,1);
       hessian_gevp->Compute_GEVP(*evecs_,*evals_,num_evals,oversampling);
       std::ofstream fout;

@@ -26,7 +26,7 @@ namespace HDSA
 
     virtual void Apply_Prior_Covariance(HDSA::Vector<RealT> & z_out, const HDSA::Vector<RealT> & z_in) const = 0;
 
-    virtual void Generate_Prior_Samples(HDSA::MultiVector<RealT> & sample) const = 0;
+    virtual void Generate_Prior_Samples(HDSA::MultiVector<RealT> & samples) const = 0;
     
   };
 
