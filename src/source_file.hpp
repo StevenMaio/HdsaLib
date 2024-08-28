@@ -32,8 +32,9 @@
 
 #include "core/parametric_continuation/interfaces/HDSA_PC_Sensitivity_Operator_Interface.hpp"
 #include "core/parametric_continuation/interfaces/HDSA_PC_LIS_Interface.hpp"
+#include "core/parametric_continuation/analysis/HDSA_PC_Quasi_Newton_Preconditioner.hpp"
+#include "core/parametric_continuation/analysis/HDSA_PC_Quasi_Newton_Preconditioner_LIS.hpp"
 #include "core/parametric_continuation/analysis/HDSA_PC_Pseudo_Time_Continuation.hpp"
-#include "core/parametric_continuation/analysis/HDSA_PC_Pseudo_Time_Continuation_LIS.hpp"
 
 #include "../interfaces/rol/HDSA_ROL_Vector.hpp"
 #include "../interfaces/rol/HDSA_MD_ROL_Opt_Prob_Interface.hpp"

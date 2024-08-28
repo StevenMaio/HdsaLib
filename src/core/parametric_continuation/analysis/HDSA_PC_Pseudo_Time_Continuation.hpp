@@ -11,22 +11,13 @@ namespace HDSA
     HDSA::Ptr<HDSA::Vector<RealT> > z_bar_;
     HDSA::Ptr<HDSA::Vector<RealT> > theta_bar_;
     HDSA::Ptr<HDSA::PC_Sensitivity_Operator_Interface<RealT> > sen_op_interface_;
-    bool use_bfgs_prec_;
-    int num_bfgs_vecs_;
-    std::vector<RealT> rho_;
-    HDSA::Ptr<HDSA::MultiVector<RealT> > s_;
-    HDSA::Ptr<HDSA::MultiVector<RealT> > y_;
+    HDSA::Ptr<HDSA::PC_Quasi_Newton_Preconditioner<RealT> > qn_prec_;
+    bool use_qn_prec_;
     bool print_cg_output_;
     
   protected:
 
-    // Overload this function if a better initialization is available
-    virtual void Apply_Initial_Inverse_BFGS_Hessian(HDSA::Vector<RealT> & z_out, const HDSA::Vector<RealT> & z_in) const
-    {
-      z_out.set(z_in);
-    }
-
-    virtual void Apply_Inverse_Hessian(HDSA::Vector<RealT> & z_out, const HDSA::Vector<RealT> & z_in, const HDSA::Vector<RealT> & z, const HDSA::Vector<RealT> & theta) const
+    virtual void Apply_Inverse_Hessian(std::vector<HDSA::Ptr<HDSA::Vector<RealT> > > & P, std::vector<HDSA::Ptr<HDSA::Vector<RealT> > > & W, HDSA::Vector<RealT> & z_out, const HDSA::Vector<RealT> & z_in, const HDSA::Vector<RealT> & z, const HDSA::Vector<RealT> & theta) const
     {
       RealT tol = 1.e-5;
       int max_iter = z_out.dimension();
@@ -35,22 +26,30 @@ namespace HDSA
       HDSA::Ptr<HDSA::Vector<RealT> > r = z_in.clone();
       r->set(z_in);
       HDSA::Ptr<HDSA::Vector<RealT> > v = z_in.clone();
-      Apply_Inverse_BFGS_Hessian(*v,*r,num_bfgs_vecs_);
+      qn_prec_->Apply_Inverse_Hessian_Approximation(*v,*r);
       HDSA::Ptr<HDSA::Vector<RealT> > p = z_in.clone();      
       p->set(*v);
       RealT scalar = r->dot(*p);
       RealT rel_tol = tol*z_in.norm();
       int iter = 0;
       HDSA::Ptr<HDSA::Vector<RealT> > w = z_in.clone();
-
+      
       while( (std::sqrt(scalar) > rel_tol) && (r->norm() > rel_tol) && (iter < max_iter) )
 	{
 	  iter += 1;
 	  sen_op_interface_->Apply_Hessian(*w,*p,z,theta);
+
+	  HDSA::Ptr<HDSA::Vector<RealT> > p_tmp = z_in.clone();  
+	  p_tmp->set(*p);
+	  HDSA::Ptr<HDSA::Vector<RealT> > w_tmp = z_in.clone();  
+	  w_tmp->set(*w);
+	  P.push_back(p_tmp);
+	  W.push_back(w_tmp);
+
 	  RealT alpha = scalar/(w->dot(*p));
 	  z_out.axpy(alpha,*p);
 	  r->axpy(-alpha,*w);
-	  Apply_Inverse_BFGS_Hessian(*v,*r,num_bfgs_vecs_);
+	  qn_prec_->Apply_Inverse_Hessian_Approximation(*v,*r);
 	  RealT scalar_old = scalar;
 	  scalar = v->dot(*r);
 	  p->scale(scalar/scalar_old);
@@ -65,11 +64,12 @@ namespace HDSA
 
   public:
     
-    PC_Pseudo_Time_Continuation(const HDSA::Ptr<HDSA::Vector<RealT> > & z_bar, const HDSA::Ptr<HDSA::Vector<RealT> > & theta_bar, const HDSA::Ptr<HDSA::PC_Sensitivity_Operator_Interface<RealT> > & sen_op_interface): 
-      z_bar_(z_bar), theta_bar_(theta_bar), sen_op_interface_(sen_op_interface)
+    PC_Pseudo_Time_Continuation(const HDSA::Ptr<HDSA::Vector<RealT> > & z_bar, const HDSA::Ptr<HDSA::Vector<RealT> > & theta_bar,
+				const HDSA::Ptr<HDSA::PC_Sensitivity_Operator_Interface<RealT> > & sen_op_interface, const HDSA::Ptr<HDSA::PC_Quasi_Newton_Preconditioner<RealT> > & qn_prec): 
+      z_bar_(z_bar), theta_bar_(theta_bar), sen_op_interface_(sen_op_interface), qn_prec_(qn_prec)
     {
-      use_bfgs_prec_ = true;
-      print_cg_output_ = false;
+      use_qn_prec_ = true;
+      print_cg_output_ = true;
     }
 
     virtual ~PC_Pseudo_Time_Continuation()
@@ -82,14 +82,6 @@ namespace HDSA
       HDSA::Ptr<HDSA::Vector<RealT> > z_tmp = z_star.clone();
       HDSA::Ptr<HDSA::Vector<RealT> > grad_current = z_star.clone();
       HDSA::Ptr<HDSA::Vector<RealT> > theta_current = theta_star.clone();
-
-      if(use_bfgs_prec_)
-	{
-	  num_bfgs_vecs_ = 0;
-	  rho_ = std::vector<RealT>(N);
-	  s_ = HDSA::makePtr<HDSA::MultiVector<RealT> >(N,z_star);
-	  y_ = HDSA::makePtr<HDSA::MultiVector<RealT> >(N,z_star);
-	}
       
       RealT dt = 1.0/static_cast<RealT>(N);
       HDSA::Ptr<HDSA::Vector<RealT> > d_theta = theta_star.clone();
@@ -100,31 +92,41 @@ namespace HDSA
       theta_current->set(*theta_bar_);
       sen_op_interface_->Gradient(*grad_current,*z_current,*theta_current);
 
+      HDSA::Ptr<HDSA::Vector<RealT> > s,y;
+      if(use_qn_prec_)
+	{
+	  qn_prec_->Set_N(N);
+	  s = z_new->clone();
+	  y = z_new->clone();
+	}
+	  
       for(int k = 0; k < N; k++)
 	{
 	  sen_op_interface_->Apply_B(*z_tmp,*d_theta,*z_current,*theta_current);
-	  Apply_Inverse_Hessian(*z_new,*z_tmp,*z_current,*theta_current);
+	  std::vector<HDSA::Ptr<HDSA::Vector<RealT> > > P, W;
+	  Apply_Inverse_Hessian(P,W,*z_new,*z_tmp,*z_current,*theta_current);
 	  z_new->scale(-dt);
 	  z_new->plus(*z_current);
 
-	  if(use_bfgs_prec_)
+	  if(use_qn_prec_)
 	    {
-	      (*s_)[num_bfgs_vecs_]->set(*z_new);
-	      (*s_)[num_bfgs_vecs_]->axpy(-1.0,*z_current);
+	      s->set(*z_new);
+	      s->axpy(-1.0,*z_current);
 
-	      (*y_)[num_bfgs_vecs_]->set(*grad_current);
-	      (*y_)[num_bfgs_vecs_]->axpy(dt,*z_tmp);
-	      (*y_)[num_bfgs_vecs_]->scale(-1.0);
+	      y->set(*grad_current);
+	      y->axpy(dt,*z_tmp);
+	      y->scale(-1.0);
 	    }
 	  
 	  z_current->set(*z_new);
 	  theta_current->axpy(dt,*d_theta);
 	  sen_op_interface_->Gradient(*grad_current,*z_current,*theta_current);
-	  if(use_bfgs_prec_)
+	  if(use_qn_prec_)
 	    {
-	      (*y_)[num_bfgs_vecs_]->plus(*grad_current);
-	      rho_[num_bfgs_vecs_] = 1.0/((*y_)[num_bfgs_vecs_]->dot(*(*s_)[num_bfgs_vecs_]));
-	      num_bfgs_vecs_ += 1;
+	      qn_prec_->Add_Block_Quasi_Newton_Data(P,W);
+
+	      y->plus(*grad_current);
+	      qn_prec_->Add_Parametric_Quasi_Newton_Data(*s,*y);
 	    }
 	}
       z_star.set(*z_current);
@@ -139,14 +141,6 @@ namespace HDSA
       HDSA::Ptr<HDSA::Vector<RealT> > z_store = z_star.clone();
       HDSA::Ptr<HDSA::Vector<RealT> > grad_current = z_star.clone();
       HDSA::Ptr<HDSA::Vector<RealT> > theta_current = theta_star.clone();
-
-      if(use_bfgs_prec_)
-	{
-	  num_bfgs_vecs_ = 0;
-	  rho_ = std::vector<RealT>(N);
-	  s_ = HDSA::makePtr<HDSA::MultiVector<RealT> >(N,z_star);
-	  y_ = HDSA::makePtr<HDSA::MultiVector<RealT> >(N,z_star);
-	}
       
       RealT dt = 1.0/static_cast<RealT>(N);
       HDSA::Ptr<HDSA::Vector<RealT> > d_theta = theta_star.clone();
@@ -157,73 +151,79 @@ namespace HDSA
       theta_current->set(*theta_bar_);
       sen_op_interface_->Gradient(*grad_current,*z_current,*theta_current);
 
+      HDSA::Ptr<HDSA::Vector<RealT> > s,y;
+      if(use_qn_prec_)
+	{
+	  qn_prec_->Set_N(2*N);
+	  s = z_new->clone();
+	  y = z_new->clone();
+	}
+      
       for(int k = 0; k < N; k++)
 	{
+	  z_store->set(*z_current);
+	  
 	  sen_op_interface_->Apply_B(*z_tmp,*d_theta,*z_current,*theta_current);
-	  if(use_bfgs_prec_)
-	    {
-	      (*y_)[num_bfgs_vecs_]->set(*grad_current);
-	      (*y_)[num_bfgs_vecs_]->axpy(dt,*z_tmp);
-	      (*y_)[num_bfgs_vecs_]->scale(-1.0);
-	    }
-	  Apply_Inverse_Hessian(*z_new,*z_tmp,*z_current,*theta_current);
+	  std::vector<HDSA::Ptr<HDSA::Vector<RealT> > > P, W;
+	  Apply_Inverse_Hessian(P,W,*z_new,*z_tmp,*z_current,*theta_current);
 	  z_new->scale(-0.5*dt);
 	  z_new->plus(*z_current);
 
-	  z_store->set(*z_new);
+	  if(use_qn_prec_)
+	    {
+	      s->set(*z_new);
+	      s->axpy(-1.0,*z_current);
+	      
+	      y->set(*grad_current);
+	      y->axpy(0.5*dt,*z_tmp);
+	      y->scale(-1.0);
+	    }
+
+
+	  z_current->set(*z_new);
 	  z_new->zeros();
 	  theta_current->axpy(0.5*dt,*d_theta);
-	  sen_op_interface_->Apply_B(*z_tmp,*d_theta,*z_store,*theta_current);
-	  Apply_Inverse_Hessian(*z_new,*z_tmp,*z_store,*theta_current);
-	  z_new->scale(-dt);
-	  z_new->plus(*z_current);
-
-	  if(use_bfgs_prec_)
+	  
+	  sen_op_interface_->Gradient(*grad_current,*z_current,*theta_current);
+	  if(use_qn_prec_)
 	    {
-	      (*s_)[num_bfgs_vecs_]->set(*z_new);
-	      (*s_)[num_bfgs_vecs_]->axpy(-1.0,*z_current);
+	      qn_prec_->Add_Block_Quasi_Newton_Data(P,W);
+
+	      y->plus(*grad_current);
+	      qn_prec_->Add_Parametric_Quasi_Newton_Data(*s,*y);
+	    }
+	  
+	  sen_op_interface_->Apply_B(*z_tmp,*d_theta,*z_current,*theta_current);
+	  P.clear();
+	  W.clear();
+	  Apply_Inverse_Hessian(P,W,*z_new,*z_tmp,*z_current,*theta_current);
+	  z_new->scale(-dt);
+	  z_new->plus(*z_store);
+
+	  if(use_qn_prec_)
+	    {
+	      s->set(*z_new);
+	      s->axpy(-1.0,*z_current);
+
+	      y->set(*grad_current);
+	      y->axpy(0.5*dt,*z_tmp);
+	      y->scale(-1.0);
 	    }
 	  
 	  z_current->set(*z_new);
 	  theta_current->axpy(0.5*dt,*d_theta);
 	  sen_op_interface_->Gradient(*grad_current,*z_current,*theta_current);
-	  if(use_bfgs_prec_)
+
+	  if(use_qn_prec_)
 	    {
-	      (*y_)[num_bfgs_vecs_]->plus(*grad_current);
-	      rho_[num_bfgs_vecs_] = 1.0/((*y_)[num_bfgs_vecs_]->dot(*(*s_)[num_bfgs_vecs_]));
-	      num_bfgs_vecs_ += 1;
+	      qn_prec_->Add_Block_Quasi_Newton_Data(P,W);
+
+	      y->plus(*grad_current);
+	      qn_prec_->Add_Parametric_Quasi_Newton_Data(*s,*y);
 	    }
 	}
       z_star.set(*z_current);
       grad_star.set(*grad_current);
-    }
-
-    void Apply_Inverse_BFGS_Hessian(HDSA::Vector<RealT> & z_out, const HDSA::Vector<RealT> & z_in, const int & num_vecs) const
-    {
-      if(!use_bfgs_prec_ || num_vecs==0)
-	{
-	  Apply_Initial_Inverse_BFGS_Hessian(z_out,z_in);
-	}
-      else
-	{
-	  RealT alpha = (*s_)[num_vecs-1]->dot(z_in);
-	  HDSA::Ptr<HDSA::Vector<RealT> > tmp = z_out.clone();
-	  tmp->set(z_in);
-	  tmp->axpy(-rho_[num_vecs-1]*alpha,*(*y_)[num_vecs-1]);
-	  HDSA::Ptr<HDSA::Vector<RealT> > tmp_out = z_out.clone();
-	  if(num_vecs==1)
-	    {
-	      Apply_Initial_Inverse_BFGS_Hessian(*tmp_out,*tmp);
-	    }
-	  else
-	    {
-	      Apply_Inverse_BFGS_Hessian(*tmp_out,*tmp,num_vecs-1);
-	    }
-	  z_out.set(*tmp_out);
-	  RealT coeff = rho_[num_vecs-1] * (alpha - (*y_)[num_vecs-1]->dot(*tmp_out));
-	  z_out.axpy(coeff,*(*s_)[num_vecs-1]);
-	}
-
     }
     
   };

@@ -155,7 +155,7 @@ namespace Linear_Algebra
 
   // Compute Cholesky factorization of A, A=R^T*R
   template <class RealT>
-  void Cholesky_Factorization(const HDSA::Dense_Matrix<RealT> & A, HDSA::Dense_Matrix<RealT> & R)
+  int Cholesky_Factorization(const HDSA::Dense_Matrix<RealT> & A, HDSA::Dense_Matrix<RealT> & R)
   {
     int n = A.numRows();
     Teuchos::SerialSpdDenseSolver<int, RealT> Chol_Solve;
@@ -168,7 +168,7 @@ namespace Linear_Algebra
 	  }
       }
     Chol_Solve.setMatrix(C);
-    Chol_Solve.factor();
+    int info = Chol_Solve.factor();
     HDSA::Ptr<Teuchos::SerialSymDenseMatrix<int, RealT> > Rc = Chol_Solve.getFactoredMatrix(); // R should be upper triangular. The R returned is symmetric, its upper half is what we need.
     for(int i = 0; i < n; i++)
       {
@@ -177,8 +177,9 @@ namespace Linear_Algebra
 	    R.Replace_Element(i,j,(*Rc)(i,j));
 	  }
       }
+    return info;
   }
-
+  
   // Solve the symmetric linear system via a direct method
   template <class RealT>
   void Symmetric_Direct_Linear_Solve(const HDSA::Dense_Matrix<RealT> & A, HDSA::Dense_Matrix<RealT> & x, const HDSA::Dense_Matrix<RealT> & b) 

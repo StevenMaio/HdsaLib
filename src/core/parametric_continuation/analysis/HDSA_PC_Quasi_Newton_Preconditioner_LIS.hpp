@@ -1,11 +1,11 @@
-#ifndef HDSA_PC_PSEUDO_TIME_CONTINUATION_LIS_HPP
-#define HDSA_PC_PSEUDO_TIME_CONTINUATION_LIS_HPP
+#ifndef HDSA_PC_QUASI_NEWTON_PRECONDITIONER_LIS_HPP
+#define HDSA_PC_QUASI_NEWTON_PRECONDITIONER_LIS_HPP
 
 namespace HDSA
 {
 
   template <class RealT>
-  class PC_Pseudo_Time_Continuation_LIS : public HDSA::PC_Pseudo_Time_Continuation<RealT> {
+  class PC_Quasi_Newton_Preconditioner_LIS : public HDSA::PC_Quasi_Newton_Preconditioner<RealT> {
 
   private:
     HDSA::Ptr<HDSA::PC_LIS_Interface<RealT> > lis_interface_;
@@ -17,13 +17,13 @@ namespace HDSA
     
   public:
     
-    PC_Pseudo_Time_Continuation_LIS(const HDSA::Ptr<HDSA::Vector<RealT> > & z_bar, const HDSA::Ptr<HDSA::Vector<RealT> > & theta_bar, const HDSA::Ptr<HDSA::PC_Sensitivity_Operator_Interface<RealT> > & sen_op_interface, const HDSA::Ptr<HDSA::PC_LIS_Interface<RealT> > & lis_interface): 
-      HDSA::PC_Pseudo_Time_Continuation<RealT>(z_bar,theta_bar,sen_op_interface), lis_interface_(lis_interface), z_bar_(z_bar), theta_bar_(theta_bar)
+    PC_Quasi_Newton_Preconditioner_LIS(const HDSA::Ptr<HDSA::Vector<RealT> > & z_bar, const HDSA::Ptr<HDSA::Vector<RealT> > & theta_bar, const HDSA::Ptr<HDSA::PC_LIS_Interface<RealT> > & lis_interface): 
+      lis_interface_(lis_interface), z_bar_(z_bar), theta_bar_(theta_bar)
     {
       rank_ = 0;
     }
 
-    virtual ~PC_Pseudo_Time_Continuation_LIS()
+    virtual ~PC_Quasi_Newton_Preconditioner_LIS()
     { }
 
     void Compute_Hessian_GEVP(const HDSA::Vector<RealT> & z, const HDSA::Vector<RealT> & theta, const int & num_evals, const int & oversampling)
@@ -46,7 +46,7 @@ namespace HDSA
   protected:
 
     // Overload this function if a better initialization is available
-    void Apply_Initial_Inverse_BFGS_Hessian(HDSA::Vector<RealT> & z_out, const HDSA::Vector<RealT> & z_in) const
+    void Apply_Initial_Inverse_Hessian_Approximation(HDSA::Vector<RealT> & z_out, const HDSA::Vector<RealT> & z_in) const
     {
       lis_interface_->Apply_Prior_Covariance(z_out,z_in);
       if(rank_ > 0)

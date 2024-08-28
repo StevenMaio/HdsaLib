@@ -27,7 +27,10 @@ public:
 	    L_->Replace_Element(i,j,val);
 	  }
       }
-    rand_num_gen_ = HDSA::makePtr<HDSA::Random_Number_Generator<RealT> >();
+
+    int num_random_numbers = 1.e5;
+    std::string random_number_file = "random_numbers.txt";
+    rand_num_gen_ = HDSA::makePtr<HDSA::Random_Number_Generator<RealT> >(num_random_numbers,random_number_file);
 
     data_ = std::vector<RealT>(8);
     RealT val = 0.0;

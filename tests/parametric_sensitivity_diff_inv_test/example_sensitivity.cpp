@@ -62,11 +62,12 @@ int main(int argc, char *argv[]) {
 
   HDSA::Ptr<HDSA::PC_Sensitivity_Operator_Interface<RealT> > sen_op_interface = HDSA::makePtr<PC_Sensitivity_Operator_Interface_Adv_Diff<RealT> >(obj);
   HDSA::Ptr<HDSA::PC_LIS_Interface<RealT> > lis_interface = HDSA::makePtr<PC_LIS_Interface_Adv_Diff<RealT> >(obj);    
-  HDSA::Ptr<HDSA::PC_Pseudo_Time_Continuation_LIS<RealT> > sen = HDSA::makePtr<HDSA::PC_Pseudo_Time_Continuation_LIS<RealT> >(z_bar,theta_bar,sen_op_interface,lis_interface);
-
+  HDSA::Ptr<HDSA::PC_Quasi_Newton_Preconditioner_LIS<RealT> > qn_prec = HDSA::makePtr<HDSA::PC_Quasi_Newton_Preconditioner_LIS<RealT> >(z_bar,theta_bar,lis_interface);
+  HDSA::Ptr<HDSA::PC_Pseudo_Time_Continuation<RealT> > sen = HDSA::makePtr<HDSA::PC_Pseudo_Time_Continuation<RealT> >(z_bar,theta_bar,sen_op_interface,qn_prec);
+  
   int rank = 8;
   int oversampling = 10;
-  sen->Compute_Hessian_GEVP(*z_bar, *theta_bar, rank, oversampling);
+  qn_prec->Compute_Hessian_GEVP(*z_bar, *theta_bar, rank, oversampling);
   
   HDSA::Ptr<HDSA::Vector<RealT> > z_star = z_bar->clone();
   HDSA::Ptr<HDSA::Vector<RealT> > grad_star = z_bar->clone();
