@@ -8,12 +8,12 @@ namespace HDSA
   class MD_Prior_Sampling {
 
   private:
-    HDSA::Ptr<HDSA::MD_Data_Interface<RealT> > data_interface_;
-    HDSA::Ptr<HDSA::MD_u_Prior_Interface<RealT> > u_prior_interface_;
-    HDSA::Ptr<HDSA::MD_z_Prior_Interface<RealT> > z_prior_interface_;
+    const HDSA::Ptr<HDSA::MD_Data_Interface<RealT> > data_interface_;
+    const HDSA::Ptr<HDSA::MD_u_Prior_Interface<RealT> > u_prior_interface_;
+    const HDSA::Ptr<HDSA::MD_z_Prior_Interface<RealT> > z_prior_interface_;
 
   public:
-    MD_Prior_Sampling(HDSA::Ptr<HDSA::MD_Data_Interface<RealT> > & data_interface, HDSA::Ptr<HDSA::MD_u_Prior_Interface<RealT> > & u_prior_interface, HDSA::Ptr<HDSA::MD_z_Prior_Interface<RealT> > & z_prior_interface): data_interface_(data_interface), u_prior_interface_(u_prior_interface), z_prior_interface_(z_prior_interface)
+    MD_Prior_Sampling(const HDSA::Ptr<HDSA::MD_Data_Interface<RealT> > & data_interface, const HDSA::Ptr<HDSA::MD_u_Prior_Interface<RealT> > & u_prior_interface, const HDSA::Ptr<HDSA::MD_z_Prior_Interface<RealT> > & z_prior_interface): data_interface_(data_interface), u_prior_interface_(u_prior_interface), z_prior_interface_(z_prior_interface)
     { }
 
     virtual ~MD_Prior_Sampling()

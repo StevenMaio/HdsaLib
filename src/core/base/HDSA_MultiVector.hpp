@@ -15,6 +15,8 @@ private:
 
 public:
 
+  MultiVector(): num_vecs_(0) {};
+
   MultiVector(const int num_vecs, const HDSA::Vector<RealT> & vec): num_vecs_(num_vecs)
   {
     vecs_.resize(num_vecs);
@@ -26,6 +28,13 @@ public:
 
   virtual ~MultiVector()
   { }
+
+  // push back vector
+  void push_back(const HDSA::Ptr<HDSA::Vector<RealT> >& vec)
+  {
+    vecs_.push_back(vec);
+    ++num_vecs_;
+  }
 
   // Access the kth vector
   HDSA::Ptr<HDSA::Vector<RealT> > operator [] (int k) const
@@ -116,7 +125,7 @@ public:
       }
   }
 
-  void Write_to_File(std::string & name)
+  void Write_to_File(const std::string & name)
   {
     std::filesystem::create_directory(name);
     for(int k = 0; k < num_vecs_; k++)

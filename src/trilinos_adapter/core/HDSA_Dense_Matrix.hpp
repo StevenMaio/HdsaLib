@@ -85,6 +85,23 @@ public:
     return A_;
   }
 
+  void Write_to_File(const std::string & name) const
+  {
+    int m = this->numRows();
+    int n = this->numCols();
+    std::ofstream fout;
+    fout.open(name);
+    for(int i = 0; i < m; i++)
+      {
+	for(int j = 0; j < n; j++)
+	{
+	  fout << std::setprecision(16) << (*this)(i,j) << "  ";
+	}
+	fout << "  " << std::endl;
+      }
+    fout.close();
+  }
+
 };
 
 }
