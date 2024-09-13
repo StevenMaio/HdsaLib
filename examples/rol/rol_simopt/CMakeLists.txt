@@ -8,8 +8,8 @@ TRIBITS_ADD_EXECUTABLE_AND_TEST(
 )
 
 TRIBITS_ADD_EXECUTABLE_AND_TEST(
-  example_hdsa
-  SOURCES example_hdsa.cpp
+  example_sensitivity
+  SOURCES example_sensitivity.cpp
   ARGS PrintItAll
   NUM_MPI_PROCS 1
   PASS_REGULAR_EXPRESSION "TEST PASSED"
@@ -19,7 +19,7 @@ TRIBITS_ADD_EXECUTABLE_AND_TEST(
 TRIBITS_COPY_FILES_TO_BINARY_DIR(
   HdsaTestDataCopy
   SOURCE_FILES
-    input.xml
+    input.xml Plotting_Script.m
   SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}"
   DEST_DIR "${CMAKE_CURRENT_BINARY_DIR}"
 )

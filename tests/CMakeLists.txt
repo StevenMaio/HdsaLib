@@ -1,3 +1,5 @@
 ADD_SUBDIRECTORY(model_discrepancy_synthetic_test)
 ADD_SUBDIRECTORY(model_discrepancy_synthetic_test_with_gsvd)
-ADD_SUBDIRECTORY(poisson_1D_test)
+ADD_SUBDIRECTORY(model_discrepancy_synthetic_test_with_hessian_gevp)
+ADD_SUBDIRECTORY(PDE_Test_Problem)
+ADD_SUBDIRECTORY(randomized_GEVP_test)

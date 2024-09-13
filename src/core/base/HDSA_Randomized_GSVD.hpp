@@ -25,22 +25,23 @@ namespace HDSA
 
     virtual void Apply_Operator_Transpose(HDSA::Vector<RealT> & vec_out, const HDSA::Vector<RealT> & vec_in) const = 0;
 
-    virtual void Apply_Input_Weighting_Operator(HDSA::Vector<RealT> & vec_out, const HDSA::Vector<RealT> & vec_in) const = 0;
-
     virtual void Apply_Input_Weighting_Operator_Inverse(HDSA::Vector<RealT> & vec_out, const HDSA::Vector<RealT> & vec_in) const = 0;
 
     virtual void Apply_Output_Weighting_Operator(HDSA::Vector<RealT> & vec_out, const HDSA::Vector<RealT> & vec_in) const = 0;    
+
+    virtual void Generate_Random_Samples(HDSA::MultiVector<RealT> & samples) const = 0;
 
     void Compute_GSVD(HDSA::MultiVector<RealT> & sing_vecs_input, HDSA::MultiVector<RealT> & sing_vecs_output, HDSA::Dense_Matrix<RealT> & sing_vals, 
 		      int num_sing_vals, int oversampling, int num_subspace_iters)
     {
       int kpp = num_sing_vals + oversampling;
 
+      HDSA::Ptr<HDSA::MultiVector<RealT> > samples = HDSA::makePtr<HDSA::MultiVector<RealT> >(kpp,*vec_in_);
+      Generate_Random_Samples(*samples);
       HDSA::Ptr<HDSA::MultiVector<RealT> > Y = HDSA::makePtr<HDSA::MultiVector<RealT> >(kpp,*vec_out_);   
       for(int k = 0; k < kpp; k++)
       	{
-	  HDSA::Ptr<HDSA::Vector<RealT> >  vec_in_random = vec_in_->clone();
-	  vec_in_random->randomize_standard_normal();
+	  HDSA::Ptr<HDSA::Vector<RealT> >  vec_in_random = (*samples)[k];
 	  Apply_Operator(*(*Y)[k],*vec_in_random);
       	}
 
@@ -108,12 +109,19 @@ namespace HDSA
       sing_vecs_output.zeros();
       for(int k = 0; k < num_sing_vals; k++)
         {
+
           for(int i = 0; i < kpp; i++)
             {
               sing_vecs_input[k]->axpy((*V)(i,k),*(*Q_B)[i]);
               sing_vecs_output[k]->axpy((*UT)(k,i),*(*Q)[i]);
 	      sing_vals.Replace_Element(k,0,(*S)(k,0));
             }
+
+	  if( (*V)(0,k) < 0.0 )
+	    {
+	      sing_vecs_input[k]->scale(-1.0);
+	      sing_vecs_output[k]->scale(-1.0);
+	    }
         }
 
     }
@@ -146,11 +154,7 @@ namespace HDSA
       HDSA::Ptr<HDSA::MultiVector<RealT> > W_Q_Z = HDSA::makePtr<HDSA::MultiVector<RealT> >(n,*Z[0]);
       for(int k = 0; k < n; k++)
 	{
-	  if(type=="input_weighting")
-	    {
-	      Apply_Input_Weighting_Operator(*(*W_Q_Z)[k],*(*Q_Z)[k]);
-	    }
-	  else if(type=="input_weighting_inverse")
+	  if(type=="input_weighting_inverse")
 	    {
               Apply_Input_Weighting_Operator_Inverse(*(*W_Q_Z)[k],*(*Q_Z)[k]);
 	    }

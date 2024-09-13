@@ -75,6 +75,11 @@ public:
       }
   }
 
+  void zeros(void)
+  {
+    A_->putScalar(0.0);
+  }
+
   HDSA::Ptr<Teuchos::SerialDenseMatrix<int, RealT> > Get_Teuchos_Matrix(void) const
   {
     return A_;

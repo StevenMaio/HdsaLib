@@ -1,6 +1,8 @@
 #ifndef HDSA_MULTIVECTOR_HPP
 #define HDSA_MULTIVECTOR_HPP
 
+#include <filesystem>
+
 namespace HDSA
 {
 
@@ -64,6 +66,63 @@ public:
     for(int k = 0; k < num_vecs_; k++)
       {
 	vecs_[k]->zeros();
+      }
+  }
+
+  void randomize_standard_normal(void)
+  {
+    for(int k = 0; k < num_vecs_; k++)
+      {
+	vecs_[k]->randomize_standard_normal();
+      }
+  }
+
+  std::vector<RealT> norms(void) const
+  {
+    std::vector<RealT> n = std::vector<RealT>(num_vecs_);
+    for(int k = 0; k < num_vecs_; k++)
+      {
+	n[k] = vecs_[k]->norm();
+      }
+    return n;
+  }
+
+  void axpy(const RealT & alpha, const HDSA::MultiVector<RealT> & y)
+  {
+    if(y.Number_of_Vectors() != num_vecs_)
+      {
+	HDSA_TEST_FOR_EXCEPTION( true, std::logic_error,
+				 "Called axpy on HDSA::MultiVector, but x and y do not have the same number of vectors" << std::endl);
+      }
+    for(int k = 0; k < num_vecs_; k++)
+      {
+	vecs_[k]->axpy(alpha,*y[k]);
+      }
+  }
+
+  void axpy(const RealT & alpha, const HDSA::Vector<RealT> & y)
+  {
+    for(int k = 0; k < num_vecs_; k++)
+      {
+	vecs_[k]->axpy(alpha,y);
+      }
+  }
+
+  void scale(const RealT & alpha)
+  {
+    for(int k = 0; k < num_vecs_; k++)
+      {
+	vecs_[k]->scale(alpha);
+      }
+  }
+
+  void Write_to_File(std::string & name)
+  {
+    std::filesystem::create_directory(name);
+    for(int k = 0; k < num_vecs_; k++)
+      {
+	std::string name_k = name + "/Vector_" + std::to_string(k+1) + ".txt";
+	vecs_[k]->Write_to_File(name_k);
       }
   }
 

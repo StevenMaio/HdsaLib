@@ -2,6 +2,7 @@
 #define HDSA_ROL_VECTOR_HPP
 
 #include "ROL_Vector.hpp"
+#include "ROL_StdVector.hpp"
 
 namespace HDSA
 {
@@ -60,7 +61,24 @@ public:
     ROL::Elementwise::NormalRandom<RealT> nr;
     rol_vec->applyUnary(nr);
   }
- 
+
+  void Write_to_File(std::string & name) const
+  {
+    try{
+      ROL::Ptr<std::vector<RealT> > vec = dynamic_cast<ROL::StdVector<RealT>&>(*rol_vec).getVector();
+      std::ofstream fout;
+      fout.open(name);
+      for(int i = 0; i < rol_vec->dimension(); i++)
+	{
+	  fout << std::setprecision(16) << (*vec)[i] << "  ";
+	}
+      fout.close();
+    }
+    catch (...)
+      {
+	std::cout << "Write_to_File is currently not supported for this vector type" << std::endl;
+      }
+  }
  
 };
 
