@@ -2,7 +2,7 @@
 ---
 ANONYMOUS:
   debug level: 0
-  Mesh:
+  Mesh:2
     dimension: 1
     element type: interval
     xmin: 0.0
