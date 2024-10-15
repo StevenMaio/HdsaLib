@@ -310,7 +310,7 @@ public:
     RealT tol = 1E-8;
     obj_->hessVec(z_out, z_in, z, tol );
     
-  }
+  i
 
   void Misfit_Gradient(HDSA::Vector<RealT> & u_grad, const HDSA::Vector<RealT> & u, const HDSA::Vector<RealT> & z) const 
   {
