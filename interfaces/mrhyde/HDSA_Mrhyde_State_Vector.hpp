@@ -8,14 +8,14 @@ template <class RealT,
           class LO=Tpetra::Map<>::local_ordinal_type, 
           class GO=Tpetra::Map<>::global_ordinal_type,
           class Node=Tpetra::Map<>::node_type >
-class Vector_Mrhyde_State : public Vector<RealT> {
+class Vector_MrHyDE_State : public Vector<RealT> {
 
 private:
   Teuchos::RCP<MrHyDE::SolverManager<Node> > solver_;
 public:
 
   std::vector<std::vector<HDSA::Ptr<Tpetra::MultiVector<RealT,LO,GO,Node> > > > mrhyde_state_vec;
-  Vector_Mrhyde_State(const Teuchos::RCP<MrHyDE::SolverManager<Node> > &solver) : solver_(solver)
+  Vector_MrHyDE_State(const Teuchos::RCP<MrHyDE::SolverManager<Node> > &solver) : solver_(solver)
   {
     int numsets = solver->setnames.size();
     mrhyde_state_vec.resize(numsets);
@@ -27,7 +27,7 @@ public:
     }
   }
 
-  virtual ~Vector_Mrhyde_State()
+  virtual ~Vector_MrHyDE_State()
   { }
 
   //////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -37,13 +37,13 @@ public:
   // Clone the vector
   virtual HDSA::Ptr<HDSA::Vector<RealT> > clone() const {
 
-    HDSA::Ptr<HDSA::Vector<RealT> > vec = HDSA::makePtr< HDSA::Vector_Mrhyde_State<RealT> >(solver_);
+    HDSA::Ptr<HDSA::Vector<RealT> > vec = HDSA::makePtr< HDSA::Vector_MrHyDE_State<RealT> >(solver_);
     return vec;
   }
 
   // compute the dot product of this and x
   virtual RealT dot( const HDSA::Vector<RealT> &x ) const {
-    // const HDSA::Vector_Mrhyde_State<RealT> &ex = dynamic_cast<const HDSA::Vector_Mrhyde_State<RealT>&>(x);
+    // const HDSA::Vector_MrHyDE_State<RealT> &ex = dynamic_cast<const HDSA::Vector_MrHyDE_State<RealT>&>(x);
     // int numsets = solver_->setnames.size();
     // RealT val = 0.0;
     // for (int set=0; set<numsets; set++) {
@@ -53,7 +53,7 @@ public:
     // }
     // return val;
     // modeled after dot in ROL::pdevector.hpp
-    const HDSA::Vector_Mrhyde_State<RealT> &ex = dynamic_cast<const HDSA::Vector_Mrhyde_State<RealT>&>(x);
+    const HDSA::Vector_MrHyDE_State<RealT> &ex = dynamic_cast<const HDSA::Vector_MrHyDE_State<RealT>&>(x);
     int numsets = solver_->setnames.size();
     RealT xy(0);    
     for (int set=0; set<numsets; set++) {
@@ -70,7 +70,7 @@ public:
 
   // add alpha*x to this
   virtual void axpy( const RealT alpha, const HDSA::Vector<RealT> &x ) {
-    const HDSA::Vector_Mrhyde_State<RealT> &ex = dynamic_cast<const HDSA::Vector_Mrhyde_State<RealT>&>(x);
+    const HDSA::Vector_MrHyDE_State<RealT> &ex = dynamic_cast<const HDSA::Vector_MrHyDE_State<RealT>&>(x);
     int numsets = solver_->setnames.size();
     RealT one(1);
     for (int set=0; set<numsets; set++) {

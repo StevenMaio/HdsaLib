@@ -35,7 +35,7 @@ namespace HDSA {
   //  using namespace MrHyDE;  
   
   template<class Real>
-  class Objective_Mrhyde {
+  class Objective_MrHyDE {
     
   private:
     
@@ -49,7 +49,7 @@ namespace HDSA {
     /*!
      \brief A constructor generating data
      */
-    Objective_Mrhyde(Teuchos::RCP<MrHyDE::SolverManager<SolverNode> > solver,
+    Objective_MrHyDE(Teuchos::RCP<MrHyDE::SolverManager<SolverNode> > solver,
                    Teuchos::RCP<MrHyDE::PostprocessManager<SolverNode> > postproc,
                    Teuchos::RCP<MrHyDE::ParameterManager<SolverNode> > & params) :
     solver_(solver), postproc_(postproc), params_(params) {
@@ -71,22 +71,23 @@ namespace HDSA {
 
 	// correct cast
         MrHyDE_OptVector Paramsp = 
-        Teuchos::dyn_cast<MrHyDE_OptVector >(const_cast<ROL::Vector<Real> &>(*rparams));
+          Teuchos::dyn_cast<MrHyDE_OptVector >(dynamic_cast<ROL::Vector<Real> &>(*rparams));
 
-        // MrHyDE_OptVector Paramsp = 
-        // Teuchos::dyn_cast<MrHyDE_OptVector >(const_cast<HDSA::Vector<Real> &>(Params));
+	const HDSA::Vector_MrHyDE<Real> &eParams = dynamic_cast<const HDSA::Vector_MrHyDE<Real>&>(Params);
+	rparams->set(*eParams.mrhyde_vec);
       
         params_->updateParams(Paramsp);
         DFAD val = 0.0;
         solver_->forwardModel(val);
-
+	Real value = val.val();
+	std::cout << "value = " << value << std::endl;
       }
-       HDSA::Vector_Mrhyde<Real> sens = 
-	 Teuchos::dyn_cast<HDSA::Vector_Mrhyde<Real> >(const_cast<HDSA::Vector<Real> &>(g));
+       HDSA::Vector_MrHyDE<Real> sens = 
+	 Teuchos::dyn_cast<HDSA::Vector_MrHyDE<Real> >(dynamic_cast<HDSA::Vector<Real> &>(g));
 
       sens.zeros();
-        MrHyDE_OptVector esens = 
-        Teuchos::dyn_cast<MrHyDE_OptVector >(const_cast<ROL::Vector<Real> &>(*sens.mrhyde_vec));
+      MrHyDE_OptVector esens = 
+          Teuchos::dyn_cast<MrHyDE_OptVector >(dynamic_cast<ROL::Vector<Real> &>(*sens.mrhyde_vec));
       
       solver_->adjointModel(esens);
 
@@ -124,8 +125,8 @@ namespace HDSA {
       ROL::Ptr<ROL::Vector<Real> > diff = curr_params.clone();
       MrHyDE_OptVector ediff = 
       Teuchos::dyn_cast<MrHyDE_OptVector >(const_cast<ROL::Vector<Real> &>(*diff));
-      HDSA::Vector_Mrhyde<Real> eParams = 
-	Teuchos::dyn_cast<HDSA::Vector_Mrhyde<Real> >(const_cast<HDSA::Vector<Real> &>(Params));
+      HDSA::Vector_MrHyDE<Real> eParams = 
+	Teuchos::dyn_cast<HDSA::Vector_MrHyDE<Real> >(const_cast<HDSA::Vector<Real> &>(Params));
       ediff.zero();
       ediff.set(curr_params);
       ediff.axpy(-1.0,*eParams.mrhyde_vec);

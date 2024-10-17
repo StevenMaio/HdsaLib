@@ -5,18 +5,22 @@ namespace HDSA
 {
 
 template <class RealT>
-class Vector_Mrhyde : public Vector<RealT> {
+class Vector_MrHyDE : public Vector<RealT> {
 
 
 public:
   HDSA::Ptr<ROL::Vector<RealT> > mrhyde_vec;
   
-  Vector_Mrhyde(const MrHyDE_OptVector &mrhyde_vec_in)
+  Vector_MrHyDE(const MrHyDE_OptVector &mrhyde_vec_in)
   {
     mrhyde_vec = mrhyde_vec_in.clone();
   }
 
-  virtual ~Vector_Mrhyde()
+  Vector_MrHyDE(HDSA::Ptr<MrHyDE_OptVector> &mrhyde_vec_in):mrhyde_vec(mrhyde_vec_in)
+  {
+  }
+
+  virtual ~Vector_MrHyDE()
   { }
 
   //////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -30,14 +34,14 @@ public:
     MrHyDE_OptVector* emrhyde_vec;
     emrhyde_vec = dynamic_cast<MrHyDE_OptVector*>(&const_cast<ROL::Vector<RealT> &>(*mrhyde_vec));
 
-    HDSA::Ptr<HDSA::Vector<RealT> > hdsa_vector = HDSA::makePtr<HDSA::Vector_Mrhyde<RealT> >(*emrhyde_vec);
+    HDSA::Ptr<HDSA::Vector<RealT> > hdsa_vector = HDSA::makePtr<HDSA::Vector_MrHyDE<RealT> >(*emrhyde_vec);
     return hdsa_vector;
   }
 
   // compute the dot product of this and x
   RealT dot( const HDSA::Vector<RealT> &x ) const
   {
-    const HDSA::Vector_Mrhyde<RealT> &ex = dynamic_cast<const HDSA::Vector_Mrhyde<RealT>&>(x);
+    const HDSA::Vector_MrHyDE<RealT> &ex = dynamic_cast<const HDSA::Vector_MrHyDE<RealT>&>(x);
     RealT val = ex.mrhyde_vec->dot(*mrhyde_vec);
     return val;
   }
@@ -45,7 +49,7 @@ public:
   // add alpha*x to this
   void axpy( const RealT alpha, const HDSA::Vector<RealT> &x )
   {
-    const HDSA::Vector_Mrhyde<RealT> &ex = dynamic_cast<const HDSA::Vector_Mrhyde<RealT>&>(x);
+    const HDSA::Vector_MrHyDE<RealT> &ex = dynamic_cast<const HDSA::Vector_MrHyDE<RealT>&>(x);
     mrhyde_vec->axpy(alpha,*ex.mrhyde_vec);
   }
   // return vector dimension
