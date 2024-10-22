@@ -90,8 +90,10 @@ namespace HDSA
 
       z_current->set(*z_bar_);
       theta_current->set(*theta_bar_);
+      std::cout << "Starting gradient computation" << std::endl;
       sen_op_interface_->Gradient(*grad_current,*z_current,*theta_current);
-
+      std::cout << "Gradient norm = " << grad_current->norm() << std::endl;
+      
       HDSA::Ptr<HDSA::Vector<RealT> > s,y;
       if(use_qn_prec_)
 	{
@@ -102,8 +104,10 @@ namespace HDSA
 	  
       for(int k = 0; k < N; k++)
 	{
+	  std::cout << "Beginning B matvec at time step " << k+1 << std::endl;
 	  sen_op_interface_->Apply_B(*z_tmp,*d_theta,*z_current,*theta_current);
 	  std::vector<HDSA::Ptr<HDSA::Vector<RealT> > > P, W;
+	  std::cout << "Beginning inverse Hessian matvec at time step " << k+1 << std::endl;
 	  Apply_Inverse_Hessian(P,W,*z_new,*z_tmp,*z_current,*theta_current);
 	  z_new->scale(-dt);
 	  z_new->plus(*z_current);

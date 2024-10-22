@@ -1,1 +1,2 @@
 ADD_SUBDIRECTORY(rol_simopt)
+ADD_SUBDIRECTORY(shallow_ice_bedrock_inv)

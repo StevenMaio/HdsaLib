@@ -13,6 +13,8 @@ class ROL_Vector : public Vector<RealT> {
 public:
   ROL::Ptr<ROL::Vector<RealT> > rol_vec;
 
+  ROL_Vector(ROL::Ptr<ROL::Vector<RealT> > & rol_vec_in): rol_vec(rol_vec_in) 
+  { }
 
   ROL_Vector(ROL::Vector<RealT> & rol_vec_in) 
   { 
