@@ -1,8 +1,8 @@
 #ifndef PDEOPT_DYNAMIC_SHALLOW_ICE_HPP
 #define PDEOPT_DYNAMIC_SHALLOW_ICE_HPP
 
-#include "/gpfs/joshart/trilinos/Trilinos/packages/rol/example/PDE-OPT/TOOLS/dynpde.hpp"
-#include "/gpfs/joshart/trilinos/Trilinos/packages/rol/example/PDE-OPT/TOOLS/fe.hpp"
+#include "../../../../Trilinos/packages/rol/example/PDE-OPT/TOOLS/dynpde.hpp"
+#include "../../../../Trilinos/packages/rol/example/PDE-OPT/TOOLS/fe.hpp"
 
 #include "Intrepid_HGRAD_QUAD_C1_FEM.hpp"
 #include "Intrepid_HGRAD_QUAD_C2_FEM.hpp"

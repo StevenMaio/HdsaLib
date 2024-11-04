@@ -29,9 +29,6 @@ shading interp;
 colorbar
 view(0,90);
 title('Before Smoothing')
-fname = '/ascldap/users/wmreese/Documents/Experiment_Data/ip_smoothed_T_2_nt_25_alpha_1e-4_greg_1e-3_freg_1e-7/before_smooth';
-%print(fig1,fname,'-depsc')
-
 smooth_b_initial = L_norm*b_initial;
 fig2 = figure(2);
 trisurf(adj, nodes(:,1), nodes(:,2),smooth_b_initial)
@@ -39,9 +36,6 @@ shading interp;
 colorbar
 view(0,90);
 title('After Smoothing')
-fname = '/ascldap/users/wmreese/Documents/Experiment_Data/ip_smoothed_T_2_nt_25_alpha_1e-4_greg_1e-3_freg_1e-7/after_smooth';
-%print(fig2,fname,'-depsc')
-
 
 fileID = fopen('matlab_initial_iterate.txt', 'w');
 fprintf(fileID,'%12.8f\n', smooth_b_initial);

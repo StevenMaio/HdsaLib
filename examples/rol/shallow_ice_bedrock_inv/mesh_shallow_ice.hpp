@@ -1,4 +1,4 @@
-#include "/gpfs/joshart/trilinos/Trilinos/packages/rol/example/PDE-OPT/TOOLS/meshmanager.hpp"
+#include "../../../../Trilinos/packages/rol/example/PDE-OPT/TOOLS/meshmanager.hpp"
 
 template <class Real>
 class MeshManager_shallow_ice : public MeshManager_Rectangle<Real> {

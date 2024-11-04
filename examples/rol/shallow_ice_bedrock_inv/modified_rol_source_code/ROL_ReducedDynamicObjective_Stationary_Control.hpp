@@ -435,7 +435,6 @@ private:
   /***************************************************************************/
   void solveState(const Vector<Real> &x) {
     if (!isStateComputed_) {
-      std::cout << "Executing State Solve" << std::endl;
       const Real one(1);
       // Set initial condition
       uhist_[0]->set(*u0_);

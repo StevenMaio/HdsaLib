@@ -14,6 +14,7 @@ namespace HDSA
     HDSA::Ptr<HDSA::PC_Quasi_Newton_Preconditioner<RealT> > qn_prec_;
     bool use_qn_prec_;
     bool print_cg_output_;
+	bool print_cg_iter_;
     
   protected:
 
@@ -54,6 +55,12 @@ namespace HDSA
 	  scalar = v->dot(*r);
 	  p->scale(scalar/scalar_old);
 	  p->plus(*v);
+
+		if(print_cg_iter_)
+		{
+			std::cout << "Iteration = " << iter << " with relative residual = " << std::sqrt(scalar)/(rel_tol/tol) << std::endl;
+		}
+
 	}
       if(print_cg_output_)
 	{
@@ -65,12 +72,10 @@ namespace HDSA
   public:
     
     PC_Pseudo_Time_Continuation(const HDSA::Ptr<HDSA::Vector<RealT> > & z_bar, const HDSA::Ptr<HDSA::Vector<RealT> > & theta_bar,
-				const HDSA::Ptr<HDSA::PC_Sensitivity_Operator_Interface<RealT> > & sen_op_interface, const HDSA::Ptr<HDSA::PC_Quasi_Newton_Preconditioner<RealT> > & qn_prec): 
-      z_bar_(z_bar), theta_bar_(theta_bar), sen_op_interface_(sen_op_interface), qn_prec_(qn_prec)
-    {
-      use_qn_prec_ = true;
-      print_cg_output_ = true;
-    }
+								const HDSA::Ptr<HDSA::PC_Sensitivity_Operator_Interface<RealT> > & sen_op_interface, const HDSA::Ptr<HDSA::PC_Quasi_Newton_Preconditioner<RealT> > & qn_prec,
+								const bool use_qn_prec = true, const bool print_cg_output = true, const bool print_cg_iter = false): 
+      z_bar_(z_bar), theta_bar_(theta_bar), sen_op_interface_(sen_op_interface), qn_prec_(qn_prec), use_qn_prec_(use_qn_prec), print_cg_output_(print_cg_output), print_cg_iter_(print_cg_iter)
+    { }
 
     virtual ~PC_Pseudo_Time_Continuation()
     { }

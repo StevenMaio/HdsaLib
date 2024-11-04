@@ -2,7 +2,7 @@
 #define ELLIPTIC_PRIOR_REGULARIZATION_OBJECTIVE_HPP
 
 #include "ROL_Objective_SimOpt.hpp"
-#include "/gpfs/joshart/trilinos/Trilinos/packages/rol/example/PDE-OPT/TOOLS/linearpdeconstraint.hpp"
+#include "../../../../Trilinos/packages/rol/example/PDE-OPT/TOOLS/linearpdeconstraint.hpp"
 
 template <class Real>
 class PDE_Reg_Op : public PDE<Real> {

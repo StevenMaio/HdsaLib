@@ -9,11 +9,10 @@
 #include "ROL_DynamicConstraintCheck.hpp"
 #include "ROL_DynamicObjectiveCheck.hpp"
 
-#include "/gpfs/joshart/trilinos/Trilinos/packages/rol/example/PDE-OPT/TOOLS/meshmanager.hpp"
-#include "/gpfs/joshart/trilinos/Trilinos/packages/rol/example/PDE-OPT/TOOLS/dynconstraint.hpp"
-#include "/gpfs/joshart/trilinos/Trilinos/packages/rol/example/PDE-OPT/TOOLS/ltiobjective.hpp"
-#include "/gpfs/joshart/trilinos/Trilinos/packages/rol/example/PDE-OPT/TOOLS/pdevector.hpp"
-#include "/gpfs/joshart/trilinos/Trilinos/packages/rol/example/PDE-OPT/TOOLS/pdeobjective.hpp"
+#include "../../../../Trilinos/packages/rol/example/PDE-OPT/TOOLS/dynconstraint.hpp"
+#include "../../../../Trilinos/packages/rol/example/PDE-OPT/TOOLS/ltiobjective.hpp"
+#include "../../../../Trilinos/packages/rol/example/PDE-OPT/TOOLS/pdeobjective.hpp"
+#include "../../../../Trilinos/packages/rol/example/PDE-OPT/TOOLS/pdevector.hpp"
 
 
 #include "./modified_rol_source_code/ROL_ReducedDynamicObjective_Stationary_Control.hpp"
@@ -30,10 +29,10 @@
 #include "dynpde_shallow_ice.hpp"
 #include "obj_shallow_ice.hpp"
 
-#include "/gpfs/joshart/trilinos/Trilinos/packages/rol/example/PDE-OPT/TOOLS/solver.cpp"
-#include "/gpfs/joshart/trilinos/Trilinos/packages/rol/example/PDE-OPT/TOOLS/solver_def.hpp"
-#include "/gpfs/joshart/trilinos/Trilinos/packages/rol/example/PDE-OPT/TOOLS/assembler.cpp"
-#include "/gpfs/joshart/trilinos/Trilinos/packages/rol/example/PDE-OPT/TOOLS/assembler_def.hpp"
+#include "../../../../Trilinos/packages/rol/example/PDE-OPT/TOOLS/solver.cpp"
+#include "../../../../Trilinos/packages/rol/example/PDE-OPT/TOOLS/solver_def.hpp"
+#include "../../../../Trilinos/packages/rol/example/PDE-OPT/TOOLS/assembler.cpp"
+#include "../../../../Trilinos/packages/rol/example/PDE-OPT/TOOLS/assembler_def.hpp"
 
 #include "PC_Sensitivity_Operator_Interface_shallow_ice.hpp"
 #include "PC_LIS_Interface_shallow_ice.hpp"
@@ -268,14 +267,29 @@ int main(int argc, char *argv[]) {
   Load_Nominal_Solution<RealT>(z_ptr,parlist);  
   HDSA::Ptr<HDSA::Vector<RealT> > z_bar = HDSA::makePtr<HDSA::ROL_Vector<RealT> >(z);
   
+  std::string filename_sensitivity = "Sensitivity_input.xml";
+  HDSA::Ptr<HDSA::ParameterList> parlist_sensitivity = HDSA::makePtr<HDSA::ParameterList>();
+  HDSA::updateParametersFromXmlFile( filename_sensitivity, *parlist_sensitivity );
+
+  bool use_qn_prec = parlist_sensitivity->sublist("Problem").get("use_qn_prec", true);
+  bool print_cg_output = parlist_sensitivity->sublist("Problem").get("print_cg_output", true);
+  bool print_cg_iter = parlist_sensitivity->sublist("Problem").get("print_cg_iter", true);
+  int rank = parlist_sensitivity->sublist("Problem").get("rank", 0);
+  int oversampling = parlist_sensitivity->sublist("Problem").get("oversampling", 0);
+  int N_fe = parlist_sensitivity->sublist("Problem").get("N_fe", 1);
+  int N_me = parlist_sensitivity->sublist("Problem").get("N_me", 1);
+
   HDSA::Ptr<HDSA::PC_Sensitivity_Operator_Interface<RealT> > sen_op_interface = HDSA::makePtr<PC_Sensitivity_Operator_Interface_shallow_ice<RealT> >(robj,z_bar,theta_bar);
   HDSA::Ptr<HDSA::PC_LIS_Interface<RealT> > lis_interface = HDSA::makePtr<PC_LIS_Interface_shallow_ice<RealT> >(robj_misfit,robj_reg,reg_obj[0],z_bar,theta_bar);    
   HDSA::Ptr<HDSA::PC_Quasi_Newton_Preconditioner_LIS<RealT> > qn_prec = HDSA::makePtr<HDSA::PC_Quasi_Newton_Preconditioner_LIS<RealT> >(z_bar,theta_bar,lis_interface);
-  HDSA::Ptr<HDSA::PC_Pseudo_Time_Continuation<RealT> > sen = HDSA::makePtr<HDSA::PC_Pseudo_Time_Continuation<RealT> >(z_bar,theta_bar,sen_op_interface,qn_prec);
 
-  int rank = 2;
-  int oversampling = 1;
+  HDSA::Ptr<HDSA::PC_Pseudo_Time_Continuation<RealT> > sen =
+    HDSA::makePtr<HDSA::PC_Pseudo_Time_Continuation<RealT> >(z_bar,theta_bar,sen_op_interface,qn_prec, use_qn_prec,print_cg_output,print_cg_iter);
+
+if(rank > 0)
+{
   qn_prec->Compute_Hessian_GEVP(*z_bar, *theta_bar, rank, oversampling);
+}
 
   HDSA::Ptr<Tpetra::MultiVector<> > z_star_ptr;
   HDSA::Ptr<ROL::Vector<RealT> > z_star_rol;
@@ -286,7 +300,7 @@ int main(int argc, char *argv[]) {
   HDSA::Ptr<HDSA::Vector<RealT> > grad_star = z_bar->clone();
   HDSA::Ptr<HDSA::Vector<RealT> > theta_star = theta_bar->clone();
   Std_Vector<RealT>& theta_star_std = dynamic_cast<Std_Vector<RealT>&>(*theta_star); 
-  RealT val = 0.1;
+  RealT val = 1.0;
   for(int i = 0; i < theta_dim; i++)
     {
       theta_star_std.Replace_Element(i,val);
@@ -295,13 +309,17 @@ int main(int argc, char *argv[]) {
   std::cout << "Ready to start foward Euler loop" << std::endl;
   std::cout << "z_bar->norm() = " << z_bar->norm() << std::endl;
   
-  int N_fe = 30;
+  if(N_fe>0)
+  {
   sen->Pseudo_Time_Continuation_Forward_Euler(*z_star,*grad_star,*theta_star,N_fe); 
   dyn_con->outputTpetraVector(z_star_ptr,"z_star_fe.txt");
+  }
   
-  int N_me = 15;
+  if(N_me>0)
+  {
   sen->Pseudo_Time_Continuation_Modified_Euler(*z_star,*grad_star,*theta_star,N_me); 
   dyn_con->outputTpetraVector(z_star_ptr,"z_star_me.txt");
+  }
   
   return 0;
 }

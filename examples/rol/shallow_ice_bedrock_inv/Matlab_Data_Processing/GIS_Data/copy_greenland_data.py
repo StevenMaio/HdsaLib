@@ -9,7 +9,7 @@ import shutil, os
 
 files = ['Bedrock_Topography.txt', 'Forcing.txt','Log_Basal_Sliding.txt', 'Surface_Height.txt']
 
-dest_folder = '/gpfs/joshart/trilinos/Trilinos/build_debug/packages/rol/example/rol/shallow_ice_bedrock_inv/Data_Generation'
+dest_folder = '/Users/joshart/Documents/software/Trilinos/build_opt/packages/rol/example/rol/shallow_ice_bedrock_inv/Data_Generation'
 for f in files:
     shutil.copy(f, dest_folder)
 

@@ -9,11 +9,10 @@
 #include "ROL_DynamicConstraintCheck.hpp"
 #include "ROL_DynamicObjectiveCheck.hpp"
 
-#include "/gpfs/joshart/trilinos/Trilinos/packages/rol/example/PDE-OPT/TOOLS/meshmanager.hpp"
-#include "/gpfs/joshart/trilinos/Trilinos/packages/rol/example/PDE-OPT/TOOLS/dynconstraint.hpp"
-#include "/gpfs/joshart/trilinos/Trilinos/packages/rol/example/PDE-OPT/TOOLS/ltiobjective.hpp"
-#include "/gpfs/joshart/trilinos/Trilinos/packages/rol/example/PDE-OPT/TOOLS/pdeobjective.hpp"
-#include "/gpfs/joshart/trilinos/Trilinos/packages/rol/example/PDE-OPT/TOOLS/pdevector.hpp"
+#include "../../../../Trilinos/packages/rol/example/PDE-OPT/TOOLS/dynconstraint.hpp"
+#include "../../../../Trilinos/packages/rol/example/PDE-OPT/TOOLS/ltiobjective.hpp"
+#include "../../../../Trilinos/packages/rol/example/PDE-OPT/TOOLS/pdeobjective.hpp"
+#include "../../../../Trilinos/packages/rol/example/PDE-OPT/TOOLS/pdevector.hpp"
 
 
 #include "./modified_rol_source_code/ROL_ReducedDynamicObjective_Stationary_Control.hpp"
@@ -30,10 +29,10 @@
 #include "dynpde_shallow_ice.hpp"
 #include "obj_shallow_ice.hpp"
 
-#include "/gpfs/joshart/trilinos/Trilinos/packages/rol/example/PDE-OPT/TOOLS/solver.cpp"
-#include "/gpfs/joshart/trilinos/Trilinos/packages/rol/example/PDE-OPT/TOOLS/solver_def.hpp"
-#include "/gpfs/joshart/trilinos/Trilinos/packages/rol/example/PDE-OPT/TOOLS/assembler.cpp"
-#include "/gpfs/joshart/trilinos/Trilinos/packages/rol/example/PDE-OPT/TOOLS/assembler_def.hpp"
+#include "../../../../Trilinos/packages/rol/example/PDE-OPT/TOOLS/solver.cpp"
+#include "../../../../Trilinos/packages/rol/example/PDE-OPT/TOOLS/solver_def.hpp"
+#include "../../../../Trilinos/packages/rol/example/PDE-OPT/TOOLS/assembler.cpp"
+#include "../../../../Trilinos/packages/rol/example/PDE-OPT/TOOLS/assembler_def.hpp"
 
 
 typedef double RealT;
