@@ -8,6 +8,7 @@ namespace HDSA
   class PC_Quasi_Newton_Preconditioner{
 
   private:
+    bool use_block_update_;
     RealT tau_;
     int param_current_data_step_;
     int block_current_data_step_;
@@ -21,6 +22,8 @@ namespace HDSA
     
   protected:
 
+    int total_vecs_stored_;
+
     // Overload this function if a better initialization is available
     virtual void Apply_Initial_Inverse_Hessian_Approximation(HDSA::Vector<RealT> & z_out, const HDSA::Vector<RealT> & z_in) const
     {
@@ -29,25 +32,32 @@ namespace HDSA
 
   public:
     
-    PC_Quasi_Newton_Preconditioner()
-    {
-      tau_ = 1.e-6;
-    }
+    PC_Quasi_Newton_Preconditioner(bool use_block_update = true, RealT tau = 1.e-6): use_block_update_(use_block_update), tau_(tau)
+    { }
 
     virtual ~PC_Quasi_Newton_Preconditioner()
     { }
+
+    int Get_Number_Vecs_Stored(void)
+    {
+      return total_vecs_stored_;
+    }
 
     void Set_N(const int & N)
     {
       s_.resize(N);
       y_.resize(N);
       rho_.resize(N);
-      Lr_.resize(N);
-      Dr_.resize(N);
-      Pr_.resize(N);
-      Wr_.resize(N);
+      if(use_block_update_)
+      {
+        Lr_.resize(N);
+        Dr_.resize(N);
+        Pr_.resize(N);
+        Wr_.resize(N);
+      }
       param_current_data_step_ = 0;
       block_current_data_step_ = 0;
+      total_vecs_stored_ = 0;
     }
 
     void Add_Parametric_Quasi_Newton_Data(const HDSA::Vector<RealT> & s_k, const HDSA::Vector<RealT> & y_k)
@@ -62,10 +72,13 @@ namespace HDSA
 	  std::cout << "Error: Negative Curvature Parameter" << std::endl;
 	}
       param_current_data_step_ += 1;
+      total_vecs_stored_ += 2;
     }
     
     void Add_Block_Quasi_Newton_Data(const std::vector<HDSA::Ptr<HDSA::Vector<RealT> > > & P, const std::vector<HDSA::Ptr<HDSA::Vector<RealT> > > & W)
     {
+      if(use_block_update_)
+      {
       int m = P.size();
       std::vector<RealT> D;
       std::vector<int> vecs_to_retain;
@@ -88,7 +101,9 @@ namespace HDSA
 	  (*Pr_[block_current_data_step_])[i]->set(*P[vecs_to_retain[i]]);
 	  (*Wr_[block_current_data_step_])[i]->set(*W[vecs_to_retain[i]]);
 	  Dr_[block_current_data_step_]->Replace_Element(i,0,D[i]);
+    total_vecs_stored_ += 2*num_to_retain;
 	}
+      }
       
       block_current_data_step_ += 1;
     }
@@ -118,6 +133,8 @@ namespace HDSA
 	}
       else
 	{
+    if(use_block_update_)
+    {
 	  HDSA::Ptr<HDSA::Dense_Matrix<RealT> > Pr_tmp = Pr_[block_counter-1]->MatVec(z_in);
 	  int m = Pr_tmp->numRows();
 	  HDSA::Ptr<HDSA::Vector<RealT> > tmp = z_out.clone();
@@ -138,6 +155,11 @@ namespace HDSA
 	      val = (*Pr_tmp)(i,0)/(*Dr_[block_counter-1])(i,0);
 	      z_out.axpy(val,*(*Pr_[block_counter-1])[i]);
 	    }
+    }
+    else
+    {
+      z_out.set(z_in);
+    }
 	}
     }
     

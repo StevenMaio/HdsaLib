@@ -17,8 +17,9 @@ namespace HDSA
     
   public:
     
-    PC_Quasi_Newton_Preconditioner_LIS(const HDSA::Ptr<HDSA::Vector<RealT> > & z_bar, const HDSA::Ptr<HDSA::Vector<RealT> > & theta_bar, const HDSA::Ptr<HDSA::PC_LIS_Interface<RealT> > & lis_interface): 
-      lis_interface_(lis_interface), z_bar_(z_bar), theta_bar_(theta_bar)
+    PC_Quasi_Newton_Preconditioner_LIS(const HDSA::Ptr<HDSA::Vector<RealT> > & z_bar, const HDSA::Ptr<HDSA::Vector<RealT> > & theta_bar,
+                                       const HDSA::Ptr<HDSA::PC_LIS_Interface<RealT> > & lis_interface, bool use_block_update = true, RealT tau = 1.e-6): 
+      HDSA::PC_Quasi_Newton_Preconditioner<RealT>(use_block_update,tau), lis_interface_(lis_interface), z_bar_(z_bar), theta_bar_(theta_bar)
     {
       rank_ = 0;
     }
@@ -37,10 +38,11 @@ namespace HDSA
       std::string name = "hessian_evals.txt";
       fout.open(name);
       for(int i = 0; i < num_evals; i++)
-	{
-	  fout << std::setprecision(16) << (*evals_)(i,0) << "  ";
-	}
+      {
+        fout << std::setprecision(16) << (*evals_)(i,0) << "  ";
+      }
       fout.close();
+      HDSA::PC_Quasi_Newton_Preconditioner<RealT>::total_vecs_stored_ += num_evals;
     }
     
   protected:
@@ -50,14 +52,14 @@ namespace HDSA
     {
       lis_interface_->Apply_Prior_Covariance(z_out,z_in);
       if(rank_ > 0)
-	{
-	  HDSA::Ptr<HDSA::Dense_Matrix<RealT> > tmp = evecs_->MatVec(z_in);
-	  for(int k = 0; k < rank_; k++)
-	    {
-	      RealT val = (*tmp)(k,0)*(*evals_)(k,0)/(1.0 + (*evals_)(k,0));
-	      z_out.axpy(-val,*(*evecs_)[k]);
-	    }
-	}
+      {
+        HDSA::Ptr<HDSA::Dense_Matrix<RealT> > tmp = evecs_->MatVec(z_in);
+        for(int k = 0; k < rank_; k++)
+          {
+            RealT val = (*tmp)(k,0)*(*evals_)(k,0)/(1.0 + (*evals_)(k,0));
+            z_out.axpy(-val,*(*evecs_)[k]);
+          }
+      }
     }
 
     template <class ScalarType>
@@ -69,14 +71,14 @@ namespace HDSA
       HDSA::Ptr<HDSA::PC_LIS_Interface<ScalarType> > lis_interface_;
       
     public:
-      PC_LIS_Hessian_GEVP(const HDSA::Ptr<HDSA::PC_LIS_Interface<ScalarType> > & lis_interface, const HDSA::Vector<ScalarType> & z_bar, const HDSA::Vector<ScalarType> & theta_bar):
-	HDSA::Randomized_GEVP<ScalarType>(z_bar)
+      PC_LIS_Hessian_GEVP(const HDSA::Ptr<HDSA::PC_LIS_Interface<ScalarType> > & lis_interface, const HDSA::Vector<ScalarType> & z_bar, const HDSA::Vector<ScalarType> & theta_bar)
+        :HDSA::Randomized_GEVP<ScalarType>(z_bar)
       {
-	z_bar_ = z_bar.clone();
-	z_bar_->set(z_bar);
-	theta_bar_ = theta_bar.clone();
-	theta_bar_->set(theta_bar);
-	lis_interface_ = lis_interface;
+        z_bar_ = z_bar.clone();
+        z_bar_->set(z_bar);
+        theta_bar_ = theta_bar.clone();
+        theta_bar_->set(theta_bar);
+        lis_interface_ = lis_interface;
       }
       
       virtual ~PC_LIS_Hessian_GEVP()
@@ -84,22 +86,22 @@ namespace HDSA
 
       void Apply_Operator(HDSA::Vector<ScalarType> & vec_out, const HDSA::Vector<ScalarType> & vec_in) const
       {
-	lis_interface_->Apply_Misfit_Hessian(vec_out, vec_in, *z_bar_, *theta_bar_);
+	      lis_interface_->Apply_Misfit_Hessian(vec_out, vec_in, *z_bar_, *theta_bar_);
       }
 
       void Apply_Weighting_Operator(HDSA::Vector<ScalarType> & vec_out, const HDSA::Vector<ScalarType> & vec_in) const
       {
-	lis_interface_->Apply_Prior_Precision(vec_out, vec_in);
+	      lis_interface_->Apply_Prior_Precision(vec_out, vec_in);
       }
 
       void Apply_Weighting_Operator_Inverse(HDSA::Vector<ScalarType> & vec_out, const HDSA::Vector<ScalarType> & vec_in) const
       {
-	lis_interface_->Apply_Prior_Covariance(vec_out, vec_in);
+	      lis_interface_->Apply_Prior_Covariance(vec_out, vec_in);
       }
 
       void Generate_Random_Samples(HDSA::MultiVector<RealT> & samples) const 
       {
-	lis_interface_->Generate_Prior_Samples(samples);
+	      lis_interface_->Generate_Prior_Samples(samples);
       }
 
     };
