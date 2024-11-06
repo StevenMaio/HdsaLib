@@ -196,7 +196,7 @@ int main(int argc, char *argv[]) {
   }
 	
   // Set initial vector
-  zp->zero();
+  zp->setScalar(5.0);
   pdecon->outputTpetraVector(z_ptr,"initial_iterate.txt");
 
   // Build optimization problem and check derivatives

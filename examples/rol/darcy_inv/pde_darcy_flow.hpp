@@ -522,11 +522,11 @@ private:
     Real val = 0.0;
     if(coords[1] == 1.0)
       {
-	val = 5.0;
+	      val = 1.0;
       }
     else
       {
-	val = 8.0;
+	      val = 0.0;
       }
     return val;
   }

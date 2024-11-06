@@ -19,6 +19,29 @@
 
 typedef double RealT;
 
+template<class RealT>
+void Set_perm(HDSA::Ptr<Tpetra::MultiVector<> > & z_ptr)
+{
+  int num_coeff_load = z_ptr->getGlobalLength();
+  // read in data
+  std::ifstream in("Log_Permability.txt");          
+  // read the elements in the file into a vector  
+  // test file open   
+  RealT val = 0.0;
+  if (in) 
+    {   
+      for(int j = 0; j < num_coeff_load; j++)
+	    {
+	      in >> val;
+        z_ptr->replaceGlobalValue(j,0,val);
+	    }
+    }
+  else
+    {
+      std::cout << "Error loading the data from Log_Permabilty.txt" << std::endl;
+    }  
+}
+
 int main(int argc, char *argv[]) {
 
   HDSA::nullstream bhs;
@@ -47,6 +70,7 @@ int main(int argc, char *argv[]) {
   HDSA::Ptr<ROL::Constraint_SimOpt<RealT> > con = HDSA::makePtr<PDE_Constraint<RealT> >(pde,meshMgr,comm->Get_Teuchos_Communicator(),*parlist,*outStream);
   HDSA::Ptr<PDE_Constraint<RealT> >pdecon = HDSA::dynamicPtrCast<PDE_Constraint<RealT> >(con);
   HDSA::Ptr<Assembler<RealT> > assembler = pdecon->getAssembler();
+  assembler->printMeshData(*outStream);
   
   int NX = parlist->sublist("Problem").get("NX", 10);
   int NY = parlist->sublist("Problem").get("NY", 10);
@@ -71,15 +95,13 @@ int main(int argc, char *argv[]) {
   z_ptr  = assembler->createControlVector();
   zp = HDSA::makePtr<PDE_PrimalOptVector<RealT> >(z_ptr,pde,assembler,*parlist);
 
-  zp->setScalar(1.0);
-
+  Set_perm<RealT>(z_ptr);
   RealT tol = 1.e-8;
   con->solve(*pp,*up,*zp,tol);
 	
   pdecon->outputTpetraVector(u_ptr,"true_u.txt");
   pdecon->outputTpetraVector(z_ptr,"true_z.txt");
   pdecon->outputTpetraData();
-  assembler->printMeshData(*outStream);
 
   return 0;
 }

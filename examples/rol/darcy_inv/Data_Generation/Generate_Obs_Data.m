@@ -10,8 +10,10 @@ data_obj = importdata('true_u.txt', ' ', 2);  %% we need to skip the first two l
 true_u = data_obj.data;
 
 obs_locations = [];
-xobs = .1:.2:.9;
-yobs = .2:.2:.8;
+xobs = .1:.1:.9;
+yobs = .2:.1:.8;
+
+noise_level = 0.0;
 
 for x = xobs
    for y = yobs
@@ -20,7 +22,7 @@ for x = xobs
    end
 end
 
-obs_data = true_u(obs_locations).*(1 + 0.01*randn(length(obs_locations),1));
+obs_data = true_u(obs_locations).*(1 + noise_level*randn(length(obs_locations),1));
 
 figure,
 trisurf(adj, nodes(:,1), nodes(:,2), true_u);
