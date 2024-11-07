@@ -72,9 +72,8 @@ int main(int argc, char *argv[]) {
   HDSA::Ptr<Assembler<RealT> > assembler = pdecon->getAssembler();
   assembler->printMeshData(*outStream);
   
-  int NX = parlist->sublist("Problem").get("NX", 10);
-  int NY = parlist->sublist("Problem").get("NY", 10);
-  std::vector<RealT> param = std::vector<RealT>((NX+1)*(NY+1),0.0);
+  int NX = parlist->sublist("Geometry").get("NX", 10);
+  std::vector<RealT> param = std::vector<RealT>(2*NX,0.0);
   pdecon->setParameter(param);
   con->setSolveParameters(*parlist);
   

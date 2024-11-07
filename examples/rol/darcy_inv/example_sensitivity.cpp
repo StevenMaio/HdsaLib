@@ -20,7 +20,34 @@
 #include "../../../../Trilinos/packages/rol/example/PDE-OPT/TOOLS/assembler.cpp"
 #include "../../../../Trilinos/packages/rol/example/PDE-OPT/TOOLS/assembler_def.hpp" 
 
+#include "PC_Sensitivity_Operator_Interface_darcy_flow.hpp"
+#include "PC_LIS_Interface_darcy_flow.hpp"
+
 typedef double RealT;
+
+template<class RealT>
+void Load_Nominal_Solution(HDSA::Ptr<Tpetra::MultiVector<> > & z_ptr, const HDSA::Ptr<HDSA::ParameterList> & parlist) 
+{
+  int num_coeff_load = z_ptr->getGlobalLength();
+  
+  // read in data
+  std::ifstream in("z_bar.txt");          
+  // read the elements in the file into a vector  
+  // test file open   
+  RealT val = 0.0;
+  if (in) 
+    {   
+      for(int j = 0; j < num_coeff_load; j++)
+      {
+        in >> val;
+        z_ptr->replaceGlobalValue(j,0,val);
+      }
+    }
+  else
+    {
+      std::cout << "Error loading the data from z_bar.txt" << std::endl;
+    }  
+}
 
 int main(int argc, char *argv[]) {
 
@@ -73,7 +100,7 @@ int main(int argc, char *argv[]) {
   z_ptr  = assembler->createControlVector();
   zp = HDSA::makePtr<PDE_PrimalOptVector<RealT> >(z_ptr,pde,assembler,*parlist);
 
-   /*************************************************************************/
+  /*************************************************************************/
   /***************** BUILD COST FUNCTIONAL *********************************/
   /*************************************************************************/ 
 
@@ -127,91 +154,65 @@ int main(int argc, char *argv[]) {
   obj_vec[0] = robj_misfit;
   obj_vec[1] = robj_reg;
   HDSA::Ptr<ROL::Objective<RealT> > robj = HDSA::makePtr<ROL::LinearCombinationObjective<RealT> >(weights,obj_vec);
-  
-  // Run derivative checks
-  bool checkDeriv = parlist->sublist("Problem").get("Check Derivatives",false);
-  if ( checkDeriv ) { 
-    // Create state vector and set to zeroes
-    HDSA::Ptr<Tpetra::MultiVector<> > du_ptr = assembler->createStateVector();     du_ptr->randomize();
-    HDSA::Ptr<ROL::Vector<RealT> > dup = HDSA::makePtr<PDE_PrimalSimVector<RealT> >(du_ptr,pde,assembler);
-      
-    // Create control vectors
-    HDSA::Ptr<Tpetra::MultiVector<> > dz_ptr  = assembler->createControlVector();
-    HDSA::Ptr<ROL::Vector<RealT> > dzp = HDSA::makePtr<PDE_PrimalOptVector<RealT> >(dz_ptr,pde,assembler,*parlist);
-      
-    // Create ROL SimOpt vectors
-    ROL::Vector_SimOpt<RealT> x(up,zp);
-    ROL::Vector_SimOpt<RealT> d(dup,dzp);
-      
-    up->randomize();
-    zp->randomize();
-    pp->randomize();
-    dup->randomize();
-    dzp->randomize();
-    rp->randomize();
-    pp->randomize();
 
-    *outStream << "Check Gradient of Full Misfit Objective Function" << std::endl;
-    obj_misfit->checkGradient(x,d,true,*outStream);
-    *outStream << std::endl << "Check Hessian of Full Misfit Objective Function" << std::endl;
-    obj_misfit->checkHessVec(x,d,true,*outStream);
-    *outStream << std::endl << "Check Jacobian of Constraint" << std::endl;
-    con->checkApplyJacobian(x,d,*up,true,*outStream);
-    *outStream << std::endl << "Check Jacobian_1 of Constraint" << std::endl;
-    con->checkApplyJacobian_1(*up,*zp,*dup,*rp,true,*outStream);
-    *outStream << std::endl << "Check Jacobian_2 of Constraint" << std::endl;
-    con->checkApplyJacobian_2(*up,*zp,*dzp,*rp,true,*outStream);
-    *outStream << std::endl << "Check Hessian of Constraint" << std::endl;
-    con->checkApplyAdjointHessian(x,*dup,d,x,true,*outStream);
-    *outStream << std::endl << "Check Hessian_11 of Constraint" << std::endl;
-    con->checkApplyAdjointHessian_11(*up,*zp,*pp,*dup,*rp,true,*outStream);
-    *outStream << std::endl << "Check Hessian_12 of Constraint" << std::endl;
-    con->checkApplyAdjointHessian_12(*up,*zp,*pp,*dup,*dzp,true,*outStream);
-    *outStream << std::endl << "Check Hessian_21 of Constraint" << std::endl;
-    con->checkApplyAdjointHessian_21(*up,*zp,*pp,*dzp,*rp,true,*outStream);
-    *outStream << std::endl << "Check Hessian_22 of Constraint" << std::endl;
-    con->checkApplyAdjointHessian_22(*up,*zp,*pp,*dzp,*dzp,true,*outStream);
-      
-    *outStream << std::endl << "Check Adjoint Jacobian of Constraint" << std::endl;
-    con->checkAdjointConsistencyJacobian(*dup,d,x,true,*outStream);
-    *outStream << std::endl << "Check Adjoint Jacobian_1 of Constraint" << std::endl;
-    con->checkAdjointConsistencyJacobian_1(*pp,*dup,*up,*zp,true,*outStream);
-    *outStream << std::endl << "Check Adjoint Jacobian_2 of Constraint" << std::endl;
-    con->checkAdjointConsistencyJacobian_2(*pp,*dzp,*up,*zp,true,*outStream);
-      
-    *outStream << std::endl << "Check Constraint Solve" << std::endl;
-    con->checkSolve(*up,*zp,*rp,true,*outStream);
-    *outStream << std::endl << "Check Inverse Jacobian_1 of Constraint" << std::endl;
-    con->checkInverseJacobian_1(*rp,*dup,*up,*zp,true,*outStream);
-    *outStream << std::endl << "Check Inverse Adjoint Jacobian_1 of Constraint" << std::endl;
-    con->checkInverseAdjointJacobian_1(*rp,*pp,*up,*zp,true,*outStream);
-      
-    *outStream << std::endl << "Check Gradient of Reduced Objective Function" << std::endl;
-    robj->checkGradient(*zp,*dzp,true,*outStream);
-    *outStream << std::endl << "Check Hessian of Reduced Objective Function" << std::endl;
-    robj->checkHessVec(*zp,*dzp,true,*outStream); 
+  int theta_dim = 2*NX;
+  HDSA::Ptr<HDSA::Vector<RealT> > theta_bar = HDSA::makePtr<Std_Vector<RealT> >(theta_dim);
+  Load_Nominal_Solution<RealT>(z_ptr,parlist);  
+  HDSA::Ptr<HDSA::Vector<RealT> > z_bar = HDSA::makePtr<HDSA::ROL_Vector<RealT> >(zp);
+
+  std::string filename_sensitivity = "Sensitivity_input.xml";
+  HDSA::Ptr<HDSA::ParameterList> parlist_sensitivity = HDSA::makePtr<HDSA::ParameterList>();
+  HDSA::updateParametersFromXmlFile( filename_sensitivity, *parlist_sensitivity );
+
+  bool use_qn_prec = parlist_sensitivity->sublist("Problem").get("use_qn_prec", true);
+  bool print_cg_output = parlist_sensitivity->sublist("Problem").get("print_cg_output", true);
+  bool print_cg_iter = parlist_sensitivity->sublist("Problem").get("print_cg_iter", true);
+  int rank = parlist_sensitivity->sublist("Problem").get("rank", 0);
+  int oversampling = parlist_sensitivity->sublist("Problem").get("oversampling", 0);
+  int N_fe = parlist_sensitivity->sublist("Problem").get("N_fe", 1);
+  int N_me = parlist_sensitivity->sublist("Problem").get("N_me", 1);
+  RealT cg_tol = parlist_sensitivity->sublist("Problem").get("CG Tolerance", 1.e-5);
+  int max_cg_iter = parlist_sensitivity->sublist("Problem").get("Maximum CG Iterations", 100);
+
+  HDSA::Ptr<HDSA::PC_Sensitivity_Operator_Interface<RealT> > sen_op_interface = HDSA::makePtr<PC_Sensitivity_Operator_Interface_darcy_flow<RealT> >(robj,z_bar,theta_bar);
+  HDSA::Ptr<HDSA::PC_LIS_Interface<RealT> > lis_interface = HDSA::makePtr<PC_LIS_Interface_darcy_flow<RealT> >(robj_misfit,robj_reg,z_bar,theta_bar);    
+  HDSA::Ptr<HDSA::PC_Quasi_Newton_Preconditioner_LIS<RealT> > qn_prec = HDSA::makePtr<HDSA::PC_Quasi_Newton_Preconditioner_LIS<RealT> >(z_bar,theta_bar,lis_interface);
+
+  HDSA::Ptr<HDSA::PC_Pseudo_Time_Continuation<RealT> > sen =
+    HDSA::makePtr<HDSA::PC_Pseudo_Time_Continuation<RealT> >(z_bar,theta_bar,sen_op_interface,qn_prec, use_qn_prec,print_cg_output,print_cg_iter,cg_tol,max_cg_iter);
+
+  if(rank > 0)
+  {
+    qn_prec->Compute_Hessian_GEVP(*z_bar, *theta_bar, rank, oversampling);
   }
-	
-  // Set initial vector
-  zp->setScalar(5.0);
-  pdecon->outputTpetraVector(z_ptr,"initial_iterate.txt");
 
-  // Build optimization problem and check derivatives
-  ROL::OptimizationProblem<RealT> optProb(robj,zp);
-  // Build optimization solver and solve
-  ROL::OptimizationSolver<RealT> optSolver(optProb,*parlist);
-  std::clock_t timer = std::clock();
-  optSolver.solve(*outStream);
-  *outStream << "Trust Region Time: "
-	      << static_cast<RealT>(std::clock()-timer)/static_cast<RealT>(CLOCKS_PER_SEC)
-	      << " seconds." << std::endl << std::endl;
+  HDSA::Ptr<Tpetra::MultiVector<> > z_star_ptr  = assembler->createControlVector();
+  HDSA::Ptr<ROL::Vector<RealT> > z_star_rol = HDSA::makePtr<PDE_PrimalOptVector<RealT> >(z_star_ptr,pde,assembler,*parlist);
+  HDSA::Ptr<HDSA::Vector<RealT> > z_star = HDSA::makePtr<HDSA::ROL_Vector<RealT> >(z_star_rol);
   
-  RealT tol = 1.e-8;
-  con->solve(*pp,*up,*zp,tol);
-  pdecon->outputTpetraVector(u_ptr,"optimal_u.txt");
-  pdecon->outputTpetraVector(z_ptr,"optimal_z.txt");
-  pdecon->outputTpetraData();
-  assembler->printMeshData(*outStream);
+  HDSA::Ptr<HDSA::Vector<RealT> > grad_star = z_bar->clone();
+  HDSA::Ptr<HDSA::Vector<RealT> > theta_star = theta_bar->clone();
+  Std_Vector<RealT>& theta_star_std = dynamic_cast<Std_Vector<RealT>&>(*theta_star); 
+  RealT val = 1.0;
+  for(int i = 0; i < theta_dim; i++)
+    {
+      theta_star_std.Replace_Element(i,val);
+    }
+
+  std::cout << "Ready to start foward Euler loop" << std::endl;
+  std::cout << "z_bar->norm() = " << z_bar->norm() << std::endl;
+  
+  if(N_fe>0)
+  {
+    sen->Pseudo_Time_Continuation_Forward_Euler(*z_star,*grad_star,*theta_star,N_fe); 
+    pdecon->outputTpetraVector(z_star_ptr,"z_star_fe.txt");
+  }
+  
+  if(N_me>0)
+  {
+    sen->Pseudo_Time_Continuation_Modified_Euler(*z_star,*grad_star,*theta_star,N_me); 
+    pdecon->outputTpetraVector(z_star_ptr,"z_star_me.txt");
+  }
 
   return 0;
 }

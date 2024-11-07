@@ -23,10 +23,16 @@ IF(${PROJECT_NAME}_ENABLE_Intrepid AND
     ADD_DIR_TO_NAME
   )
 
+  TRIBITS_ADD_EXECUTABLE(
+    example_sensitivity
+    SOURCES example_sensitivity.cpp
+    ADD_DIR_TO_NAME
+  )
+
   TRIBITS_COPY_FILES_TO_BINARY_DIR(
     DarcyInvDataCopy
     SOURCE_FILES
-      input.xml plotresults.m
+      input.xml plotresults.m Sensitivity_input.xml
     SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}"
     DEST_DIR "${CMAKE_CURRENT_BINARY_DIR}"
   )

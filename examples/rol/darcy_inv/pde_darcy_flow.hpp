@@ -11,6 +11,7 @@
 #include "Intrepid_CellTools.hpp"
 
 #include "ROL_Ptr.hpp"
+#include <cmath>
 
 // Defines the porous media flow PDE 
 // -\nabla \cdot (\kappa * \nabla u) = z
@@ -35,10 +36,6 @@ private:
   // Coordinates of degrees freedom on boundary cells.
   // Indexing:  [sideset number][local side id](cell number, value at dof)
   std::vector<std::vector<ROL::Ptr<Intrepid::FieldContainer<Real> > > > bdryCellDofValues_;
-
-  Real a;
-  int L;
-  std::vector<Real> uncertain_basis_grid;
  
 public:
   PDE_darcy_flow(Teuchos::ParameterList &parlist) {
@@ -56,15 +53,6 @@ public:
     Intrepid::DefaultCubatureFactory<Real> cubFactory;                       // create cubature factory
     int cubDegree = parlist.sublist("PDE Poisson").get("Cubature Degree",2); // set cubature degree, e.g., 2
     cellCub_ = cubFactory.create(cellType, cubDegree);                       // create default cubature
-    
-    L = parlist.sublist("Problem").get("Number of Uncertainty Basis Function", 10);
-    a = parlist.sublist("Problem").get("Noise Level", .2);
-    uncertain_basis_grid.resize(L+1);
-    for(int i = 0; i < L+1; i++)
-      {
-	uncertain_basis_grid[i] = static_cast<Real>(i)/static_cast<Real>(L);
-      }
-
   }
 
   void residual(ROL::Ptr<Intrepid::FieldContainer<Real> > & res,
@@ -112,6 +100,9 @@ public:
 						  *(fe_vol_->NdetJ()),
 						  Intrepid::COMP_CPP, true);
 
+
+    const std::vector<Real> param = PDE<Real>::getParameter();
+  
     // APPLY DIRICHLET CONDITIONS
     int numLocalSideIds = bdryCellLocIds_[0].size();
     for (int j = 0; j < numLocalSideIds; ++j) {
@@ -120,8 +111,25 @@ public:
       for (int k = 0; k < numCellsSide; ++k) {
         int cidx = bdryCellLocIds_[0][j][k];
         for (int l = 0; l < numBdryDofs; ++l) {
+
+          Real pert;
+          if(param.size()==numCellsSide*2)
+          {
+            pert = param[(numCellsSide/2)*j + k];
+          }
+          else if(param.size()==0)
+          {
+            pert = 0.0;
+          }
+          else
+          {
+            std::cout << "Parameter dimension is inconsistent" << std::endl;
+            pert = 0.0;
+          }
+
           (*res)(cidx,fidx_[j][l])
-            = (*u_coeff)(cidx,fidx_[j][l]) - (*bdryCellDofValues_[0][j])(k,fidx_[j][l]);
+            = (*u_coeff)(cidx,fidx_[j][l]) - (*bdryCellDofValues_[0][j])(k,fidx_[j][l]) - pert;
+            //std::cout << " j = " << j << " and k = " << k << " and l = " << l << std::endl;
         }
       }
     }
@@ -514,7 +522,7 @@ private:
   }
 
   Real evaluateRHS(const std::vector<Real> & x) const {
-    Real val = 0.0;
+    Real val = 100.0*sin(2*3.14159*x[0]) * sin(2*3.14159*x[1]);
     return val;
   }
 
@@ -522,11 +530,13 @@ private:
     Real val = 0.0;
     if(coords[1] == 1.0)
       {
-	      val = 1.0;
+        Real x = 2*3.14159*coords[0];
+	      val = std::pow(sin(x),2.0);
       }
     else
       {
-	      val = 0.0;
+        Real x = 2*3.14159*coords[0];
+	      val = std::pow(cos(2*x),2.0);
       }
     return val;
   }

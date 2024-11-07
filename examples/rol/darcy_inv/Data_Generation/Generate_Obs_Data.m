@@ -10,8 +10,8 @@ data_obj = importdata('true_u.txt', ' ', 2);  %% we need to skip the first two l
 true_u = data_obj.data;
 
 obs_locations = [];
-xobs = .1:.1:.9;
-yobs = .2:.1:.8;
+xobs = .1:.2:.9;
+yobs = .1:.2:.9;
 
 noise_level = 0.0;
 
