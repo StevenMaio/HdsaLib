@@ -46,30 +46,36 @@ public:
     z_tmp->set(*current_z_);
     z_tmp->axpy(-1.0,z);
     RealT val = z_tmp->norm();
+
     if(val != 0.0)
       {
-	current_z_->set(z);
-	current_theta_->set(theta);
-	con_->State_Solve(*current_u_,*current_z_,*current_theta_);
+        current_z_->set(z);
+        current_theta_->set(theta);
+        con_->State_Solve(*current_u_,*current_z_,*current_theta_);
 
-	int data_dim = prior_and_like_->data_.size();
-	std::vector<RealT> d1 = std::vector<RealT>(data_dim);
-	prior_and_like_->Apply_Observation_Operator(d1,*current_u_);
-	std::vector<RealT> d2 = std::vector<RealT>(data_dim);
-	for(int k = 0; k < data_dim; k++)
-	  {
-	    d1[k] = d1[k] - prior_and_like_->data_[k];
-	  }
-	prior_and_like_->Apply_Noise_Precision(d2,d1);
-	HDSA::Ptr<HDSA::Vector<RealT> > grad_u = current_u_->clone();
-	prior_and_like_->Apply_Observation_Operator_Transpose(*grad_u,d2);
-	con_->c_u_Transpose_Inverse_Apply(*current_lambda_,*grad_u,*current_u_,*current_z_,*current_theta_);
-	current_lambda_->scale(-1.0);
+        int data_dim = prior_and_like_->data_.size();
+        std::vector<RealT> d1 = std::vector<RealT>(data_dim);
+        prior_and_like_->Apply_Observation_Operator(d1,*current_u_);
+        std::vector<RealT> d2 = std::vector<RealT>(data_dim);
+        for(int k = 0; k < data_dim; k++)
+          {
+            d1[k] = d1[k] - prior_and_like_->data_[k];
+          }
+        prior_and_like_->Apply_Noise_Precision(d2,d1);
+        HDSA::Ptr<HDSA::Vector<RealT> > grad_u = current_u_->clone();
+        prior_and_like_->Apply_Observation_Operator_Transpose(*grad_u,d2);
+        con_->c_u_Transpose_Inverse_Apply(*current_lambda_,*grad_u,*current_u_,*current_z_,*current_theta_);
+        current_lambda_->scale(-1.0);
       }
+
     con_->c_z_Transpose_Apply(grad,*current_lambda_,*current_u_,*current_z_,*current_theta_);
-    HDSA::Ptr<HDSA::Vector<RealT> > ztmp = grad.clone();
-    prior_and_like_->Apply_Prior_Precision(*ztmp,z);
-    grad.plus(*ztmp);
+
+    HDSA::Ptr<HDSA::Vector<RealT> > ztmp1 = grad.clone();
+    HDSA::Ptr<HDSA::Vector<RealT> > ztmp2 = grad.clone();
+    ztmp1->setScalar(-1.0);
+    ztmp1->plus(z);
+    prior_and_like_->Apply_Prior_Precision(*ztmp2,*ztmp1);
+    grad.plus(*ztmp2);
   }
 
   void Apply_Misfit_Hessian(HDSA::Vector<RealT> & z_out, const HDSA::Vector<RealT> & z_in, const HDSA::Vector<RealT> & z, const HDSA::Vector<RealT> & theta)

@@ -240,6 +240,8 @@ namespace HDSA
       
       for(int k = 0; k < N; k++)
 		{
+			std::cout << "The gradient norm after step: " << k << " is " << grad_current->norm() << std::endl;
+			
 			z_store->set(*z_current);
 			
 			std::cout << "Beginning B matvec at time step " << k+1 << std::endl;
