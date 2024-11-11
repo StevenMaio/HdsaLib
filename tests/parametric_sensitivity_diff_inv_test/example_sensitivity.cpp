@@ -90,7 +90,7 @@ int main(int argc, char *argv[]) {
       std::cout << "Error loading the data from theta_star.txt" << std::endl;
     }  
 
-  int N_fe = 30;
+  int N_fe = 15;
   sen->Pseudo_Time_Continuation_Forward_Euler(*z_star,*grad_star,*theta_star,N_fe); 
   std::string name = "z_star_fe.txt";
   z_star->Write_to_File(name);
@@ -99,7 +99,7 @@ int main(int argc, char *argv[]) {
 
   z_star->zeros();
   grad_star->zeros();
-  int N_me = 15;
+  int N_me = 10;
   sen->Pseudo_Time_Continuation_Modified_Euler(*z_star,*grad_star,*theta_star,N_me); 
   name = "z_star_me.txt";
   z_star->Write_to_File(name);
