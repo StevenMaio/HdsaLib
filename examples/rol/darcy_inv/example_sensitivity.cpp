@@ -11,6 +11,7 @@
 #include "../../../../Trilinos/packages/rol/example/PDE-OPT/TOOLS/pdeobjective.hpp"
 #include "../../../../Trilinos/packages/rol/example/PDE-OPT/TOOLS/pdevector.hpp"
 #include "pde_darcy_flow.hpp"
+#include "pde_darcy_flow_aux_param.hpp"
 #include "obj_darcy_flow.hpp"
 #include "mesh_darcy_flow.hpp"
 #include "elliptic_prior_reg_obj.hpp"
@@ -78,8 +79,10 @@ int main(int argc, char *argv[]) {
   HDSA::Ptr<PDE_Constraint<RealT> >pdecon = HDSA::dynamicPtrCast<PDE_Constraint<RealT> >(con);
   HDSA::Ptr<Assembler<RealT> > assembler = pdecon->getAssembler();
   
+  HDSA::Ptr<PDE_darcy_flow_aux_param<RealT> > pde_aux_param = HDSA::makePtr<PDE_darcy_flow_aux_param<RealT> >(*parlist);
+  HDSA::Ptr<ROL::Constraint_SimOpt<RealT> > con_aux_param = HDSA::makePtr<PDE_Constraint<RealT> >(pde_aux_param,meshMgr,comm->Get_Teuchos_Communicator(),*parlist,*outStream);
   int NX = parlist->sublist("Geometry").get("NX", 10);
-  std::vector<RealT> param = std::vector<RealT>(2*NX,0.0);
+  std::vector<RealT> param = std::vector<RealT>(1,0.0);
   pdecon->setParameter(param);
   con->setSolveParameters(*parlist);
   
@@ -133,6 +136,7 @@ int main(int argc, char *argv[]) {
       for(int j = 0; j < num_obs; j++)
 	    {
 	      in_loc >> target_data_ids[j];
+        target_data_ids[j] = target_data_ids[j] - 1;
 	    }
     }
   else
@@ -155,7 +159,7 @@ int main(int argc, char *argv[]) {
   obj_vec[1] = robj_reg;
   HDSA::Ptr<ROL::Objective<RealT> > robj = HDSA::makePtr<ROL::LinearCombinationObjective<RealT> >(weights,obj_vec);
 
-  int theta_dim = 2*NX;
+  int theta_dim = param.size();
   HDSA::Ptr<HDSA::Vector<RealT> > theta_bar = HDSA::makePtr<Std_Vector<RealT> >(theta_dim);
   Load_Nominal_Solution<RealT>(z_ptr,parlist);  
   HDSA::Ptr<HDSA::Vector<RealT> > z_bar = HDSA::makePtr<HDSA::ROL_Vector<RealT> >(zp);
@@ -174,7 +178,7 @@ int main(int argc, char *argv[]) {
   RealT cg_tol = parlist_sensitivity->sublist("Problem").get("CG Tolerance", 1.e-5);
   int max_cg_iter = parlist_sensitivity->sublist("Problem").get("Maximum CG Iterations", 100);
 
-  HDSA::Ptr<HDSA::PC_Sensitivity_Operator_Interface<RealT> > sen_op_interface = HDSA::makePtr<PC_Sensitivity_Operator_Interface_darcy_flow<RealT> >(robj,z_bar,theta_bar);
+  HDSA::Ptr<HDSA::PC_Sensitivity_Operator_Interface<RealT> > sen_op_interface = HDSA::makePtr<PC_Sensitivity_Operator_Interface_darcy_flow<RealT> >(obj_misfit,robj_reg,con,con_aux_param,up,z_bar,theta_bar);
   HDSA::Ptr<HDSA::PC_LIS_Interface<RealT> > lis_interface = HDSA::makePtr<PC_LIS_Interface_darcy_flow<RealT> >(robj_misfit,robj_reg,z_bar,theta_bar);    
   HDSA::Ptr<HDSA::PC_Quasi_Newton_Preconditioner_LIS<RealT> > qn_prec = HDSA::makePtr<HDSA::PC_Quasi_Newton_Preconditioner_LIS<RealT> >(z_bar,theta_bar,lis_interface);
 
@@ -193,14 +197,11 @@ int main(int argc, char *argv[]) {
   HDSA::Ptr<HDSA::Vector<RealT> > grad_star = z_bar->clone();
   HDSA::Ptr<HDSA::Vector<RealT> > theta_star = theta_bar->clone();
   Std_Vector<RealT>& theta_star_std = dynamic_cast<Std_Vector<RealT>&>(*theta_star); 
-  RealT val = 1.0;
+  RealT val = parlist_sensitivity->sublist("Problem").get("Perturbation Magnitude", 1.0);
   for(int i = 0; i < theta_dim; i++)
     {
       theta_star_std.Replace_Element(i,val);
     }
-
-  std::cout << "Ready to start foward Euler loop" << std::endl;
-  std::cout << "z_bar->norm() = " << z_bar->norm() << std::endl;
   
   if(N_fe>0)
   {

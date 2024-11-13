@@ -99,9 +99,6 @@ public:
 						  *rhs,
 						  *(fe_vol_->NdetJ()),
 						  Intrepid::COMP_CPP, true);
-
-
-    const std::vector<Real> param = PDE<Real>::getParameter();
   
     // APPLY DIRICHLET CONDITIONS
     int numLocalSideIds = bdryCellLocIds_[0].size();
@@ -111,25 +108,8 @@ public:
       for (int k = 0; k < numCellsSide; ++k) {
         int cidx = bdryCellLocIds_[0][j][k];
         for (int l = 0; l < numBdryDofs; ++l) {
-
-          Real pert;
-          if(param.size()==numCellsSide*2)
-          {
-            pert = param[(numCellsSide/2)*j + k];
-          }
-          else if(param.size()==0)
-          {
-            pert = 0.0;
-          }
-          else
-          {
-            std::cout << "Parameter dimension is inconsistent" << std::endl;
-            pert = 0.0;
-          }
-
           (*res)(cidx,fidx_[j][l])
-            = (*u_coeff)(cidx,fidx_[j][l]) - (*bdryCellDofValues_[0][j])(k,fidx_[j][l]) - pert;
-            //std::cout << " j = " << j << " and k = " << k << " and l = " << l << std::endl;
+            = (*u_coeff)(cidx,fidx_[j][l]) - (*bdryCellDofValues_[0][j])(k,fidx_[j][l]);
         }
       }
     }
@@ -522,7 +502,9 @@ private:
   }
 
   Real evaluateRHS(const std::vector<Real> & x) const {
-    Real val = 100.0*sin(2*3.14159*x[0]) * sin(2*3.14159*x[1]);
+    const std::vector<Real> param = PDE<Real>::getParameter();
+    
+    Real val = (1.0 + param[0]) * 100.0*sin(2*3.14159*x[0]) * sin(2*3.14159*x[1]);
     return val;
   }
 

@@ -52,7 +52,7 @@ int main(int argc, char *argv[]) {
   HDSA::Ptr<Assembler<RealT> > assembler = pdecon->getAssembler();
   
   int NX = parlist->sublist("Geometry").get("NX", 10);
-  std::vector<RealT> param = std::vector<RealT>(2*NX,0.0);
+  std::vector<RealT> param = std::vector<RealT>(1,0.0);
   pdecon->setParameter(param);
   con->setSolveParameters(*parlist);
   
@@ -106,6 +106,7 @@ int main(int argc, char *argv[]) {
       for(int j = 0; j < num_obs; j++)
 	    {
 	      in_loc >> target_data_ids[j];
+        target_data_ids[j] = target_data_ids[j] - 1;
 	    }
     }
   else
