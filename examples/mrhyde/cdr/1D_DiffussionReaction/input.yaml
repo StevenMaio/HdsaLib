@@ -2,31 +2,32 @@
 ---
 ANONYMOUS:
   debug level: 0
-  Mesh:2
+  verbosity: 0
+  Mesh:
     dimension: 1
     element type: interval
     xmin: 0.0
     xmax: 1.0
     NX: 199
-  Physics: 
+  Physics:
     modules: cdr
-    Dirichlet conditions:
-      c:
-        left: '10.0'
+    #Dirichlet conditions:
+    #  c:
+    #    all boundaries: '0.0'
   Discretization:
     order:
       c: 1
     quadrature: 2
-  #Parameters input file: input_params.yaml
-  #Analysis input file: input_rol2.yaml
-  Analysis:
-    analysis type: forward
+  Analysis input file: input_rol2.yaml
+  Parameters input file: input_params.yaml
+  #Analysis:
+  #  analysis type: forward
   Solver:
     workset size: 1
     solver: steady-state
     nonlinear TOL: 1.0e-10
     linear TOL: 1.0e-13
-    max nonlinear iters: 4
+    max nonlinear iters: 100
   Postprocess: 
     response type: pointwise
     compute objective: true
@@ -40,13 +41,13 @@ ANONYMOUS:
           reg0:
             type: integrated
             location: volume
-            #function: thermal_source^2
-            weight: 0.0
+            function: source^2
+            weight: 0.5E-04
   Functions:
-    xvel: '0.0'
-    reaction: 'c*c'
-    source: '20.0*(x+0.5)*(1.3-x)'
-    #thermal source: 100.0*thermal_source
-    #targ: '20.0*(x+0.5)*(1.3-x)'
-
+    xvel: xvelval
+    #reaction: '(1.0+0.7*sin(2.0*PI*x))*c*c'
+    reaction: 'c'
+    diffusion: diffval
+    source: sourcefield
+    targ: '20.0*(x+0.5)*(1.3-x)'  
 ...

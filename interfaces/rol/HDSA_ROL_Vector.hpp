@@ -19,6 +19,8 @@ public:
     rol_vec = rol_vec_in.clone();
   }
 
+  ROL_Vector(ROL::Ptr<ROL::Vector<RealT> > & rol_vec_in): rol_vec(rol_vec_in)   { }
+  
   virtual ~ROL_Vector()
   { }
 

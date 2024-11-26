@@ -2,7 +2,7 @@
 ---
 ANONYMOUS:
   Analysis: 
-    analysis type: ROL
+    analysis type: HDSA
     have sensor points: false
     have sensor data: false
     save sensor data: false
@@ -127,5 +127,5 @@ ANONYMOUS:
         Gradient Tolerance: 1.0e-12
         Constraint Tolerance: 1.0e-8
         Step Tolerance: 1.0e-12
-        Iteration Limit: 100
+        Iteration Limit: 200
 ...

@@ -2,20 +2,16 @@
 ---
 ANONYMOUS:
   Parameters: 
-    thermal_diff: 
+    diffval: 
       type: scalar
       value: 1.0
       usage: inactive
-    thermal_source: 
+    sourcefield: 
       type: HGRAD
       order: 1
       usage: discretized
       initial_value: 1.0
-    lambda1: 
-      type: scalar
-      value: 0.0
-      usage: inactive
-    mu: 
+    xvelval: 
       type: scalar
       value: 0.0
       usage: inactive
