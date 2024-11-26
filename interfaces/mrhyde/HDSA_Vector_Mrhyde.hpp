@@ -7,16 +7,17 @@ namespace HDSA
 template <class RealT>
 class Vector_MrHyDE : public Vector<RealT> {
 
-
+private:
+  const HDSA::Ptr<HDSA::Random_Number_Generator<RealT> > random_number_generator_;
 public:
   HDSA::Ptr<ROL::Vector<RealT> > mrhyde_vec;
   
-  Vector_MrHyDE(const MrHyDE_OptVector &mrhyde_vec_in)
+  Vector_MrHyDE(const MrHyDE_OptVector &mrhyde_vec_in) :  random_number_generator_(HDSA::makePtr<HDSA::Random_Number_Generator<RealT> >())
   {
     mrhyde_vec = mrhyde_vec_in.clone();
   }
 
-  Vector_MrHyDE(HDSA::Ptr<MrHyDE_OptVector> &mrhyde_vec_in):mrhyde_vec(mrhyde_vec_in)
+  Vector_MrHyDE(HDSA::Ptr<MrHyDE_OptVector> &mrhyde_vec_in):mrhyde_vec(mrhyde_vec_in), random_number_generator_(HDSA::makePtr<HDSA::Random_Number_Generator<RealT> >())
   {
   }
 
@@ -67,8 +68,19 @@ public:
   
   void randomize_standard_normal( )
   {
-    // bvbw: using uniform to get everthing mechanically working - need Normal 
-    mrhyde_vec->randomize();
+   MrHyDE_OptVector* emrhyde_vec = dynamic_cast<MrHyDE_OptVector*>(&const_cast<ROL::Vector<RealT> &>(*mrhyde_vec));
+   for (int j=0; j<emrhyde_vec->getField().size();j++) {
+     auto vecT_data = emrhyde_vec->getField()[j]->getVector()->getDataNonConst(0);
+     for (int i=0; i< emrhyde_vec->getField()[j]->getVector()->getLocalLength(); i++) {
+       vecT_data[i] = random_number_generator_->Generate_Standard_Normal_Sample();   
+     }
+   }
+
+   for (int j=0; j<emrhyde_vec->getParameter().size();j++) {
+     for (int i=0; i< emrhyde_vec->getParameter()[j]->getVector()->size(); i++) {
+       (*emrhyde_vec->getParameter()[j]->getVector())[i] = random_number_generator_->Generate_Standard_Normal_Sample();   
+     }
+   }
   }
  
  

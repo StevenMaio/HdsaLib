@@ -1,81 +1,49 @@
-#ifndef HDSA_MD_ELLIPTIC_U_PRIOR_INTERFACE_MRHYDE_HPP
-#define HDSA_MD_ELLIPTIC_U_PRIOR_INTERFACE_MRHYDE_HPP
-
-#include <algorithm>
-#include <cstdlib>
-#include <random>
+#ifndef HDSA_PRIOR_FE_OP_MRHYDE_INTERFACE_HPP
+#define HDSA_PRIOR_FE_OP_MRHYDE_INTERFACE_HPP
 #include "userInterface.hpp"
 
   template <class RealT,
             class LO=Tpetra::Map<>::local_ordinal_type,
             class GO=Tpetra::Map<>::global_ordinal_type,
             class Node=Tpetra::Map<>::node_type >
-  class MD_Elliptic_u_Prior_Interface_MrHyDE : public HDSA::MD_Elliptic_u_Prior_Interface<RealT> {
+  class HDSA_Prior_FE_Op_MrHyDE_Interface {
 
-  typedef Tpetra::CrsMatrix<ScalarT,LO,GO,Node>   LA_CrsMatrix;
+  typedef Tpetra::CrsMatrix<RealT,LO,GO,Node>   LA_CrsMatrix;
   typedef Teuchos::RCP<LA_CrsMatrix>              matrix_RCP;
-    
+
   private:
-    std::vector<Teuchos::RCP<MrHyDE::SolverManager<SolverNode> > > solve_;
-    std::vector<Teuchos::RCP<MrHyDE::ParameterManager<SolverNode> > > params_;
-    Teuchos::RCP<MrHyDE::AssemblyManager<SolverNode> > assembler_;
-    HDSA::Ptr<HDSA_Prior_FE_Op_MrHyDE_Interface<RealT> > prior_fe_op_;
-    std::vector<matrix_RCP> E_u_;
-    std::vector<HDSA::Ptr<MD_Prior_FE_Op_LA_Base<RealT> > > E_u_solver_; 
+
+   std::vector<Teuchos::RCP<MrHyDE::SolverManager<SolverNode> > > solve_;
+   std::vector<Teuchos::RCP<MrHyDE::ParameterManager<SolverNode> > > params_;
+   Teuchos::RCP<MrHyDE::AssemblyManager<SolverNode> > assembler_;
+
   public:
-    MD_Elliptic_u_Prior_Interface_MrHyDE(RealT & alpha_u, RealT & beta_u, Teuchos::RCP<Teuchos::MpiComm<int> > &comm, Teuchos::RCP<Teuchos::ParameterList> & settings,std::vector<string> & blockNames, Teuchos::RCP<MrHyDE::SolverManager<SolverNode> > &solve_concat, HDSA::Ptr<HDSA_Prior_FE_Op_MrHyDE_Interface<RealT>> &prior_fe_op): HDSA::MD_Elliptic_u_Prior_Interface<RealT>(alpha_u),prior_fe_op_(prior_fe_op)
-    {
-      Contruct_Elliptic_Operator(beta_u);
-      Instantiate_Prior_Operators(comm,settings,blockNames,solve_concat);
-    }
-
-    MD_Elliptic_u_Prior_Interface_MrHyDE(RealT & alpha_u, RealT & beta_u, int & seed, Teuchos::RCP<Teuchos::MpiComm<int> > &comm, Teuchos::RCP<Teuchos::ParameterList> & settings,std::vector<string> & blockNames, Teuchos::RCP<MrHyDE::SolverManager<SolverNode> > &solve_concat): HDSA::MD_Elliptic_u_Prior_Interface<RealT>(alpha_u,seed)
-    {
-      Contruct_Elliptic_Operator(beta_u);
-      Instantiate_Prior_Operators(comm,settings,blockNames,solve_concat);
-    }
-
-    MD_Elliptic_u_Prior_Interface_MrHyDE(RealT & alpha_u, RealT & beta_u, const HDSA::Ptr<HDSA::Random_Number_Generator<RealT> > & random_number_generator, Teuchos::RCP<Teuchos::MpiComm<int> > &comm, Teuchos::RCP<Teuchos::ParameterList> & settings, std::vector<string> & blockNames, Teuchos::RCP<MrHyDE::SolverManager<SolverNode> > &solve_concat)
-      : HDSA::MD_Elliptic_u_Prior_Interface<RealT>(alpha_u,random_number_generator)
-    {
-      Contruct_Elliptic_Operator(beta_u);
-      Instantiate_Prior_Operators(comm,settings,blockNames,solve_concat);
+    std::vector<matrix_RCP> M;
+    std::vector<matrix_RCP> S; 
+    HDSA_Prior_FE_Op_MrHyDE_Interface(Teuchos::RCP<Teuchos::MpiComm<int> > &comm, Teuchos::RCP<Teuchos::ParameterList> & settings,std::vector<string> & blockNames)
+    { 
+    Teuchos::RCP<MrHyDE::userInterface> UI = Teuchos::rcp(new MrHyDE::userInterface() );
+    std::string input_file_name = "input-HDSA-prior-z.yaml";
+    Teuchos::RCP<Teuchos::ParameterList> settings_prior = UI->UserInterface(input_file_name);
+    settings_prior->sublist("Functions").set("ellipticPrior diffusion","0.0");
+    M = Instantiate_Prior_Operators(comm,settings_prior,blockNames);
+    settings_prior->sublist("Functions").set("ellipticPrior diffusion","1.0");
+    settings_prior->sublist("Functions").set("ellipticPrior reaction","0.0");
+    S = Instantiate_Prior_Operators(comm,settings_prior,blockNames);
     }
     
-    virtual ~MD_Elliptic_u_Prior_Interface_MrHyDE()
+    virtual ~HDSA_Prior_FE_Op_MrHyDE_Interface()
     { }
 
-    void Contruct_Elliptic_Operator(RealT &beta_u) {
-      int k = prior_fe_op_->M.size();
-      E_u_.resize(k);
-      E_u_solver_.resize(k);
-      
-      for(int i=0;i<k;i++) {
-	Tpetra::RowMatrix<RealT, LO, GO, Node> &S_tmp = dynamic_cast<Tpetra::RowMatrix<RealT, LO, GO, Node> &> (*prior_fe_op_->S[i]);
-	Teuchos::RCP<Tpetra::RowMatrix<RealT, LO, GO, Node> > E_u_tmp=prior_fe_op_->M[i]->add(beta_u,S_tmp,1.0,prior_fe_op_->M[i]->getDomainMap(),prior_fe_op_->M[i]->getRangeMap(),Teuchos::null);
-	E_u_[i]= HDSA::dynamicPtrCast<Tpetra::CrsMatrix<RealT, LO, GO, Node> > (E_u_tmp);
-	E_u_solver_[i]=HDSA::makePtr<MD_Prior_FE_Op_LA_Base<RealT>>(E_u_[i]);
-      }
-    }
-    
-  void Instantiate_Prior_Operators(Teuchos::RCP<Teuchos::MpiComm<int> > comm, Teuchos::RCP<Teuchos::ParameterList> & settings,std::vector<string> & blockNames, Teuchos::RCP<MrHyDE::SolverManager<SolverNode> > &solve_concat) {
+    std::vector<matrix_RCP> Instantiate_Prior_Operators(Teuchos::RCP<Teuchos::MpiComm<int> > comm, Teuchos::RCP<Teuchos::ParameterList> & settings,std::vector<string> & blockNames) {
 
     params_.resize(blockNames.size());
     solve_.resize(blockNames.size());
     for (int i=0; i<blockNames.size(); ++i){
-    std::string input_file_name = "input-HDSA-prior.yaml";
+    std::string input_file_name = "input-HDSA-prior-z.yaml";
     // Todo: loop over blockname and instantiate solve and params per block
     //       in apply_u_inverse: loop over blocknames, execute state solve per block
 
-    ////////////////////////////////////////////////////////////////////////////////
-    // Import default and user-defined settings into a parameter list
-    ////////////////////////////////////////////////////////////////////////////////
-    
-    Teuchos::RCP<MrHyDE::userInterface> UI = Teuchos::rcp(new MrHyDE::userInterface() );
-    Teuchos::RCP<Teuchos::ParameterList> settings = UI->UserInterface(input_file_name);
-
-    //Teuchos::RCP<Teuchos::ParameterList> settings = MrHyDE::UserInterface(input_file_name);
-    
     int debug_level = settings->get<int>("debug level",0);
     
     ////////////////////////////////////////////////////////////////////////////////
@@ -207,51 +175,25 @@
     comm->barrier();
     
     } // end for loop
-
-    int num_sing_vals = 50;
-    int oversampling = 1;
-    int num_subspace_iters = 2;
-    HDSA::Ptr<HDSA::Vector<RealT> > u_vec = HDSA::makePtr<HDSA::Vector_MrHyDE_Steady_State<RealT> >(solve_concat);
-
-    HDSA::MD_Elliptic_u_Prior_Interface<RealT>::Compute_E_u_Inverse_GSVD(num_sing_vals,oversampling,num_subspace_iters,*u_vec);
-
-  }
-
-    void Apply_E_u_Inverse(HDSA::Vector<RealT> & u_out, const HDSA::Vector<RealT> & u_in) const {
-     const HDSA::Vector_MrHyDE_Steady_State<RealT> &eu_in = dynamic_cast<const HDSA::Vector_MrHyDE_Steady_State<RealT>&>(u_in);  
-     HDSA::Vector_MrHyDE_Steady_State<RealT> &eu_out = dynamic_cast<HDSA::Vector_MrHyDE_Steady_State<RealT>&>(u_out);  
-     for (int i=0; i<eu_in.mrhyde_steady_state_vec.size(); ++i){
-       // create HDSA Tpetra vector and pass it to the E_u_->solver()
-       HDSA::Ptr<HDSA::Vector<RealT> > veci_in = HDSA::makePtr<Tpetra_Vector<RealT> > (eu_in.mrhyde_steady_state_vec[i]);
-       HDSA::Ptr<HDSA::Vector<RealT> > veci_out = HDSA::makePtr<Tpetra_Vector<RealT> > (eu_out.mrhyde_steady_state_vec[i]); 
-       E_u_solver_[i]->Apply_A_Inverse(*veci_out,*veci_in);
-     }
+    std::vector<matrix_RCP> A;
+    A.resize(blockNames.size());
+    for (int i=0; i<blockNames.size(); ++i){
+      A[i] = solve_[i]->linalg->getNewMatrix(i);
+      std::vector<HDSA::Ptr<Tpetra::MultiVector<RealT,LO,GO,Node> > > veci_out;
+      veci_out.resize(1);
+      veci_out[0]=solve_[i]->linalg->getNewVector(i);
+      matrix_RCP A_over = solve_[i]->linalg->getNewOverlappedMatrix(i);
+	    
+      assembler_->assembleJacRes(i,0,veci_out,veci_out,veci_out,veci_out,veci_out,veci_out,true,false,false,
+				 veci_out[0],A_over,false,0,false,false,veci_out[0]->getGlobalLength(),veci_out[0],veci_out[0],false,0.0);
+      solve_[i]->linalg->fillComplete(A_over);
+      A[i]->resumeFill();
+      solve_[i]->linalg->exportMatrixFromOverlapped(i, A[i], A_over);
+      solve_[i]->linalg->fillComplete(A[i]);
     }
-    void Apply_E_u_Inverse_Transpose(HDSA::Vector<RealT> & u_out, const HDSA::Vector<RealT> & u_in) const {
-      Apply_E_u_Inverse(u_out, u_in);
-    }
+    return A;
+  } 
 
-    void Apply_M_u(HDSA::Vector<RealT> & u_out, const HDSA::Vector<RealT> & u_in) const {
-
-      const HDSA::Vector_MrHyDE_Steady_State<RealT> &eu_in = dynamic_cast<const HDSA::Vector_MrHyDE_Steady_State<RealT>&>(u_in);
-      HDSA::Vector_MrHyDE_Steady_State<RealT> &eu_out = dynamic_cast<HDSA::Vector_MrHyDE_Steady_State<RealT>&>(u_out);
-      for (int i=0; i<eu_in.mrhyde_steady_state_vec.size(); ++i){
-	  if (solve_[i]->linalg->getHaveOverlapped()) {
-	    Teuchos::RCP<Tpetra::MultiVector<RealT,LO,GO,Node>> u_in_over=solve_[i]->linalg->getNewOverlappedVector(i);
-    	    Teuchos::RCP<Tpetra::MultiVector<RealT,LO,GO,Node>> u_out_over=solve_[i]->linalg->getNewOverlappedVector(i);
-	    solve_[i]->linalg->importVectorToOverlapped(i,u_in_over,eu_in.mrhyde_steady_state_vec[0]);
-	    solve_[i]->assembler->applyMassMatrixFree(i, u_in_over, u_out_over);
-	    solve_[i]->linalg->exportVectorFromOverlapped(i,eu_out.mrhyde_steady_state_vec[0],u_out_over);
-          } else {
-	    solve_[i]->assembler->applyMassMatrixFree(i,eu_in.mrhyde_steady_state_vec[0],eu_out.mrhyde_steady_state_vec[0]);
-	  }
-      }
-      HDSA::Ptr<MD_Prior_FE_Op_LA_Base<RealT>> prior_la = HDSA::makePtr<MD_Prior_FE_Op_LA_Base<RealT>>(prior_fe_op_->M[0]);
-      HDSA::Ptr<HDSA::Vector<RealT>> u_tmp = u_out.clone();
-      prior_la->Apply_A_Inverse(*u_tmp,u_out);
-      u_tmp->axpy(-1.0,u_in);
-      std::cout << " u_tmp norm    " << u_tmp->norm() << std::endl;
-    }
   };
 
 #endif

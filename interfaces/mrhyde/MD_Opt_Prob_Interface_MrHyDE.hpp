@@ -29,13 +29,9 @@
     { }
 
     void Apply_Solution_Operator_z_Jacobian_Transpose(HDSA::Vector<RealT> & z_out, const HDSA::Vector<RealT> & u_in, const HDSA::Vector<RealT> & z) const {      
-      //solutionStorage type for datagen_soln
-      //create two postproc objective each with a different objective function
-      //datagen = u_in;
-      // bvbw      writedata_solopt(u_in);
-      // obj_->do_solop(true);
+      writedata_solopt(u_in);
+      obj_->do_solop(true);
       RealT tol = 1.0E-7;
-      std::cout << "norm u_ini = " << u_in.norm() << "norm z = " << z.norm() << std::endl;
       obj_->gradient(z_out,z,tol);
     }
 

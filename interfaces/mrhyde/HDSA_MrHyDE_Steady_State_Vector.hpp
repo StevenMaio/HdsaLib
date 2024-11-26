@@ -12,10 +12,12 @@ class Vector_MrHyDE_Steady_State : public Vector<RealT> {
 
 private:
   Teuchos::RCP<MrHyDE::SolverManager<Node> > solver_;
+  const HDSA::Ptr<HDSA::Random_Number_Generator<RealT> > random_number_generator_;
 public:
 
   std::vector<HDSA::Ptr<Tpetra::MultiVector<RealT,LO,GO,Node> > > mrhyde_steady_state_vec;
-  Vector_MrHyDE_Steady_State(const Teuchos::RCP<MrHyDE::SolverManager<Node> > &solver) : solver_(solver)
+  Vector_MrHyDE_Steady_State(const Teuchos::RCP<MrHyDE::SolverManager<Node> > &solver) : solver_(solver),
+			 random_number_generator_(HDSA::makePtr<HDSA::Random_Number_Generator<RealT> >())
   {
     int numsets = solver->setnames.size();
     mrhyde_steady_state_vec.resize(numsets);
@@ -92,17 +94,17 @@ public:
       }
     }
 
-  //  virtual void randomize_standard_normal(RealT l = 0.0, RealT u = 1.0) {
-  // bvbw need normal
   virtual void randomize_standard_normal() {
     int numsets = solver_->setnames.size();
     for (int set=0; set<numsets; set++) {
-	//	mrhyde_state_vec[set][i]->randomize(l,u);
-	mrhyde_steady_state_vec[set]->randomize();
+      auto vecT_data = mrhyde_steady_state_vec[set]->getDataNonConst(0);
+      for (int i=0; i<mrhyde_steady_state_vec[set]->getLocalLength(); i++) {
+	vecT_data[i] = random_number_generator_->Generate_Standard_Normal_Sample();   
       }
     }
+  }
 };
-
+  
 }
 
 #endif

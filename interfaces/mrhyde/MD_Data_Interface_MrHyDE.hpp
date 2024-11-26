@@ -72,10 +72,20 @@
 
     HDSA::Ptr<HDSA::MultiVector<RealT> > Load_Z_Data(void) const{
     int num_coeff_load = 200;
-    HDSA::Ptr<HDSA::Vector<RealT> > z1 = HDSA::makePtr<HDSA::Vector_MrHyDE_Steady_State<RealT> >(solve_);
-    HDSA::Ptr<HDSA::Vector<RealT> > z2 = HDSA::makePtr<HDSA::Vector_MrHyDE_Steady_State<RealT> >(solve_);
-    HDSA::Vector_MrHyDE_Steady_State<RealT> &ez1 = dynamic_cast<HDSA::Vector_MrHyDE_Steady_State<RealT>&>(*z1);
-    HDSA::Vector_MrHyDE_Steady_State<RealT> &ez2 = dynamic_cast<HDSA::Vector_MrHyDE_Steady_State<RealT>&>(*z2);
+    //HDSA::Ptr<HDSA::Vector<RealT> > z1 = HDSA::makePtr<HDSA::Vector_MrHyDE_Steady_State<RealT> >(solve_);
+    //HDSA::Ptr<HDSA::Vector<RealT> > z2 = HDSA::makePtr<HDSA::Vector_MrHyDE_Steady_State<RealT> >(solve_);
+
+    ROL::Ptr<ROL::Vector<RealT> > z1_rol = solve_->params->getCurrentVector().clone();
+    HDSA::Ptr<HDSA::Vector<RealT> > z1 = HDSA::makePtr<HDSA::ROL_Vector<RealT> >(z1_rol);
+
+    ROL::Ptr<ROL::Vector<RealT> > z2_rol = solve_->params->getCurrentVector().clone();
+    HDSA::Ptr<HDSA::Vector<RealT> > z2 = HDSA::makePtr<HDSA::ROL_Vector<RealT> >(z2_rol);
+
+    MrHyDE_OptVector &ez1 = dynamic_cast<MrHyDE_OptVector&>(*z1_rol);
+    MrHyDE_OptVector &ez2 = dynamic_cast<MrHyDE_OptVector&>(*z2_rol);
+    
+    //    HDSA::Vector_MrHyDE_Steady_State<RealT> &ez1 = dynamic_cast<HDSA::Vector_MrHyDE_Steady_State<RealT>&>(*z1);
+    // HDSA::Vector_MrHyDE_Steady_State<RealT> &ez2 = dynamic_cast<HDSA::Vector_MrHyDE_Steady_State<RealT>&>(*z2);
     std::ifstream in("Z.txt");
     RealT val = 0.0;
     if (in)
@@ -83,9 +93,11 @@
         for(int j = 0; j < num_coeff_load; j++)
         {
           in >> val;
-          ez1.mrhyde_steady_state_vec[0]->replaceGlobalValue(j,0,val);
+	  //          ez1.mrhyde_steady_state_vec[0]->replaceGlobalValue(j,0,val);
+	  ez1.getField()[0]->getVector()->replaceGlobalValue(j,0,val);
           in >> val;
-          ez2.mrhyde_steady_state_vec[0]->replaceGlobalValue(j,0,val);
+          // ez2.mrhyde_steady_state_vec[0]->replaceGlobalValue(j,0,val);
+          ez2.getField()[0]->getVector()->replaceGlobalValue(j,0,val);
         }
       }
     else
