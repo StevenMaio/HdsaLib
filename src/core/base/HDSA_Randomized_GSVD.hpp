@@ -131,7 +131,7 @@ namespace HDSA
       HDSA::Ptr<HDSA::Dense_Matrix<RealT> > ZtZ = Z.MatMat(Z);
       int n = ZtZ->numCols();
       HDSA::Ptr<HDSA::Dense_Matrix<RealT> > R_Z = HDSA::makePtr<HDSA::Dense_Matrix<RealT> >(n,n);
-      HDSA::Linear_Algebra::Cholesky_Factorization<RealT>(*ZtZ,*R_Z);
+      int info = HDSA::Linear_Algebra::Cholesky_Factorization<RealT>(*ZtZ,*R_Z);
       
       HDSA::Ptr<HDSA::MultiVector<RealT> > Q_Z = HDSA::makePtr<HDSA::MultiVector<RealT> >(n,*Z[0]);
       HDSA::Ptr<HDSA::Dense_Matrix<RealT> > I = HDSA::makePtr<HDSA::Dense_Matrix<RealT> >(n,n);

@@ -16,8 +16,7 @@ private:
 public:
 
   std::vector<HDSA::Ptr<Tpetra::MultiVector<RealT,LO,GO,Node> > > mrhyde_steady_state_vec;
-  Vector_MrHyDE_Steady_State(const Teuchos::RCP<MrHyDE::SolverManager<Node> > &solver) : solver_(solver),
-			 random_number_generator_(HDSA::makePtr<HDSA::Random_Number_Generator<RealT> >())
+  Vector_MrHyDE_Steady_State(const Teuchos::RCP<MrHyDE::SolverManager<Node> > &solver, const HDSA::Ptr<HDSA::Random_Number_Generator<RealT> > &random_number_generator) : solver_(solver), random_number_generator_(random_number_generator) 
   {
     int numsets = solver->setnames.size();
     mrhyde_steady_state_vec.resize(numsets);
@@ -36,7 +35,7 @@ public:
   // Clone the vector
   virtual HDSA::Ptr<HDSA::Vector<RealT> > clone() const {
 
-    HDSA::Ptr<HDSA::Vector<RealT> > vec = HDSA::makePtr< HDSA::Vector_MrHyDE_Steady_State<RealT> >(solver_);
+    HDSA::Ptr<HDSA::Vector<RealT> > vec = HDSA::makePtr< HDSA::Vector_MrHyDE_Steady_State<RealT> >(solver_,random_number_generator_);
     return vec;
   }
 

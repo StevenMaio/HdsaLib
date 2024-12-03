@@ -10,10 +10,10 @@
     Teuchos::RCP<MrHyDE::PostprocessManager<SolverNode> > postproc_;
     HDSA::Ptr<MrHyDE::SolverManager<SolverNode> > solver_;
   public:
-    MD_Opt_Prob_Interface_MrHyDE(HDSA::Ptr<MrHyDE::SolverManager<SolverNode> > & solver, Teuchos::RCP<MrHyDE::PostprocessManager<SolverNode> > & postproc, Teuchos::RCP<MrHyDE::ParameterManager<SolverNode> > & params)
+    MD_Opt_Prob_Interface_MrHyDE(HDSA::Ptr<MrHyDE::SolverManager<SolverNode> > & solver, Teuchos::RCP<MrHyDE::PostprocessManager<SolverNode> > & postproc, Teuchos::RCP<MrHyDE::ParameterManager<SolverNode> > & params,const HDSA::Ptr<HDSA::Random_Number_Generator<RealT> > & random_number_generator)
   {  
     obj_ = Teuchos::rcp( new HDSA::Objective_MrHyDE<RealT> (solver, postproc, params));
-    HDSA::Ptr<HDSA::Vector<RealT> > u_vec = HDSA::makePtr<HDSA::Vector_MrHyDE_State<RealT> > (solver);
+    HDSA::Ptr<HDSA::Vector<RealT> > u_vec = HDSA::makePtr<HDSA::Vector_MrHyDE_State<RealT> > (solver,random_number_generator);
         
     postproc_ = postproc;
     solver_ = solver;

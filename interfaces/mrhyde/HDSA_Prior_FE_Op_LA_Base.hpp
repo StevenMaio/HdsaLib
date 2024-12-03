@@ -44,9 +44,9 @@ public:
       
     void matvec(HDSA::Vector<ScalarType> & y, const HDSA::Vector<ScalarType> & x) const
     {
-      const HDSA::Vector_MrHyDE_Steady_State<RealT> &ex = dynamic_cast<const HDSA::Vector_MrHyDE_Steady_State<RealT>&>(x);
-      HDSA::Vector_MrHyDE_Steady_State<RealT> &ey = dynamic_cast<HDSA::Vector_MrHyDE_Steady_State<RealT>&>(y);
-      A_invert_->A_->apply(*ex.mrhyde_steady_state_vec[0],*ey.mrhyde_steady_state_vec[0]);  // only works for single physics
+      const Tpetra_Vector<ScalarType> &ex = dynamic_cast<const Tpetra_Vector<ScalarType>&>(x);
+      Tpetra_Vector<ScalarType> &ey = dynamic_cast<Tpetra_Vector<ScalarType>&>(y);
+      A_invert_->A_->apply(*ex.getVector(),*ey.getVector()); 
     }
 
   };
