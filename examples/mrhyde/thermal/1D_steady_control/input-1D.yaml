@@ -1,0 +1,49 @@
+%YAML 1.1
+---
+ANONYMOUS:
+  debug level: 0
+  Mesh:
+    dimension: 1
+    element type: interval
+    xmin: 0.0
+    xmax: 1.0
+    NX: 199
+  Physics: 
+    modules: thermal
+    Neumann conditions:
+      e:
+        all boundaries: '-2.0*e'
+  Discretization:
+    order:
+      e: 1
+    quadrature: 2
+  Parameters input file: input_params.yaml
+  Analysis input file: input_rol2.yaml
+  #Analysis:
+  #  analysis type: forward
+  Solver:
+    workset size: 1
+    solver: steady-state
+    nonlinear TOL: 1.0e-10
+    linear TOL: 1.0e-13
+    max nonlinear iters: 4
+  Postprocess: 
+    response type: pointwise
+    compute objective: true
+    write solution: true
+    Objective functions:
+      obj0:
+        type: integrated control
+        function: '0.5*(e-targ)^2'
+        weight: 1.0
+        Regularization functions:
+          reg0:
+            type: integrated
+            location: volume
+            function: thermal_source^2
+            weight: 0.0
+  Functions: 
+    thermal source: 100.0*thermal_source
+    targ: '50.0-30.0*(x-0.5)^2'
+
+...
