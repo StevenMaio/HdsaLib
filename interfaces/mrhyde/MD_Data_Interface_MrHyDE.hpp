@@ -78,8 +78,10 @@
     ROL::Ptr<ROL::Vector<RealT> > z1_rol = solve_->params->getCurrentVector().clone();
     ROL::Ptr<ROL::Vector<RealT> > z2_rol = solve_->params->getCurrentVector().clone();
 
-    MrHyDE_OptVector &ez1 = dynamic_cast<MrHyDE_OptVector&>(*z1_rol);
-    MrHyDE_OptVector &ez2 = dynamic_cast<MrHyDE_OptVector&>(*z2_rol);
+    HDSA::Ptr<MrHyDE_OptVector> ez1 = HDSA::dynamicPtrCast<MrHyDE_OptVector> (z1_rol);
+    HDSA::Ptr<MrHyDE_OptVector> ez2 = HDSA::dynamicPtrCast<MrHyDE_OptVector> (z2_rol);
+    // MrHyDE_OptVector &ez1 = dynamic_cast<MrHyDE_OptVector&>(*z1_rol);
+    //MrHyDE_OptVector &ez2 = dynamic_cast<MrHyDE_OptVector&>(*z2_rol);
     
     std::ifstream in("Z.txt");
     RealT val = 0.0;
@@ -88,9 +90,9 @@
         for(int j = 0; j < num_coeff_load; j++)
         {
           in >> val;
-	  ez1.getField()[0]->getVector()->replaceGlobalValue(j,0,val);
+	  ez1->getField()[0]->getVector()->replaceGlobalValue(j,0,val);
           in >> val;
-          ez2.getField()[0]->getVector()->replaceGlobalValue(j,0,val);
+          ez2->getField()[0]->getVector()->replaceGlobalValue(j,0,val);
         }
       }
     else
@@ -100,6 +102,7 @@
 
     HDSA::Ptr<HDSA::Vector<RealT> > z1 = HDSA::makePtr<HDSA::Vector_MrHyDE<RealT> >(ez1, random_number_generator_);
     HDSA::Ptr<HDSA::Vector<RealT> > z2 = HDSA::makePtr<HDSA::Vector_MrHyDE<RealT> >(ez2, random_number_generator_);
+
     HDSA::Ptr<HDSA::MultiVector<RealT> > Z = HDSA::makePtr<HDSA::MultiVector<RealT> >(2,*z1);
     (*Z)[0]->set(*z1);
     (*Z)[1]->set(*z2);
@@ -108,10 +111,10 @@
 
     HDSA::Ptr<HDSA::MultiVector<RealT> > Load_D_Data(void) const{
     int num_coeff_load = 200;
-    HDSA::Ptr<HDSA::Vector<RealT> > d1 = HDSA::makePtr<HDSA::Vector_MrHyDE_Steady_State<RealT> >(solve_,random_number_generator_);
-    HDSA::Ptr<HDSA::Vector<RealT> > d2 = HDSA::makePtr<HDSA::Vector_MrHyDE_Steady_State<RealT> >(solve_,random_number_generator_);
-    HDSA::Vector_MrHyDE_Steady_State<RealT> &ed1 = dynamic_cast<HDSA::Vector_MrHyDE_Steady_State<RealT>&>(*d1);
-    HDSA::Vector_MrHyDE_Steady_State<RealT> &ed2 = dynamic_cast<HDSA::Vector_MrHyDE_Steady_State<RealT>&>(*d2);
+    HDSA::Ptr<HDSA::Vector<RealT> > d1 = HDSA::makePtr<HDSA::Vector_MrHyDE_State<RealT> >(solve_,random_number_generator_);
+    HDSA::Ptr<HDSA::Vector<RealT> > d2 = HDSA::makePtr<HDSA::Vector_MrHyDE_State<RealT> >(solve_,random_number_generator_);
+    HDSA::Vector_MrHyDE_State<RealT> &ed1 = dynamic_cast<HDSA::Vector_MrHyDE_State<RealT>&>(*d1);
+    HDSA::Vector_MrHyDE_State<RealT> &ed2 = dynamic_cast<HDSA::Vector_MrHyDE_State<RealT>&>(*d2);
     std::ifstream in("D.txt");
     RealT val = 0.0;
     if (in)
@@ -119,9 +122,9 @@
         for(int j = 0; j < num_coeff_load; j++)
         {   
           in >> val;
-          ed1.mrhyde_steady_state_vec[0]->replaceGlobalValue(j,0,val);
+          ed1.mrhyde_state_vec[0][0]->replaceGlobalValue(j,0,val);
           in >> val;
-          ed2.mrhyde_steady_state_vec[0]->replaceGlobalValue(j,0,val);
+          ed2.mrhyde_state_vec[0][0]->replaceGlobalValue(j,0,val);
         }   
       }   
     else

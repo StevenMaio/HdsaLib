@@ -90,7 +90,7 @@ namespace HDSA {
           Teuchos::dyn_cast<MrHyDE_OptVector >(dynamic_cast<ROL::Vector<Real> &>(*sens.mrhyde_vec));
       
       solver_->adjointModel(esens);
-
+      //      g.scale(0.5); //bvbw test
     }
 
         //! Compute gradient of objective function with respect to parameters

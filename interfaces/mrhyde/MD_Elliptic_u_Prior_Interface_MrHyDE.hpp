@@ -54,20 +54,20 @@ class MD_Elliptic_u_Prior_Interface_MrHyDE : public HDSA::MD_Elliptic_u_Prior_In
 	E_u_solver_[i]=HDSA::makePtr<MD_Prior_FE_Op_LA_Base<RealT>>(E_u_[i]);
       }
 
-    int num_sing_vals = 50;
-    int oversampling = 1;
-    int num_subspace_iters = 2;
+    int num_sing_vals = 200;
+    int oversampling = 0;
+    int num_subspace_iters = 1;
 
     HDSA::MD_Elliptic_u_Prior_Interface<RealT>::Compute_E_u_Inverse_GSVD(num_sing_vals,oversampling,num_subspace_iters,*uvec);
 
     }
 
   void Apply_E_u_Inverse(HDSA::Vector<RealT> & u_out, const HDSA::Vector<RealT> & u_in) const {
-    const HDSA::Vector_MrHyDE_Steady_State<RealT> &eu_in = dynamic_cast<const HDSA::Vector_MrHyDE_Steady_State<RealT>&>(u_in);  
-    HDSA::Vector_MrHyDE_Steady_State<RealT> &eu_out = dynamic_cast<HDSA::Vector_MrHyDE_Steady_State<RealT>&>(u_out);  
-    for (int i=0; i<eu_in.mrhyde_steady_state_vec.size(); ++i){
-      HDSA::Ptr<HDSA::Vector<RealT> > veci_in = HDSA::makePtr<Tpetra_Vector<RealT> > (eu_in.mrhyde_steady_state_vec[i]);
-      HDSA::Ptr<HDSA::Vector<RealT> > veci_out = HDSA::makePtr<Tpetra_Vector<RealT> > (eu_out.mrhyde_steady_state_vec[i]); 
+    const HDSA::Vector_MrHyDE_State<RealT> &eu_in = dynamic_cast<const HDSA::Vector_MrHyDE_State<RealT>&>(u_in);  
+    HDSA::Vector_MrHyDE_State<RealT> &eu_out = dynamic_cast<HDSA::Vector_MrHyDE_State<RealT>&>(u_out);  
+    for (int i=0; i<eu_in.mrhyde_state_vec.size(); ++i){
+      HDSA::Ptr<HDSA::Vector<RealT> > veci_in = HDSA::makePtr<Tpetra_Vector<RealT> > (eu_in.mrhyde_state_vec[i][0]);
+      HDSA::Ptr<HDSA::Vector<RealT> > veci_out = HDSA::makePtr<Tpetra_Vector<RealT> > (eu_out.mrhyde_state_vec[i][0]); 
       E_u_solver_[i]->Apply_A_Inverse(*veci_out,*veci_in);
     }
   }
@@ -78,10 +78,10 @@ class MD_Elliptic_u_Prior_Interface_MrHyDE : public HDSA::MD_Elliptic_u_Prior_In
 
   void Apply_M_u(HDSA::Vector<RealT> & u_out, const HDSA::Vector<RealT> & u_in) const {
 
-    const HDSA::Vector_MrHyDE_Steady_State<RealT> &eu_in = dynamic_cast<const HDSA::Vector_MrHyDE_Steady_State<RealT>&>(u_in);
-    HDSA::Vector_MrHyDE_Steady_State<RealT> &eu_out = dynamic_cast<HDSA::Vector_MrHyDE_Steady_State<RealT>&>(u_out);
-    for (int i=0; i<eu_in.mrhyde_steady_state_vec.size(); ++i){
-      prior_fe_op_->M[i]->apply(*eu_in.mrhyde_steady_state_vec[i],*eu_out.mrhyde_steady_state_vec[i]);
+    const HDSA::Vector_MrHyDE_State<RealT> &eu_in = dynamic_cast<const HDSA::Vector_MrHyDE_State<RealT>&>(u_in);
+    HDSA::Vector_MrHyDE_State<RealT> &eu_out = dynamic_cast<HDSA::Vector_MrHyDE_State<RealT>&>(u_out);
+    for (int i=0; i<eu_in.mrhyde_state_vec.size(); ++i){
+      prior_fe_op_->M[i]->apply(*eu_in.mrhyde_state_vec[i][0],*eu_out.mrhyde_state_vec[i][0]);
     }
   }
 };

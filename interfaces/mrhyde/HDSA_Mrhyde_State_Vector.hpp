@@ -16,18 +16,24 @@ private:
 public:
 
   std::vector<std::vector<HDSA::Ptr<Tpetra::MultiVector<RealT,LO,GO,Node> > > > mrhyde_state_vec;
-  Vector_MrHyDE_State(const Teuchos::RCP<MrHyDE::SolverManager<Node> > &solver,const HDSA::Ptr<HDSA::Random_Number_Generator<RealT> > &random_number_generator) : solver_(solver), random_number_generator_(random_number_generator)
+
+  Vector_MrHyDE_State(const Teuchos::RCP<MrHyDE::SolverManager<Node> > &solver,const HDSA::Ptr<HDSA::Random_Number_Generator<RealT> > &random_number_generator,bool isSteady=false) : solver_(solver), random_number_generator_(random_number_generator)
   {
     int numsets = solver->setnames.size();
     mrhyde_state_vec.resize(numsets);
     for (int set=0; set<numsets; set++) {
-      mrhyde_state_vec[set].resize(solver->numsteps[set]);
-      for (int i=0; i<solver->numsteps[set]; i++) {
-	mrhyde_state_vec[set][i] = solver->linalg->getNewVector(set);
+      if(isSteady) {
+	mrhyde_state_vec[set].resize(1);
+	mrhyde_state_vec[set][0] = solver->linalg->getNewVector(set);
+      } else {
+	mrhyde_state_vec[set].resize(solver->numsteps[set]);
+	for (int i=0; i<solver->numsteps[set]; i++) {
+	  mrhyde_state_vec[set][i] = solver->linalg->getNewVector(set);
+	}
       }
     }
   }
-
+  
   virtual ~Vector_MrHyDE_State()
   { }
 
@@ -112,7 +118,7 @@ public:
       for (int i=0; i<solver_->numsteps[set]; i++) {
 	auto vecT_data = mrhyde_state_vec[set][i]->getDataNonConst(0);
 	for (int j=0; j<mrhyde_state_vec[set][i]->getLocalLength(); j++) {
-	  vecT_data[i] = random_number_generator_->Generate_Standard_Normal_Sample();   
+	  vecT_data[j] = random_number_generator_->Generate_Standard_Normal_Sample();   
 	}
       }
     }

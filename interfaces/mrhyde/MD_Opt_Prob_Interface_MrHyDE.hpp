@@ -53,6 +53,10 @@
         for (int i=0; i<solver_->numsteps[set]; i++) {
           RealT currenttime = solver_->initial_time + (double)i*solver_->deltat;
           postproc_->computeObjectiveGradState(set,eu.mrhyde_state_vec[set][i], currenttime,solver_->deltat,eu_grad.mrhyde_state_vec[set][i]);
+	  HDSA::Ptr<HDSA::Vector<RealT>> utmp = u.clone();
+	  utmp->setScalar(1.0);
+	  RealT val = u_grad.dot(*utmp);
+	  std::cout << "val " << val << std::endl;
         }
       }
     }
