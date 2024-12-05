@@ -1,7 +1,8 @@
-%YAML 1.1
+%YAML 0.1
 ---
 ANONYMOUS:
   debug level: 0
+  verbosity: 0
   Mesh:
     dimension: 1
     element type: interval
@@ -18,19 +19,20 @@ ANONYMOUS:
       e: 1
     quadrature: 2
   Parameters input file: input_params.yaml
-  Analysis input file: input_rol2.yaml
+  #Analysis input file: input_rol2.yaml
+  Analysis input file: input_HDSA.yaml
   #Analysis:
   #  analysis type: forward
   Solver:
     workset size: 1
     solver: steady-state
-    nonlinear TOL: 1.0e-
+    nonlinear TOL: 1.0e-9
     linear TOL: 1.0e-13
     max nonlinear iters: 4
   Postprocess: 
     response type: pointwise
     compute objective: true
-    write solution: true
+    write solution: false
     Objective functions:
       obj0:
         type: integrated control
@@ -41,9 +43,8 @@ ANONYMOUS:
             type: integrated
             location: volume
             function: thermal_source^2
-            weight: 0.0
+            weight: 5.0
   Functions: 
     thermal source: 100.0*thermal_source
     targ: '50.0-30.0*(x-0.5)^2'
-
 ...

@@ -2,7 +2,7 @@
 ---
 ANONYMOUS:
   Analysis: 
-    analysis type: ROL
+    analysis type: HDSA
     have sensor points: false
     have sensor data: false
     save sensor data: false
