@@ -1,0 +1,54 @@
+#ifndef HDSA_SPARSE_MATRIX_SOLVER_HPP
+#define HDSA_SPARSE_MATRIX_SOLVER_HPP
+
+namespace HDSA {
+  template <class RealT,
+	    class LO=Tpetra::Map<>::local_ordinal_type,
+	    class GO=Tpetra::Map<>::global_ordinal_type,
+	    class Node=Tpetra::Map<>::node_type >
+  class Sparse_Matrix_Solver{
+  
+  public:
+
+    HDSA::Ptr<Tpetra::CrsMatrix<RealT,LO,GO,Node>> A_;
+  
+    Sparse_Matrix_Solver(HDSA::Ptr<Tpetra::CrsMatrix<RealT,LO,GO,Node>> &A)
+    {
+      A_=A;
+    }
+
+    virtual ~Sparse_Matrix_Solver()
+    { }                                                                              
+
+    void Apply_A_Inverse(HDSA::Vector<RealT> & x, const HDSA::Vector<RealT> & b) {
+      RealT tol = 1.0E-10;
+      std::string solver = "CG";
+      bool verbose = false;
+      HDSA::Ptr<A_Operator<RealT> > A_op = HDSA::makePtr<A_Operator<RealT> >(this);
+      HDSA::Linear_Algebra::Iterative_Linear_Solve<RealT>(x,b,*A_op,tol,solver,verbose); 
+    }
+  
+    template <class ScalarType>
+    class A_Operator : public HDSA::Linear_Operator<ScalarType>
+    {
+    private:
+      const Sparse_Matrix_Solver<ScalarType>* A_invert_;
+
+    public:
+      A_Operator(const Sparse_Matrix_Solver<ScalarType>* A_invert): A_invert_(A_invert)
+      {}
+    
+      ~A_Operator()
+      {}
+      
+      void matvec(HDSA::Vector<ScalarType> & y, const HDSA::Vector<ScalarType> & x) const
+      {
+	const Tpetra_Vector_MrHyDE<ScalarType> &ex = dynamic_cast<const Tpetra_Vector_MrHyDE<ScalarType>&>(x);
+	Tpetra_Vector_MrHyDE<ScalarType> &ey = dynamic_cast<Tpetra_Vector_MrHyDE<ScalarType>&>(y);
+	A_invert_->A_->apply(*ex.getVector(),*ey.getVector()); 
+      }
+
+    };
+  };
+}
+#endif

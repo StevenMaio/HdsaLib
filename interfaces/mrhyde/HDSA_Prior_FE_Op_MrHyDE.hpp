@@ -1,5 +1,5 @@
-#ifndef HDSA_PRIOR_FE_OP_MRHYDE_INTERFACE_HPP
-#define HDSA_PRIOR_FE_OP_MRHYDE_INTERFACE_HPP
+#ifndef HDSA_PRIOR_FE_OP_MRHYDE_HPP
+#define HDSA_PRIOR_FE_OP_MRHYDE_HPP
 
 #include "userInterface.hpp"
 
@@ -7,16 +7,13 @@ template <class RealT,
 	  class LO=Tpetra::Map<>::local_ordinal_type,
 	  class GO=Tpetra::Map<>::global_ordinal_type,
 	  class Node=Tpetra::Map<>::node_type >
-class HDSA_Prior_FE_Op_MrHyDE_Interface {
-
-  typedef Tpetra::CrsMatrix<RealT,LO,GO,Node>   LA_CrsMatrix;
-  typedef Teuchos::RCP<LA_CrsMatrix>              matrix_RCP;
+class Prior_FE_Op_MrHyDE {
 
 public:
-    std::vector<matrix_RCP> M;
-    std::vector<matrix_RCP> S;
+    std::vector<Teuchos::RCP<Tpetra::CrsMatrix<ScalarT,LO,GO,Node> >> M;
+    std::vector<Teuchos::RCP<Tpetra::CrsMatrix<ScalarT,LO,GO,Node> >> S;
   
-  HDSA_Prior_FE_Op_MrHyDE_Interface(Teuchos::RCP<Teuchos::MpiComm<int> > &comm, Teuchos::RCP<Teuchos::ParameterList> & settings,std::vector<string> & blockNames)
+  Prior_FE_Op_MrHyDE(Teuchos::RCP<Teuchos::MpiComm<int> > &comm, Teuchos::RCP<Teuchos::ParameterList> & settings,std::vector<string> & blockNames)
   { 
     Teuchos::RCP<MrHyDE::userInterface> UI = Teuchos::rcp(new MrHyDE::userInterface() );
     std::string input_file_name = "input-HDSA-prior-z.yaml";
@@ -49,12 +46,12 @@ public:
   //   S = Instantiate_Prior_Operators(comm,settings_prior,blockNames);
   // }
     
-  virtual ~HDSA_Prior_FE_Op_MrHyDE_Interface()
+  virtual ~Prior_FE_Op_MrHyDE()
   { }
 
-  std::vector<matrix_RCP> Instantiate_Prior_Operators(Teuchos::RCP<Teuchos::MpiComm<int> > comm, Teuchos::RCP<Teuchos::ParameterList> & settings,std::vector<string> & blockNames) {
+  std::vector<Teuchos::RCP<Tpetra::CrsMatrix<ScalarT,LO,GO,Node> >> Instantiate_Prior_Operators(Teuchos::RCP<Teuchos::MpiComm<int> > comm, Teuchos::RCP<Teuchos::ParameterList> & settings,std::vector<string> & blockNames) {
 
-    std::vector<matrix_RCP> A;
+    std::vector<Teuchos::RCP<Tpetra::CrsMatrix<ScalarT,LO,GO,Node> >> A;
     A.resize(blockNames.size());
     for (int i=0; i<blockNames.size(); ++i){
       
@@ -142,7 +139,7 @@ public:
       std::vector<HDSA::Ptr<Tpetra::MultiVector<RealT,LO,GO,Node> > > veci_out;
       veci_out.resize(1);
       veci_out[0]=solve->linalg->getNewVector(i);
-      matrix_RCP A_over = solve->linalg->getNewOverlappedMatrix(i);
+      Teuchos::RCP<Tpetra::CrsMatrix<ScalarT,LO,GO,Node> > A_over = solve->linalg->getNewOverlappedMatrix(i);
 	    
       assembler->assembleJacRes(i,0,veci_out,veci_out,veci_out,veci_out,veci_out,veci_out,true,false,false,
 				 veci_out[0],A_over,false,0,false,false,veci_out[0]->getGlobalLength(),veci_out[0],veci_out[0],false,0.0);

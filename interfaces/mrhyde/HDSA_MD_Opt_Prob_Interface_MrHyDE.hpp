@@ -13,7 +13,7 @@ private:
 public:
   MD_Opt_Prob_Interface_MrHyDE(HDSA::Ptr<MrHyDE::SolverManager<SolverNode> > & solver, HDSA::Ptr<MrHyDE::PostprocessManager<SolverNode> > & postproc, HDSA::Ptr<MrHyDE::ParameterManager<SolverNode> > & params,const HDSA::Ptr<HDSA::Random_Number_Generator<RealT> > & random_number_generator)
   {  
-    HDSA::Ptr<HDSA::Vector<RealT> > u_vec = HDSA::makePtr<Vector_MrHyDE_State<RealT> > (solver,random_number_generator);
+    HDSA::Ptr<HDSA::Vector<RealT> > u_vec = HDSA::makePtr<State_Vector_MrHyDE<RealT> > (solver,random_number_generator);
         
     postproc_ = postproc;
     solver_ = solver;
@@ -48,8 +48,8 @@ public:
   }
 
   void Misfit_Gradient(HDSA::Vector<RealT> & u_grad, const HDSA::Vector<RealT> & u, const HDSA::Vector<RealT> & z) const{
-    const Vector_MrHyDE_State<RealT> &eu = dynamic_cast<const Vector_MrHyDE_State<RealT>&>(u);
-    Vector_MrHyDE_State<RealT> &eu_grad = dynamic_cast<Vector_MrHyDE_State<RealT>&>(u_grad);
+    const State_Vector_MrHyDE<RealT> &eu = dynamic_cast<const State_Vector_MrHyDE<RealT>&>(u);
+    State_Vector_MrHyDE<RealT> &eu_grad = dynamic_cast<State_Vector_MrHyDE<RealT>&>(u_grad);
     for (int set = 0; set<eu.mrhyde_state_vec.size(); ++set) {
       for (int i = 0; i<solver_->numsteps[set]; i++) {
 	RealT currenttime = solver_->initial_time + (double)i*solver_->deltat;
@@ -71,7 +71,7 @@ public:
   }
 
   void writedata_solopt(const HDSA::Vector<RealT> &u) const {
-    const Vector_MrHyDE_State<RealT> &eu = dynamic_cast<const Vector_MrHyDE_State<RealT>&>(u);
+    const State_Vector_MrHyDE<RealT> &eu = dynamic_cast<const State_Vector_MrHyDE<RealT>&>(u);
     for (int set = 0; set<eu.mrhyde_state_vec.size(); ++set) {
       for (int i = 0; i<solver_->numsteps[set]; i++) { 
         RealT currenttime = solver_->initial_time + (double)i*solver_->deltat;
@@ -87,14 +87,14 @@ public:
       MrHyDE_OptVector curr_z = params_->getCurrentVector();
       ROL::Ptr<ROL::Vector<RealT> > z_tmp = curr_z.clone();
       MrHyDE_OptVector ez_tmp = Teuchos::dyn_cast<MrHyDE_OptVector >(dynamic_cast<ROL::Vector<RealT> &>(*z_tmp));
-      const Vector_MrHyDE<RealT> &ez = dynamic_cast<const Vector_MrHyDE<RealT>&>(z);
+      const Opt_Vector_MrHyDE<RealT> &ez = dynamic_cast<const Opt_Vector_MrHyDE<RealT>&>(z);
       ez_tmp.set(*ez.mrhyde_vec);
       
       params_->updateParams(ez_tmp);
       DFAD val = 0.0;
       solver_->forwardModel(val);
     }
-    Vector_MrHyDE<RealT> e_grad_z = Teuchos::dyn_cast<Vector_MrHyDE<RealT> >(dynamic_cast<HDSA::Vector<RealT> &>(grad_z));
+    Opt_Vector_MrHyDE<RealT> e_grad_z = Teuchos::dyn_cast<Opt_Vector_MrHyDE<RealT> >(dynamic_cast<HDSA::Vector<RealT> &>(grad_z));
     e_grad_z.zeros();
     MrHyDE_OptVector ee_grad_z = Teuchos::dyn_cast<MrHyDE_OptVector >(dynamic_cast<ROL::Vector<RealT> &>(*e_grad_z.mrhyde_vec));
     
@@ -105,7 +105,7 @@ public:
     MrHyDE_OptVector curr_z = params_->getCurrentVector();
     ROL::Ptr<ROL::Vector<RealT> > diff = curr_z.clone();
     MrHyDE_OptVector ediff = Teuchos::dyn_cast<MrHyDE_OptVector >(const_cast<ROL::Vector<RealT> &>(*diff));
-    Vector_MrHyDE<RealT> ez = Teuchos::dyn_cast<Vector_MrHyDE<RealT> >(const_cast<HDSA::Vector<RealT> &>(z));
+    Opt_Vector_MrHyDE<RealT> ez = Teuchos::dyn_cast<Opt_Vector_MrHyDE<RealT> >(const_cast<HDSA::Vector<RealT> &>(z));
     ediff.zero();
     ediff.set(curr_z);
     ediff.axpy(-1.0,*ez.mrhyde_vec);
