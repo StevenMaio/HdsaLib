@@ -7,8 +7,6 @@ template <class RealT,
 	  class Node=Tpetra::Map<>::node_type >
 class MD_Prior_FE_Op_LA_Base{
   
-private:
-
 public:
 
   HDSA::Ptr<Tpetra::CrsMatrix<RealT,LO,GO,Node>> A_;

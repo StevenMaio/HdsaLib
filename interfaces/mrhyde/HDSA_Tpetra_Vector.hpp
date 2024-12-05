@@ -14,9 +14,9 @@ private:
   const HDSA::Ptr<HDSA::Random_Number_Generator<RealT> > random_number_generator_;
 
 public:  
-  Tpetra_Vector(const HDSA::Ptr<Tpetra::MultiVector<RealT,LO,GO,Node> > &tpetra_vec)
+  Tpetra_Vector(const HDSA::Ptr<Tpetra::MultiVector<RealT,LO,GO,Node> > &tpetra_vec, const HDSA::Ptr<HDSA::Random_Number_Generator<RealT> > &random_number_generator)
     : tpetra_vec_(tpetra_vec), map_(tpetra_vec_->getMap()), comm_(map_->getComm()),
-      random_number_generator_(HDSA::makePtr<HDSA::Random_Number_Generator<RealT> >()) {}
+      random_number_generator_(random_number_generator) {}
   
   ~Tpetra_Vector()
   { }
@@ -24,27 +24,19 @@ public:
   HDSA::Ptr<Tpetra::MultiVector<RealT,LO,GO,Node> > getVector() const {
     return tpetra_vec_;
   }
-  //////////////////////////////////////////////////////////////////////////////////
-  // Overloading pure virtual functions in HDSA::Vector base class
-  //////////////////////////////////////////////////////////////////////////////////
 
-
-  //Use ROL functionality to fill these function
   HDSA::Ptr<HDSA::Vector<RealT> > clone() const
   {
     int n = tpetra_vec_->getNumVectors();
-    return HDSA::makePtr<Tpetra_Vector>(HDSA::makePtr<Tpetra::MultiVector<RealT,LO,GO,Node>>(map_,n));
+    return HDSA::makePtr<Tpetra_Vector>(HDSA::makePtr<Tpetra::MultiVector<RealT,LO,GO,Node>>(map_,n),random_number_generator_);
   }
 
-  // compute the dot product of this and x
   RealT dot( const HDSA::Vector<RealT> &x ) const
   {
     const Tpetra_Vector &ex = dynamic_cast<const Tpetra_Vector&>(x);
     int n = tpetra_vec_->getNumVectors();
-    // Perform Euclidean dot between *this and x for each vector
     Teuchos::Array<RealT> val(n,0);
     tpetra_vec_->dot( *ex.getVector(), val.view(0,n) );
-    // Combine dots for each vector to get a scalar
     RealT xy(0);
     for (int i = 0; i < n; ++i) {
       xy += val[i];
@@ -52,7 +44,6 @@ public:
     return xy;
   }
 
-  // add alpha*x to this
   void axpy( const RealT alpha, const HDSA::Vector<RealT> &x )
   {
     RealT one(1);
@@ -60,7 +51,6 @@ public:
     tpetra_vec_->update(alpha,*ex.getVector(),one);
   }
 
-  // return vector dimension
   int dimension() const
   {
     int nVecs = static_cast<int>(tpetra_vec_->getNumVectors());
@@ -68,7 +58,6 @@ public:
     return nVecs*dim;
   }
 
-  // set this=val elementwise
   void setScalar( const RealT val )
   {
     tpetra_vec_->putScalar(static_cast<double>(val));
