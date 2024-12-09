@@ -22,6 +22,54 @@
 
 typedef double RealT;
 
+template<class RealT>
+void Load_Nominal_Solution(HDSA::Ptr<Tpetra::MultiVector<> > & z_ptr) 
+{
+  int num_coeff_load = z_ptr->getGlobalLength();
+  
+  // read in data
+  std::ifstream in("z_bar.txt");          
+  // read the elements in the file into a vector  
+  // test file open   
+  RealT val = 0.0;
+  if (in) 
+    {   
+      for(int j = 0; j < num_coeff_load; j++)
+      {
+        in >> val;
+        z_ptr->replaceGlobalValue(j,0,val);
+      }
+    }
+  else
+    {
+      std::cout << "Error loading the data from z_bar.txt" << std::endl;
+    }  
+}
+
+template<class RealT>
+void Load_Perturbed_Parameters(std::vector<RealT> & param) 
+{
+  int theta_dim = param.size();
+  
+  // read in data
+  std::ifstream in("theta_star.txt");          
+  // read the elements in the file into a vector  
+  // test file open   
+  RealT val = 0.0;
+  if (in) 
+    {   
+      for(int j = 0; j < theta_dim; j++)
+      {
+        in >> val;
+        param[j] = val;
+      }
+    }
+  else
+    {
+      std::cout << "Error loading the data from theta_star.txt" << std::endl;
+    }  
+}
+
 int main(int argc, char *argv[]) {
 
   HDSA::nullstream bhs;
@@ -53,7 +101,7 @@ int main(int argc, char *argv[]) {
   
   int theta_modes = parlist->sublist("Problem").get("Uncertain Modes per Dimension", 1);
   std::vector<RealT> param = std::vector<RealT>(std::pow(theta_modes,2),0.0);
-  param[0] = 1.0;
+  Load_Perturbed_Parameters<RealT>(param);
   pdecon->setParameter(param);
   con->setSolveParameters(*parlist);
   
@@ -195,8 +243,7 @@ int main(int argc, char *argv[]) {
   }
 	
   // Set initial vector
-  zp->setScalar(5.0);
-  pdecon->outputTpetraVector(z_ptr,"initial_iterate.txt");
+  Load_Nominal_Solution<RealT>(z_ptr);  
 
   // Build optimization problem and check derivatives
   ROL::OptimizationProblem<RealT> optProb(robj,zp);
@@ -210,8 +257,8 @@ int main(int argc, char *argv[]) {
   
   RealT tol = 1.e-8;
   con->solve(*pp,*up,*zp,tol);
-  pdecon->outputTpetraVector(u_ptr,"optimal_u.txt");
-  pdecon->outputTpetraVector(z_ptr,"optimal_z.txt");
+  pdecon->outputTpetraVector(u_ptr,"optimal_u_perturbed.txt");
+  pdecon->outputTpetraVector(z_ptr,"optimal_z_perturbed.txt");
   pdecon->outputTpetraData();
   assembler->printMeshData(*outStream);
 

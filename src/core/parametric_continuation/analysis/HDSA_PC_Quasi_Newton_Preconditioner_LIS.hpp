@@ -18,8 +18,8 @@ namespace HDSA
   public:
     
     PC_Quasi_Newton_Preconditioner_LIS(const HDSA::Ptr<HDSA::Vector<RealT> > & z_bar, const HDSA::Ptr<HDSA::Vector<RealT> > & theta_bar,
-                                       const HDSA::Ptr<HDSA::PC_LIS_Interface<RealT> > & lis_interface, bool use_block_update = true, RealT tau = 1.e-6): 
-      HDSA::PC_Quasi_Newton_Preconditioner<RealT>(use_block_update,tau), lis_interface_(lis_interface), z_bar_(z_bar), theta_bar_(theta_bar)
+                                       const HDSA::Ptr<HDSA::PC_LIS_Interface<RealT> > & lis_interface, bool use_block_update = true, RealT tau = 1.e-6, int max_storage = 10): 
+      HDSA::PC_Quasi_Newton_Preconditioner<RealT>(use_block_update,tau,max_storage), lis_interface_(lis_interface), z_bar_(z_bar), theta_bar_(theta_bar)
     {
       rank_ = 0;
     }

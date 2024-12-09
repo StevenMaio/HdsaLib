@@ -503,8 +503,16 @@ private:
 
   Real evaluateRHS(const std::vector<Real> & x) const {
     const std::vector<Real> param = PDE<Real>::getParameter();
-    
-    Real val = (1.0 + param[0]) * 100.0*sin(2*3.14159*x[0]) * sin(2*3.14159*x[1]);
+    Real val = 0.0;
+    int n = std::sqrt(param.size());
+    for(int i = 0; i < n; i++)
+    {
+      for(int j = 0; j < n; j++)
+      {
+        int k = i*n + j;
+        val += param[k] * 100.0*sin(static_cast<Real>(2*(i+1))*3.14159*x[0]) * sin(static_cast<Real>(2*(j+1))*3.14159*x[1]) / static_cast<Real>((i+1)*(j+1));
+      }
+    }
     return val;
   }
 

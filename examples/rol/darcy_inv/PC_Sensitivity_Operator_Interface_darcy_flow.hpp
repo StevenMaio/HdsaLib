@@ -17,13 +17,22 @@ private:
 public:
   PC_Sensitivity_Operator_Interface_darcy_flow(HDSA::Ptr<ROL::Objective_SimOpt<RealT> > & obj_misfit, HDSA::Ptr<ROL::Objective<RealT> > & obj_reg,
                                                HDSA::Ptr<ROL::Constraint_SimOpt<RealT> > & con, HDSA::Ptr<ROL::Constraint_SimOpt<RealT> > & con_aux_param, HDSA::Ptr<ROL::Vector<RealT> > & u_vec, 
-                                              HDSA::Ptr<HDSA::Vector<RealT> > & z_vec, HDSA::Ptr<HDSA::Vector<RealT> > theta_vec)
+                                               HDSA::Ptr<HDSA::Vector<RealT> > & z_vec, HDSA::Ptr<HDSA::Vector<RealT> > theta_vec, bool fd_check = false)
   : obj_misfit_(obj_misfit), obj_reg_(obj_reg), con_(con), con_aux_param_(con_aux_param) 
   {
     u_current_ = u_vec->clone();
     lambda_current_ = u_vec->clone();
     z_current_ = z_vec->clone();
     theta_current_ = theta_vec->clone();
+
+    if(fd_check)
+    {
+      HDSA::Ptr<HDSA::Vector<RealT> > z = z_vec->clone();
+      z->randomize_standard_normal();
+      HDSA::Ptr<HDSA::Vector<RealT> > theta = theta_vec->clone();
+      theta->randomize_standard_normal();
+      Finite_Difference_Checks(*z, *theta);
+    }
   }
   
   virtual ~PC_Sensitivity_Operator_Interface_darcy_flow()
@@ -138,6 +147,107 @@ public:
     con_->applyAdjointJacobian_2(*z_tmp,*incr_adjoint,*u_current_,*z_rol.rol_vec,tol);
     con_->applyAdjointHessian_12(*z_out_rol.rol_vec, *lambda_current_, *incr_state, *u_current_, *z_rol.rol_vec, tol);
     z_out_rol.rol_vec->plus(*z_tmp);
+  }
+
+  void Finite_Difference_Checks(HDSA::Vector<RealT> & z, HDSA::Vector<RealT> & theta) const
+  {
+    Finite_Difference_Gradient(z,theta);
+    Finite_Difference_Hessian(z,theta);
+    Finite_Difference_B(z,theta);
+  }
+
+  void Finite_Difference_Gradient(HDSA::Vector<RealT> & z, HDSA::Vector<RealT> & theta) const
+  {
+    RealT val = Value(z,theta);
+    HDSA::Ptr<HDSA::Vector<RealT> > dz = z.clone();
+    dz->randomize_standard_normal();
+    HDSA::Ptr<HDSA::Vector<RealT> > grad = z.clone();
+    Gradient(*grad,z,theta);
+    RealT true_grad = grad->dot(*dz);
+    HDSA::Ptr<HDSA::Vector<RealT> > z_pert = z.clone();
+    int n = 6;
+    std::vector<RealT> grad_fd = std::vector<RealT>(n);
+    std::vector<RealT> fd_error = std::vector<RealT>(n);
+    for(int k = 0; k < n; k++)
+    {
+      RealT h = std::pow(10.0,static_cast<RealT>(-k-1));
+      z_pert->set(z);
+      z_pert->axpy(h,*dz);
+      RealT val_pert = Value(*z_pert,theta);
+      grad_fd[k] = (val_pert-val)/h;
+      fd_error[k] = std::abs(grad_fd[k]-true_grad);
+      std::cout << "Step size = " << h << " and gradient FD error = " << fd_error[k] << std::endl;
+    }
+
+  }
+
+  void Finite_Difference_Hessian(HDSA::Vector<RealT> & z, HDSA::Vector<RealT> & theta) const
+  {
+    HDSA::Ptr<HDSA::Vector<RealT> > hv = z.clone();
+    HDSA::Ptr<HDSA::Vector<RealT> > v = z.clone();
+    v->randomize_standard_normal();
+
+    HDSA::Ptr<HDSA::Vector<RealT> > grad = z.clone();
+    Gradient(*grad,z,theta);
+    Apply_Hessian(*hv, *v, z, theta); 
+
+    HDSA::Ptr<HDSA::Vector<RealT> > z_pert = z.clone();
+    HDSA::Ptr<HDSA::Vector<RealT> > grad_pert = z.clone();
+    int n = 6;
+    std::vector<RealT> fd_error = std::vector<RealT>(n);
+    for(int k = 0; k < n; k++)
+    {
+      RealT h = std::pow(10.0,static_cast<RealT>(-k-1));
+      z_pert->set(z);
+      z_pert->axpy(h,*v);
+      grad_pert->setScalar(0.0);
+      Gradient(*grad_pert,*z_pert,theta);
+      grad_pert->axpy(-1.0,*grad);
+      fd_error[k] = grad_pert->norm();
+      std::cout << "Step size = " << h << " and Hessian FD error = " << fd_error[k] << std::endl;
+    }
+
+  }
+
+  void Finite_Difference_B(HDSA::Vector<RealT> & z, HDSA::Vector<RealT> & theta) const
+  {
+    HDSA::Ptr<HDSA::Vector<RealT> > hv = z.clone();
+    HDSA::Ptr<HDSA::Vector<RealT> > v = theta.clone();
+    v->randomize_standard_normal();
+
+    HDSA::Ptr<HDSA::Vector<RealT> > grad = z.clone();
+    Gradient(*grad,z,theta);
+    Apply_B(*hv, *v, z, theta); 
+
+    HDSA::Ptr<HDSA::Vector<RealT> > theta_pert = theta.clone();
+    HDSA::Ptr<HDSA::Vector<RealT> > grad_pert = z.clone();
+    int n = 6;
+    std::vector<RealT> fd_error = std::vector<RealT>(n);
+    for(int k = 0; k < n; k++)
+    {
+      RealT h = std::pow(10.0,static_cast<RealT>(-k-1));
+      theta_pert->set(theta);
+      theta_pert->axpy(h,*v);
+      grad_pert->setScalar(0.0);
+      Gradient(*grad_pert,z,*theta_pert);
+      grad_pert->axpy(-1.0,*grad);
+      fd_error[k] = grad_pert->norm();
+      std::cout << "Step size = " << h << " and B FD error = " << fd_error[k] << std::endl;
+    }
+
+  }
+
+  RealT Value(const HDSA::Vector<RealT> & z, const HDSA::Vector<RealT> & theta) const
+  {
+    RealT tol = 1.e-14;
+    const HDSA::ROL_Vector<RealT>& z_rol = dynamic_cast<const HDSA::ROL_Vector<RealT>&>(z);
+    Update(z,theta);
+
+    RealT val1 = obj_misfit_->value(*u_current_,*z_rol.rol_vec,tol);
+    RealT val2 = obj_reg_->value(*z_rol.rol_vec,tol);
+    RealT val = val1 + val2;
+
+    return val;
   }
                                                                                                                                                                                                         
   };

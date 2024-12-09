@@ -24,6 +24,12 @@ IF(${PROJECT_NAME}_ENABLE_Intrepid AND
   )
 
   TRIBITS_ADD_EXECUTABLE(
+    example_perturbed_inversion
+    SOURCES example_perturbed_inversion.cpp
+    ADD_DIR_TO_NAME
+  )
+
+  TRIBITS_ADD_EXECUTABLE(
     example_sensitivity
     SOURCES example_sensitivity.cpp
     ADD_DIR_TO_NAME

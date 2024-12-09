@@ -20,37 +20,32 @@ namespace HDSA
     
   protected:
 
-    virtual int Apply_Inverse_Hessian(std::vector<HDSA::Ptr<HDSA::Vector<RealT> > > & P, std::vector<HDSA::Ptr<HDSA::Vector<RealT> > > & W, HDSA::Vector<RealT> & z_out, const HDSA::Vector<RealT> & z_in, const HDSA::Vector<RealT> & z, const HDSA::Vector<RealT> & theta) const
+    virtual int Apply_Inverse_Hessian(HDSA::Vector<RealT> & z_out, const HDSA::Vector<RealT> & z_in, const HDSA::Vector<RealT> & z, const HDSA::Vector<RealT> & theta) const
     {
-
-	  //Build_Hessian(z,theta);
       
       z_out.zeros();
+	  RealT z_in_norm = z_in.norm();
       HDSA::Ptr<HDSA::Vector<RealT> > r = z_in.clone();
       r->set(z_in);
+	  r->scale(1.0/z_in_norm);
       HDSA::Ptr<HDSA::Vector<RealT> > v = z_in.clone();
       qn_prec_->Apply_Inverse_Hessian_Approximation(*v,*r);
       HDSA::Ptr<HDSA::Vector<RealT> > p = z_in.clone();      
       p->set(*v);
       RealT scalar = r->dot(*p);
-      RealT rel_tol = cg_tol_*z_in.norm();
+
 	  RealT r_norm = r->norm();
       int iter = 0;
       HDSA::Ptr<HDSA::Vector<RealT> > w = z_in.clone();
-      
-      while( (std::sqrt(scalar) > rel_tol) && (r_norm > rel_tol) && (iter < max_cg_iter_) )
+	  
+      while( (std::sqrt(scalar) > cg_tol_) && (r_norm > cg_tol_) && (iter < max_cg_iter_) )
 	  {
 		iter += 1;
 		sen_op_interface_->Apply_Hessian(*w,*p,z,theta);
+		qn_prec_->Add_Block_Quasi_Newton_Step(p, w);
 
-		HDSA::Ptr<HDSA::Vector<RealT> > p_tmp = z_in.clone();  
-		p_tmp->set(*p);
-		HDSA::Ptr<HDSA::Vector<RealT> > w_tmp = z_in.clone();  
-		w_tmp->set(*w);
-		P.push_back(p_tmp);
-		W.push_back(w_tmp);
-
-		RealT alpha = scalar/(w->dot(*p));
+		RealT scalar_tmp = w->dot(*p);
+		RealT alpha = scalar/scalar_tmp;
 		z_out.axpy(alpha,*p);
 		r->axpy(-alpha,*w);
 		qn_prec_->Apply_Inverse_Hessian_Approximation(*v,*r);
@@ -62,59 +57,20 @@ namespace HDSA
 
 		if(print_cg_iter_)
 		{
-			std::cout << "Iteration = " << iter << " with relative residual = " << r_norm/(rel_tol/cg_tol_) << std::endl;
+			std::cout << "Iteration = " << iter << " with relative residual = " << r_norm << std::endl;
 		}
 	  }
+
+	  z_out.scale(z_in_norm);
 
       if(print_cg_output_)
 	  {
 		std::cout << "Total iterations = " << iter << std::endl;
-		std::cout << "Relative residual = " << r_norm/z_in.norm() << std::endl;
+		std::cout << "Relative residual = " << r_norm << std::endl;
 	  }
 
 	  return iter;
     }
-
-	void Build_Hessian(const HDSA::Vector<RealT> & z, const HDSA::Vector<RealT> & theta) const
-	{
-		std::cout << "Beginnning Hessian construction" << std::endl;
-		int n = z.dimension();
-		std::vector<std::vector<RealT> > H;
-		H.resize(n);
-		for(int i = 0; i < n; i++)
-		{
-			H[i].resize(n);
-		}
-
-		HDSA::Ptr<HDSA::Vector<RealT> > z_out = z.clone();
-		HDSA::ROL_Vector<RealT>& z_out_rol = dynamic_cast<HDSA::ROL_Vector<RealT>&>(*z_out);
-		for(int j = 0; j < n; j++)
-		{
-			HDSA::Ptr<ROL::Vector<RealT> > z_in_rol = z_out_rol.rol_vec->basis(j);
-			HDSA::Ptr<HDSA::Vector<RealT> > z_in = HDSA::makePtr<HDSA::ROL_Vector<RealT> >(z_in_rol);
-			sen_op_interface_->Apply_Hessian(*z_out,*z_in,z,theta);
-			for(int i = 0; i < n; i++)
-			{
-				HDSA::Ptr<ROL::Vector<RealT> > z_b_rol = z_out_rol.rol_vec->basis(i);
-				HDSA::Ptr<HDSA::Vector<RealT> > z_b = HDSA::makePtr<HDSA::ROL_Vector<RealT> >(z_b_rol);
-				H[i][j] = z_out->dot(*z_b);
-			}
-		}
-
-	  std::string name = "H.txt";
-	  std::ofstream fout;
-      fout.open(name);
-	  for(int i = 0; i < n; i++)
-	  {
-		for(int j = 0 ; j < n; j++)
-		{
-			fout << H[i][j] << " ";
-		}
-		fout << std::endl;
-	  }
-      fout.close();
-	  std::cout << "Completed Hessian construction" << std::endl;
-	}
 
   public:
     
@@ -166,9 +122,8 @@ namespace HDSA
 			sen_op_interface_->Apply_B(*z_tmp,*d_theta,*z_current,*theta_current);
 			num_Bvecs += 1;
 
-			std::vector<HDSA::Ptr<HDSA::Vector<RealT> > > P, W;
 			std::cout << "Beginning inverse Hessian matvec at time step " << k+1 << std::endl;
-			int iters = Apply_Inverse_Hessian(P,W,*z_new,*z_tmp,*z_current,*theta_current);
+			int iters = Apply_Inverse_Hessian(*z_new,*z_tmp,*z_current,*theta_current);
 			num_Hvecs += iters;
 			
 			z_new->scale(-dt);
@@ -190,15 +145,13 @@ namespace HDSA
 			num_grads += 1;
 			if(use_qn_prec_ & (k < N-1))
 			{
-				qn_prec_->Add_Block_Quasi_Newton_Data(P,W);
+				qn_prec_->Add_Block_Quasi_Newton_Data();
 				y->plus(*grad_current);
 				qn_prec_->Add_Parametric_Quasi_Newton_Data(*s,*y);
 			}
 
-			P.clear();
-			W.clear();
 			std::cout << "Beginning inverse Hessian matvec at Newton step " << k+1 << std::endl;
-			iters = Apply_Inverse_Hessian(P,W,*z_new,*grad_current,*z_current,*theta_current);
+			iters = Apply_Inverse_Hessian(*z_new,*grad_current,*z_current,*theta_current);
 			num_Hvecs += iters;
 
 			z_new->scale(-1.0);
@@ -218,11 +171,10 @@ namespace HDSA
 			num_grads += 1;
 			if(use_qn_prec_ & (k < N-1))
 			{
-				qn_prec_->Add_Block_Quasi_Newton_Data(P,W);
+				qn_prec_->Add_Block_Quasi_Newton_Data();
 				y->plus(*grad_current);
 				qn_prec_->Add_Parametric_Quasi_Newton_Data(*s,*y);
 			}
-
 		}
 
       z_star.set(*z_current);
@@ -288,9 +240,8 @@ namespace HDSA
 			sen_op_interface_->Apply_B(*z_tmp,*d_theta,*z_current,*theta_current);
 			num_Bvecs += 1;
 
-			std::vector<HDSA::Ptr<HDSA::Vector<RealT> > > P, W;
 			std::cout << "Beginning inverse Hessian matvec at time step " << k+1 << std::endl;
-			int iters = Apply_Inverse_Hessian(P,W,*z_new,*z_tmp,*z_current,*theta_current);
+			int iters = Apply_Inverse_Hessian(*z_new,*z_tmp,*z_current,*theta_current);
 			num_Hvecs += iters;
 			
 			z_new->scale(-0.5*dt);
@@ -314,7 +265,7 @@ namespace HDSA
 			num_grads += 1;
 			if(use_qn_prec_)
 			{
-				qn_prec_->Add_Block_Quasi_Newton_Data(P,W);
+				qn_prec_->Add_Block_Quasi_Newton_Data();
 				y->plus(*grad_current);
 				qn_prec_->Add_Parametric_Quasi_Newton_Data(*s,*y);
 			}
@@ -323,10 +274,8 @@ namespace HDSA
 			sen_op_interface_->Apply_B(*z_tmp,*d_theta,*z_current,*theta_current);
 			num_Bvecs += 1;
 
-			P.clear();
-			W.clear();
 			std::cout << "Beginning inverse Hessian matvec at time step " << k+1 << " 1/2" << std::endl;
-			iters = Apply_Inverse_Hessian(P,W,*z_new,*z_tmp,*z_current,*theta_current);
+			iters = Apply_Inverse_Hessian(*z_new,*z_tmp,*z_current,*theta_current);
 			num_Hvecs += iters;
 			
 			z_new->scale(-dt);
@@ -349,15 +298,13 @@ namespace HDSA
 
 			if(use_qn_prec_)
 			{
-				qn_prec_->Add_Block_Quasi_Newton_Data(P,W);
+				qn_prec_->Add_Block_Quasi_Newton_Data();
 				y->plus(*grad_current);
 				qn_prec_->Add_Parametric_Quasi_Newton_Data(*s,*y);
 			}
 
-			P.clear();
-			W.clear();
 			std::cout << "Beginning inverse Hessian matvec at Newton step " << k+1 << std::endl;
-			iters = Apply_Inverse_Hessian(P,W,*z_new,*grad_current,*z_current,*theta_current);
+			iters = Apply_Inverse_Hessian(*z_new,*grad_current,*z_current,*theta_current);
 			num_Hvecs += iters;
 			
 			z_new->scale(-1.0);
@@ -377,7 +324,7 @@ namespace HDSA
 
 			if(use_qn_prec_)
 			{
-				qn_prec_->Add_Block_Quasi_Newton_Data(P,W);
+				qn_prec_->Add_Block_Quasi_Newton_Data();
 				y->plus(*grad_current);
 				qn_prec_->Add_Parametric_Quasi_Newton_Data(*s,*y);
 			}

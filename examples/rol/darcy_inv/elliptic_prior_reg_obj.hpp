@@ -416,6 +416,14 @@ public:
     con_->applyInverseJacobian_1(z_out,z_in,z_in,z_in,tol);
   }
 
+  void Adjoint_Elliptic_Solve(ROL::Vector<Real> & z_out, const ROL::Vector<Real> & z_in, Real &tol ) {
+    con_->applyInverseAdjointJacobian_1(z_out,z_in,z_in,z_in,tol);
+  }
+
+  void Apply_Mass_Matrix(ROL::Vector<Real> & z_out, const ROL::Vector<Real> & z_in, Real &tol ) {
+    mass_mat_con_->applyJacobian_1(z_out,z_in,z_in,z_in,tol);
+  }
+
   void Apply_Prior_Covariance(ROL::Vector<Real> & z_out, const ROL::Vector<Real> & z_in, Real &tol ) {
     ROL::Ptr<ROL::Vector<Real> > z_tmp1 = z_out.clone();
     ROL::Ptr<ROL::Vector<Real> > z_tmp2 = z_out.clone();

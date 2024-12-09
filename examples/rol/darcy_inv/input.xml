@@ -6,10 +6,8 @@
     <Parameter name="alpha"       type="double"  value="1.e-3"   />
     <Parameter name="State Cost"                 type="double"  value="1.0"   />
     <Parameter name="Order of FE discretization" type="int"     value="1"     />
-    <Parameter name="Full Space"                 type="bool"    value="false" />
-    <Parameter name="Number of Uncertainty Basis Function" type="int" value="5" />
-    <Parameter name="Noise Level"                type="double"  value="0.3" />
     <Parameter name="Number of Observations"     type="int"      value="25" />
+    <Parameter name="Uncertain Modes per Dimension" type="int"     value="3"     />
   </ParameterList>
 
   <!-- ===========  GEOMETRY INPUT PARAMETER SUBLIST  =========== -->

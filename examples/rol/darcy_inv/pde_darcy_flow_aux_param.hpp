@@ -147,7 +147,7 @@ public:
         = ROL::makePtr<Intrepid::FieldContainer<Real> >(c, p);
 
       // Add source term to residual
-      computeSource(rhs,*z_param,true);
+      computeSource(rhs,*z_param,true,i);
       Intrepid::FunctionSpaceTools::integrate<Real>(*jac[i],
 						  *rhs,
 						  *(fe_vol_->NdetJ()),
@@ -312,7 +312,7 @@ public:
 private:
 
 private:
-  void computeSource(ROL::Ptr<Intrepid::FieldContainer<Real> > &rhs, const std::vector<Real> & param, bool is_derv = false) const {
+  void computeSource(ROL::Ptr<Intrepid::FieldContainer<Real> > &rhs, const std::vector<Real> & param, const bool is_derv = false, const int & diff_coord = 0) const {
     int c = fe_vol_->gradN()->dimension(0);
     int p = fe_vol_->gradN()->dimension(2);
     int d = fe_vol_->gradN()->dimension(3);
@@ -323,21 +323,32 @@ private:
           pt[k] = (*fe_vol_->cubPts())(i,j,k);
         }
         // Compute forcing term f
-        (*rhs)(i,j) = -evaluateRHS(pt,param,is_derv);
+        (*rhs)(i,j) = -evaluateRHS(pt,param,is_derv,diff_coord);
       }
     }    
 
   }
 
-  Real evaluateRHS(const std::vector<Real> & x, const std::vector<Real> & param, bool is_derv) const {
-    Real val;
+  Real evaluateRHS(const std::vector<Real> & x, const std::vector<Real> & param, const bool is_derv, const int & diff_coord) const {
+
+    Real val = 0.0;
+    int n = std::sqrt(param.size());
     if(is_derv)
     {
-      val = 100.0*sin(2*3.14159*x[0]) * sin(2*3.14159*x[1]);
+      int j = diff_coord % n;
+      int i = (diff_coord-j)/n;
+      val = 100.0*sin(static_cast<Real>(2*(i+1))*3.14159*x[0]) * sin(static_cast<Real>(2*(j+1))*3.14159*x[1]) / static_cast<Real>((i+1)*(j+1));
     }
     else
     {
-      val = (1.0 + param[0]) * 100.0*sin(2*3.14159*x[0]) * sin(2*3.14159*x[1]);
+      for(int i = 0; i < n; i++)
+      {
+        for(int j = 0; j < n; j++)
+        {
+          int k = i*n + j;
+          val += param[k] * 100.0*sin(static_cast<Real>(2*(i+1))*3.14159*x[0]) * sin(static_cast<Real>(2*(j+1))*3.14159*x[1]) / static_cast<Real>((i+1)*(j+1));
+        }
+      }
     }
     return val;
   }

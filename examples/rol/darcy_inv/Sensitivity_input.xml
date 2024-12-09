@@ -6,10 +6,13 @@
     <Parameter name="print_cg_iter" type="bool"    value="false" />
     <Parameter name="rank" type="int"     value="0"     />
     <Parameter name="oversampling" type="int"     value="2"     />
-    <Parameter name="N_fe" type="int"     value="15"     />
+    <Parameter name="N_fe" type="int"     value="20"     />
     <Parameter name="N_me" type="int"     value="0"     />
-    <Parameter name="CG Tolerance" type="double"     value="1.e-6"     />
-    <Parameter name="Maximum CG Iterations" type="int"     value="200"     />
-    <Parameter name="Perturbation Magnitude" type="double"     value="0.5"     />
+    <Parameter name="CG Tolerance" type="double"     value="1.e-8"     />
+    <Parameter name="Maximum CG Iterations" type="int"     value="3000"     />
+    <Parameter name="Finite Difference Check" type="bool"    value="false" />
+    <Parameter name="Use Block Update" type="bool"    value="true" />
+    <Parameter name="Block Update tau" type="double"     value="1.e-5"     />
+    <Parameter name="Maximum Block Update Storage" type="int"     value="10"     />
   </ParameterList>
 </ParameterList>

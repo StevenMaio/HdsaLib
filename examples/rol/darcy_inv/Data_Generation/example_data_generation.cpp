@@ -72,8 +72,9 @@ int main(int argc, char *argv[]) {
   HDSA::Ptr<Assembler<RealT> > assembler = pdecon->getAssembler();
   assembler->printMeshData(*outStream);
   
-  int NX = parlist->sublist("Geometry").get("NX", 10);
-  std::vector<RealT> param = std::vector<RealT>(2*NX,0.0);
+  int theta_modes = parlist->sublist("Problem").get("Uncertain Modes per Dimension", 1);
+  std::vector<RealT> param = std::vector<RealT>(std::pow(theta_modes,2),0.0);
+  param[0] = 1.0;
   pdecon->setParameter(param);
   con->setSolveParameters(*parlist);
   

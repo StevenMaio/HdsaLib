@@ -27,7 +27,7 @@
 typedef double RealT;
 
 template<class RealT>
-void Load_Nominal_Solution(HDSA::Ptr<Tpetra::MultiVector<> > & z_ptr, const HDSA::Ptr<HDSA::ParameterList> & parlist) 
+void Load_Nominal_Solution(HDSA::Ptr<Tpetra::MultiVector<> > & z_ptr) 
 {
   int num_coeff_load = z_ptr->getGlobalLength();
   
@@ -47,6 +47,31 @@ void Load_Nominal_Solution(HDSA::Ptr<Tpetra::MultiVector<> > & z_ptr, const HDSA
   else
     {
       std::cout << "Error loading the data from z_bar.txt" << std::endl;
+    }  
+}
+
+template<class RealT>
+void Load_Perturbed_Parameters(HDSA::Ptr<HDSA::Vector<RealT> > & theta_star) 
+{
+  int theta_dim = theta_star->dimension();
+  Std_Vector<RealT>& theta_star_std = dynamic_cast<Std_Vector<RealT>&>(*theta_star); 
+  
+  // read in data
+  std::ifstream in("theta_star.txt");          
+  // read the elements in the file into a vector  
+  // test file open   
+  RealT val = 0.0;
+  if (in) 
+    {   
+      for(int j = 0; j < theta_dim; j++)
+      {
+        in >> val;
+        theta_star_std.Replace_Element(j,val);
+      }
+    }
+  else
+    {
+      std::cout << "Error loading the data from theta_star.txt" << std::endl;
     }  
 }
 
@@ -81,8 +106,9 @@ int main(int argc, char *argv[]) {
   
   HDSA::Ptr<PDE_darcy_flow_aux_param<RealT> > pde_aux_param = HDSA::makePtr<PDE_darcy_flow_aux_param<RealT> >(*parlist);
   HDSA::Ptr<ROL::Constraint_SimOpt<RealT> > con_aux_param = HDSA::makePtr<PDE_Constraint<RealT> >(pde_aux_param,meshMgr,comm->Get_Teuchos_Communicator(),*parlist,*outStream);
-  int NX = parlist->sublist("Geometry").get("NX", 10);
-  std::vector<RealT> param = std::vector<RealT>(1,0.0);
+  int theta_modes = parlist->sublist("Problem").get("Uncertain Modes per Dimension", 1);
+  std::vector<RealT> param = std::vector<RealT>(std::pow(theta_modes,2),0.0);
+  param[0] = 1.0;
   pdecon->setParameter(param);
   con->setSolveParameters(*parlist);
   
@@ -150,6 +176,86 @@ int main(int argc, char *argv[]) {
   HDSA::Ptr<ROL::Objective<RealT> > robj_misfit = HDSA::makePtr<ROL::Reduced_Objective_SimOpt<RealT> >(obj_misfit, con, stateStore, up, zp, pp, true, false);
   HDSA::Ptr<ROL::Objective<RealT> > robj_reg = HDSA::makePtr<Elliptic_Prior_Regularization_Objective<RealT> >(comm->Get_Teuchos_Communicator(), parlist, outStream);
 
+  // // Create control vectors
+  // HDSA::Ptr<Tpetra::MultiVector<> > zout_ptr  = assembler->createControlVector();
+  // HDSA::Ptr<ROL::Vector<RealT> > z_out = HDSA::makePtr<PDE_PrimalOptVector<RealT> >(zout_ptr,pde,assembler,*parlist);
+  // HDSA::Ptr<Elliptic_Prior_Regularization_Objective<RealT> > robj_reg1 = HDSA::dynamicPtrCast<Elliptic_Prior_Regularization_Objective<RealT> >(robj_reg);
+
+  // ROL::Ptr<ROL::Vector<RealT> > z_in = z_out->clone();
+  // ROL::Ptr<ROL::Vector<RealT> > z_tmp = z_out->clone();
+  // z_in->randomize();
+  // RealT tol = 1.e-8;
+  // robj_reg1->hessVec(*z_out,*z_in,*z_in,tol);
+  // robj_reg1->Apply_Prior_Covariance(*z_tmp,*z_out,tol);
+  // z_tmp->axpy(-1.0,*z_in);
+  // std::cout << "z_tmp->norm() = " << z_tmp->norm() << std::endl;
+
+  // int n = z_out->dimension();
+  // RealT tol = 1.e-8;
+
+  // std::string name = "C.txt";
+	// std::ofstream fout;
+  // fout.open(name);
+	//   for(int i = 0; i < n; i++)
+	//   {
+  //     ROL::Ptr<ROL::Vector<RealT> > z_in = z_out->basis(i);
+  //     robj_reg1->Apply_Prior_Covariance(*z_out,*z_in,tol);
+	// 	  for(int j = 0 ; j < n; j++)
+  //     {
+  //       RealT val = z_out->dot(*z_in->basis(j));
+  //       fout << val << " ";
+  //     }
+	// 	  fout << std::endl;
+	//   }
+  // fout.close();
+
+  // std::string name = "E.txt";
+	// std::ofstream fout;
+  // fout.open(name);
+	//   for(int i = 0; i < n; i++)
+	//   {
+  //     ROL::Ptr<ROL::Vector<RealT> > z_in = z_out->basis(i);
+  //     robj_reg1->Elliptic_Solve(*z_out,*z_in,tol);
+	// 	  for(int j = 0 ; j < n; j++)
+  //     {
+  //       RealT val = z_out->dot(*z_in->basis(j));
+  //       fout << val << " ";
+  //     }
+	// 	  fout << std::endl;
+	//   }
+  // fout.close();
+
+  // name = "Et.txt";
+  // fout.open(name);
+	//   for(int i = 0; i < n; i++)
+	//   {
+  //     ROL::Ptr<ROL::Vector<RealT> > z_in = z_out->basis(i);
+  //     robj_reg1->Adjoint_Elliptic_Solve(*z_out,*z_in,tol);
+	// 	  for(int j = 0 ; j < n; j++)
+  //     {
+  //       RealT val = z_out->dot(*z_in->basis(j));
+  //       fout << val << " ";
+  //     }
+	// 	  fout << std::endl;
+	//   }
+  // fout.close();
+
+  // name = "M.txt";
+  // fout.open(name);
+	//   for(int i = 0; i < n; i++)
+	//   {
+  //     ROL::Ptr<ROL::Vector<RealT> > z_in = z_out->basis(i);
+  //     robj_reg1->Apply_Mass_Matrix(*z_out,*z_in,tol);
+	// 	  for(int j = 0 ; j < n; j++)
+  //     {
+  //       RealT val = z_out->dot(*z_in->basis(j));
+  //       fout << val << " ";
+  //     }
+	// 	  fout << std::endl;
+	//   }
+  // fout.close();
+  
+
   std::vector<RealT> weights = std::vector<RealT>(2);
   weights[0] = parlist->sublist("Problem").get("State Cost",1.0);
   weights[1] = 1.0;
@@ -161,7 +267,10 @@ int main(int argc, char *argv[]) {
 
   int theta_dim = param.size();
   HDSA::Ptr<HDSA::Vector<RealT> > theta_bar = HDSA::makePtr<Std_Vector<RealT> >(theta_dim);
-  Load_Nominal_Solution<RealT>(z_ptr,parlist);  
+  Std_Vector<RealT>& theta_bar_std = dynamic_cast<Std_Vector<RealT>&>(*theta_bar); 
+  theta_bar_std.Replace_Element(0,1.0);
+  
+  Load_Nominal_Solution<RealT>(z_ptr);  
   HDSA::Ptr<HDSA::Vector<RealT> > z_bar = HDSA::makePtr<HDSA::ROL_Vector<RealT> >(zp);
 
   std::string filename_sensitivity = "Sensitivity_input.xml";
@@ -177,10 +286,14 @@ int main(int argc, char *argv[]) {
   int N_me = parlist_sensitivity->sublist("Problem").get("N_me", 1);
   RealT cg_tol = parlist_sensitivity->sublist("Problem").get("CG Tolerance", 1.e-5);
   int max_cg_iter = parlist_sensitivity->sublist("Problem").get("Maximum CG Iterations", 100);
+  bool fd_check = parlist_sensitivity->sublist("Problem").get("Finite Difference Check", false);
+  bool use_block_update = parlist_sensitivity->sublist("Problem").get("Use Block Update", true);
+  RealT tau = parlist_sensitivity->sublist("Problem").get("Block Update tau", 1.e-5);
+  int max_storage = parlist_sensitivity->sublist("Problem").get("Maximum Block Update Storage", 10);
 
-  HDSA::Ptr<HDSA::PC_Sensitivity_Operator_Interface<RealT> > sen_op_interface = HDSA::makePtr<PC_Sensitivity_Operator_Interface_darcy_flow<RealT> >(obj_misfit,robj_reg,con,con_aux_param,up,z_bar,theta_bar);
+  HDSA::Ptr<HDSA::PC_Sensitivity_Operator_Interface<RealT> > sen_op_interface = HDSA::makePtr<PC_Sensitivity_Operator_Interface_darcy_flow<RealT> >(obj_misfit,robj_reg,con,con_aux_param,up,z_bar,theta_bar,fd_check);
   HDSA::Ptr<HDSA::PC_LIS_Interface<RealT> > lis_interface = HDSA::makePtr<PC_LIS_Interface_darcy_flow<RealT> >(robj_misfit,robj_reg,z_bar,theta_bar);    
-  HDSA::Ptr<HDSA::PC_Quasi_Newton_Preconditioner_LIS<RealT> > qn_prec = HDSA::makePtr<HDSA::PC_Quasi_Newton_Preconditioner_LIS<RealT> >(z_bar,theta_bar,lis_interface);
+  HDSA::Ptr<HDSA::PC_Quasi_Newton_Preconditioner_LIS<RealT> > qn_prec = HDSA::makePtr<HDSA::PC_Quasi_Newton_Preconditioner_LIS<RealT> >(z_bar,theta_bar,lis_interface,use_block_update,tau,max_storage);
 
   HDSA::Ptr<HDSA::PC_Pseudo_Time_Continuation<RealT> > sen =
     HDSA::makePtr<HDSA::PC_Pseudo_Time_Continuation<RealT> >(z_bar,theta_bar,sen_op_interface,qn_prec, use_qn_prec,print_cg_output,print_cg_iter,cg_tol,max_cg_iter);
@@ -196,12 +309,7 @@ int main(int argc, char *argv[]) {
   
   HDSA::Ptr<HDSA::Vector<RealT> > grad_star = z_bar->clone();
   HDSA::Ptr<HDSA::Vector<RealT> > theta_star = theta_bar->clone();
-  Std_Vector<RealT>& theta_star_std = dynamic_cast<Std_Vector<RealT>&>(*theta_star); 
-  RealT val = parlist_sensitivity->sublist("Problem").get("Perturbation Magnitude", 1.0);
-  for(int i = 0; i < theta_dim; i++)
-    {
-      theta_star_std.Replace_Element(i,val);
-    }
+  Load_Perturbed_Parameters<RealT>(theta_star);
   
   if(N_fe>0)
   {
