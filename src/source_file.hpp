@@ -34,6 +34,7 @@
 
 #include "../interfaces/rol/HDSA_ROL_Vector.hpp"
 #include "../interfaces/rol/HDSA_MD_ROL_Opt_Prob_Interface.hpp"
+#include "../interfaces/mrhyde/HDSA_Data_Reader_MrHyDE.hpp"
 #include "../interfaces/mrhyde/HDSA_Opt_Vector_MrHyDE.hpp"
 #include "../interfaces/mrhyde/HDSA_State_Vector_MrHyDE.hpp"
 #include "../interfaces/mrhyde/HDSA_MD_Data_Interface_MrHyDE.hpp"
