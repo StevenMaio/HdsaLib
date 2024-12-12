@@ -2,6 +2,7 @@
 #define HDSA_DATA_READER_MRHYDE_HPP
 
 #include "exodusII.h"
+#include "preferences.hpp"
 
 template <class RealT,
 	  class LO=Tpetra::Map<>::local_ordinal_type,
@@ -11,10 +12,11 @@ class Data_Reader_MrHyDE {
 
 private:
   Teuchos::RCP<Teuchos::MpiComm<int> > comm_;
+  Teuchos::RCP<MrHyDE::SolverManager<SolverNode> > solve_;
   
 public:
   
-  Data_Reader_MrHyDE(Teuchos::RCP<Teuchos::MpiComm<int> > &comm):comm_(comm)
+  Data_Reader_MrHyDE(Teuchos::RCP<Teuchos::MpiComm<int> > &comm,Teuchos::RCP<MrHyDE::SolverManager<SolverNode> > &solve):comm_(comm),solve_(solve)
   { }
     
   virtual ~Data_Reader_MrHyDE()
@@ -132,43 +134,59 @@ public:
     }
     delete [] var_vals;
   }
+  std::cout << " proc  "  << comm_->getRank() <<  "  first value " << nfield_vals[0][0] << std::endl;
+  std::cout << " proc  "  << comm_->getRank() <<  "  last value " << nfield_vals[0].back() << std::endl;
+
+  ScalarT vecnorm = 0.0;
+  for (int i=0;i<nfield_vals[0].size();i++) {
+    vecnorm += std::pow(nfield_vals[0][i],2.0); 
+  }
+
+  std::cout << "vecnorm   " << std::sqrt(vecnorm) << std::endl;
+  
+  Teuchos::RCP<Tpetra::MultiVector<ScalarT,LO,GO,SolverNode> > meas = Teuchos::rcp(new Tpetra::MultiVector<ScalarT,LO,GO,SolverNode>(solve_->linalg->overlapped_map[0],1)); // empty solution
+  int b = 0;
+  //meas->sync<HostDevice>();
+  auto meas_kv = meas->template getLocalView<HostDevice>(Tpetra::Access::ReadWrite);
     
-  /*
-    meas = Teuchos::rcp(new Tpetra::MultiVector<ScalarT,LO,GO,SolverNode>(LA_overlapped_map,1)); // empty solution
-    size_t b = 0;
-    //meas->sync<HostDevice>();
-    auto meas_kv = meas->getLocalView<HostDevice>();
+  //meas.modify_host();
+  int index, dindex;
     
-    //meas.modify_host();
-    int index, dindex;
-    
-    auto dev_offsets = groups[b][0]->wkset->offsets;
-    auto offsets = Kokkos::create_mirror_view(dev_offsets);
-    Kokkos::deep_copy(offsets,dev_offsets);
-    
-    for (size_t grp=0; grp<groups[block].size(); ++grp) {
-    //cindex = groups[block][grp]->index;
-    auto LIDs = groups[block][grp]->LIDs_host;
-    auto nDOF = groups[block][grp]->group_data->numDOF_host;
+  //  auto dev_offsets = solve_->assembler->groups[b][0]->wkset->offsets;
+  auto dev_offsets = solve_->assembler->wkset[0]->offsets;
+  auto offsets = Kokkos::create_mirror_view(dev_offsets);
+  Kokkos::deep_copy(offsets,dev_offsets);
+
+  vector<string> blockNames = solve_->mesh->getBlockNames();
+  for (int block=0;block<blockNames.size(); block++) {
+    for (int grp=0; grp<solve_->assembler->groups[block].size(); ++grp) {
+      //cindex = groups[block][grp]->index;
+      auto LIDs = solve_->assembler->groups[block][grp]->LIDs_host;
+      auto nDOF = solve_->assembler->groups[block][grp]->group_data->num_dof_host;
       
-    for (int n=0; n<nDOF(0); n++) {
-    //Kokkos::View<GO**,HostDevice> GIDs = assembler->groups[block][grp]->GIDs;
-    for (size_t p=0; p<groups[block][grp]->numElem; p++) {
-    for( int i=0; i<nDOF(n); i++ ) {
-    index = LIDs(p,offsets(n,i));//cindex(p,n,i);//LA_overlapped_map->getLocalElement(GIDs(p,curroffsets[n][i]));
-    dindex = connect[e*num_node_per_el + i] - 1;
-    meas_kv(index,0) = nfield_vals[n][dindex];
-    //(*meas)[0][index] = nfield_vals[n][dindex];
+      for (int n=0; n<nDOF(0); n++) {
+	//Kokkos::View<GO**,HostDevice> GIDs = assembler->groups[block][grp]->GIDs;
+	for (int p=0; p<solve_->assembler->groups[block][grp]->numElem; p++) {
+	  for( int i=0; i<nDOF(n); i++ ) {
+	    index = LIDs[0](p,offsets(n,i));//cindex(p,n,i);//LA_overlapped_map->getLocalElement(GIDs(p,curroffsets[n][i]));
+	    dindex = connect[grp*num_node_per_el + i] - 1;
+	    meas_kv(index,0) = nfield_vals[n][dindex];  
+	    if(comm_->getRank() == 1) {
+	      std::cout << "grp " << grp << " n " << n << " p " << p << " i " << i << " index " << index << "  dindex " << dindex << std::endl;
+	    }
+	    //(*meas)[0][index] = nfield_vals[n][dindex];
+	  }
+	}
+      }
     }
-    }
-    }
-    }
-    //meas.sync<>();
-    delete [] connect;
-  */
-  
+  }
+  //meas.sync<>();
+  delete [] connect;
+ 
   exo_error = ex_close(exoid);
-  
+  Teuchos::Array<RealT> val(1,0);
+  meas->norm2(val.view(0,1));
+  std::cout << "val[0]  " << val[0] << std::endl;
   }
   std::vector<string> breakupList(const string & list, const string & delimiter) {
   // Script to break delimited list into pieces
