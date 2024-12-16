@@ -140,11 +140,10 @@ namespace HDSA
         Dr_[block_current_data_step_] = Pr_[block_current_data_step_]->MatMat(*Wr_[block_current_data_step_]);
         int m = Pr_[block_current_data_step_]->Number_of_Vectors();
         total_vecs_stored_ += 2*m;
-        block_current_data_step_ += 1;
-        Pr_[block_current_data_step_] = HDSA::makePtr<HDSA::MultiVector<RealT> >();
-        Wr_[block_current_data_step_] = HDSA::makePtr<HDSA::MultiVector<RealT> >();
+        Pr_[block_current_data_step_+1] = HDSA::makePtr<HDSA::MultiVector<RealT> >();
+        Wr_[block_current_data_step_+1] = HDSA::makePtr<HDSA::MultiVector<RealT> >();
       }
-      
+      block_current_data_step_ += 1; 
     }
 
     void Apply_Inverse_Hessian_Approximation(HDSA::Vector<RealT> & z_out, const HDSA::Vector<RealT> & z_in) const
@@ -169,8 +168,6 @@ namespace HDSA
           z_out.set(*tmp_out);
           RealT coeff = rho_[param_counter-1] * (alpha - y_[param_counter-1]->dot(*tmp_out));
           z_out.axpy(coeff,*s_[param_counter-1]);
-
-          Apply_QN_Inverse_Hessian_Approximation(z_out,z_in,param_counter-1,block_counter);
         }
       else
 	      {

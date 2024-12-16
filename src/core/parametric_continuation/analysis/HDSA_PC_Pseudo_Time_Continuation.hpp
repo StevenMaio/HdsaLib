@@ -108,7 +108,7 @@ namespace HDSA
       HDSA::Ptr<HDSA::Vector<RealT> > s,y;
       if(use_qn_prec_)
 		{
-			qn_prec_->Set_N(2*N);
+			qn_prec_->Set_N(2*N+1);
 			s = z_new->clone();
 			y = z_new->clone();
 		}
@@ -224,7 +224,7 @@ namespace HDSA
       HDSA::Ptr<HDSA::Vector<RealT> > s,y;
       if(use_qn_prec_)
 		{
-			qn_prec_->Set_N(3*N);
+			qn_prec_->Set_N(3*N+1);
 			s = z_new->clone();
 			y = z_new->clone();
 		}
