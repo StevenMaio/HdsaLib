@@ -8,24 +8,43 @@ namespace HDSA {
 	    class Node=Tpetra::Map<>::node_type >
   class Sparse_Matrix_Solver{
   
+  private:
+    HDSA::Ptr<Tpetra::CrsMatrix<RealT,LO,GO,Node>> A_;
+    bool use_direct_;
+    HDSA::Ptr<Amesos2::Solver< Tpetra::CrsMatrix<>, Tpetra::MultiVector<>>> solver_;
+
   public:
 
-    HDSA::Ptr<Tpetra::CrsMatrix<RealT,LO,GO,Node>> A_;
-  
-    Sparse_Matrix_Solver(HDSA::Ptr<Tpetra::CrsMatrix<RealT,LO,GO,Node>> &A)
+    Sparse_Matrix_Solver(HDSA::Ptr<Tpetra::CrsMatrix<RealT,LO,GO,Node>> & A, bool use_direct = true): A_(A), use_direct_(use_direct)
     {
-      A_=A;
+      if(use_direct_)
+      {
+        solver_ = Amesos2::create< Tpetra::CrsMatrix<>,Tpetra::MultiVector<>>("KLU2", A);
+        solver_->symbolicFactorization();
+        solver_->numericFactorization();
+      }
     }
 
     virtual ~Sparse_Matrix_Solver()
     { }                                                                              
 
     void Apply_A_Inverse(HDSA::Vector<RealT> & x, const HDSA::Vector<RealT> & b) {
-      RealT tol = 1.0E-10;
-      std::string solver = "CG";
-      bool verbose = false;
-      HDSA::Ptr<A_Operator<RealT> > A_op = HDSA::makePtr<A_Operator<RealT> >(this);
-      HDSA::Linear_Algebra::Iterative_Linear_Solve<RealT>(x,b,*A_op,tol,solver,verbose); 
+      if(use_direct_)
+      {
+        Tpetra_Vector_MrHyDE<RealT> &ex = dynamic_cast<Tpetra_Vector_MrHyDE<RealT>&>(x);
+        const Tpetra_Vector_MrHyDE<RealT> &eb = dynamic_cast<const Tpetra_Vector_MrHyDE<RealT>&>(b);
+        solver_->setX(ex.getVector());
+        solver_->setB(eb.getVector());
+        solver_->solve();
+      }
+      else
+      {
+        RealT tol = 1.0E-10;
+        std::string solver = "CG";
+        bool verbose = false;
+        HDSA::Ptr<A_Operator<RealT> > A_op = HDSA::makePtr<A_Operator<RealT> >(this);
+        HDSA::Linear_Algebra::Iterative_Linear_Solve<RealT>(x,b,*A_op,tol,solver,verbose); 
+      }
     }
   
     template <class ScalarType>
@@ -43,9 +62,9 @@ namespace HDSA {
       
       void matvec(HDSA::Vector<ScalarType> & y, const HDSA::Vector<ScalarType> & x) const
       {
-	const Tpetra_Vector_MrHyDE<ScalarType> &ex = dynamic_cast<const Tpetra_Vector_MrHyDE<ScalarType>&>(x);
-	Tpetra_Vector_MrHyDE<ScalarType> &ey = dynamic_cast<Tpetra_Vector_MrHyDE<ScalarType>&>(y);
-	A_invert_->A_->apply(*ex.getVector(),*ey.getVector()); 
+        const Tpetra_Vector_MrHyDE<ScalarType> &ex = dynamic_cast<const Tpetra_Vector_MrHyDE<ScalarType>&>(x);
+        Tpetra_Vector_MrHyDE<ScalarType> &ey = dynamic_cast<Tpetra_Vector_MrHyDE<ScalarType>&>(y);
+        A_invert_->A_->apply(*ex.getVector(),*ey.getVector()); 
       }
 
     };
