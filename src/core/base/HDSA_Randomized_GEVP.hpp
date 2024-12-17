@@ -39,9 +39,9 @@ namespace HDSA
       Generate_Random_Samples(*tmp);
       for(int k = 0; k < kpp; k++)
       	{
-	  HDSA::Ptr<HDSA::Vector<RealT> >  vec_tmp1 = vec_->clone();
-	  Apply_Operator(*vec_tmp1,*(*tmp)[k]);
-	  Apply_Weighting_Operator_Inverse(*(*Y)[k],*vec_tmp1);
+          HDSA::Ptr<HDSA::Vector<RealT> >  vec_tmp1 = vec_->clone();
+          Apply_Operator(*vec_tmp1,*(*tmp)[k]);
+          Apply_Weighting_Operator_Inverse(*(*Y)[k],*vec_tmp1);
       	}
 
       HDSA::Ptr<HDSA::MultiVector<RealT> > Q = HDSA::makePtr<HDSA::MultiVector<RealT> >(kpp,*vec_);
@@ -52,11 +52,20 @@ namespace HDSA
 
       Y->zeros();
       for(int k = 0; k < kpp; k++)
-	{
-	  Apply_Operator(*(*Y)[k],*(*Q)[k]);
-	}
+      {
+        Apply_Operator(*(*Y)[k],*(*Q)[k]);
+      }
       
-      HDSA::Ptr<HDSA::Dense_Matrix<RealT> > T = Y->MatMat(*Q);
+      HDSA::Ptr<HDSA::Dense_Matrix<RealT> > T_tmp = Y->MatMat(*Q);
+      HDSA::Ptr<HDSA::Dense_Matrix<RealT> > T = HDSA::makePtr<HDSA::Dense_Matrix<RealT> >(kpp,kpp);
+      for(int i = 0; i < kpp; i++)
+      {
+        for(int j = 0; j < kpp; j++)
+        {
+          RealT val = 0.5 * ( (*T_tmp)(i,j) + (*T_tmp)(j,i) );
+          T->Replace_Element(i,j,val);
+        }
+      }
 
       HDSA::Ptr<HDSA::Dense_Matrix<RealT> > R_T = HDSA::makePtr<HDSA::Dense_Matrix<RealT> >(kpp,kpp);
       HDSA::Linear_Algebra::Cholesky_Factorization<RealT>(*T,*R_T);
