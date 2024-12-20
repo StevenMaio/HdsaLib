@@ -5,3 +5,4 @@
 #ADD_SUBDIRECTORY(randomized_GEVP_test)
 ADD_SUBDIRECTORY(parametric_sensitivity_rosenbrock_test)
 ADD_SUBDIRECTORY(parametric_sensitivity_diff_inv_test)
+ADD_SUBDIRECTORY(operator_sqrt_test)
