@@ -58,6 +58,15 @@ public:
   virtual void Sample_with_Covariance_W_z_Inverse(HDSA::MultiVector<RealT> & samples) const
   {
     samples.zeros();
+    HDSA::Ptr<Mass_Matrix_Sqrt<RealT> > mass_mat_sqrt = HDSA::makePtr<Mass_Matrix_Sqrt<RealT> >(this);
+    for(int k = 0; k < samples.Number_of_Vectors(); k++)
+    {
+      HDSA::Ptr<HDSA::Vector<RealT> > omega = samples[k]->clone();
+      omega->randomize_standard_normal();
+      HDSA::Ptr<HDSA::Vector<RealT> > vec = samples[k]->clone();
+      mass_mat_sqrt->Apply_Operator_Sqrt(*vec,*omega);
+      Apply_E_z_Inverse(*samples[k],*vec);
+    }
   }   
     
   virtual void Apply_E_z(HDSA::Vector<RealT> & z_out, const HDSA::Vector<RealT> & z_in) const 
@@ -84,6 +93,27 @@ public:
     HDSA::Ptr<HDSA::Vector<RealT> > vec_out = HDSA::makePtr<Tpetra_Vector_MrHyDE<RealT> > (eez_out.getField()[0]->getVector(),ez_out.Get_random_number_generator()); 
     M_z_solver_->Apply_A_Inverse(*vec_out,*vec_in);
   }
+
+  template <class ScalarType>
+  class Mass_Matrix_Sqrt : public HDSA::Operator_Sqrt<ScalarType>
+  {
+  private:
+    const MD_Elliptic_z_Prior_Interface_MrHyDE<ScalarType>* elliptic_z_prior_;
+    const HDSA::Vector<ScalarType>* z_;
+
+  public:
+    Mass_Matrix_Sqrt (const MD_Elliptic_z_Prior_Interface_MrHyDE<ScalarType>* elliptic_z_prior): elliptic_z_prior_(elliptic_z_prior)
+    {}
+    
+    ~Mass_Matrix_Sqrt ()
+    {}
+      
+    void Apply_Operator(HDSA::Vector<ScalarType> & vec_out, const HDSA::Vector<ScalarType> & vec_in) const
+    {
+      elliptic_z_prior_->Apply_M_z(vec_out,vec_in);
+    }
+
+  };
 
 };
 
