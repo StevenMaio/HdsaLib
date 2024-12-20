@@ -1,0 +1,9 @@
+### Manually Entered:
+.DS_Store
+*~
+*.zip
+.vscode/
+*#
+__pycache__/
+mrhyde
+dmrhyde
