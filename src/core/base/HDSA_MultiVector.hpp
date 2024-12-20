@@ -24,6 +24,11 @@ public:
       }
   }
 
+  MultiVector(std::vector<HDSA::Ptr<HDSA::Vector<RealT> > > & vecs): vecs_(vecs)
+  {
+    num_vecs_ = vecs.size();
+  }
+  
   virtual ~MultiVector()
   { }
 
