@@ -1,8 +1,6 @@
 #ifndef HDSA_PRIOR_FE_OP_MRHYDE_HPP
 #define HDSA_PRIOR_FE_OP_MRHYDE_HPP
 
-#include "userInterface.hpp"
-
 template <class RealT,
 	  class LO=Tpetra::Map<>::local_ordinal_type,
 	  class GO=Tpetra::Map<>::global_ordinal_type,
@@ -15,37 +13,20 @@ public:
   
   Prior_FE_Op_MrHyDE(Teuchos::RCP<Teuchos::MpiComm<int> > &comm, Teuchos::RCP<Teuchos::ParameterList> & settings,std::vector<string> & blockNames)
   { 
-    Teuchos::RCP<MrHyDE::userInterface> UI = Teuchos::rcp(new MrHyDE::userInterface() );
-    std::string input_file_name = "input-HDSA-prior-z.yaml";
-    Teuchos::RCP<Teuchos::ParameterList> settings_prior = UI->UserInterface(input_file_name);
+    Teuchos::RCP<Teuchos::ParameterList> settings_prior = HDSA::makePtr<Teuchos::ParameterList>(*settings);
+    settings_prior->sublist("Physics").set("modules","ellipticPrior");
+    settings_prior->sublist("Solver").set("solver","steady-state");
+    settings_prior->sublist("Solver").set("matrix free",true);
+    settings_prior->sublist("Analysis").set("Analysis type","forward");
     settings_prior->sublist("Functions").set("ellipticPrior diffusion","0.0");
+    settings_prior->sublist("Functions").set("ellipticPrior reaction","1.0");
+
     M = Instantiate_Prior_Operators(comm,settings_prior,blockNames);
     settings_prior->sublist("Functions").set("ellipticPrior diffusion","1.0");
     settings_prior->sublist("Functions").set("ellipticPrior reaction","0.0");
     S = Instantiate_Prior_Operators(comm,settings_prior,blockNames);
   }
 
-  // { 
-  //   Teuchos::RCP<Teuchos::ParameterList> settings_prior = HDSA::makePtr<Teuchos::ParameterList>();
-
-  //   settings_prior->setParameters(settings->sublist("Mesh"));
-  //   settings_prior->setParameters(settings->sublist("Discretization"));
-  //   //    settings_prior->set("Discretization",settings->sublist("Discretization"));
-  //   Teuchos::RCP<Teuchos::ParameterList> settings_physics = HDSA::makePtr<Teuchos::ParameterList>();
-  //   settings_prior->sub("Physics").set("modules","ellipticPrior");
-  //   settings_prior->sublist("Solver").set("solver","steady-state");
-  //   settings_prior->sublist("Solver").set("matrix free",true);
-  //   settings_prior->sublist("Analysis").set("Analysis type","forward");
-    
-  //   settings_prior->sublist("Functions").set("ellipticPrior diffusion","0.0");
-  //   settings_prior->sublist("Functions").set("ellipticPrior reaction","1.0");
-  //   M = Instantiate_Prior_Operators(comm,settings_prior,blockNames);
-
-  //   settings_prior->sublist("Functions").set("ellipticPrior diffusion","1.0");
-  //   settings_prior->sublist("Functions").set("ellipticPrior reaction","0.0");
-  //   S = Instantiate_Prior_Operators(comm,settings_prior,blockNames);
-  // }
-    
   virtual ~Prior_FE_Op_MrHyDE()
   { }
 
