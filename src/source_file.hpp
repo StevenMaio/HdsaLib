@@ -5,16 +5,17 @@
 #include "trilinos_adapter/core/HDSA_Stack_Trace.hpp"
 
 #include "core/base/HDSA_Vector.hpp"
-#include "core/base/HDSA_Linear_Operator.hpp"
-#include "trilinos_adapter/adapters/HDSA_Belos_Adapter.hpp"
-#include "trilinos_adapter/core/HDSA_Linear_Algebra.hpp"
 #include "core/base/HDSA_Random_Number_Generator.hpp"
-#include "../interfaces/mrhyde/HDSA_Tpetra_Vector_MrHyDE.hpp"
-#include "trilinos_adapter/core/HDSA_Sparse_Matrix_Solver.hpp"
-
+#include "core/base/HDSA_Linear_Operator.hpp"
 #include "core/base/HDSA_Std_Vector.hpp"
 #include "core/base/HDSA_MultiVector.hpp"
 #include "core/base/HDSA_Stream.hpp"
+
+#include "trilinos_adapter/adapters/HDSA_Belos_Adapter.hpp"
+#include "trilinos_adapter/adapters/HDSA_Tpetra_Vector.hpp"
+#include "trilinos_adapter/core/HDSA_Linear_Algebra.hpp"
+#include "trilinos_adapter/core/HDSA_Sparse_Matrix_Solver.hpp"
+
 #include "core/base/HDSA_Randomized_GSVD.hpp"
 #include "core/base/HDSA_Randomized_GEVP.hpp"
 #include "core/base/HDSA_Operator_Sqrt.hpp"
@@ -33,8 +34,6 @@
 #include "core/model_discrepancy/analysis/HDSA_MD_Hessian_Analysis.hpp"
 #include "core/model_discrepancy/analysis/HDSA_MD_Update.hpp"
 
-#include "../interfaces/rol/HDSA_ROL_Vector.hpp"
-
 #include "core/parametric_continuation/interfaces/HDSA_PC_Sensitivity_Operator_Interface.hpp"
 #include "core/parametric_continuation/interfaces/HDSA_PC_LIS_Interface.hpp"
 #include "core/parametric_continuation/analysis/HDSA_PC_Quasi_Newton_Preconditioner.hpp"
@@ -43,6 +42,8 @@
 
 #include "../interfaces/rol/HDSA_ROL_Vector.hpp"
 #include "../interfaces/rol/HDSA_MD_ROL_Opt_Prob_Interface.hpp"
+
+#if defined(MrHyDE_ENABLE_HDSA)
 #include "../interfaces/mrhyde/HDSA_Opt_Vector_MrHyDE.hpp"
 #include "../interfaces/mrhyde/HDSA_State_Vector_MrHyDE.hpp"
 #include "../interfaces/mrhyde/HDSA_MD_Data_Interface_MrHyDE.hpp"
@@ -50,3 +51,4 @@
 #include "../interfaces/mrhyde/HDSA_Prior_FE_Op_MrHyDE.hpp"
 #include "../interfaces/mrhyde/HDSA_MD_Elliptic_u_Prior_Interface_MrHyDE.hpp"
 #include "../interfaces/mrhyde/HDSA_MD_Elliptic_z_Prior_Interface_MrHyDE.hpp"
+#endif

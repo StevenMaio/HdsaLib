@@ -54,8 +54,8 @@ public:
     const State_Vector_MrHyDE<RealT> &eu_in = dynamic_cast<const State_Vector_MrHyDE<RealT>&>(u_in);  
     State_Vector_MrHyDE<RealT> &eu_out = dynamic_cast<State_Vector_MrHyDE<RealT>&>(u_out);  
     for (int i=0; i<eu_in.mrhyde_state_vec.size(); ++i){
-      HDSA::Ptr<HDSA::Vector<RealT> > veci_in = HDSA::makePtr<Tpetra_Vector_MrHyDE<RealT> > (eu_in.mrhyde_state_vec[i][0], eu_in.Get_random_number_generator());
-      HDSA::Ptr<HDSA::Vector<RealT> > veci_out = HDSA::makePtr<Tpetra_Vector_MrHyDE<RealT> > (eu_out.mrhyde_state_vec[i][0],eu_out.Get_random_number_generator()); 
+      HDSA::Ptr<HDSA::Vector<RealT> > veci_in = HDSA::makePtr<HDSA_Tpetra_Vector<RealT> > (eu_in.mrhyde_state_vec[i][0], eu_in.Get_random_number_generator());
+      HDSA::Ptr<HDSA::Vector<RealT> > veci_out = HDSA::makePtr<HDSA_Tpetra_Vector<RealT> > (eu_out.mrhyde_state_vec[i][0],eu_out.Get_random_number_generator()); 
       E_u_solver_[i]->Apply_A_Inverse(*veci_out,*veci_in);
     }
   }

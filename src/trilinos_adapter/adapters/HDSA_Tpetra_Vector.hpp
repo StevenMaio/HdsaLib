@@ -1,11 +1,14 @@
-#ifndef HDSA_TPETRA_VECTOR_MRHYDE_HPP
-#define HDSA_TPETRA_VECTOR_MRHYDE_HPP
+#ifndef HDSA_TPETRA_VECTOR_HPP
+#define HDSA_TPETRA_VECTOR_HPP
+
+#include "Tpetra_MultiVector.hpp"
+#include "Tpetra_Map.hpp"
 
 template <class RealT,
           class LO=Tpetra::Map<>::local_ordinal_type,
           class GO=Tpetra::Map<>::global_ordinal_type,
           class Node=Tpetra::Map<>::node_type >
-class Tpetra_Vector_MrHyDE : public HDSA::Vector<RealT> {
+class HDSA_Tpetra_Vector : public HDSA::Vector<RealT> {
   
 private:
   const HDSA::Ptr<Tpetra::MultiVector<RealT,LO,GO,Node> > tpetra_vec_;
@@ -14,11 +17,11 @@ private:
   const HDSA::Ptr<HDSA::Random_Number_Generator<RealT> > random_number_generator_;
 
 public:  
-  Tpetra_Vector_MrHyDE(const HDSA::Ptr<Tpetra::MultiVector<RealT,LO,GO,Node> > &tpetra_vec, const HDSA::Ptr<HDSA::Random_Number_Generator<RealT> > &random_number_generator)
+  HDSA_Tpetra_Vector(const HDSA::Ptr<Tpetra::MultiVector<RealT,LO,GO,Node> > &tpetra_vec, const HDSA::Ptr<HDSA::Random_Number_Generator<RealT> > &random_number_generator)
     : tpetra_vec_(tpetra_vec), map_(tpetra_vec_->getMap()), comm_(map_->getComm()),
       random_number_generator_(random_number_generator) {}
   
-  ~Tpetra_Vector_MrHyDE()
+  ~HDSA_Tpetra_Vector()
   { }
 
   HDSA::Ptr<Tpetra::MultiVector<RealT,LO,GO,Node> > getVector() const {
@@ -28,12 +31,12 @@ public:
   HDSA::Ptr<HDSA::Vector<RealT> > clone() const
   {
     int n = tpetra_vec_->getNumVectors();
-    return HDSA::makePtr<Tpetra_Vector_MrHyDE>(HDSA::makePtr<Tpetra::MultiVector<RealT,LO,GO,Node>>(map_,n),random_number_generator_);
+    return HDSA::makePtr<HDSA_Tpetra_Vector>(HDSA::makePtr<Tpetra::MultiVector<RealT,LO,GO,Node>>(map_,n),random_number_generator_);
   }
 
   RealT dot( const HDSA::Vector<RealT> &x ) const
   {
-    const Tpetra_Vector_MrHyDE &ex = dynamic_cast<const Tpetra_Vector_MrHyDE&>(x);
+    const HDSA_Tpetra_Vector &ex = dynamic_cast<const HDSA_Tpetra_Vector&>(x);
     int n = tpetra_vec_->getNumVectors();
     Teuchos::Array<RealT> val(n,0);
     tpetra_vec_->dot( *ex.getVector(), val.view(0,n) );
@@ -47,7 +50,7 @@ public:
   void axpy( const RealT alpha, const HDSA::Vector<RealT> &x )
   {
     RealT one(1);
-    const Tpetra_Vector_MrHyDE &ex = dynamic_cast<const Tpetra_Vector_MrHyDE&>(x);
+    const HDSA_Tpetra_Vector &ex = dynamic_cast<const HDSA_Tpetra_Vector&>(x);
     tpetra_vec_->update(alpha,*ex.getVector(),one);
   }
 

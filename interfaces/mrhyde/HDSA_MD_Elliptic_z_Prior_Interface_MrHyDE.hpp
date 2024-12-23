@@ -37,8 +37,8 @@ public:
     Opt_Vector_MrHyDE<RealT> &ez_out = dynamic_cast<Opt_Vector_MrHyDE<RealT>&>(z_out);
     const MrHyDE_OptVector &eez_in = dynamic_cast<const MrHyDE_OptVector&>(*ez_in.mrhyde_vec);  
     MrHyDE_OptVector &eez_out = dynamic_cast<MrHyDE_OptVector&>(*ez_out.mrhyde_vec);
-    HDSA::Ptr<HDSA::Vector<RealT> > vec_in = HDSA::makePtr<Tpetra_Vector_MrHyDE<RealT> > (eez_in.getField()[0]->getVector(),ez_in.Get_random_number_generator());
-    HDSA::Ptr<HDSA::Vector<RealT> > vec_out = HDSA::makePtr<Tpetra_Vector_MrHyDE<RealT> > (eez_out.getField()[0]->getVector(),ez_out.Get_random_number_generator()); 
+    HDSA::Ptr<HDSA::Vector<RealT> > vec_in = HDSA::makePtr<HDSA_Tpetra_Vector<RealT> > (eez_in.getField()[0]->getVector(),ez_in.Get_random_number_generator());
+    HDSA::Ptr<HDSA::Vector<RealT> > vec_out = HDSA::makePtr<HDSA_Tpetra_Vector<RealT> > (eez_out.getField()[0]->getVector(),ez_out.Get_random_number_generator()); 
     E_z_solver_->Apply_A_Inverse(*vec_out,*vec_in); 
   }
   
@@ -89,8 +89,8 @@ public:
     Opt_Vector_MrHyDE<RealT> &ez_out = dynamic_cast<Opt_Vector_MrHyDE<RealT>&>(z_out);
     const MrHyDE_OptVector &eez_in = dynamic_cast<const MrHyDE_OptVector&>(*ez_in.mrhyde_vec);  
     MrHyDE_OptVector &eez_out = dynamic_cast<MrHyDE_OptVector&>(*ez_out.mrhyde_vec);
-    HDSA::Ptr<HDSA::Vector<RealT> > vec_in = HDSA::makePtr<Tpetra_Vector_MrHyDE<RealT> > (eez_in.getField()[0]->getVector(),ez_in.Get_random_number_generator());
-    HDSA::Ptr<HDSA::Vector<RealT> > vec_out = HDSA::makePtr<Tpetra_Vector_MrHyDE<RealT> > (eez_out.getField()[0]->getVector(),ez_out.Get_random_number_generator()); 
+    HDSA::Ptr<HDSA::Vector<RealT> > vec_in = HDSA::makePtr<HDSA_Tpetra_Vector<RealT> > (eez_in.getField()[0]->getVector(),ez_in.Get_random_number_generator());
+    HDSA::Ptr<HDSA::Vector<RealT> > vec_out = HDSA::makePtr<HDSA_Tpetra_Vector<RealT> > (eez_out.getField()[0]->getVector(),ez_out.Get_random_number_generator()); 
     M_z_solver_->Apply_A_Inverse(*vec_out,*vec_in);
   }
 

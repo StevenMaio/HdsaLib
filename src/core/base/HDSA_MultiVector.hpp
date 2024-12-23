@@ -30,12 +30,7 @@ public:
   {
     num_vecs_ = vecs.size();
   }  
-
-  MultiVector()
-  { 
-    num_vecs_ = 0;
-  }
-
+  
   virtual ~MultiVector()
   { }
 

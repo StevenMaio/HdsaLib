@@ -1,6 +1,9 @@
 #ifndef HDSA_SPARSE_MATRIX_SOLVER_HPP
 #define HDSA_SPARSE_MATRIX_SOLVER_HPP
 
+#include "Tpetra_CrsMatrix_decl.hpp"
+#include "Amesos2_Factory.hpp"
+
 namespace HDSA {
   template <class RealT,
 	    class LO=Tpetra::Map<>::local_ordinal_type,
@@ -31,8 +34,8 @@ namespace HDSA {
     void Apply_A_Inverse(HDSA::Vector<RealT> & x, const HDSA::Vector<RealT> & b) {
       if(use_direct_)
       {
-        Tpetra_Vector_MrHyDE<RealT> &ex = dynamic_cast<Tpetra_Vector_MrHyDE<RealT>&>(x);
-        const Tpetra_Vector_MrHyDE<RealT> &eb = dynamic_cast<const Tpetra_Vector_MrHyDE<RealT>&>(b);
+        HDSA_Tpetra_Vector<RealT> &ex = dynamic_cast<HDSA_Tpetra_Vector<RealT>&>(x);
+        const HDSA_Tpetra_Vector<RealT> &eb = dynamic_cast<const HDSA_Tpetra_Vector<RealT>&>(b);
         solver_->setX(ex.getVector());
         solver_->setB(eb.getVector());
         solver_->solve();
@@ -62,8 +65,8 @@ namespace HDSA {
       
       void matvec(HDSA::Vector<ScalarType> & y, const HDSA::Vector<ScalarType> & x) const
       {
-        const Tpetra_Vector_MrHyDE<ScalarType> &ex = dynamic_cast<const Tpetra_Vector_MrHyDE<ScalarType>&>(x);
-        Tpetra_Vector_MrHyDE<ScalarType> &ey = dynamic_cast<Tpetra_Vector_MrHyDE<ScalarType>&>(y);
+        const HDSA_Tpetra_Vector<ScalarType> &ex = dynamic_cast<const HDSA_Tpetra_Vector<ScalarType>&>(x);
+        HDSA_Tpetra_Vector<ScalarType> &ey = dynamic_cast<HDSA_Tpetra_Vector<ScalarType>&>(y);
         A_invert_->A_->apply(*ex.getVector(),*ey.getVector()); 
       }
 

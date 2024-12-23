@@ -125,8 +125,8 @@ namespace HDSA
             p_tmp->axpy((*V)(j,k),*(*Ptmp_)[j]);
             w_tmp->axpy((*V)(j,k),*(*Wtmp_)[j]);
           }
-          Pr_[block_current_data_step_]->Push_Back(p_tmp);
-          Wr_[block_current_data_step_]->Push_Back(w_tmp);
+          Pr_[block_current_data_step_]->push_back(p_tmp);
+          Wr_[block_current_data_step_]->push_back(w_tmp);
         }
 
       }
