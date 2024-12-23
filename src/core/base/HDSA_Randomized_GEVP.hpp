@@ -68,49 +68,72 @@ namespace HDSA
       }
 
       HDSA::Ptr<HDSA::Dense_Matrix<RealT> > R_T = HDSA::makePtr<HDSA::Dense_Matrix<RealT> >(kpp,kpp);
-      HDSA::Linear_Algebra::Cholesky_Factorization<RealT>(*T,*R_T);
+      int info = HDSA::Linear_Algebra::Cholesky_Factorization<RealT>(*T,*R_T);
 
-      HDSA::Ptr<HDSA::MultiVector<RealT> > M = HDSA::makePtr<HDSA::MultiVector<RealT> >(kpp,*vec_);
-      HDSA::Ptr<HDSA::Dense_Matrix<RealT> > I = HDSA::makePtr<HDSA::Dense_Matrix<RealT> >(kpp,kpp);
-      for(int k = 0; k < kpp; k++)
-        {
-          I->Replace_Element(k,k,1.0);
-        }
-      HDSA::Ptr<HDSA::Dense_Matrix<RealT> > R_T_inv = HDSA::makePtr<HDSA::Dense_Matrix<RealT> >(kpp,kpp);
-      HDSA::Linear_Algebra::Upper_Tri_Solve<RealT>(*R_T_inv,*I,*R_T);
-      for(int k = 0; k < kpp; k++)
-        {
-          for(int i = 0; i < kpp; i++)
-            {
-              (*M)[k]->axpy((*R_T_inv)(i,k),*(*Y)[i]);
-            }
-        }
-
-      type = "weighting_inverse";
-      Q->zeros();
-      WQ->zeros();
-      R->zeros();
-      CholQR(*Q, *WQ, *R, *M, type);
-
-      HDSA::Ptr<HDSA::Dense_Matrix<RealT> > U = HDSA::makePtr<HDSA::Dense_Matrix<RealT> >(kpp,kpp);
-      HDSA::Ptr<HDSA::Dense_Matrix<RealT> > VT = HDSA::makePtr<HDSA::Dense_Matrix<RealT> >(kpp,kpp);
-      HDSA::Ptr<HDSA::Dense_Matrix<RealT> > S = HDSA::makePtr<HDSA::Dense_Matrix<RealT> >(kpp,1);
-      HDSA::Linear_Algebra::SVD<RealT>(*R, *U, *VT, *S);
-
-      evecs.zeros();
-      for(int k = 0; k < num_evals; k++)
-        {
-          for(int i = 0; i < kpp; i++)
-            {
-              evecs[k]->axpy((*U)(i,k),*(*WQ)[i]);
-	      evals.Replace_Element(k,0,std::pow((*S)(k,0),2.0));
-            }
-	  if( (*U)(0,k) < 0.0 )
+      if(info == 0)
+	{
+	  HDSA::Ptr<HDSA::MultiVector<RealT> > M = HDSA::makePtr<HDSA::MultiVector<RealT> >(kpp,*vec_);
+	  HDSA::Ptr<HDSA::Dense_Matrix<RealT> > I = HDSA::makePtr<HDSA::Dense_Matrix<RealT> >(kpp,kpp);
+	  for(int k = 0; k < kpp; k++)
 	    {
-	      evecs[k]->scale(-1.0);
+	      I->Replace_Element(k,k,1.0);
 	    }
-        }
+	  HDSA::Ptr<HDSA::Dense_Matrix<RealT> > R_T_inv = HDSA::makePtr<HDSA::Dense_Matrix<RealT> >(kpp,kpp);
+	  HDSA::Linear_Algebra::Upper_Tri_Solve<RealT>(*R_T_inv,*I,*R_T);
+	  for(int k = 0; k < kpp; k++)
+	    {
+	      for(int i = 0; i < kpp; i++)
+		{
+		  (*M)[k]->axpy((*R_T_inv)(i,k),*(*Y)[i]);
+		}
+	    }
+	  
+	  type = "weighting_inverse";
+	  Q->zeros();
+	  WQ->zeros();
+	  R->zeros();
+	  CholQR(*Q, *WQ, *R, *M, type);
+	  
+	  HDSA::Ptr<HDSA::Dense_Matrix<RealT> > U = HDSA::makePtr<HDSA::Dense_Matrix<RealT> >(kpp,kpp);
+	  HDSA::Ptr<HDSA::Dense_Matrix<RealT> > VT = HDSA::makePtr<HDSA::Dense_Matrix<RealT> >(kpp,kpp);
+	  HDSA::Ptr<HDSA::Dense_Matrix<RealT> > S = HDSA::makePtr<HDSA::Dense_Matrix<RealT> >(kpp,1);
+	  HDSA::Linear_Algebra::SVD<RealT>(*R, *U, *VT, *S);
+	  
+	  evecs.zeros();
+	  for(int k = 0; k < num_evals; k++)
+	    {
+	      evals.Replace_Element(k,0,std::pow((*S)(k,0),2.0));
+	      for(int i = 0; i < kpp; i++)
+		{
+		  evecs[k]->axpy((*U)(i,k),*(*WQ)[i]);
+		}
+	      if( (*U)(0,k) < 0.0 )
+		{
+		  evecs[k]->scale(-1.0);
+		}
+	    }
+	}
+      else
+	{
+	  HDSA::Ptr<HDSA::Dense_Matrix<RealT> > S = HDSA::makePtr<HDSA::Dense_Matrix<RealT> >(kpp,kpp);
+	  HDSA::Ptr<HDSA::Dense_Matrix<RealT> > Lambda = HDSA::makePtr<HDSA::Dense_Matrix<RealT> >(kpp,1);
+	  HDSA::Linear_Algebra::Symmetric_Eig_Decomposition<RealT>(*T, *S, *Lambda); 
 
+	  evecs.zeros();
+	  for(int k = 0; k < num_evals; k++)
+	    {
+	      evals.Replace_Element(k,0,(*Lambda)(k,0));
+	      for(int i = 0; i < kpp; i++)
+		{
+		  evecs[k]->axpy((*S)(i,k),*(*Q)[i]);
+		}
+	      if( (*S)(0,k) < 0.0 )
+		{
+		  evecs[k]->scale(-1.0);
+		}
+	    }
+	}
+      
     }
 
     void CholQR(HDSA::MultiVector<RealT> & Q, HDSA::MultiVector<RealT> & WQ, HDSA::Dense_Matrix<RealT> & R, const HDSA::MultiVector<RealT> & Z, std::string & type)

@@ -1,7 +1,7 @@
 #ifndef HDSA_MULTIVECTOR_HPP
 #define HDSA_MULTIVECTOR_HPP
 
-#include <filesystem>
+#include <sys/stat.h>
 
 namespace HDSA
 {
@@ -20,17 +20,34 @@ public:
     vecs_.resize(num_vecs);
     for(int k = 0; k < num_vecs; k++)
       {
-	vecs_[k] = vec.clone();
+	      vecs_[k] = vec.clone();
       }
   }
 
   MultiVector(std::vector<HDSA::Ptr<HDSA::Vector<RealT> > > & vecs): vecs_(vecs)
   {
     num_vecs_ = vecs.size();
+  }  
+
+  MultiVector()
+  { 
+    num_vecs_ = 0;
   }
-  
+
   virtual ~MultiVector()
   { }
+
+  void Push_Back(HDSA::Ptr<HDSA::Vector<RealT> > & vec)
+  {
+    vecs_.push_back(vec);
+    num_vecs_ += 1;
+  }
+
+  void Clear(void)
+  {
+    vecs_.clear();
+    num_vecs_ = 0;
+  }
 
   // Access the kth vector
   HDSA::Ptr<HDSA::Vector<RealT> > operator [] (int k) const
@@ -53,10 +70,10 @@ public:
     HDSA::Ptr<HDSA::Dense_Matrix<RealT> > C = HDSA::makePtr<HDSA::Dense_Matrix<RealT> >(x.Number_of_Vectors(),num_vecs_);
     for(int i = 0; i < x.Number_of_Vectors(); i++)
       {
-	for(int j = 0; j < num_vecs_; j++)
-	{
-	  C->Replace_Element(i,j,x[i]->dot(*vecs_[j]));
-	}
+        for(int j = 0; j < num_vecs_; j++)
+        {
+          C->Replace_Element(i,j,x[i]->dot(*vecs_[j]));
+        }
       }
     return C;
   }
@@ -123,7 +140,7 @@ public:
 
   void Write_to_File(std::string & name)
   {
-    std::filesystem::create_directory(name);
+    mkdir(name.c_str(),S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
     for(int k = 0; k < num_vecs_; k++)
       {
 	std::string name_k = name + "/Vector_" + std::to_string(k+1) + ".txt";

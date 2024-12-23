@@ -179,8 +179,8 @@ namespace Linear_Algebra
       }
     return info;
   }
-
-  // Solve the symmetric linear system via a direct method
+  
+  // Solve the symmetric linear system A x = b via a direct method
   template <class RealT>
   void Symmetric_Direct_Linear_Solve(const HDSA::Dense_Matrix<RealT> & A, HDSA::Dense_Matrix<RealT> & x, const HDSA::Dense_Matrix<RealT> & b) 
   {
@@ -190,18 +190,40 @@ namespace Linear_Algebra
     HDSA::Ptr<HDSA::Dense_Matrix<RealT> > y = HDSA::makePtr<HDSA::Dense_Matrix<RealT> >(n,x.numCols());
     for(int c = 0; c < x.numCols(); c++)
       {
-	for(int i = 0; i < n; i++)
-	  {
-	    RealT val = b(i,c);
-	    for(int j = 0; j < i; j++)
-	      {
-		val -= (*y)(j,c)*(*R)(j,i);
-	      }
-	    val = val/(*R)(i,i);
-	    y->Replace_Element(i,c,val);
-	  }
+        for(int i = 0; i < n; i++)
+          {
+            RealT val = b(i,c);
+            for(int j = 0; j < i; j++)
+              {
+                val -= (*y)(j,c)*(*R)(j,i);
+              }
+            val = val/(*R)(i,i);
+            y->Replace_Element(i,c,val);
+          }
       }
     HDSA::Linear_Algebra::Upper_Tri_Solve<RealT>(x, *y, *R);
+  }
+
+  // Solve the symmetric linear system R^T*R x = b via a direct method
+  template <class RealT>
+  void Symmetric_Direct_Linear_Solve_Prefactor(const HDSA::Dense_Matrix<RealT> & R, HDSA::Dense_Matrix<RealT> & x, const HDSA::Dense_Matrix<RealT> & b) 
+  {
+    int n = b.numRows();
+    HDSA::Ptr<HDSA::Dense_Matrix<RealT> > y = HDSA::makePtr<HDSA::Dense_Matrix<RealT> >(n,x.numCols());
+    for(int c = 0; c < x.numCols(); c++)
+      {
+        for(int i = 0; i < n; i++)
+          {
+            RealT val = b(i,c);
+            for(int j = 0; j < i; j++)
+              {
+                val -= (*y)(j,c)*R(j,i);
+              }
+            val = val/R(i,i);
+            y->Replace_Element(i,c,val);
+          }
+      }
+    HDSA::Linear_Algebra::Upper_Tri_Solve<RealT>(x, *y, R);
   }
    
   // Compute eigenvalue decomposition A=V*S*V^T for a symmetric matrix A, store eigenvalues in a size nx1 matrix S

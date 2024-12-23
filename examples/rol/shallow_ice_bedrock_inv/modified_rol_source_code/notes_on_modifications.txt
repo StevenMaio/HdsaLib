@@ -1,0 +1,8 @@
+
+I added the "setParameter" function to ROL_DynamicConstraint.hpp, ROL_DynamicObjective.hpp, and dynconstraint.hpp. This is needed to update the parameters in the PDE.
+
+I modified the "setParameter" function in dynpde.hpp to make it virtual. This was necessary for parameter updates in the dynamic constraint.
+
+I created the file ROL_ReducedDynamicObjective_Stationary_Control.hpp to solve problems with transiant dynamics and stationary optimization variables.
+
+I created the files ltiobjective_TS.hpp, Misfit_Regularization_TS_Objective_SimOpt.hpp, and Objective_SimOpt_TS.hpp to enable inverse problems with sparse data in the dynamic constraint.

@@ -1,0 +1,12 @@
+<ParameterList name="Inputs">
+  <!-- ===========  PROBLEM INPUT PARAMETER SUBLIST  =========== -->
+  <ParameterList name="Problem">
+    <Parameter name="use_qn_prec" type="bool"    value="true" />
+    <Parameter name="print_cg_output" type="bool"    value="true" />
+    <Parameter name="print_cg_iter" type="bool"    value="true" />
+    <Parameter name="rank" type="int"     value="5"     />
+    <Parameter name="oversampling" type="int"     value="2"     />
+    <Parameter name="N_fe" type="int"     value="1"     />
+    <Parameter name="N_me" type="int"     value="1"     />
+  </ParameterList>
+</ParameterList>
