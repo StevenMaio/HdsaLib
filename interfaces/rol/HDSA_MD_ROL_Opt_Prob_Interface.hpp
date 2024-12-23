@@ -52,6 +52,7 @@ namespace HDSA
       const HDSA::ROL_Vector<RealT>& z_in_rol = dynamic_cast<const HDSA::ROL_Vector<RealT>&>(z_in);
       const HDSA::ROL_Vector<RealT>& z_rol = dynamic_cast<const HDSA::ROL_Vector<RealT>&>(z);
       RealT tol = 1.e-8;
+      red_obj_->update(*z_rol.rol_vec, ROL::UpdateType::Temp);
       red_obj_->hessVec(*z_out_rol.rol_vec, *z_in_rol.rol_vec, *z_rol.rol_vec, tol);
     }
 
@@ -61,6 +62,7 @@ namespace HDSA
       const HDSA::ROL_Vector<RealT>& u_rol = dynamic_cast<const HDSA::ROL_Vector<RealT>&>(u);
       const HDSA::ROL_Vector<RealT>& z_rol = dynamic_cast<const HDSA::ROL_Vector<RealT>&>(z);
       RealT tol = 1.e-8;
+      obj_simopt_->update(*u_rol.rol_vec, *z_rol.rol_vec, ROL::UpdateType::Temp);
       obj_simopt_->gradient_1(*u_grad_rol.rol_vec, *u_rol.rol_vec, *z_rol.rol_vec, tol);
     }
 
@@ -71,6 +73,7 @@ namespace HDSA
       const HDSA::ROL_Vector<RealT>& u_rol = dynamic_cast<const HDSA::ROL_Vector<RealT>&>(u);
       const HDSA::ROL_Vector<RealT>& z_rol = dynamic_cast<const HDSA::ROL_Vector<RealT>&>(z);
       RealT tol = 1.e-8;
+      obj_simopt_->update(*u_rol.rol_vec, *z_rol.rol_vec, ROL::UpdateType::Temp);
       obj_simopt_->hessVec_11(*u_out_rol.rol_vec, *u_in_rol.rol_vec, *u_rol.rol_vec, *z_rol.rol_vec, tol);
     }
                                                                                                                                                                                                         

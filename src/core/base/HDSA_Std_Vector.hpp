@@ -35,14 +35,14 @@ public:
   // Overloading pure virtual functions in HDSA::Vector base class
   //////////////////////////////////////////////////////////////////////////////////
   
-  HDSA::Ptr<HDSA::Vector<RealT> > clone() const
+  HDSA::Ptr<HDSA::Vector<RealT> > clone() const override
   {
     HDSA::Ptr<HDSA::Vector<RealT> > vec = HDSA::makePtr<Std_Vector<RealT> >(dim_,random_number_generator_);
     return vec;
   }
 
   // compute the dot product of this and x
-  RealT dot( const HDSA::Vector<RealT> &x ) const
+  RealT dot( const HDSA::Vector<RealT> &x ) const override
   {
     RealT val = 0.0;
     const Std_Vector<RealT> x_std = dynamic_cast<const Std_Vector<RealT>&>(x);
@@ -54,7 +54,7 @@ public:
   }
 
   // add alpha*x to this
-  void axpy( const RealT alpha, const HDSA::Vector<RealT> &x )
+  void axpy( const RealT alpha, const HDSA::Vector<RealT> &x ) override
   {
     const Std_Vector<RealT> x_std = dynamic_cast<const Std_Vector<RealT>&>(x);
     for(int k = 0; k < dim_; k++)
@@ -64,13 +64,13 @@ public:
   }
 
   // return vector dimension
-  int dimension() const
+  int dimension() const override
   {
     return dim_;
   }
 
   // set this=val elementwise
-  void setScalar( const RealT val )
+  void setScalar( const RealT val ) override
   {
     for(int k = 0; k < dim_; k++)
       {
@@ -78,7 +78,7 @@ public:
       }
   }
 
-  void randomize_standard_normal( ) 
+  void randomize_standard_normal( ) override
   {
     for(int k = 0; k < dim_; k++)
       {
@@ -86,7 +86,7 @@ public:
       }
   }
 
-  void Write_to_File(std::string & name) const
+  void Write_to_File(const std::string & name) const override
   {
     std::ofstream fout;
     fout.open(name);

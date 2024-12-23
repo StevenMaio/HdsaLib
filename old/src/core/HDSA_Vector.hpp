@@ -107,7 +107,7 @@ public:
     return vec;
   }
 
-  void Write_to_File(std::string & name) const
+  void Write_to_File(const std::string & name) const
   {
       std::ofstream fout;
       fout.open(name);
