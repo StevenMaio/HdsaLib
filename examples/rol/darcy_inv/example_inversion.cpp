@@ -14,6 +14,7 @@
 #include "obj_darcy_flow.hpp"
 #include "mesh_darcy_flow.hpp"
 #include "elliptic_prior_reg_obj.hpp"
+#include "RS_Objective.hpp"
 #include "../../../src/source_file.hpp"
 #include "../../../../Trilinos/packages/rol/example/PDE-OPT/TOOLS/solver.cpp"
 #include "../../../../Trilinos/packages/rol/example/PDE-OPT/TOOLS/solver_def.hpp"
@@ -128,8 +129,8 @@ int main(int argc, char *argv[]) {
   obj_vec.resize(2);
   obj_vec[0] = robj_misfit;
   obj_vec[1] = robj_reg;
-  HDSA::Ptr<ROL::Objective<RealT> > robj = HDSA::makePtr<ROL::LinearCombinationObjective<RealT> >(weights,obj_vec);
-  
+  HDSA::Ptr<ROL::Objective<RealT> > robj = HDSA::makePtr<RS_Objective<RealT> >(weights,obj_vec);
+
   // Run derivative checks
   bool checkDeriv = parlist->sublist("Problem").get("Check Derivatives",false);
   if ( checkDeriv ) { 

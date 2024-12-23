@@ -459,6 +459,10 @@ public:
     con_->applyAdjointJacobian_1(hv,*MinvAv,z,z,tol);
   } 
 
+  void precond( ROL::Vector<Real> &Pv, const ROL::Vector<Real> &v, const ROL::Vector<Real> &x, Real &tol ) override {
+    Apply_Prior_Covariance(Pv,v,tol);
+  }
+
 }; // Elliptic_Prior_Regularization_Objective
 
 #endif
