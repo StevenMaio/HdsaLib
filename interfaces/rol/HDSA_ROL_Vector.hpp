@@ -62,12 +62,6 @@ public:
   {
     rol_vec->setScalar(val);
   }
-
-  // set this=val elementwise
-  void set(ROL::Vector<RealT> & rol_vec_in)
-  {
-    rol_vec->set(rol_vec_in);
-  }
   
   void randomize_standard_normal( ) override
   {
