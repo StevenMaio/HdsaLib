@@ -51,13 +51,13 @@ void Load_Nominal_Solution(HDSA::Ptr<Tpetra::MultiVector<> > & z_ptr)
 }
 
 template<class RealT>
-void Load_Perturbed_Parameters(HDSA::Ptr<HDSA::Vector<RealT> > & theta_star) 
+void Set_Parameters(HDSA::Ptr<HDSA::Vector<RealT> > & theta, std::string & filename) 
 {
-  int theta_dim = theta_star->dimension();
-  Std_Vector<RealT>& theta_star_std = dynamic_cast<Std_Vector<RealT>&>(*theta_star); 
+  int theta_dim = theta->dimension();
+  Std_Vector<RealT>& theta_std = dynamic_cast<Std_Vector<RealT>&>(*theta); 
   
   // read in data
-  std::ifstream in("theta_star.txt");          
+  std::ifstream in("Data_Generation/"+filename);          
   // read the elements in the file into a vector  
   // test file open   
   RealT val = 0.0;
@@ -66,12 +66,36 @@ void Load_Perturbed_Parameters(HDSA::Ptr<HDSA::Vector<RealT> > & theta_star)
       for(int j = 0; j < theta_dim; j++)
       {
         in >> val;
-        theta_star_std.Replace_Element(j,val);
+        theta_std.Replace_Element(j,val);
       }
     }
   else
     {
-      std::cout << "Error loading the data from theta_star.txt" << std::endl;
+      std::cout << "Error loading the data from " << filename << std::endl;
+    }  
+}
+
+template<class RealT>
+void Set_Parameters(std::vector<RealT> & param, std::string & filename) 
+{
+  int theta_dim = param.size();
+  
+  // read in data
+  std::ifstream in("Data_Generation/"+filename);          
+  // read the elements in the file into a vector  
+  // test file open   
+  RealT val = 0.0;
+  if (in) 
+    {   
+      for(int j = 0; j < theta_dim; j++)
+      {
+        in >> val;
+        param[j] = val;
+      }
+    }
+  else
+    {
+      std::cout << "Error loading the data from " << filename << std::endl;
     }  
 }
 
@@ -108,7 +132,8 @@ int main(int argc, char *argv[]) {
   HDSA::Ptr<ROL::Constraint_SimOpt<RealT> > con_aux_param = HDSA::makePtr<PDE_Constraint<RealT> >(pde_aux_param,meshMgr,comm->Get_Teuchos_Communicator(),*parlist,*outStream);
   int theta_modes = parlist->sublist("Problem").get("Uncertain Modes per Dimension", 1);
   std::vector<RealT> param = std::vector<RealT>(std::pow(theta_modes,2),0.0);
-  param[0] = 1.0;
+  std::string filename_theta_bar = "theta_bar.txt";
+  Set_Parameters<RealT>(param,filename_theta_bar);
   pdecon->setParameter(param);
   con->setSolveParameters(*parlist);
   
@@ -187,8 +212,7 @@ int main(int argc, char *argv[]) {
 
   int theta_dim = param.size();
   HDSA::Ptr<HDSA::Vector<RealT> > theta_bar = HDSA::makePtr<Std_Vector<RealT> >(theta_dim);
-  Std_Vector<RealT>& theta_bar_std = dynamic_cast<Std_Vector<RealT>&>(*theta_bar); 
-  theta_bar_std.Replace_Element(0,1.0);
+  Set_Parameters<RealT>(theta_bar,filename_theta_bar);
   
   Load_Nominal_Solution<RealT>(z_ptr);  
   HDSA::Ptr<HDSA::Vector<RealT> > z_bar = HDSA::makePtr<HDSA::ROL_Vector<RealT> >(zp);
@@ -197,6 +221,7 @@ int main(int argc, char *argv[]) {
   HDSA::Ptr<HDSA::ParameterList> parlist_sensitivity = HDSA::makePtr<HDSA::ParameterList>();
   HDSA::updateParametersFromXmlFile( filename_sensitivity, *parlist_sensitivity );
 
+  RealT grad_tol = parlist_sensitivity->sublist("Problem").get("Gradient Tolerance", 1.e-7);
   bool use_qn_prec = parlist_sensitivity->sublist("Problem").get("use_qn_prec", true);
   bool print_cg_output = parlist_sensitivity->sublist("Problem").get("print_cg_output", true);
   bool print_cg_iter = parlist_sensitivity->sublist("Problem").get("print_cg_iter", true);
@@ -216,7 +241,7 @@ int main(int argc, char *argv[]) {
   HDSA::Ptr<HDSA::PC_Quasi_Newton_Preconditioner_LIS<RealT> > qn_prec = HDSA::makePtr<HDSA::PC_Quasi_Newton_Preconditioner_LIS<RealT> >(z_bar,theta_bar,lis_interface,use_block_update,tau,max_storage);
 
   HDSA::Ptr<HDSA::PC_Pseudo_Time_Continuation<RealT> > sen =
-    HDSA::makePtr<HDSA::PC_Pseudo_Time_Continuation<RealT> >(z_bar,theta_bar,sen_op_interface,qn_prec, use_qn_prec,print_cg_output,print_cg_iter,cg_tol,max_cg_iter);
+    HDSA::makePtr<HDSA::PC_Pseudo_Time_Continuation<RealT> >(z_bar,theta_bar,sen_op_interface,qn_prec, grad_tol,use_qn_prec,print_cg_output,print_cg_iter,cg_tol,max_cg_iter);
 
   if(rank > 0)
   {
@@ -229,7 +254,8 @@ int main(int argc, char *argv[]) {
   
   HDSA::Ptr<HDSA::Vector<RealT> > grad_star = z_bar->clone();
   HDSA::Ptr<HDSA::Vector<RealT> > theta_star = theta_bar->clone();
-  Load_Perturbed_Parameters<RealT>(theta_star);
+  std::string filename_theta_star = "theta_star.txt";
+  Set_Parameters<RealT>(theta_star,filename_theta_star);
   
   if(N_fe>0)
   {

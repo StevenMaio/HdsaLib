@@ -48,12 +48,12 @@ void Load_Nominal_Solution(HDSA::Ptr<Tpetra::MultiVector<> > & z_ptr)
 }
 
 template<class RealT>
-void Load_Perturbed_Parameters(std::vector<RealT> & param) 
+void Set_Parameters(std::vector<RealT> & param) 
 {
   int theta_dim = param.size();
   
   // read in data
-  std::ifstream in("theta_star.txt");          
+  std::ifstream in("Data_Generation/theta_star.txt");          
   // read the elements in the file into a vector  
   // test file open   
   RealT val = 0.0;
@@ -102,7 +102,7 @@ int main(int argc, char *argv[]) {
   
   int theta_modes = parlist->sublist("Problem").get("Uncertain Modes per Dimension", 1);
   std::vector<RealT> param = std::vector<RealT>(std::pow(theta_modes,2),0.0);
-  Load_Perturbed_Parameters<RealT>(param);
+  Set_Parameters<RealT>(param);
   pdecon->setParameter(param);
   con->setSolveParameters(*parlist);
   

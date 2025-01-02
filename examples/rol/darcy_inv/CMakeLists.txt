@@ -38,7 +38,7 @@ IF(${PROJECT_NAME}_ENABLE_Intrepid AND
   TRIBITS_COPY_FILES_TO_BINARY_DIR(
     DarcyInvDataCopy
     SOURCE_FILES
-      input.xml plotresults.m Sensitivity_input.xml
+      input.xml plotresults.m Sensitivity_input.xml Convert_results_to_mat_file.m Read_Inputs_from_Xml.m plot_sensitivity_results.m Read_Results.m Plot_cost_per_timestep_comparison.m
     SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}"
     DEST_DIR "${CMAKE_CURRENT_BINARY_DIR}"
   )

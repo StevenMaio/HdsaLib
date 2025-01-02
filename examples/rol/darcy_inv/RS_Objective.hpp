@@ -12,8 +12,9 @@ public:
   {}
 
   void precond( ROL::Vector<RealT> &Pv, const ROL::Vector<RealT> &v, const ROL::Vector<RealT> &x, RealT &tol ) override {
+    //Pv.set(v);
     obj_[1]->precond(Pv,v,x,tol);
-    Pv.scale(1.e-3);
+    Pv.scale(1.e-8);
   }
 
 };

@@ -23,6 +23,30 @@
 
 typedef double RealT;
 
+template<class RealT>
+void Set_Parameters(std::vector<RealT> & param) 
+{
+  int theta_dim = param.size();
+  
+  // read in data
+  std::ifstream in("Data_Generation/theta_bar.txt");          
+  // read the elements in the file into a vector  
+  // test file open   
+  RealT val = 0.0;
+  if (in) 
+    {   
+      for(int j = 0; j < theta_dim; j++)
+      {
+        in >> val;
+        param[j] = val;
+      }
+    }
+  else
+    {
+      std::cout << "Error loading the data from theta_bar.txt" << std::endl;
+    }  
+}
+
 int main(int argc, char *argv[]) {
 
   HDSA::nullstream bhs;
@@ -54,7 +78,7 @@ int main(int argc, char *argv[]) {
   
   int theta_modes = parlist->sublist("Problem").get("Uncertain Modes per Dimension", 1);
   std::vector<RealT> param = std::vector<RealT>(std::pow(theta_modes,2),0.0);
-  param[0] = 1.0;
+  Set_Parameters<RealT>(param);
   pdecon->setParameter(param);
   con->setSolveParameters(*parlist);
   
@@ -196,7 +220,7 @@ int main(int argc, char *argv[]) {
   }
 	
   // Set initial vector
-  zp->setScalar(5.0);
+  zp->setScalar(0.0);
   pdecon->outputTpetraVector(z_ptr,"initial_iterate.txt");
 
   // Build optimization problem and check derivatives

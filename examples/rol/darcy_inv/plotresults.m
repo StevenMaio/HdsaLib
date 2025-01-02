@@ -8,38 +8,73 @@ nodes = load('nodes.txt');  %% load node coordinates
 
 data_obj = importdata('optimal_u.txt', ' ', 2);  %% we need to skip the first two lines
 estimate_u = data_obj.data;
+data_obj = importdata('optimal_z.txt', ' ', 2);  %% we need to skip the first two lines
+estimate_z = data_obj.data;
+data_obj = importdata('optimal_u_perturbed.txt', ' ', 2);  %% we need to skip the first two lines
+estimate_u_perturbed = data_obj.data;
+data_obj = importdata('optimal_z_perturbed.txt', ' ', 2);  %% we need to skip the first two lines
+estimate_z_perturbed = data_obj.data;
+data_obj = importdata('initial_iterate.txt', ' ', 2);  %% we need to skip the first two lines
+initial_z = data_obj.data;
+data_obj = importdata('Data_Generation/true_z.txt', ' ', 2);  %% we need to skip the first two lines
+true_z = data_obj.data;
+
+z_min = min([true_z;estimate_z;estimate_z_perturbed;initial_z]);
+z_max = max([true_z;estimate_z;estimate_z_perturbed;initial_z]);
+u_min = min([estimate_u;estimate_u_perturbed]);
+u_max = max([estimate_u;estimate_u_perturbed]);
+
 figure,
 trisurf(adj, nodes(:,1), nodes(:,2), estimate_u);
+clim([u_min,u_max])
 shading interp;
 view(0,90)
 colorbar
 axis square
 title('State')
 
-data_obj = importdata('optimal_z.txt', ' ', 2);  %% we need to skip the first two lines
-estimate_z = data_obj.data;
+
 figure,
 trisurf(adj, nodes(:,1), nodes(:,2), estimate_z);
+clim([z_min,z_max])
 shading interp;
 view(0,90)
 colorbar
 axis square
 title('Log Permeability Estimate')
 
-data_obj = importdata('initial_iterate.txt', ' ', 2);  %% we need to skip the first two lines
-initial_z = data_obj.data;
+
+figure,
+trisurf(adj, nodes(:,1), nodes(:,2), estimate_u_perturbed);
+clim([u_min,u_max])
+shading interp;
+view(0,90)
+colorbar
+axis square
+title('Reoptimized State')
+
+
+figure,
+trisurf(adj, nodes(:,1), nodes(:,2), estimate_z_perturbed);
+clim([z_min,z_max])
+shading interp;
+view(0,90)
+colorbar
+axis square
+title('Reoptimized Log Permeability Estimate')
+
 figure,
 trisurf(adj, nodes(:,1), nodes(:,2), initial_z);
+clim([z_min,z_max])
 shading interp;
 view(0,90)
 colorbar
 axis square
 title('Initial Log Permeability')
 
-data_obj = importdata('Data_Generation/true_z.txt', ' ', 2);  %% we need to skip the first two lines
-true_z = data_obj.data;
 figure,
 trisurf(adj, nodes(:,1), nodes(:,2), true_z);
+clim([z_min,z_max])
 shading interp;
 view(0,90)
 colorbar
