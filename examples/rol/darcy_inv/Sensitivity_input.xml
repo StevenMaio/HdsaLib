@@ -1,19 +1,19 @@
 <ParameterList name="Inputs">
-  <!-- ===========  PROBLEM INPUT PARAMETER SUBLIST  =========== -->
+  
   <ParameterList name="Problem">
-    <Parameter name="Gradient Tolerance" type="double"     value="1.e-9"     />
-    <Parameter name="use_qn_prec" type="bool"    value="true" />
-    <Parameter name="print_cg_output" type="bool"    value="true" />
-    <Parameter name="print_cg_iter" type="bool"    value="false" />
-    <Parameter name="rank" type="int"     value="0"     />
-    <Parameter name="oversampling" type="int"     value="5"     />
-    <Parameter name="N_fe" type="int"     value="4"     />
-    <Parameter name="N_me" type="int"     value="4"     />
-    <Parameter name="CG Tolerance" type="double"     value="1.e-8"     />
-    <Parameter name="Maximum CG Iterations" type="int"     value="3000"     />
-    <Parameter name="Finite Difference Check" type="bool"    value="false" />
-    <Parameter name="Use Block Update" type="bool"    value="true" />
-    <Parameter name="Block Update tau" type="double"     value="1.e-5"     />
-    <Parameter name="Maximum Block Update Storage" type="int"     value="10"     />
+    <Parameter name="Gradient Tolerance" type="double" value="1.e-8" />
+    <Parameter name="use_qn_prec" type="bool" value="true" />
+    <Parameter name="print_cg_output" type="bool" value="true" />
+    <Parameter name="print_cg_iter" type="bool" value="false" />
+    <Parameter name="rank" type="int" value="0" />
+    <Parameter name="oversampling" type="int" value="5" />
+    <Parameter name="N_fe" type="int" value="9" />
+    <Parameter name="N_me" type="int" value="9" />
+    <Parameter name="CG Tolerance" type="double" value="1.e-4" />
+    <Parameter name="Maximum CG Iterations" type="int" value="3000" />
+    <Parameter name="Finite Difference Check" type="bool" value="false" />
+    <Parameter name="Use Block Update" type="bool" value="true" />
+    <Parameter name="Block Update tau" type="double" value="1.e-5" />
+    <Parameter name="Maximum Block Update Storage" type="int" value="20" />
   </ParameterList>
 </ParameterList>

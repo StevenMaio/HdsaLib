@@ -4,7 +4,7 @@ fileID = fopen(filename, 'r');
 
 % Step 2: Read the data
 % Skip the first two lines (header and title)
-headerLines = 3;
+headerLines = 5;
 dataFormat = '%f %f %f %f %f %f %f %f %f %f'; % Define the format for the data
 data = textscan(fileID, dataFormat, 'HeaderLines', headerLines, 'CollectOutput', true);
 

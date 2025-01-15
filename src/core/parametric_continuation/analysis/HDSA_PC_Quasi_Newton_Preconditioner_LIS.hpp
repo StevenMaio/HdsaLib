@@ -43,6 +43,7 @@ namespace HDSA
       }
       fout.close();
       HDSA::PC_Quasi_Newton_Preconditioner<RealT>::total_vecs_stored_ += num_evals;
+      HDSA::PC_Quasi_Newton_Preconditioner<RealT>::num_Hvecs_ += 2*(num_evals + oversampling);
     }
     
   protected:

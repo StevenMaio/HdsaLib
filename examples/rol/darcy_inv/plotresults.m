@@ -3,8 +3,10 @@ clc
 close all
 
 adj = load('cell_to_node_quad.txt') + 1;  %% load node adjacency table, increment by 1 for 1-based indexing
-
 nodes = load('nodes.txt');  %% load node coordinates
+
+adj_fine = load('Data_Generation/cell_to_node_quad.txt') + 1;  %% load node adjacency table, increment by 1 for 1-based indexing
+nodes_fine = load('Data_Generation/nodes.txt');  %% load node coordinates
 
 data_obj = importdata('optimal_u.txt', ' ', 2);  %% we need to skip the first two lines
 estimate_u = data_obj.data;
@@ -73,7 +75,7 @@ axis square
 title('Initial Log Permeability')
 
 figure,
-trisurf(adj, nodes(:,1), nodes(:,2), true_z);
+trisurf(adj_fine, nodes_fine(:,1), nodes_fine(:,2), true_z);
 clim([z_min,z_max])
 shading interp;
 view(0,90)

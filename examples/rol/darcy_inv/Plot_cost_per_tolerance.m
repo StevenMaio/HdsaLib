@@ -4,7 +4,7 @@ clc
 
 reopt_cost = Compute_Cost_of_Reoptimization('perturbed_optimization.txt');
 
-steps = 2:9;
+steps = 1:8;
 fe_cost = 0*steps';
 me_cost = 0*steps';
 fe_grad = 0*steps';
@@ -23,15 +23,12 @@ end
 
 
 figure,
+semilogx(10.^(-steps),fe_cost,'LineWidth',3)
 hold on
-plot(steps,fe_cost,'LineWidth',3)
-plot(steps,me_cost,'LineWidth',3)
-plot(steps,reopt_cost*ones(length(steps),1),'--','LineWidth',3)
-xlim([2,9])
-ylim([200,600])
-xlabel('Number of Time Steps')
+semilogx(10.^(-steps),me_cost,'LineWidth',3)
+semilogx(10.^(-steps),reopt_cost*ones(length(steps),1),'--','LineWidth',3)
+xlabel('CG Tolerance')
 ylabel('Number of PDE Solves')
-legend({'Forward Euler','Modified Euler','Reoptimization'},'Position',[0.5759    0.1869    0.3125    0.1905],'FontSize',20)
-xticks(steps)
+legend({'Forward Euler','Modified Euler','Reoptimization'},'Position',[0.3705    0.5464    0.3125    0.1905],'FontSize',20)
 set(gca, 'fontsize', 20);
-%saveas(gcf,'vary_time_steps_1_cost_comparison','epsc')
+saveas(gcf,'vary_tolerance_cost_comparison','epsc')

@@ -3,6 +3,7 @@ close all
 clc
 
 vary_time_steps = true;
+vary_rank_and_storage = false;
 
 if vary_time_steps
 
@@ -24,5 +25,18 @@ if vary_time_steps
         save(filename,'params','me_results');
         cd ../
     end
+
+end
+
+if vary_rank_and_storage
+
+    mkdir vary_rank_and_storage/
+
+    params = Read_Inputs_from_Xml();
+    me_results = Read_Results('Modified_Euler_Cost_Report.txt');
+    filename = ['ME_with_rank_',num2str(params.rank),'_and_storage_',num2str(params.Maximum_Block_Update_Storage),'.mat'];
+    cd vary_rank_and_storage/
+    save(filename,'params','me_results');
+    cd ../
 
 end

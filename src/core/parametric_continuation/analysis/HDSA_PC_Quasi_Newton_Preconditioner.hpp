@@ -23,6 +23,7 @@ namespace HDSA
   protected:
 
     int total_vecs_stored_;
+    int num_Hvecs_;
 
     // Overload this function if a better initialization is available
     virtual void Apply_Initial_Inverse_Hessian_Approximation(HDSA::Vector<RealT> & z_out, const HDSA::Vector<RealT> & z_in) const
@@ -38,14 +39,22 @@ namespace HDSA
     }
 
     PC_Quasi_Newton_Preconditioner(bool use_block_update = true, RealT tau = 1.e-6, int max_storage = 10): use_block_update_(use_block_update), tau_(tau), max_storage_(max_storage)
-    { }
+    { 
+      total_vecs_stored_ = 0;
+      num_Hvecs_ = 0;
+    }
 
     virtual ~PC_Quasi_Newton_Preconditioner()
     { }
 
-    int Get_Number_Vecs_Stored(void)
+    int Get_Number_Vecs_Stored(void) const
     {
       return total_vecs_stored_;
+    }
+
+    int Get_Number_HessVecs(void) const
+    {
+      return num_Hvecs_;
     }
 
     void Set_N(const int & N)
@@ -63,7 +72,6 @@ namespace HDSA
       }
       param_current_data_step_ = 0;
       block_current_data_step_ = 0;
-      total_vecs_stored_ = 0;
     }
 
     void Add_Parametric_Quasi_Newton_Data(const HDSA::Vector<RealT> & s_k, const HDSA::Vector<RealT> & y_k)

@@ -29,12 +29,16 @@ void Load_Nominal_Solution(HDSA::Ptr<Tpetra::MultiVector<> > & z_ptr)
   int num_coeff_load = z_ptr->getGlobalLength();
   
   // read in data
-  std::ifstream in("z_bar.txt");          
+  std::ifstream in("optimal_z.txt");          
   // read the elements in the file into a vector  
   // test file open   
   RealT val = 0.0;
   if (in) 
     {   
+      // Skip the first two lines
+      std::string line;
+      std::getline(in, line); // Skip first line
+      std::getline(in, line); // Skip second line
       for(int j = 0; j < num_coeff_load; j++)
       {
         in >> val;

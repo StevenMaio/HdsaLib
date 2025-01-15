@@ -48,7 +48,7 @@ void Set_Parameters(std::vector<RealT> & param)
   int theta_dim = param.size();
   
   // read in data
-  std::ifstream in("theta_star.txt");          
+  std::ifstream in("theta_true.txt");          
   // read the elements in the file into a vector  
   // test file open   
   RealT val = 0.0;
@@ -81,7 +81,7 @@ int main(int argc, char *argv[]) {
     {	
 	    outStream =  HDSA::makePtrFromRef(bhs);
     }
-  std::string filename = "../input.xml";
+  std::string filename = "input.xml";
   HDSA::Ptr<HDSA::ParameterList> parlist = HDSA::makePtr<HDSA::ParameterList>();
   HDSA::updateParametersFromXmlFile( filename, *parlist );
 
