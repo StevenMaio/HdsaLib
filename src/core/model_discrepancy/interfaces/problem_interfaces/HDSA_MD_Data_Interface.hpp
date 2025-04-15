@@ -12,6 +12,7 @@ namespace HDSA
     HDSA::Ptr<const HDSA::Vector<RealT> > z_opt_;
     HDSA::Ptr<const HDSA::MultiVector<RealT> > Z_;
     HDSA::Ptr<const HDSA::MultiVector<RealT> > D_;
+    HDSA::Ptr<HDSA::Vector<RealT> > data_shift_;
     bool is_u_opt_loaded_;
     bool is_z_opt_loaded_;
     bool is_Z_loaded_;
@@ -29,7 +30,10 @@ namespace HDSA
     virtual ~MD_Data_Interface()
     { }
 
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////                                                          // Pure virtual functions                                                                                                                                               //////////////////////////////////////////////////////////////////////////////////////////////////////////////                                                                                                                  
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // pure virtual functions
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////// 
+    
     virtual HDSA::Ptr<HDSA::Vector<RealT> > Load_Optimal_u(void) const = 0;
 
     virtual HDSA::Ptr<HDSA::Vector<RealT> > Load_Optimal_z(void) const = 0;
@@ -38,30 +42,44 @@ namespace HDSA
 
     virtual HDSA::Ptr<HDSA::MultiVector<RealT> > Load_D_Data(void) const = 0;
 
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // virtual functions
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////// 
+
+    // Need to think about how to implement this in C++
+    virtual void Separate_State_Components(HDSA::Vector<RealT> & u)
+    { }
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // accessor functions
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////// 
+
     HDSA::Ptr<const HDSA::Vector<RealT> > get_u_opt(void)
     {
       if(!is_u_opt_loaded_)
-	{
-	  u_opt_ = Load_Optimal_u();
-	  is_u_opt_loaded_ = true;
-	}
+      {
+        u_opt_ = Load_Optimal_u();
+        data_shift_ = u_opt_->clone();
+        data_shift_->zeros();
+        is_u_opt_loaded_ = true;
+      }
       return u_opt_;
     }
 
     HDSA::Ptr<const HDSA::Vector<RealT> > get_z_opt(void)
     {
       if(!is_z_opt_loaded_)
-	{
+        {
           z_opt_ = Load_Optimal_z();
           is_z_opt_loaded_ = true;
-	}
+        }
       return z_opt_;
     }
 
     HDSA::Ptr<const HDSA::MultiVector<RealT> > get_Z(void)
     {
       if(!is_Z_loaded_)
-	{
+	      {
           Z_ = Load_Z_Data();
           is_Z_loaded_ = true;
         }

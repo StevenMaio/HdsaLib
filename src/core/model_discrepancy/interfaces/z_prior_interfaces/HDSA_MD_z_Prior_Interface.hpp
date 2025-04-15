@@ -20,6 +20,8 @@ namespace HDSA
     // Pure virtual functions
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////                                                                                                               
 
+    virtual void Apply_M_z(HDSA::Vector<RealT> & z_out, const HDSA::Vector<RealT> & z_in) const = 0;
+
     virtual void Apply_W_z_Inverse(HDSA::Vector<RealT> & z_out, const HDSA::Vector<RealT> & z_in) const = 0;
 
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////                                                                                                                

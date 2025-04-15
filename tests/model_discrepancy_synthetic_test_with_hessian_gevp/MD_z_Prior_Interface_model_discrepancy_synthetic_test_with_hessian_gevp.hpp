@@ -76,6 +76,24 @@ public:
   virtual ~MD_z_Prior_Interface_model_discrepancy_synthetic_test_with_hessian_gevp()
   { }
 
+  void Apply_M_z(HDSA::Vector<RealT> & z_out, const HDSA::Vector<RealT> & z_in) const
+  {
+    HDSA::Ptr<HDSA::Dense_Matrix<RealT> > b = HDSA::makePtr<HDSA::Dense_Matrix<RealT> >(m_,1);
+    const Std_Vector<RealT>& z_in_std = dynamic_cast<const Std_Vector<RealT>&>(z_in);
+    Std_Vector<RealT>& z_out_std = dynamic_cast<Std_Vector<RealT>&>(z_out);
+    for(int k = 0; k < m_; k++)
+      {
+	      b->Replace_Element(k,0,z_in_std(k));
+      }
+    HDSA::Ptr<HDSA::Dense_Matrix<RealT> > x = HDSA::makePtr<HDSA::Dense_Matrix<RealT> >(m_,1);
+    
+    M_->Multiply(*x,*b);
+    for(int k = 0; k < m_; k++)
+      {
+        z_out_std.Replace_Element(k,(*x)(k,0));
+      }
+  }
+
   void Apply_W_z_Inverse(HDSA::Vector<RealT> & z_out, const HDSA::Vector<RealT> & z_in) const 
   {
     HDSA::Ptr<HDSA::Dense_Matrix<RealT> > b = HDSA::makePtr<HDSA::Dense_Matrix<RealT> >(m_,1);
