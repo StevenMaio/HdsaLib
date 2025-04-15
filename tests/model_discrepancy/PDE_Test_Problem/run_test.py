@@ -11,99 +11,50 @@ def execute_executable(executable_path):
     except subprocess.CalledProcessError as e:
         print(f"Error executing {executable_path}: {e}")
 
-def find_txt_files(directory, exclude_directories):
-    """Find all .txt files in the specified directory and its subdirectories, excluding specific directories."""
-    txt_files = []
+def find_all_files(directory):
+    """Find all files in the specified directory and its subdirectories."""
+    all_files = []
     for root, _, files in os.walk(directory):
-        # Skip any directories listed in exclude_directories
-        if any(exclude in root for exclude in exclude_directories):
-            continue
         for file in files:
-            if file.endswith('.txt'):
-                txt_files.append(os.path.join(root, file))
-    return txt_files
+            all_files.append(os.path.join(root, file))
+    return all_files
 
 def compare_files(file1, file2):
     """Compare two files and return True if they are the same, False otherwise."""
     return filecmp.cmp(file1, file2, shallow=False)
-
-def delete_txt_files(directory, exclude_directories):
-    """Delete all .txt files in the specified directory and its subdirectories, excluding specific directories."""
-    for root, _, files in os.walk(directory):
-        # Skip any directories listed in exclude_directories
-        if any(exclude in root for exclude in exclude_directories):
-            continue
-        for file in files:
-            if file.endswith('.txt'):
-                os.remove(os.path.join(root, file))
-                #print(f"Deleted: {os.path.join(root, file)}")
-
-def delete_empty_directories(directory, exclude_directories):
-    """Delete empty directories in the specified directory, excluding specific directories."""
-    for root, dirs, _ in os.walk(directory, topdown=False):
-        # Skip any directories listed in exclude_directories
-        if any(exclude in root for exclude in exclude_directories):
-            continue
-        for dir in dirs:
-            dir_path = os.path.join(root, dir)
-            try:
-                os.rmdir(dir_path)
-                #print(f"Deleted empty directory: {dir_path}")
-            except OSError:
-                # Directory is not empty, so we skip it
-                continue
-
-def copy_reference_files(reference_files, destination_directory):
-    """Copy the specified reference files to the destination directory."""
-    for reference_file in reference_files:
-        try:
-            shutil.copy(reference_file, destination_directory)
-            #print(f"Copied {reference_file} to {destination_directory}.")
-        except Exception as e:
-            print(f"Error copying file {reference_file}: {e}")
 
 def main():
     # Define paths
     executable_path = './ROL_example_tests_model_discrepancy_PDE_Test_Problem_example_sensitivity.exe'
     output_directory = '.'  # Assuming the .exe outputs files in the current directory and subdirectories
     reference_directory = 'reference_output'
-    exclude_directories = ['reference_output', 'CMakeFiles']  # Directories to exclude
 
     # Execute the .exe file
     execute_executable(executable_path)
 
-    # Find all .txt files in the output directory and its subdirectories, excluding specified directories
-    output_files = find_txt_files(reference_directory, exclude_directories)
+    # Find all files in the output directory and its subdirectories
+    reference_files = find_all_files(reference_directory)
 
     # Compare each output file with the corresponding reference file
-    for output_file in output_files:
+    for reference_file in reference_files:
         # Create a relative path for the reference file
-        relative_path = os.path.relpath(output_file, output_directory)
-        reference_file = os.path.join(reference_directory, relative_path)
+        output_file = reference_file[17:]
 
-        if os.path.exists(reference_file):
+        if os.path.exists(output_file):
             if not compare_files(output_file, reference_file):
                 print(f"{output_file} does NOT match the reference output.")
         else:
             print(f"Reference file {reference_file} does not exist.")
 
-    # Delete all .txt files generated from the executable
-    delete_txt_files(output_directory, exclude_directories)
+    # Define the command to execute
+    command = 'rm -rf prior_discrepancy_* posterior_*'
 
-    # Delete empty directories after removing .txt files
-    delete_empty_directories(output_directory, exclude_directories)
-
-    # List of additional reference files to copy
-    reference_files_to_copy = [
-        os.path.join(reference_directory, 'random_numbers.txt'),
-        os.path.join(reference_directory, 'D.txt'),
-        os.path.join(reference_directory, 'Z.txt'),
-        os.path.join(reference_directory, 'u_opt.txt'),
-        os.path.join(reference_directory, 'z_opt.txt')
-    ]
-
-    # Copy the reference files to the output directory
-    copy_reference_files(reference_files_to_copy, output_directory)
+    # Execute the command
+    try:
+        subprocess.run(command, check=True, shell=True)
+        #print("Files removed successfully.")
+    except subprocess.CalledProcessError as e:
+        print(f"Error removing files: {e}")
 
 if __name__ == "__main__":
     main()

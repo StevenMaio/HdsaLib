@@ -22,7 +22,7 @@ int main(int argc, char *argv[]) {
   HDSA::Ptr<HDSA::MD_Data_Interface<RealT> > data_interface = HDSA::makePtr<MD_Data_Interface_PDE_Test_Problem<RealT> >(random_number_generator);
   HDSA::Ptr<HDSA::MD_Opt_Prob_Interface<RealT> > opt_prob_interface = HDSA::makePtr<MD_Opt_Prob_Interface_PDE_Test_Problem<RealT> >();
   RealT alpha_u = 1.0/std::pow(2.0,2.0);
-  RealT alpha_z = 1.0/std::pow(600.0,2.0);
+  RealT alpha_z = 1.0/std::pow(3.0,2.0);
   HDSA::Ptr<HDSA::MD_u_Prior_Interface<RealT> > u_prior_interface = HDSA::makePtr<MD_Elliptic_u_Prior_Interface_PDE_Test_Problem<RealT> >(alpha_u,random_number_generator);
   HDSA::Ptr<HDSA::MD_z_Prior_Interface<RealT> > z_prior_interface = HDSA::makePtr<MD_Elliptic_z_Prior_Interface_PDE_Test_Problem<RealT> >(alpha_z,random_number_generator);
 

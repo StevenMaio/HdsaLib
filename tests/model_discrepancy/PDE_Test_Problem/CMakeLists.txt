@@ -14,7 +14,6 @@ INCLUDE_DIRECTORIES(${${PACKAGE_NAME}_SOURCE_DIR}/adapters/tpetra/src/vector)
     PDETestProblemDataCopy
     SOURCE_FILES
 	u_opt.txt z_opt.txt Z.txt D.txt random_numbers.txt Sabl_Output.mat Plotting_Script.m run_test.py 
-	reference_output/random_numbers.txt
 	reference_output/u_opt.txt
 	reference_output/z_opt.txt
 	reference_output/Z.txt
