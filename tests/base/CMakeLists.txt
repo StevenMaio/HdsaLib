@@ -1,0 +1,2 @@
+ADD_SUBDIRECTORY(randomized_GEVP_test)
+ADD_SUBDIRECTORY(operator_sqrt_test)

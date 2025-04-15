@@ -1,0 +1,4 @@
+ADD_SUBDIRECTORY(synthetic_test)
+ADD_SUBDIRECTORY(synthetic_test_elliptic_prior)
+ADD_SUBDIRECTORY(synthetic_test_hessian_gevp)
+ADD_SUBDIRECTORY(PDE_Test_Problem)
