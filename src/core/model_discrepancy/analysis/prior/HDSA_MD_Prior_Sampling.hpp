@@ -11,13 +11,33 @@ namespace HDSA
     const HDSA::Ptr<HDSA::MD_Data_Interface<RealT> > data_interface_;
     const HDSA::Ptr<HDSA::MD_u_Prior_Interface<RealT> > u_prior_interface_;
     const HDSA::Ptr<HDSA::MD_z_Prior_Interface<RealT> > z_prior_interface_;
+    int z_pert_subsample_factor_;
 
   public:
-    MD_Prior_Sampling(const HDSA::Ptr<HDSA::MD_Data_Interface<RealT> > & data_interface, const HDSA::Ptr<HDSA::MD_u_Prior_Interface<RealT> > & u_prior_interface, const HDSA::Ptr<HDSA::MD_z_Prior_Interface<RealT> > & z_prior_interface): data_interface_(data_interface), u_prior_interface_(u_prior_interface), z_prior_interface_(z_prior_interface)
-    { }
+    MD_Prior_Sampling(const HDSA::Ptr<HDSA::MD_Data_Interface<RealT> > & data_interface, const HDSA::Ptr<HDSA::MD_u_Prior_Interface<RealT> > & u_prior_interface, const HDSA::Ptr<HDSA::MD_z_Prior_Interface<RealT> > & z_prior_interface):
+     data_interface_(data_interface), u_prior_interface_(u_prior_interface), z_prior_interface_(z_prior_interface)
+    { 
+      z_pert_subsample_factor_ = 1;
+    }
 
     virtual ~MD_Prior_Sampling()
     { }
+
+    void Generate_Prior_Discrepancy_Sample_Data(int & num_samps)
+    {
+      Generate_Prior_Discrepancy_z_opt_Sample_Data(num_samps);
+      Generate_Prior_Discrepancy_z_pert_Sample_Data();
+    }
+
+    void Generate_Prior_Discrepancy_z_opt_Sample_Data(int & num_samps)
+    {
+      std::cout << "Need to implement Generate_Prior_Discrepancy_z_opt_Sample_Data" << std::endl;
+    }
+
+    void Generate_Prior_Discrepancy_z_pert_Sample_Data(void)
+    {
+      std::cout << "Need to implement Generate_Prior_Discrepancy_z_pert_Sample_Data" << std::endl;
+    }
 
     HDSA::Ptr<HDSA::MultiVector<RealT> > Prior_Discrepancy_Samples_at_z_opt(const int & num_samples)
     {
@@ -77,6 +97,26 @@ namespace HDSA
       }
 
       return delta_samples;
+    }
+
+    void Compute_Temporal_Data(void)
+    {
+      std::cout << "Need to implement Compute_Temporal_Data" << std::endl;
+    }
+
+    void Compute_z_pert_Data(void)
+    {
+      std::cout << "Need to implement Compute_z_pert_Data" << std::endl;
+    }
+
+    void Compute_Delta_z_opt_Metrics(void)
+    {
+      std::cout << "Need to implement Compute_Delta_z_opt_Metrics" << std::endl;
+    }
+
+    void Compute_Delta_z_pert_Metrics(void)
+    {
+      std::cout << "Need to implement Compute_Delta_z_pert_Metrics" << std::endl;
     }
 
   };
