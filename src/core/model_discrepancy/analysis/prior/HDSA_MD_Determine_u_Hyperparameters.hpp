@@ -48,6 +48,8 @@ namespace HDSA
     void Determine_alpha_d(void) const
     {
       std::cout << "Need to implement Determine_alpha_d" << std::endl;
+      RealT alpha_d = 2.177109166165424e-07;
+      u_hyperparam_interface_->Set_alpha_d(alpha_d);
     }
 
     void Determine_GSVD_Hyperparameters(void) const

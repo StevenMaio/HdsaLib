@@ -3,6 +3,7 @@
 
 #include "Tpetra_MultiVector.hpp"
 #include "Tpetra_Map.hpp"
+#include "MatrixMarket_Tpetra.hpp"
 
 template <class RealT,
           class LO = Tpetra::Map<>::local_ordinal_type,
@@ -82,6 +83,15 @@ public:
       }
     }
   }
+
+  void Write_to_File(const std::string &name) const override
+  {
+    Tpetra::MatrixMarket::Writer< Tpetra::CrsMatrix<>> vecWriter;
+    vecWriter.writeDenseFile(name, tpetra_vec_);
+    //std::string mapfile = "map_" + name;
+    //vecWriter.writeMapFile(mapfile, *(tpetra_vec_->getMap()));
+  }
+
 };
 
 #endif
