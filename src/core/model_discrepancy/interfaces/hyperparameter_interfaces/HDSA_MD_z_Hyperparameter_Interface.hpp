@@ -57,19 +57,34 @@ namespace HDSA
     virtual ~MD_z_Hyperparameter_Interface()
     {}
 
-    void Set_alpha_z(RealT & alpha_z_new)
+    void Set_alpha_z(RealT alpha_z_new)
     {
       alpha_z_ = alpha_z_new;
     }
 
-    void Set_beta_z(RealT & beta_z_new)
+    RealT Get_alpha_z(void) const
+    {
+      return alpha_z_;
+    }
+
+    void Set_beta_z(RealT beta_z_new)
     {
       beta_z_ = beta_z_new;
     }
 
-    void Set_beta_t(RealT & beta_t_new)
+    RealT Get_beta_z(void) const
+    {
+      return beta_z_;
+    }
+
+    void Set_beta_t(RealT beta_t_new)
     {
       beta_t_ = beta_t_new;
+    }
+
+    RealT Get_beta_t(void) const
+    {
+      return beta_t_;
     }
     
   };

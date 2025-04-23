@@ -21,12 +21,14 @@ namespace HDSA
     virtual ~MD_Determine_z_Hyperparameters()
     { }
 
-    void Determine_alpha_z(HDSA::Ptr<HDSA::MD_z_Prior_Interface<RealT> > & z_prior_interface) const
+    void Determine_alpha_z(HDSA::MD_z_Prior_Interface<RealT>* z_prior_interface) const
     {
       std::cout << "Need to implement Determine_alpha_z" << std::endl;
+      RealT alpha_z = 4.198227272539055;
+      z_hyperparam_interface_->Set_alpha_z(alpha_z);
     }
 
-    void Compute_Eigenvalues(HDSA::Ptr<HDSA::MD_z_Prior_Interface<RealT> > & z_prior_interface) const
+    void Compute_Eigenvalues(HDSA::MD_z_Prior_Interface<RealT>* z_prior_interface) const
     {
       std::cout << "Need to implement Compute_Eigenvalues" << std::endl;
     }
@@ -34,6 +36,8 @@ namespace HDSA
     void Determine_beta_z(void) const
     {
       std::cout << "Need to implement Determine_beta_z" << std::endl;
+      RealT beta_z = 0.009305846653704;
+      z_hyperparam_interface_->Set_beta_z(beta_z);
     }
 
     void Determine_beta_t(void) const

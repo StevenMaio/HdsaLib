@@ -12,13 +12,13 @@ namespace HDSA {
   class Sparse_Matrix_Solver{
   
   private:
-    HDSA::Ptr<HDSA::Sparse_Matrix<RealT>> A_;
+    const HDSA::Ptr<HDSA::Sparse_Matrix<RealT>> A_;
     bool use_direct_;
     HDSA::Ptr<Amesos2::Solver< Tpetra::CrsMatrix<>, Tpetra::MultiVector<>>> solver_;
 
   public:
 
-    Sparse_Matrix_Solver(HDSA::Ptr<HDSA::Sparse_Matrix<RealT>> & A, bool use_direct = true): A_(A), use_direct_(use_direct)
+    Sparse_Matrix_Solver(const HDSA::Ptr<HDSA::Sparse_Matrix<RealT>> & A, bool use_direct = true): A_(A), use_direct_(use_direct)
     {
       if(use_direct_)
       {

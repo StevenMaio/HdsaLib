@@ -10,7 +10,7 @@ namespace HDSA
   private:
 
   public:
-    MD_Elliptic_z_Prior_Interface(RealT & alpha_z): HDSA::MD_Scaled_z_Prior_Interface<RealT>(alpha_z)
+    MD_Elliptic_z_Prior_Interface(RealT alpha_z): HDSA::MD_Scaled_z_Prior_Interface<RealT>(alpha_z)
     { }
 
     virtual ~MD_Elliptic_z_Prior_Interface()

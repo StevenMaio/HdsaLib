@@ -68,7 +68,7 @@ namespace HDSA
     // Helper functions
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////   
 
-    void Set_alpha_z(RealT & alpha_z_new)
+    void Set_alpha_z(RealT alpha_z_new)
     {
       alpha_z_ = alpha_z_new;
     }
