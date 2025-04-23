@@ -68,37 +68,82 @@ namespace HDSA
     virtual ~MD_u_Hyperparameter_Interface()
     { }
 
-    void Set_alpha_u(RealT & alpha_u_new)
+   bool Is_Transient(void) const
+   {
+    return is_transient_;
+   }
+
+    void Set_alpha_u(const RealT & alpha_u_new)
     {
       alpha_u_ = alpha_u_new;
     }
 
-    void Set_beta_u(RealT & beta_u_new)
+    RealT Get_alpha_u(void) const
+    {
+      return alpha_u_;
+    }
+
+    void Set_beta_u(const RealT & beta_u_new)
     {
       beta_u_ = beta_u_new;
     }
 
-    void Set_alpha_t(std::vector<RealT> & alpha_t_new)
+    RealT Get_beta_u(void) const
+    {
+      return beta_u_;
+    }
+
+    void Set_alpha_t(const std::vector<RealT> & alpha_t_new)
     {
       alpha_t_.clear();
       alpha_t_ = alpha_t_new;
     }
 
-    void Set_beta_t(RealT & beta_t_new)
+    std::vector<RealT> Get_alpha_t(void) const
+    {
+      return alpha_t_;
+    }
+
+    void Set_beta_t(const RealT & beta_t_new)
     {
       beta_t_ = beta_t_new;
     }
 
-    void Set_alpha_d(RealT & alpha_d_new)
+    RealT Get_beta_t(void) const
+    {
+      return beta_t_;
+    }
+
+    void Set_alpha_d(const RealT & alpha_d_new)
     {
       alpha_d_ = alpha_d_new;
     }
     
-    void Set_GSVD_Hyperparameters(int & gsvd_num_sing_vals_new, int & gsvd_oversampling_new, int & gsvd_num_subspace_iter_new)
+    RealT Get_alpha_d(void) const
+    {
+      return alpha_d_;
+    }
+
+    void Set_GSVD_Hyperparameters(const int & gsvd_num_sing_vals_new, const int & gsvd_oversampling_new, const int & gsvd_num_subspace_iter_new)
     {
       gsvd_num_sing_vals_ = gsvd_num_sing_vals_new;
       gsvd_oversampling_ = gsvd_oversampling_new;
       gsvd_num_subspace_iter_ = gsvd_num_subspace_iter_new;
+    }
+
+    int Get_gsvd_num_sing_vals(void) const
+    {
+      return gsvd_num_sing_vals_;
+    }
+
+    int Get_gsvd_oversampling(void) const
+    {
+      return gsvd_oversampling_;
+    }
+
+    int Get_gsvd_num_subspace_iter(void) const
+    {
+      return gsvd_num_subspace_iter_;
     }
 
   };

@@ -14,8 +14,8 @@
 #include "trilinos_adapter/adapters/HDSA_Belos_Adapter.hpp"
 #include "trilinos_adapter/adapters/HDSA_Tpetra_Vector.hpp"
 #include "trilinos_adapter/core/HDSA_Linear_Algebra.hpp"
-#include "trilinos_adapter/core/HDSA_Sparse_Matrix_Solver.hpp"
 #include "trilinos_adapter/core/HDSA_Sparse_Matrix.hpp"
+#include "trilinos_adapter/core/HDSA_Sparse_Matrix_Solver.hpp"
 
 #include "core/base/HDSA_Randomized_GSVD.hpp"
 #include "core/base/HDSA_Randomized_GEVP.hpp"

@@ -19,13 +19,13 @@ namespace HDSA
     const HDSA::Ptr<HDSA::Random_Number_Generator<RealT> > random_number_generator_;
 
   public:
-    MD_Elliptic_u_Prior_Interface(RealT & alpha_u): HDSA::MD_Scaled_u_Prior_Interface<RealT>(alpha_u), random_number_generator_(HDSA::makePtr<HDSA::Random_Number_Generator<RealT> >()) 
+    MD_Elliptic_u_Prior_Interface(RealT alpha_u): HDSA::MD_Scaled_u_Prior_Interface<RealT>(alpha_u), random_number_generator_(HDSA::makePtr<HDSA::Random_Number_Generator<RealT> >()) 
     { }
 
-    MD_Elliptic_u_Prior_Interface(RealT & alpha_u, int & seed): HDSA::MD_Scaled_u_Prior_Interface<RealT>(alpha_u),  random_number_generator_(HDSA::Random_Number_Generator<RealT>(seed))
+    MD_Elliptic_u_Prior_Interface(RealT alpha_u, int seed): HDSA::MD_Scaled_u_Prior_Interface<RealT>(alpha_u),  random_number_generator_(HDSA::Random_Number_Generator<RealT>(seed))
     { }
 
-    MD_Elliptic_u_Prior_Interface(RealT & alpha_u, const HDSA::Ptr<HDSA::Random_Number_Generator<RealT> > & random_number_generator): HDSA::MD_Scaled_u_Prior_Interface<RealT>(alpha_u),  random_number_generator_(random_number_generator)
+    MD_Elliptic_u_Prior_Interface(RealT alpha_u, const HDSA::Ptr<HDSA::Random_Number_Generator<RealT> > & random_number_generator): HDSA::MD_Scaled_u_Prior_Interface<RealT>(alpha_u),  random_number_generator_(random_number_generator)
     { }
 
     virtual ~MD_Elliptic_u_Prior_Interface()
@@ -45,7 +45,7 @@ namespace HDSA
     // User interface to GSVD                                    
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////     
 
-    void Compute_E_u_Inverse_GSVD(int & num_sing_vals, int & oversampling, int & num_subspace_iters, HDSA::Vector<RealT> & u_vec)
+    void Compute_E_u_Inverse_GSVD(int num_sing_vals, int oversampling, int num_subspace_iters, const HDSA::Vector<RealT> & u_vec)
     {
       gsvd_ = HDSA::makePtr<MD_Elliptic_GSVD<RealT> >(this,u_vec);
       sing_vecs_output_ = HDSA::makePtr<HDSA::MultiVector<RealT> >(num_sing_vals,u_vec);

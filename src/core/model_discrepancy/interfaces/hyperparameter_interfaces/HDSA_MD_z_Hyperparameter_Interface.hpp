@@ -42,7 +42,7 @@ namespace HDSA
 
     MD_z_Hyperparameter_Interface(const std::string &z_type, const int &num_state_solves = 0) : z_type_(z_type), num_state_solves_(num_state_solves)
     {
-      if (!(z_type == "spatial_field" || z_type == "transient vector" || z_type == "vector"))
+      if (!(z_type == "spatial field" || z_type == "transient vector" || z_type == "vector"))
       {
         std::cout << "Error in MD_z_Hyperparameter_Interface: The input z_type should be either 'spatial field' 'transient vector' or 'vector' " << std::endl;
       }
