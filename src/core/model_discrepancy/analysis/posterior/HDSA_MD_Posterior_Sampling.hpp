@@ -80,6 +80,7 @@ namespace HDSA
 					delta_samples_k->axpy(coeff, *post_data->u_i_hat[i]);
 				}
 				delta_mean_k->scale(1.0 / post_data->alpha_d);
+				delta_mean_k->plus(*data_interface_->get_data_shift());
 				delta_samples_k->scale(std::sqrt(post_data->alpha_d));
 
 				// Add delta_breve terms to delta_samples_k

@@ -43,6 +43,10 @@ namespace HDSA
     {
       HDSA::Ptr<HDSA::MultiVector<RealT> > delta_samples = HDSA::makePtr<HDSA::MultiVector<RealT> >(num_samples,*data_interface_->get_u_opt());
       u_prior_interface_->Sample_with_Covariance_W_u_Inverse(*delta_samples);
+      for (int k = 0; k < delta_samples->Number_of_Vectors(); k++)
+      {
+        (*delta_samples)[k]->plus(*data_interface_->get_data_shift());
+      }
       return delta_samples;
     }
 
@@ -92,6 +96,7 @@ namespace HDSA
               {
                 u_out->axpy((*R)(j,k),*(*u_rand)[j]);
               }
+              u_out->plus(*data_interface_->get_data_shift());
           }
 
       }

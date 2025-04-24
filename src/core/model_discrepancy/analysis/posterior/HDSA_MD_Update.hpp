@@ -124,7 +124,7 @@ namespace HDSA
           u_tmp1->axpy(-coeff, *(*post_sampling_->post_data->u_i_ell[i])[ell]);
         }
       }
-
+      u_tmp1->axpy(post_sampling_->post_data->alpha_d,*data_interface_->get_data_shift());
       HDSA::Ptr<HDSA::Vector<RealT>> u_tmp2 = u_tmp1->clone();
       opt_prob_interface_->Apply_Misfit_Hessian(*u_tmp2, *u_tmp1, *data_interface_->get_u_opt(), *data_interface_->get_z_opt());
 

@@ -25,7 +25,7 @@ def compare_files(file1, file2):
 
 def main():
     # Define paths
-    executable_path = './ROL_example_tests_model_discrepancy_synthetic_test_example_sensitivity.exe'
+    executable_path = './ROL_example_tests_model_discrepancy_synthetic_test_hyperparam_1D_example_sensitivity.exe'
     output_directory = '.'  # Assuming the .exe outputs files in the current directory and subdirectories
     reference_directory = 'reference_output'
 
@@ -47,7 +47,7 @@ def main():
             print(f"Reference file {reference_file} does not exist.")
 
     # Define the command to execute
-    command = 'rm -rf prior_discrepancy_* posterior_*'
+    command = 'rm -rf prior_discrepancy_* posterior_* hessian_evals.txt'
 
     # Execute the command
     try:

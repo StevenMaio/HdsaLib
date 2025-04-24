@@ -16,7 +16,13 @@ namespace HDSA
   public:
     MD_Determine_u_Hyperparameters(const HDSA::Ptr<HDSA::MD_Data_Interface<RealT> > & data_interface, const HDSA::Ptr<HDSA::MD_u_Hyperparameter_Interface<RealT> > & u_hyperparam_interface):
      data_interface_(data_interface), u_hyperparam_interface_(u_hyperparam_interface)
-   { }
+   { 
+    data_interface_->Load_Data();
+    if(u_hyperparam_interface_->Center_Data())
+    {
+      data_interface_->Center_Data();
+    }
+   }
 
     virtual ~MD_Determine_u_Hyperparameters()
     { }
@@ -59,11 +65,6 @@ namespace HDSA
       int gsvd_oversampling = 0;
       int gsvd_num_subspace_iter = 1;
       u_hyperparam_interface_->Set_GSVD_Hyperparameters(gsvd_num_sing_vals, gsvd_oversampling, gsvd_num_subspace_iter);
-    }
-
-    void Determine_Data_Centering(void) const
-    {
-      std::cout << "Need to implement Determine_Data_Centering" << std::endl;
     }
 
   };
