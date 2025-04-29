@@ -30,15 +30,11 @@ namespace HDSA
     void Determine_alpha_u(HDSA::MD_u_Prior_Interface<RealT>* u_prior_interface) const
     {
       std::cout << "Need to implement Determine_alpha_u" << std::endl;
-      RealT alpha_u = 0.048969233204560;
-      u_hyperparam_interface_->Set_alpha_u(alpha_u);
     }
 
     void Determine_beta_u(void) const
     {
       std::cout << "Need to implement Determine_beta_u" << std::endl;
-      RealT beta_u = 0.007702351792463;
-      u_hyperparam_interface_->Set_beta_u(beta_u);
     }
 
     void Determine_alpha_t(HDSA::MD_u_Prior_Interface<RealT>* u_prior_interface) const
@@ -54,17 +50,11 @@ namespace HDSA
     void Determine_alpha_d(void) const
     {
       std::cout << "Need to implement Determine_alpha_d" << std::endl;
-      RealT alpha_d = 2.177109166165424e-07;
-      u_hyperparam_interface_->Set_alpha_d(alpha_d);
     }
 
     void Determine_GSVD_Hyperparameters(void) const
     {
       std::cout << "Need to implement Determine_GSVD_Hyperparameters" << std::endl;
-      int gsvd_num_sing_vals = 51;
-      int gsvd_oversampling = 0;
-      int gsvd_num_subspace_iter = 1;
-      u_hyperparam_interface_->Set_GSVD_Hyperparameters(gsvd_num_sing_vals, gsvd_oversampling, gsvd_num_subspace_iter);
     }
 
   };
