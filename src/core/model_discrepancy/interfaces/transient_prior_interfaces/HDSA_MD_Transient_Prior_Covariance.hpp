@@ -18,6 +18,7 @@ namespace HDSA
     HDSA::Ptr<HDSA::Dense_Matrix<RealT>> S_t_;
     HDSA::Ptr<HDSA::Dense_Matrix<RealT>> M_t_;
     HDSA::Ptr<HDSA::Dense_Matrix<RealT>> E_t_;
+    HDSA::Ptr<HDSA::Dense_Matrix<RealT>> W_t_inv_;
     std::vector<RealT> alpha_t_;
     RealT beta_t_;
     HDSA::Ptr<HDSA::Dense_Matrix<RealT>> evecs_;
@@ -75,6 +76,32 @@ namespace HDSA
       return determine_u_hyperparams_;
     }
 
+    int Get_Num_Time_Nodes(void) const
+    {
+      return n_t_;
+    }
+
+    HDSA::Ptr<HDSA::Dense_Matrix<RealT>> Get_M_t(void) const
+    {
+      return M_t_;
+    }
+
+
+    HDSA::Ptr<HDSA::Dense_Matrix<RealT>> Get_W_t_Inverse(void) const
+    {
+      return W_t_inv_;
+    }
+
+    HDSA::Ptr<HDSA::Dense_Matrix<RealT>> Get_Evecs(void) const
+    {
+      return evecs_;
+    }
+
+    HDSA::Ptr<HDSA::Dense_Matrix<RealT>> Get_Evals(void) const
+    {
+      return evals_;
+    }
+
     void Set_alpha_t(std::vector<RealT> alpha_t_new)
     {
       alpha_t_ = alpha_t_new;
@@ -120,10 +147,23 @@ namespace HDSA
       evals_ = HDSA::makePtr<HDSA::Dense_Matrix<RealT>>(n_t_, 1);
       for (int j = 0; j < n_t_; j++)
       {
-        evals_->Replace_Element(j,0,1.0/(*S)(n_t_-1-j,0));
+        evals_->Replace_Element(j, 0, 1.0 / (*S)(n_t_ - 1 - j, 0));
         for (int i = 0; i < n_t_; i++)
         {
-          evecs_->Replace_Element(i,j,(*V)(i,n_t_-1-j));
+          evecs_->Replace_Element(i, j, (*V)(i, n_t_ - 1 - j));
+        }
+      }
+      W_t_inv_ = HDSA::makePtr<HDSA::Dense_Matrix<RealT>>(n_t_, n_t_);
+      for (int i = 0; i < n_t_; i++)
+      {
+        for (int j = 0; j < n_t_; j++)
+        {
+          RealT val = 0.0;
+          for (int k = 0; k < n_t_; k++)
+          {
+            val += (*evecs_)(i,k) * (*evecs_)(j,k) * (*evals_)(k,0);
+          }
+          W_t_inv_->Replace_Element(i,j,val);
         }
       }
     }

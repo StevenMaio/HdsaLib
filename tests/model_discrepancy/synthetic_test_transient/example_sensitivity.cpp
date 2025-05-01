@@ -47,93 +47,97 @@ int main(int argc, char *argv[])
   HDSA::Ptr<HDSA::MD_Transient_Prior_Covariance<RealT>> transient_prior_cov = HDSA::makePtr<HDSA::MD_Transient_Prior_Covariance<RealT>>(data_interface, u_hyperparam_interface, T, n_t, n_y);
   HDSA::Ptr<HDSA::MD_u_Prior_Interface<RealT>> u_prior_interface = HDSA::makePtr<HDSA::MD_Transient_Elliptic_u_Prior_Interface<RealT>>(spatial_u_prior_interface,transient_prior_cov);
 
+  //HDSA::Ptr<HDSA::Vector<RealT>> test = data_interface->get_u_opt()->clone();
+  //u_prior_interface->Apply_W_u_Plus_scalar_M_u_Inverse(*test,*data_interface->get_u_opt(),0.75);
+  //std::cout << "test norm = " << test->norm() << std::endl;
+
   HDSA::Ptr<HDSA::MD_z_Prior_Interface<RealT>> z_prior_interface = HDSA::makePtr<HDSA::MD_Numeric_Laplacian_z_Prior_Interface<RealT>>(S, M, data_interface, z_hyperparam_interface, u_prior_interface);
 
-  // HDSA::Ptr<HDSA::MD_Prior_Sampling<RealT>> prior_sampling = HDSA::makePtr<HDSA::MD_Prior_Sampling<RealT>>(data_interface, u_prior_interface, z_prior_interface);
+  HDSA::Ptr<HDSA::MD_Prior_Sampling<RealT>> prior_sampling = HDSA::makePtr<HDSA::MD_Prior_Sampling<RealT>>(data_interface, u_prior_interface, z_prior_interface);
 
-  // int num_prior_samples = 100;
-  // HDSA::Ptr<HDSA::MultiVector<RealT>> prior_samples_at_z_opt = prior_sampling->Prior_Discrepancy_Samples_at_z_opt(num_prior_samples);
-  // std::string name = "prior_discrepancy_evaluated_at_z_opt";
-  // prior_samples_at_z_opt->Write_to_File(name);
+  int num_prior_samples = 100;
+  HDSA::Ptr<HDSA::MultiVector<RealT>> prior_samples_at_z_opt = prior_sampling->Prior_Discrepancy_Samples_at_z_opt(num_prior_samples);
+  std::string name = "prior_discrepancy_evaluated_at_z_opt";
+  prior_samples_at_z_opt->Write_to_File(name);
 
-  // HDSA::Ptr<HDSA::MultiVector<RealT>> z = HDSA::makePtr<HDSA::MultiVector<RealT>>(3, *data_interface->get_z_opt());
-  // HDSA::Ptr<HDSA::Vector<RealT>> z0 = (*z)[0];
-  // HDSA::Ptr<HDSA::Vector<RealT>> z1 = (*z)[1];
-  // HDSA::Ptr<HDSA::Vector<RealT>> z2 = (*z)[2];
+  HDSA::Ptr<HDSA::MultiVector<RealT>> z = HDSA::makePtr<HDSA::MultiVector<RealT>>(3, *data_interface->get_z_opt());
+  HDSA::Ptr<HDSA::Vector<RealT>> z0 = (*z)[0];
+  HDSA::Ptr<HDSA::Vector<RealT>> z1 = (*z)[1];
+  HDSA::Ptr<HDSA::Vector<RealT>> z2 = (*z)[2];
 
-  // HDSA_Tpetra_Vector<RealT> z0_tpetra = dynamic_cast<HDSA_Tpetra_Vector<RealT> &>(*z0);
-  // HDSA_Tpetra_Vector<RealT> z1_tpetra = dynamic_cast<HDSA_Tpetra_Vector<RealT> &>(*z1);
-  // HDSA_Tpetra_Vector<RealT> z2_tpetra = dynamic_cast<HDSA_Tpetra_Vector<RealT> &>(*z2);
+  HDSA_Tpetra_Vector<RealT> z0_tpetra = dynamic_cast<HDSA_Tpetra_Vector<RealT> &>(*z0);
+  HDSA_Tpetra_Vector<RealT> z1_tpetra = dynamic_cast<HDSA_Tpetra_Vector<RealT> &>(*z1);
+  HDSA_Tpetra_Vector<RealT> z2_tpetra = dynamic_cast<HDSA_Tpetra_Vector<RealT> &>(*z2);
 
-  // int m = z0->dimension();
-  // HDSA::Ptr<HDSA::Dense_Matrix<RealT>> x = HDSA::makePtr<HDSA::Dense_Matrix<RealT>>(m, 1);
-  // for (int k = 0; k < m; k++)
-  // {
-  //   x->Replace_Element(k, 0, static_cast<RealT>(k) / static_cast<RealT>(m - 1));
-  // }
-  // RealT pi = 3.14159265358979323846;
-  // for (int k = 0; k < m; k++)
-  // {
-  //   z0_tpetra.getVector()->replaceGlobalValue(k,0,(*x)(k, 0));
-  //   z1_tpetra.getVector()->replaceGlobalValue(k,0,1.0 + std::pow((*x)(k, 0), 2.0));
-  //   z2_tpetra.getVector()->replaceGlobalValue(k,0,std::sin(2 * pi * (*x)(k, 0)));
-  // }
+  int m = z0->dimension();
+  HDSA::Ptr<HDSA::Dense_Matrix<RealT>> x = HDSA::makePtr<HDSA::Dense_Matrix<RealT>>(m, 1);
+  for (int k = 0; k < m; k++)
+  {
+    x->Replace_Element(k, 0, static_cast<RealT>(k) / static_cast<RealT>(m - 1));
+  }
+  RealT pi = 3.14159265358979323846;
+  for (int k = 0; k < m; k++)
+  {
+    z0_tpetra.getVector()->replaceGlobalValue(k,0,(*x)(k, 0));
+    z1_tpetra.getVector()->replaceGlobalValue(k,0,1.0 + std::pow((*x)(k, 0), 2.0));
+    z2_tpetra.getVector()->replaceGlobalValue(k,0,std::sin(2 * pi * (*x)(k, 0)));
+  }
 
-  // std::vector<HDSA::Ptr<HDSA::MultiVector<RealT>>> prior_samples = prior_sampling->Prior_Discrepancy_Samples(*z, num_prior_samples);
-  // for (int i = 0; i < num_prior_samples; i++)
-  // {
-  //   std::string name = "prior_discrepancy_sample_" + std::to_string(i + 1);
-  //   prior_samples[i]->Write_to_File(name);
-  // }
+  std::vector<HDSA::Ptr<HDSA::MultiVector<RealT>>> prior_samples = prior_sampling->Prior_Discrepancy_Samples(*z, num_prior_samples);
+  for (int i = 0; i < num_prior_samples; i++)
+  {
+    std::string name = "prior_discrepancy_sample_" + std::to_string(i + 1);
+    prior_samples[i]->Write_to_File(name);
+  }
 
-  // HDSA::Ptr<HDSA::MD_Posterior_Data<RealT>> post_data = HDSA::makePtr<HDSA::MD_Posterior_Data<RealT>>();
+  HDSA::Ptr<HDSA::MD_Posterior_Data<RealT>> post_data = HDSA::makePtr<HDSA::MD_Posterior_Data<RealT>>();
 
-  // HDSA::Ptr<HDSA::MD_Posterior_Sampling<RealT>> post_sampling = HDSA::makePtr<HDSA::MD_Posterior_Sampling<RealT>>(data_interface, u_prior_interface, z_prior_interface);
-  // RealT alpha_d = u_hyperparam_interface->Get_alpha_d();
-  // int num_post_samples = 100;
-  // post_sampling->Compute_Posterior_Data(alpha_d, num_post_samples);
+  HDSA::Ptr<HDSA::MD_Posterior_Sampling<RealT>> post_sampling = HDSA::makePtr<HDSA::MD_Posterior_Sampling<RealT>>(data_interface, u_prior_interface, z_prior_interface);
+  RealT alpha_d = u_hyperparam_interface->Get_alpha_d();
+  int num_post_samples = 100;
+  post_sampling->Compute_Posterior_Data(alpha_d, num_post_samples);
 
-  // std::vector<HDSA::Ptr<HDSA::Vector<RealT>>> z_test;
-  // z_test.resize(3);
-  // z_test[0] = z0->clone();
-  // z_test[0]->set(*(*data_interface->get_Z())[0]);
-  // z_test[1] = z0->clone();
-  // z_test[1]->set(*(*data_interface->get_Z())[1]);
-  // z_test[2] = z0->clone();
-  // HDSA_Tpetra_Vector<RealT> ztest2_tpetra = dynamic_cast<HDSA_Tpetra_Vector<RealT> &>(*z_test[2]);
-  // for (int k = 0; k < m; k++)
-  // {
-  //   ztest2_tpetra.getVector()->replaceGlobalValue(k,0,1.5);
-  // }
+  std::vector<HDSA::Ptr<HDSA::Vector<RealT>>> z_test;
+  z_test.resize(3);
+  z_test[0] = z0->clone();
+  z_test[0]->set(*(*data_interface->get_Z())[0]);
+  z_test[1] = z0->clone();
+  z_test[1]->set(*(*data_interface->get_Z())[1]);
+  z_test[2] = z0->clone();
+  HDSA_Tpetra_Vector<RealT> ztest2_tpetra = dynamic_cast<HDSA_Tpetra_Vector<RealT> &>(*z_test[2]);
+  for (int k = 0; k < m; k++)
+  {
+    ztest2_tpetra.getVector()->replaceGlobalValue(k,0,1.5);
+  }
 
-  // std::vector<HDSA::Ptr<HDSA::MD_Posterior_Vectors<RealT>>> post_discrepancy_samples = post_sampling->Posterior_Discrepancy_Samples(z_test);
+  std::vector<HDSA::Ptr<HDSA::MD_Posterior_Vectors<RealT>>> post_discrepancy_samples = post_sampling->Posterior_Discrepancy_Samples(z_test);
 
-  // name = "posterior_discrepancy_mean_1.txt";
-  // post_discrepancy_samples[0]->mean->Write_to_File(name);
-  // name = "posterior_discrepancy_mean_2.txt";
-  // post_discrepancy_samples[1]->mean->Write_to_File(name);
-  // name = "posterior_discrepancy_mean_3.txt";
-  // post_discrepancy_samples[2]->mean->Write_to_File(name);
-  // name = "posterior_discrepancy_samples_1";
-  // post_discrepancy_samples[0]->samples->Write_to_File(name);
-  // name = "posterior_discrepancy_samples_2";
-  // post_discrepancy_samples[1]->samples->Write_to_File(name);
-  // name = "posterior_discrepancy_samples_3";
-  // post_discrepancy_samples[2]->samples->Write_to_File(name);
+  name = "posterior_discrepancy_mean_1.txt";
+  post_discrepancy_samples[0]->mean->Write_to_File(name);
+  name = "posterior_discrepancy_mean_2.txt";
+  post_discrepancy_samples[1]->mean->Write_to_File(name);
+  name = "posterior_discrepancy_mean_3.txt";
+  post_discrepancy_samples[2]->mean->Write_to_File(name);
+  name = "posterior_discrepancy_samples_1";
+  post_discrepancy_samples[0]->samples->Write_to_File(name);
+  name = "posterior_discrepancy_samples_2";
+  post_discrepancy_samples[1]->samples->Write_to_File(name);
+  name = "posterior_discrepancy_samples_3";
+  post_discrepancy_samples[2]->samples->Write_to_File(name);
 
-  // HDSA::Ptr<HDSA::MD_Hessian_Analysis<RealT>> hessian_analysis = HDSA::makePtr<HDSA::MD_Hessian_Analysis<RealT>>(opt_prob_interface, z_prior_interface);
+  HDSA::Ptr<HDSA::MD_Hessian_Analysis<RealT>> hessian_analysis = HDSA::makePtr<HDSA::MD_Hessian_Analysis<RealT>>(opt_prob_interface, z_prior_interface);
 
-  // int num_evals = 20;
-  // int oversampling = 10;
-  // hessian_analysis->Compute_Hessian_GEVP(*data_interface->get_z_opt(), num_evals, oversampling);
+  int num_evals = 20;
+  int oversampling = 10;
+  hessian_analysis->Compute_Hessian_GEVP(*data_interface->get_z_opt(), num_evals, oversampling);
 
-  // HDSA::Ptr<HDSA::MD_Update<RealT>> update = HDSA::makePtr<HDSA::MD_Update<RealT>>(data_interface, u_prior_interface, z_prior_interface, opt_prob_interface, post_sampling, hessian_analysis);
+  HDSA::Ptr<HDSA::MD_Update<RealT>> update = HDSA::makePtr<HDSA::MD_Update<RealT>>(data_interface, u_prior_interface, z_prior_interface, opt_prob_interface, post_sampling, hessian_analysis);
 
-  // HDSA::Ptr<HDSA::MD_Posterior_Vectors<RealT>> posterior_update_samples = update->Posterior_Update_Samples();
-  // name = "posterior_update_mean.txt";
-  // posterior_update_samples->mean->Write_to_File(name);
-  // name = "posterior_update_samples";
-  // posterior_update_samples->samples->Write_to_File(name);
+  HDSA::Ptr<HDSA::MD_Posterior_Vectors<RealT>> posterior_update_samples = update->Posterior_Update_Samples();
+  name = "posterior_update_mean.txt";
+  posterior_update_samples->mean->Write_to_File(name);
+  name = "posterior_update_samples";
+  posterior_update_samples->samples->Write_to_File(name);
 
   return 0;
 }

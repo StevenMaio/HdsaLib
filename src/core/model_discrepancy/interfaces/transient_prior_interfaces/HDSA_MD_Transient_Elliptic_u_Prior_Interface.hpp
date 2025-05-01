@@ -13,31 +13,181 @@ namespace HDSA
     HDSA::Ptr<HDSA::MD_Transient_Prior_Covariance<RealT>> transient_prior_cov_;
     HDSA::Ptr<HDSA::MD_u_Hyperparameter_Interface<RealT>> u_hyperparam_interface_;
     HDSA::Ptr<HDSA::MD_Determine_u_Hyperparameters<RealT>> determine_u_hyperparams_;
+    int n_t_;
 
   public:
     void Apply_M_u(HDSA::Vector<RealT> &u_out, const HDSA::Vector<RealT> &u_in) const
     {
-      // NEED TO IMPLEMENT
+      if (const Transient_Vector<RealT> *u_in_trans = dynamic_cast<const Transient_Vector<RealT> *>(&u_in))
+      {
+        Transient_Vector<RealT> *u_out_trans = dynamic_cast<Transient_Vector<RealT> *>(&u_out);
+        HDSA::Ptr<HDSA::Vector<RealT>> u_tmp = u_out.clone();
+        Transient_Vector<RealT> *u_tmp_trans = dynamic_cast<Transient_Vector<RealT> *>(&(*u_tmp));
+        for (int j = 0; j < n_t_; j++)
+        {
+          spatial_prior_cov_->Apply_M_u(*(*u_tmp_trans)[j], *(*u_in_trans)[j]);
+        }
+        for (int j = 0; j < n_t_; j++)
+        {
+          (*u_out_trans)[j]->zeros();
+          for (int i = 0; i < n_t_; i++)
+          {
+            (*u_out_trans)[j]->axpy((*transient_prior_cov_->Get_M_t())(i, j), *(*u_tmp_trans)[i]);
+          }
+        }
+      }
+      else
+      {
+        spatial_prior_cov_->Apply_M_u(u_out, u_in);
+      }
     }
 
     void Apply_W_u_Acute_Plus_scalar_M_u_Inverse(HDSA::Vector<RealT> &u_out, const HDSA::Vector<RealT> &u_in, const RealT &scalar) const
     {
-      // NEED TO IMPLEMENT
+      const MD_Elliptic_u_Prior_Interface<RealT> *spatial_prior_cov_cast = dynamic_cast<const MD_Elliptic_u_Prior_Interface<RealT> *>(&(*spatial_prior_cov_));
+      const Transient_Vector<RealT> *u_in_trans = dynamic_cast<const Transient_Vector<RealT> *>(&u_in);
+      Transient_Vector<RealT> *u_out_trans = dynamic_cast<Transient_Vector<RealT> *>(&u_out);
+
+      HDSA::Ptr<HDSA::MultiVector<RealT>> spatial_sing_vecs = spatial_prior_cov_cast->Get_Sing_Vecs_Output();
+      int spatial_rank = spatial_sing_vecs->Number_of_Vectors();
+      HDSA::Ptr<HDSA::Dense_Matrix<RealT>> tmp1 = HDSA::makePtr<HDSA::Dense_Matrix<RealT>>(spatial_rank, n_t_);
+      for (int i = 0; i < spatial_rank; i++)
+      {
+        for (int j = 0; j < n_t_; j++)
+        {
+          RealT val = (*spatial_sing_vecs)[i]->dot(*(*u_in_trans)[j]);
+          tmp1->Replace_Element(i, j, val);
+        }
+      }
+      HDSA::Ptr<HDSA::Dense_Matrix<RealT>> tmp2 = HDSA::makePtr<HDSA::Dense_Matrix<RealT>>(spatial_rank, n_t_);
+      tmp1->Multiply(*tmp2, *transient_prior_cov_->Get_Evecs());
+      // tmp2 corresponds to u_tmp output in line 61
+      HDSA::Ptr<HDSA::Dense_Matrix<RealT>> spatial_sing_vals = spatial_prior_cov_cast->Get_Sing_Vals();
+      HDSA::Ptr<HDSA::Dense_Matrix<RealT>> time_sing_vals = transient_prior_cov_->Get_Evals();
+      for (int i = 0; i < spatial_rank; i++)
+      {
+        for (int j = 0; j < n_t_; j++)
+        {
+          RealT val1 = std::pow((*spatial_sing_vals)(i, 0), 2.0) * (*time_sing_vals)(j, 0);
+          RealT val2 = val1 / (1.0 + scalar * val1);
+          RealT val3 = (*tmp2)(i, j) * val2;
+          tmp2->Replace_Element(i, j, val3);
+        }
+      }
+      // tmp2 corresponds to u_tmp output from line 64
+      HDSA::Ptr<HDSA::Dense_Matrix<RealT>> tmp3 = HDSA::makePtr<HDSA::Dense_Matrix<RealT>>(spatial_rank, n_t_);
+      tmp2->Multiply(*tmp3, *transient_prior_cov_->Get_Evecs(), false, true);
+      // tmp3 corresponds to u_tmp * this.transient_prior_cov.evecs' within line 64
+      for (int j = 0; j < n_t_; j++)
+      {
+        (*u_out_trans)[j]->zeros();
+        for (int i = 0; i < spatial_rank; i++)
+        {
+          (*u_out_trans)[j]->axpy((*tmp3)(i, j), *(*spatial_sing_vecs)[i]);
+        }
+      }
     }
 
     void Apply_W_u_Acute_Inverse(HDSA::Vector<RealT> &u_out, const HDSA::Vector<RealT> &u_in) const
     {
-      // NEED TO IMPLEMENT
+      const MD_Scaled_u_Prior_Interface<RealT> *spatial_prior_cov_cast = dynamic_cast<const MD_Scaled_u_Prior_Interface<RealT> *>(&(*spatial_prior_cov_));
+      const Transient_Vector<RealT> *u_in_trans = dynamic_cast<const Transient_Vector<RealT> *>(&u_in);
+      Transient_Vector<RealT> *u_out_trans = dynamic_cast<Transient_Vector<RealT> *>(&u_out);
+      HDSA::Ptr<HDSA::Vector<RealT>> u_tmp = u_out.clone();
+      Transient_Vector<RealT> *u_tmp_trans = dynamic_cast<Transient_Vector<RealT> *>(&(*u_tmp));
+      for (int j = 0; j < n_t_; j++)
+      {
+        spatial_prior_cov_cast->Apply_W_u_Acute_Inverse(*(*u_tmp_trans)[j], *(*u_in_trans)[j]);
+      }
+      for (int j = 0; j < n_t_; j++)
+      {
+        (*u_out_trans)[j]->zeros();
+        for (int i = 0; i < n_t_; i++)
+        {
+          (*u_out_trans)[j]->axpy((*transient_prior_cov_->Get_W_t_Inverse())(i, j), *(*u_tmp_trans)[i]);
+        }
+      }
     }
 
     void Sample_with_Covariance_W_u_Acute_Inverse(HDSA::MultiVector<RealT> &samples) const
     {
-      // NEED TO IMPLEMENT
+      int num_samples = samples.Number_of_Vectors();
+      const MD_Elliptic_u_Prior_Interface<RealT> *spatial_prior_cov_cast = dynamic_cast<const MD_Elliptic_u_Prior_Interface<RealT> *>(&(*spatial_prior_cov_));
+      HDSA::Ptr<HDSA::Random_Number_Generator<RealT>> random_number_generator = spatial_prior_cov_cast->Get_Random_Number_Generator();
+      HDSA::Ptr<HDSA::MultiVector<RealT>> spatial_sing_vecs = spatial_prior_cov_cast->Get_Sing_Vecs_Output();
+      int spatial_rank = spatial_sing_vecs->Number_of_Vectors();
+      HDSA::Ptr<HDSA::Dense_Matrix<RealT>> time_evecs = transient_prior_cov_->Get_Evecs();
+      HDSA::Ptr<HDSA::Dense_Matrix<RealT>> spatial_sing_vals = spatial_prior_cov_cast->Get_Sing_Vals();
+      HDSA::Ptr<HDSA::Dense_Matrix<RealT>> time_evals = transient_prior_cov_->Get_Evals();
+      for (int k = 0; k < num_samples; k++)
+      {
+        HDSA::Ptr<HDSA::Vector<RealT>> sk = samples[k];
+        Transient_Vector<RealT> *sk_trans = dynamic_cast<Transient_Vector<RealT> *>(&(*sk));
+        // Random number generation in Sabl follows the pattern sample 1: time 1 space vector, time 2 space vector,... time n_t space vector; sample 2:...
+
+        HDSA::Ptr<HDSA::Dense_Matrix<RealT>> tmp1 = HDSA::makePtr<HDSA::Dense_Matrix<RealT>>(spatial_rank, n_t_);
+        for (int j = 0; j < n_t_; j++)
+        {
+          for (int i = 0; i < spatial_rank; i++)
+          {
+            RealT omega = random_number_generator->Generate_Standard_Normal_Sample();
+            RealT val = (*spatial_sing_vals)(i, 0) * omega * std::sqrt((*time_evals)(j, 0));
+            tmp1->Replace_Element(i, j, val);
+          }
+        }
+        HDSA::Ptr<HDSA::Dense_Matrix<RealT>> tmp2 = HDSA::makePtr<HDSA::Dense_Matrix<RealT>>(spatial_rank, n_t_);
+        tmp1->Multiply(*tmp2, *transient_prior_cov_->Get_Evecs(), false, true);
+        for (int j = 0; j < n_t_; j++)
+        {
+          (*sk_trans)[j]->zeros();
+          for (int i = 0; i < spatial_rank; i++)
+          {
+            (*sk_trans)[j]->axpy((*tmp2)(i, j), *(*spatial_sing_vecs)[i]);
+          }
+        }
+      }
     }
 
     void Sample_with_Covariance_W_u_Acute_Plus_scalar_M_u_Inverse(HDSA::MultiVector<RealT> &samples, const RealT &scalar) const
     {
       // NEED TO IMPLEMENT
+      int num_samples = samples.Number_of_Vectors();
+      const MD_Elliptic_u_Prior_Interface<RealT> *spatial_prior_cov_cast = dynamic_cast<const MD_Elliptic_u_Prior_Interface<RealT> *>(&(*spatial_prior_cov_));
+      HDSA::Ptr<HDSA::Random_Number_Generator<RealT>> random_number_generator = spatial_prior_cov_cast->Get_Random_Number_Generator();
+      HDSA::Ptr<HDSA::MultiVector<RealT>> spatial_sing_vecs = spatial_prior_cov_cast->Get_Sing_Vecs_Output();
+      int spatial_rank = spatial_sing_vecs->Number_of_Vectors();
+      HDSA::Ptr<HDSA::Dense_Matrix<RealT>> time_evecs = transient_prior_cov_->Get_Evecs();
+      HDSA::Ptr<HDSA::Dense_Matrix<RealT>> spatial_sing_vals = spatial_prior_cov_cast->Get_Sing_Vals();
+      HDSA::Ptr<HDSA::Dense_Matrix<RealT>> time_evals = transient_prior_cov_->Get_Evals();
+      for (int k = 0; k < num_samples; k++)
+      {
+        HDSA::Ptr<HDSA::Vector<RealT>> sk = samples[k];
+        Transient_Vector<RealT> *sk_trans = dynamic_cast<Transient_Vector<RealT> *>(&(*sk));
+        // Random number generation in Sabl follows the pattern sample 1: time 1 space vector, time 2 space vector,... time n_t space vector; sample 2:...
+
+        HDSA::Ptr<HDSA::Dense_Matrix<RealT>> tmp1 = HDSA::makePtr<HDSA::Dense_Matrix<RealT>>(spatial_rank, n_t_);
+        for (int j = 0; j < n_t_; j++)
+        {
+          for (int i = 0; i < spatial_rank; i++)
+          {
+            RealT omega = random_number_generator->Generate_Standard_Normal_Sample();
+            RealT val1 = std::pow((*spatial_sing_vals)(i, 0),2.0) * (*time_evals)(j, 0);
+            RealT val2 = val1 / (1.0 + scalar * val1);
+            RealT val = std::sqrt(val2) * omega;
+            tmp1->Replace_Element(i, j, val);
+          }
+        }
+        HDSA::Ptr<HDSA::Dense_Matrix<RealT>> tmp2 = HDSA::makePtr<HDSA::Dense_Matrix<RealT>>(spatial_rank, n_t_);
+        tmp1->Multiply(*tmp2, *transient_prior_cov_->Get_Evecs(), false, true);
+        for (int j = 0; j < n_t_; j++)
+        {
+          (*sk_trans)[j]->zeros();
+          for (int i = 0; i < spatial_rank; i++)
+          {
+            (*sk_trans)[j]->axpy((*tmp2)(i, j), *(*spatial_sing_vecs)[i]);
+          }
+        }
+      }
     }
 
     MD_Transient_Elliptic_u_Prior_Interface(HDSA::Ptr<HDSA::MD_u_Prior_Interface<RealT>> &spatial_prior_cov, HDSA::Ptr<HDSA::MD_Transient_Prior_Covariance<RealT>> &transient_prior_cov) : HDSA::MD_Scaled_u_Prior_Interface<RealT>(transient_prior_cov->Get_Hyperparameter_Interface()->Get_alpha_u())
@@ -46,6 +196,7 @@ namespace HDSA
       transient_prior_cov_ = transient_prior_cov;
       u_hyperparam_interface_ = transient_prior_cov_->Get_Hyperparameter_Interface();
       determine_u_hyperparams_ = transient_prior_cov_->Get_Determine_Hyperparameters();
+      n_t_ = transient_prior_cov_->Get_Num_Time_Nodes();
 
       if (u_hyperparam_interface_->Adapt_Time_Variance())
       {
@@ -64,7 +215,6 @@ namespace HDSA
     {
     }
   };
-
 }
 
 #endif
