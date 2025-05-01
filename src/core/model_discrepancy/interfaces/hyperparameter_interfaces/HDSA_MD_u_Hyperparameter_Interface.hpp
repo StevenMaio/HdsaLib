@@ -39,10 +39,10 @@ namespace HDSA
       return vec;
     }
 
-    virtual HDSA::Ptr<HDSA::Vector<RealT>> Load_Time_Node_Data(void) const
+    virtual std::vector<RealT> Load_Time_Node_Data(void) const
     {
       std::cout << "Load_Time_Node_Data is required for hyperparameter algorithm-based initialization" << std::endl;
-      HDSA::Ptr<HDSA::Vector<RealT>> vec;
+      std::vector<RealT> vec;
       return vec;
     }
 
@@ -76,6 +76,11 @@ namespace HDSA
     bool Center_Data(void) const
     {
       return center_data_;
+    }
+
+    bool Adapt_Time_Variance(void) const
+    {
+      return adapt_time_variance_;
     }
 
     void Set_alpha_u(const RealT &alpha_u_new)

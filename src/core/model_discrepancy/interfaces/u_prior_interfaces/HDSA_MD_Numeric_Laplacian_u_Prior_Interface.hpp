@@ -64,7 +64,17 @@ namespace HDSA
       {
         determine_u_hyperparams_->Determine_GSVD_Hyperparameters();
       }
-      this->Compute_E_u_Inverse_GSVD(u_hyperparam_interface_->Get_gsvd_num_sing_vals(), u_hyperparam_interface_->Get_gsvd_oversampling(), u_hyperparam_interface_->Get_gsvd_num_subspace_iter(), *data_interface_->get_u_opt());
+      HDSA::Ptr<const HDSA::Vector<RealT>> u_opt = data_interface_->get_u_opt();
+      HDSA::Ptr<const HDSA::Vector<RealT>> u_vec;
+      if (const Transient_Vector<RealT>* u_trans = dynamic_cast<const Transient_Vector<RealT>*>(&(*u_opt)))
+      {
+        u_vec = (*u_trans)[0];
+      }
+      else
+      {
+        u_vec = u_opt;
+      }
+      this->Compute_E_u_Inverse_GSVD(u_hyperparam_interface_->Get_gsvd_num_sing_vals(), u_hyperparam_interface_->Get_gsvd_oversampling(), u_hyperparam_interface_->Get_gsvd_num_subspace_iter(), *u_vec);
 
       if (!u_hyperparam_interface_->Is_Transient())
       {

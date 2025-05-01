@@ -11,7 +11,7 @@ namespace HDSA
     RealT alpha_u_;
 
   public:
-  MD_Scaled_u_Prior_Interface(RealT & alpha_u): alpha_u_(alpha_u)
+  MD_Scaled_u_Prior_Interface(RealT alpha_u): alpha_u_(alpha_u)
    { }
 
   virtual ~MD_Scaled_u_Prior_Interface()
