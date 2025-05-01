@@ -41,7 +41,7 @@ namespace HDSA
 
 			for (int k = 0; k < p; k++)
 			{
-				delta[k] = HDSA::makePtr<HDSA::MD_Posterior_Vectors<RealT>>(post_data->num_samples, *z[k]);
+				delta[k] = HDSA::makePtr<HDSA::MD_Posterior_Vectors<RealT>>(post_data->num_samples, *data_interface_->get_u_opt());
 				HDSA::Ptr<HDSA::Vector<RealT>> delta_mean_k = delta[k]->mean;
 				HDSA::Ptr<HDSA::MultiVector<RealT>> delta_samples_k = delta[k]->samples;
 

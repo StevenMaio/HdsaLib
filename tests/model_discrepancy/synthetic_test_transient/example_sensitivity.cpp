@@ -22,7 +22,7 @@ int main(int argc, char *argv[])
   RealT c_low = 0.95;
   RealT c_high = 0.93;
 
-  int num_random_numbers = 1.e5;
+  int num_random_numbers = 1.e6;
   std::string random_number_file = "random_numbers.txt";
   HDSA::Ptr<HDSA::Random_Number_Generator<RealT>> random_number_generator = HDSA::makePtr<HDSA::Random_Number_Generator<RealT>>(num_random_numbers, random_number_file);
 

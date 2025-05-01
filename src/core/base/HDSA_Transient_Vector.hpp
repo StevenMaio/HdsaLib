@@ -81,7 +81,13 @@ public:
 
     void Write_to_File(const std::string &name) const override
     {
-        std::cout << "Need to implement Write_to_File in HDSA::Transient_Vector" << std::endl;
+        int num_char = name.size();
+        std::string name_tmp = name.substr(0, num_char-4);
+        for(int k = 0; k < n_t_; k++)
+        {
+            std::string name_k = name_tmp + "_time_" + std::to_string(k+1) + ".txt";
+            vec_[k]->Write_to_File(name_k);
+        }
     }
 
     //////////////////////////////////////////////////////////////////////////////////

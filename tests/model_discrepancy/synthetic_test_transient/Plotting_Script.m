@@ -7,16 +7,19 @@ surpress_figures = false; %true;
 diff = [];
 
 prior_delta = cell(100,1);
+prior_delta_sabl = cell(100,1);
+prior_delta_sabl_load = load('Sabl_Output.mat','prior_delta').prior_delta;
 for k = 1:100
     prior_delta{k} = zeros(51,3);
-    data_obj = importdata(['prior_discrepancy_sample_',num2str(k),'/Vector_1.txt'], ' ', 2);  %% we need to skip the first two lines
+    data_obj = importdata(['prior_discrepancy_sample_',num2str(k),'/Vector_1_time_8.txt'], ' ', 2);  %% we need to skip the first two lines
     prior_delta{k}(:,1)= data_obj.data;
-    data_obj = importdata(['prior_discrepancy_sample_',num2str(k),'/Vector_2.txt'], ' ', 2);  %% we need to skip the first two lines
+    data_obj = importdata(['prior_discrepancy_sample_',num2str(k),'/Vector_2_time_8.txt'], ' ', 2);  %% we need to skip the first two lines
     prior_delta{k}(:,2)= data_obj.data;
-    data_obj = importdata(['prior_discrepancy_sample_',num2str(k),'/Vector_3.txt'], ' ', 2);  %% we need to skip the first two lines
+    data_obj = importdata(['prior_discrepancy_sample_',num2str(k),'/Vector_3_time_8.txt'], ' ', 2);  %% we need to skip the first two lines
     prior_delta{k}(:,3)= data_obj.data;
+    I = (51*7+1):(51*8);
+    prior_delta_sabl{k} = prior_delta_sabl_load{k}(I,:);
 end
-prior_delta_sabl = load('Sabl_Output.mat','prior_delta').prior_delta;
 
 local_diff = 0;
 for k = 1:100
@@ -26,33 +29,40 @@ diff = [diff;local_diff];
 
 prior_delta_z_opt = zeros(51,100);
 for j = 1:100
-    data_obj = importdata(['prior_discrepancy_evaluated_at_z_opt/Vector_',num2str(j),'.txt'], ' ', 2);  %% we need to skip the first two lines
+    data_obj = importdata(['prior_discrepancy_evaluated_at_z_opt/Vector_',num2str(j),'_time_6.txt'], ' ', 2);  %% we need to skip the first two lines
     prior_delta_z_opt(:,j)= data_obj.data;
 end
 prior_delta_z_opt_sabl = load('Sabl_Output.mat','prior_delta_z_opt').prior_delta_z_opt;
+I = (51*5+1):(51*6);
+prior_delta_z_opt_sabl = prior_delta_z_opt_sabl(I,:);
 
 local_diff = norm(prior_delta_z_opt - prior_delta_z_opt_sabl);
 diff = [diff;local_diff];
 
 post_delta_mean = zeros(51,3);
 for k = 1:3
-    data_obj = importdata(['posterior_discrepancy_mean_',num2str(k),'.txt'], ' ', 2);  %% we need to skip the first two lines
+    data_obj = importdata(['posterior_discrepancy_mean_',num2str(k),'_time_3.txt'], ' ', 2);  %% we need to skip the first two lines
     post_delta_mean(:,k)= data_obj.data;
 end
 post_delta_mean_sabl = load('Sabl_Output.mat','post_delta_mean').post_delta_mean;
+I = (51*2+1):(51*3);
+post_delta_mean_sabl = post_delta_mean_sabl(I,:);
 
 local_diff = norm(post_delta_mean - post_delta_mean_sabl);
 diff = [diff;local_diff];
 
 post_delta_samples = cell(3,1);
+post_delta_samples_sabl = cell(3,1);
+post_delta_samples_sabl_load = load('Sabl_Output.mat','post_delta_samples').post_delta_samples;
 for k = 1:3
     post_delta_samples{k} = zeros(51,100);
     for j = 1:100
-        data_obj = importdata(['posterior_discrepancy_samples_',num2str(k),'/Vector_',num2str(j),'.txt'], ' ', 2);  %% we need to skip the first two lines
+        data_obj = importdata(['posterior_discrepancy_samples_',num2str(k),'/Vector_',num2str(j),'_time_5.txt'], ' ', 2);  %% we need to skip the first two lines
         post_delta_samples{k}(:,j) = data_obj.data;
     end
+    I = (51*4+1):(51*5);
+    post_delta_samples_sabl{k} = post_delta_samples_sabl_load{k}(I,:);
 end
-post_delta_samples_sabl = load('Sabl_Output.mat','post_delta_samples').post_delta_samples;
 
 local_diff = 0;
 for k = 1:3

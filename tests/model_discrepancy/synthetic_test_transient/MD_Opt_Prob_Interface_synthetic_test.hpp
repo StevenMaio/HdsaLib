@@ -147,7 +147,7 @@ public:
     HDSA::Ptr<HDSA::Vector<RealT>> uf_in = u_in_trans[n_t_ - 1];
     const Transient_Vector<RealT> u_out_trans = dynamic_cast<const Transient_Vector<RealT> &>(u_out);
     HDSA::Ptr<HDSA::Vector<RealT>> uf_out = u_out_trans[n_t_ - 1];
-    M_sm_->Apply(u_out, u_in);
+    M_sm_->Apply(*uf_out, *uf_in);
   }
 
   HDSA::Ptr<HDSA::Sparse_Matrix<RealT>> Get_Mass_Matrix(void) const
