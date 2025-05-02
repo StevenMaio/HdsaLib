@@ -4,6 +4,10 @@ clc
 
 surpress_figures = false; %true;
 
+c_low = 0.95;
+c_high = 0.93;
+n_t = 10;
+
 diff = [];
 
 prior_delta = cell(100,1);
@@ -41,11 +45,11 @@ diff = [diff;local_diff];
 
 post_delta_mean = zeros(51,3);
 for k = 1:3
-    data_obj = importdata(['posterior_discrepancy_mean_',num2str(k),'_time_3.txt'], ' ', 2);  %% we need to skip the first two lines
+    data_obj = importdata(['posterior_discrepancy_mean_',num2str(k),'_time_5.txt'], ' ', 2);  %% we need to skip the first two lines
     post_delta_mean(:,k)= data_obj.data;
 end
 post_delta_mean_sabl = load('Sabl_Output.mat','post_delta_mean').post_delta_mean;
-I = (51*2+1):(51*3);
+I = (51*4+1):(51*5);
 post_delta_mean_sabl = post_delta_mean_sabl(I,:);
 
 local_diff = norm(post_delta_mean - post_delta_mean_sabl);
@@ -128,21 +132,21 @@ if ~surpress_figures
 
     figure,
     hold on
-    plot(x, (1 + x) / (1.2^(1 / 3)), 'color', 'black', 'LineWidth', 3)
+    plot(x, (c_low/c_high)^((n_t-1)/3) * (1 + x), 'color', 'black', 'LineWidth', 3);
     plot(x, 1 + x, 'color', 'cyan', 'LineWidth', 3)
     plot(x,post_z_mean,'--','LineWidth',3,'Color','red')
     plot(x,post_z_samples,'LineWidth',3,'Color',.9*ones(3,1))
-    plot(x, (1 + x) / (1.2^(1 / 3)), 'color', 'black', 'LineWidth', 3)
+    plot(x, (c_low/c_high)^((n_t-1)/3) * (1 + x), 'color', 'black', 'LineWidth', 3);
     plot(x, 1 + x, 'color', 'cyan', 'LineWidth', 3)
     plot(x,post_z_mean,'--','LineWidth',3,'Color','red')
     title('HdsaLib')
     figure,
     hold on
-    plot(x, (1 + x) / (1.2^(1 / 3)), 'color', 'black', 'LineWidth', 3)
+    plot(x, (c_low/c_high)^((n_t-1)/3) * (1 + x), 'color', 'black', 'LineWidth', 3);
     plot(x, 1 + x, 'color', 'cyan', 'LineWidth', 3)
     plot(x,post_z_mean_sabl,'--','LineWidth',3,'Color','red')
     plot(x,post_z_samples_sabl,'LineWidth',3,'Color',.9*ones(3,1))
-    plot(x, (1 + x) / (1.2^(1 / 3)), 'color', 'black', 'LineWidth', 3)
+    plot(x, (c_low/c_high)^((n_t-1)/3) * (1 + x), 'color', 'black', 'LineWidth', 3);
     plot(x, 1 + x, 'color', 'cyan', 'LineWidth', 3)
     plot(x,post_z_mean_sabl,'--','LineWidth',3,'Color','red')
     title('Sabl')

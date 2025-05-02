@@ -32,13 +32,13 @@ public:
     return tpetra_vec_;
   }
 
-  HDSA::Ptr<HDSA::Vector<RealT>> clone() const
+  HDSA::Ptr<HDSA::Vector<RealT>> clone() const override
   {
     int n = tpetra_vec_->getNumVectors();
     return HDSA::makePtr<HDSA_Tpetra_Vector>(HDSA::makePtr<Tpetra::MultiVector<RealT, LO, GO, Node>>(map_, n), random_number_generator_);
   }
 
-  RealT dot(const HDSA::Vector<RealT> &x) const
+  RealT dot(const HDSA::Vector<RealT> &x) const override
   {
     const HDSA_Tpetra_Vector &ex = dynamic_cast<const HDSA_Tpetra_Vector &>(x);
     int n = tpetra_vec_->getNumVectors();
@@ -52,26 +52,26 @@ public:
     return xy;
   }
 
-  void axpy(const RealT alpha, const HDSA::Vector<RealT> &x)
+  void axpy(const RealT alpha, const HDSA::Vector<RealT> &x) override
   {
     RealT one(1);
     const HDSA_Tpetra_Vector &ex = dynamic_cast<const HDSA_Tpetra_Vector &>(x);
     tpetra_vec_->update(alpha, *ex.getVector(), one);
   }
 
-  int dimension() const
+  int dimension() const override
   {
     int nVecs = static_cast<int>(tpetra_vec_->getNumVectors());
     int dim = static_cast<int>(tpetra_vec_->getGlobalLength());
     return nVecs * dim;
   }
 
-  void setScalar(const RealT val)
+  void setScalar(const RealT val) override
   {
     tpetra_vec_->putScalar(static_cast<double>(val));
   }
 
-  void randomize_standard_normal()
+  void randomize_standard_normal() override
   {
     int nVecs = static_cast<int>(tpetra_vec_->getNumVectors());
     for (int j = 0; j < nVecs; j++)

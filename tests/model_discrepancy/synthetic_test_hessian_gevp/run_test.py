@@ -39,10 +39,13 @@ def main():
     for reference_file in reference_files:
         # Create a relative path for the reference file
         output_file = reference_file[17:]
-
+        RED = "\033[31m"
+        GREEN = "\033[32m"
         if os.path.exists(output_file):
             if not compare_files(output_file, reference_file):
-                print(f"{output_file} does NOT match the reference output.")
+                print(RED + f"{output_file} does NOT match the reference output.")
+            else:
+                print(GREEN + f"{output_file} matches the reference output.")
         else:
             print(f"Reference file {reference_file} does not exist.")
 
