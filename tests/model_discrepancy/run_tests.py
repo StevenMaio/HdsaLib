@@ -29,7 +29,8 @@ def main():
         'synthetic_test_elliptic_prior',
         'synthetic_test_hessian_gevp',
         'synthetic_test_hyperparam_1D',
-        'synthetic_test_transient'
+        'synthetic_test_transient',
+        'synthetic_test_multi_state'
     ]
 
     # Execute the script in each subdirectory

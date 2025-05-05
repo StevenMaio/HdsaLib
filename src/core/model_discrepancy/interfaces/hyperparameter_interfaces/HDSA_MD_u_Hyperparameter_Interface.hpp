@@ -83,6 +83,11 @@ namespace HDSA
       return adapt_time_variance_;
     }
 
+    int Get_Componenet_ID(void) const
+    {
+      return component_id_;
+    }
+
     void Set_alpha_u(const RealT &alpha_u_new)
     {
       alpha_u_ = alpha_u_new;
