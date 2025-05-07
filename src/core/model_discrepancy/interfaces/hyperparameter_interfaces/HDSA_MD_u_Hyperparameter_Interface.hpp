@@ -83,9 +83,19 @@ namespace HDSA
       return adapt_time_variance_;
     }
 
-    int Get_Componenet_ID(void) const
+    int Get_Component_ID(void) const
     {
       return component_id_;
+    }
+
+    RealT Get_Time_Variance_Inflation(void) const
+    {
+      return time_variance_inflation_;
+    }
+
+    RealT Get_Data_Noise_Percent(void) const
+    {
+      return data_noise_percent_;
     }
 
     void Set_alpha_u(const RealT &alpha_u_new)
@@ -159,6 +169,17 @@ namespace HDSA
     int Get_gsvd_num_subspace_iter(void) const
     {
       return gsvd_num_subspace_iter_;
+    }
+
+    void Set_d1_norm_sq(RealT val)
+    {
+      d1_norm_sq_ = val;
+      std::vector<RealT> d_pert_norm_sq_;
+    }
+
+    void Set_d_pert_norm_sq(std::vector<RealT> val)
+    {
+      d_pert_norm_sq_ = val;
     }
   };
 

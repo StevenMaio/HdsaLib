@@ -68,11 +68,11 @@ namespace HDSA
       HDSA::Ptr<const HDSA::Vector<RealT>> u_vec;
       if (const Transient_Vector<RealT>* u_trans = dynamic_cast<const Transient_Vector<RealT>*>(&(*u_opt)))
       {
-        u_vec = data_interface_->Extract_State_Component(*(*u_trans)[0],u_hyperparam_interface_-> Get_Componenet_ID());
+        u_vec = data_interface_->Extract_State_Component(*(*u_trans)[0],u_hyperparam_interface_-> Get_Component_ID());
       }
       else
       {
-        u_vec = data_interface_->Extract_State_Component(*u_opt,u_hyperparam_interface_-> Get_Componenet_ID());
+        u_vec = data_interface_->Extract_State_Component(*u_opt,u_hyperparam_interface_-> Get_Component_ID());
       }
       this->Compute_E_u_Inverse_GSVD(u_hyperparam_interface_->Get_gsvd_num_sing_vals(), u_hyperparam_interface_->Get_gsvd_oversampling(), u_hyperparam_interface_->Get_gsvd_num_subspace_iter(), *u_vec);
 
@@ -84,7 +84,7 @@ namespace HDSA
         }
         this->Set_alpha_u(u_hyperparam_interface_->Get_alpha_u());
       }
-      determine_u_hyperparams_->Determine_alpha_d();
+      determine_u_hyperparams_->Determine_alpha_d(this);
     }
 
     virtual ~MD_Numeric_Laplacian_u_Prior_Interface()

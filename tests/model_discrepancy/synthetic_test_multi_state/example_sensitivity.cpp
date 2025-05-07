@@ -31,12 +31,12 @@ int main(int argc, char *argv[])
   u_hyperparam_interface_std.resize(2);
   u_prior_interface_std.resize(2);
   u_hyperparam_interface_std[0] = HDSA::makePtr<MD_u_Hyperparameter_Interface_synthetic_test<RealT>>(0);
-  u_hyperparam_interface_std[0]->Set_alpha_u(0.054435561764315);
+  //u_hyperparam_interface_std[0]->Set_alpha_u(0.054435561764315);
   u_hyperparam_interface_std[0]->Set_beta_u(0.007702351792463);
   u_hyperparam_interface_std[0]->Set_GSVD_Hyperparameters(51, 0, 1);
   u_prior_interface_std[0] = HDSA::makePtr<HDSA::MD_Numeric_Laplacian_u_Prior_Interface<RealT>>(S, M, data_interface, u_hyperparam_interface_std[0], random_number_generator);
   u_hyperparam_interface_std[1] = HDSA::makePtr<MD_u_Hyperparameter_Interface_synthetic_test<RealT>>(1);
-  u_hyperparam_interface_std[1]->Set_alpha_u(0.240060827380627);
+  //u_hyperparam_interface_std[1]->Set_alpha_u(0.240060827380627);
   u_hyperparam_interface_std[1]->Set_beta_u(0.007702351792463);
   u_hyperparam_interface_std[1]->Set_GSVD_Hyperparameters(51, 0, 1);
   u_prior_interface_std[1] = HDSA::makePtr<HDSA::MD_Numeric_Laplacian_u_Prior_Interface<RealT>>(S, M, data_interface, u_hyperparam_interface_std[1], random_number_generator);

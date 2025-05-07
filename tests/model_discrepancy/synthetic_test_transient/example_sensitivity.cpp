@@ -31,10 +31,10 @@ int main(int argc, char *argv[])
   HDSA::Ptr<HDSA::MD_u_Hyperparameter_Interface<RealT>> u_hyperparam_interface = HDSA::makePtr<MD_u_Hyperparameter_Interface_synthetic_test<RealT>>(n_y, n_t);
   HDSA::Ptr<HDSA::MD_z_Hyperparameter_Interface<RealT>> z_hyperparam_interface = HDSA::makePtr<MD_z_Hyperparameter_Interface_synthetic_test<RealT>>(n_y);
 
-  u_hyperparam_interface->Set_alpha_u(0.009875147499015);
+  //u_hyperparam_interface->Set_alpha_u(0.009875147499015);
   u_hyperparam_interface->Set_beta_u(0.007702351792463);
   u_hyperparam_interface->Set_beta_t(0.027523820219143);
-  u_hyperparam_interface->Set_alpha_d(3.009059750046944e-08);
+  //u_hyperparam_interface->Set_alpha_d(3.009059750046944e-08);
   u_hyperparam_interface->Set_GSVD_Hyperparameters(51, 0, 1);
   z_hyperparam_interface->Set_alpha_z(0.944162068377329);
   z_hyperparam_interface->Set_beta_z(0.009305846653704);

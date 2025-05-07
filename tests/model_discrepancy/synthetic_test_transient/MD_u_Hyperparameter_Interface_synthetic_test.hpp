@@ -30,7 +30,7 @@ public:
     return vec;
   }
 
-  MD_u_Hyperparameter_Interface_synthetic_test(int n_y, int n_t) : HDSA::MD_u_Hyperparameter_Interface<RealT>(true)
+  MD_u_Hyperparameter_Interface_synthetic_test(int n_y, int n_t) : HDSA::MD_u_Hyperparameter_Interface<RealT>(true,false,true)
   {
     n_y_ = n_y;
     n_t_ = n_t;

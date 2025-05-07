@@ -214,6 +214,18 @@ namespace HDSA
     virtual ~MD_Transient_Elliptic_u_Prior_Interface()
     {
     }
+
+    HDSA::Ptr<HDSA::MD_u_Prior_Interface<RealT>> Get_Spatial_Cov(void) const
+    {
+      return spatial_prior_cov_;
+    }
+
+    HDSA::Ptr<HDSA::MD_Transient_Prior_Covariance<RealT>> Get_Time_Cov(void) const
+    {
+      return transient_prior_cov_;
+    }
+
+
   };
 }
 

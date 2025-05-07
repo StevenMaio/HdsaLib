@@ -36,10 +36,8 @@
 #include "core/model_discrepancy/interfaces/z_prior_interfaces/HDSA_MD_Scaled_z_Prior_Interface.hpp"
 #include "core/model_discrepancy/interfaces/z_prior_interfaces/HDSA_MD_Elliptic_z_Prior_Interface.hpp"
 
-#include "core/model_discrepancy/analysis/auxillary/HDSA_MD_Hessian_Analysis.hpp"
-#include "core/model_discrepancy/analysis/prior/HDSA_MD_Prior_Sampling.hpp"
-#include "core/model_discrepancy/analysis/prior/HDSA_MD_Determine_u_Hyperparameters.hpp"
-#include "core/model_discrepancy/analysis/prior/HDSA_MD_Determine_z_Hyperparameters.hpp"
+#include "core/model_discrepancy/analysis/prior/HDSA_MD_Determine_u_Hyperparameters_Decl.hpp"
+#include "core/model_discrepancy/analysis/prior/HDSA_MD_Determine_z_Hyperparameters_Decl.hpp"
 
 #include "core/model_discrepancy/interfaces/u_prior_interfaces/HDSA_MD_Numeric_Laplacian_u_Prior_Interface.hpp"
 #include "core/model_discrepancy/interfaces/z_prior_interfaces/HDSA_MD_Numeric_Laplacian_z_Prior_Interface.hpp"
@@ -47,6 +45,11 @@
 #include "core/model_discrepancy/interfaces/z_prior_interfaces/HDSA_MD_Vector_z_Prior_Interface.hpp"
 #include "core/model_discrepancy/interfaces/transient_prior_interfaces/HDSA_MD_Transient_Prior_Covariance.hpp"
 #include "core/model_discrepancy/interfaces/transient_prior_interfaces/HDSA_MD_Transient_Elliptic_u_Prior_Interface.hpp"
+
+#include "core/model_discrepancy/analysis/auxillary/HDSA_MD_Hessian_Analysis.hpp"
+#include "core/model_discrepancy/analysis/prior/HDSA_MD_Prior_Sampling.hpp"
+#include "core/model_discrepancy/analysis/prior/HDSA_MD_Determine_u_Hyperparameters_Def.hpp"
+#include "core/model_discrepancy/analysis/prior/HDSA_MD_Determine_z_Hyperparameters_Def.hpp"
 
 #include "core/model_discrepancy/analysis/posterior/HDSA_MD_Posterior_Vectors.hpp"
 #include "core/model_discrepancy/analysis/posterior/HDSA_MD_Posterior_Data.hpp"
