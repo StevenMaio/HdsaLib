@@ -42,7 +42,7 @@ int main(int argc, char *argv[])
   u_prior_interface_std[1] = HDSA::makePtr<HDSA::MD_Numeric_Laplacian_u_Prior_Interface<RealT>>(S, M, data_interface, u_hyperparam_interface_std[1], random_number_generator);
   HDSA::Ptr<HDSA::MD_u_Prior_Interface<RealT>> u_prior_interface = HDSA::makePtr<HDSA::MD_Multi_State_u_Prior_Interface<RealT>>(data_interface,u_prior_interface_std);
 
-  HDSA::Ptr<HDSA::MD_z_Hyperparameter_Interface<RealT>> z_hyperparam_interface = HDSA::makePtr<MD_z_Hyperparameter_Interface_synthetic_test<RealT>>();
+  HDSA::Ptr<HDSA::MD_z_Hyperparameter_Interface<RealT>> z_hyperparam_interface = HDSA::makePtr<MD_z_Hyperparameter_Interface_synthetic_test<RealT>>(random_number_generator);
   z_hyperparam_interface->Set_alpha_z(0.941322661669014);
   z_hyperparam_interface->Set_beta_z(0.009305846653704);
   HDSA::Ptr<HDSA::MD_z_Prior_Interface<RealT>> z_prior_interface = HDSA::makePtr<HDSA::MD_Numeric_Laplacian_z_Prior_Interface<RealT>>(S, M, data_interface, z_hyperparam_interface, u_prior_interface);
@@ -87,7 +87,6 @@ int main(int argc, char *argv[])
   HDSA::Ptr<HDSA::MD_Posterior_Data<RealT>> post_data = HDSA::makePtr<HDSA::MD_Posterior_Data<RealT>>();
 
   HDSA::Ptr<HDSA::MD_Posterior_Sampling<RealT>> post_sampling = HDSA::makePtr<HDSA::MD_Posterior_Sampling<RealT>>(data_interface, u_prior_interface, z_prior_interface);
-  //RealT alpha_d = u_hyperparam_interface->Get_alpha_d();
   RealT alpha_d = 1.905463877476307e-07;
   int num_post_samples = 100;
   post_sampling->Compute_Posterior_Data(alpha_d, num_post_samples);

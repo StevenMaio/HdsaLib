@@ -16,20 +16,20 @@ int main(int argc, char *argv[])
   Teuchos::GlobalMPISession mpiSession(&argc, &argv, &bhs);
   HDSA::Ptr<const HDSA::Comm<int>> comm = HDSA::makePtr<HDSA::Comm<int>>();
 
-  int num_random_numbers = 1.e5;
+  int num_random_numbers = 1.e6;
   std::string random_number_file = "random_numbers.txt";
   HDSA::Ptr<HDSA::Random_Number_Generator<RealT>> random_number_generator = HDSA::makePtr<HDSA::Random_Number_Generator<RealT>>(num_random_numbers, random_number_file);
 
   HDSA::Ptr<HDSA::MD_Data_Interface<RealT>> data_interface = HDSA::makePtr<MD_Data_Interface_synthetic_test<RealT>>(random_number_generator, comm);
   HDSA::Ptr<HDSA::MD_Opt_Prob_Interface<RealT>> opt_prob_interface = HDSA::makePtr<MD_Opt_Prob_Interface_synthetic_test<RealT>>(comm);
   HDSA::Ptr<HDSA::MD_u_Hyperparameter_Interface<RealT>> u_hyperparam_interface = HDSA::makePtr<MD_u_Hyperparameter_Interface_synthetic_test<RealT>>();
-  HDSA::Ptr<HDSA::MD_z_Hyperparameter_Interface<RealT>> z_hyperparam_interface = HDSA::makePtr<MD_z_Hyperparameter_Interface_synthetic_test<RealT>>();
+  HDSA::Ptr<HDSA::MD_z_Hyperparameter_Interface<RealT>> z_hyperparam_interface = HDSA::makePtr<MD_z_Hyperparameter_Interface_synthetic_test<RealT>>(random_number_generator);
 
   //u_hyperparam_interface->Set_alpha_u(0.048969233204560);
   u_hyperparam_interface->Set_beta_u(0.007702351792463);
   u_hyperparam_interface->Set_alpha_d(2.177109166165424e-07);
   u_hyperparam_interface->Set_GSVD_Hyperparameters(51, 0, 1);
-  z_hyperparam_interface->Set_alpha_z(4.198227272539055);
+  //z_hyperparam_interface->Set_alpha_z(4.198227272539055);
   z_hyperparam_interface->Set_beta_z(0.009305846653704);
 
   HDSA::Ptr<MD_Opt_Prob_Interface_synthetic_test<RealT>> opt_prob_interface_st = HDSA::dynamicPtrCast<MD_Opt_Prob_Interface_synthetic_test<RealT>>(opt_prob_interface);

@@ -51,7 +51,7 @@ public:
     }
   }
 
-  HDSA::Ptr<HDSA::Vector<RealT>> Load_Optimal_u() const
+  HDSA::Ptr<HDSA::Vector<RealT>> Load_Optimal_u() const override
   {
     auto map = Tpetra::createUniformContigMap<Tpetra::Map<>::local_ordinal_type, Tpetra::Map<>::global_ordinal_type>(2 * m_, comm_->Get_Teuchos_Communicator());
     HDSA::Ptr<Tpetra::MultiVector<RealT, Tpetra::Map<>::local_ordinal_type, Tpetra::Map<>::global_ordinal_type, Tpetra::Map<>::node_type>> tpetra_vec = Tpetra::createMultiVector<RealT, Tpetra::Map<>::local_ordinal_type, Tpetra::Map<>::global_ordinal_type, Tpetra::Map<>::node_type>(map, 1);
@@ -64,7 +64,7 @@ public:
     return u_opt;
   }
 
-  HDSA::Ptr<HDSA::Vector<RealT>> Load_Optimal_z() const
+  HDSA::Ptr<HDSA::Vector<RealT>> Load_Optimal_z() const override
   {
     auto map = Tpetra::createUniformContigMap<Tpetra::Map<>::local_ordinal_type, Tpetra::Map<>::global_ordinal_type>(m_, comm_->Get_Teuchos_Communicator());
     HDSA::Ptr<Tpetra::MultiVector<RealT, Tpetra::Map<>::local_ordinal_type, Tpetra::Map<>::global_ordinal_type, Tpetra::Map<>::node_type>> tpetra_vec = Tpetra::createMultiVector<RealT, Tpetra::Map<>::local_ordinal_type, Tpetra::Map<>::global_ordinal_type, Tpetra::Map<>::node_type>(map, 1);
@@ -76,7 +76,7 @@ public:
     return z_opt;
   }
 
-  HDSA::Ptr<HDSA::MultiVector<RealT>> Load_Z_Data() const
+  HDSA::Ptr<HDSA::MultiVector<RealT>> Load_Z_Data() const override
   {
     auto map = Tpetra::createUniformContigMap<Tpetra::Map<>::local_ordinal_type, Tpetra::Map<>::global_ordinal_type>(m_, comm_->Get_Teuchos_Communicator());
     HDSA::Ptr<Tpetra::MultiVector<RealT, Tpetra::Map<>::local_ordinal_type, Tpetra::Map<>::global_ordinal_type, Tpetra::Map<>::node_type>> tpetra_vec = Tpetra::createMultiVector<RealT, Tpetra::Map<>::local_ordinal_type, Tpetra::Map<>::global_ordinal_type, Tpetra::Map<>::node_type>(map, 1);
@@ -96,7 +96,7 @@ public:
     return Z;
   }
 
-  HDSA::Ptr<HDSA::MultiVector<RealT>> Load_D_Data() const
+  HDSA::Ptr<HDSA::MultiVector<RealT>> Load_D_Data() const override
   {
     auto map = Tpetra::createUniformContigMap<Tpetra::Map<>::local_ordinal_type, Tpetra::Map<>::global_ordinal_type>(2 * m_, comm_->Get_Teuchos_Communicator());
     HDSA::Ptr<Tpetra::MultiVector<RealT, Tpetra::Map<>::local_ordinal_type, Tpetra::Map<>::global_ordinal_type, Tpetra::Map<>::node_type>> tpetra_vec = Tpetra::createMultiVector<RealT, Tpetra::Map<>::local_ordinal_type, Tpetra::Map<>::global_ordinal_type, Tpetra::Map<>::node_type>(map, 1);

@@ -9,6 +9,7 @@ namespace HDSA
   {
 
   private:
+    const HDSA::Ptr<HDSA::Random_Number_Generator<RealT>> random_number_generator_;
     std::string z_type_;
     int num_state_solves_;
     RealT discrepancy_percent_z_variation_;
@@ -17,21 +18,12 @@ namespace HDSA
     RealT beta_z_;
     RealT beta_t_;
 
-    RealT z1_norm_sq_;
-    std::vector<RealT> z_pert_norm_sq_;
-
   public:
-    virtual HDSA::Ptr<HDSA::Vector<RealT>> Load_Spatial_Node_Data(void) const
-    {
-      std::cout << "Load_Spatial_Node_Data is required for hyperparameter algorithm-based initialization" << std::endl;
-      HDSA::Ptr<HDSA::Vector<RealT> > vec;
-      return vec;
-    }
 
-    virtual HDSA::Ptr<HDSA::Vector<RealT>> Load_Time_Node_Data(void) const
+    virtual std::vector<std::vector<RealT>> Spatial_Domain_Bounds(void) const
     {
-      std::cout << "Load_Time_Node_Data is required for hyperparameter algorithm-based initialization" << std::endl;
-      HDSA::Ptr<HDSA::Vector<RealT> > vec;
+      std::cout << "Spatial_Domain_Bounds is required for hyperparameter algorithm-based initialization" << std::endl;
+      std::vector<std::vector<RealT>> vec; // vec.size() = spatial dimension, e.g. 1,2, or 3, [ vec[i][0],vec[i][1] ] is an interval bounding the ith spatial coordinate
       return vec;
     }
 
@@ -40,9 +32,24 @@ namespace HDSA
       std::cout << "State_Solve is required to estimate alpha_z using low-fidelity solves" << std::endl;
     }
 
-    MD_z_Hyperparameter_Interface(const std::string &z_type, const int &num_state_solves = 0) : z_type_(z_type), num_state_solves_(num_state_solves)
+    MD_z_Hyperparameter_Interface(const std::string &z_type, const int &num_state_solves = 0) : random_number_generator_(HDSA::makePtr<HDSA::Random_Number_Generator<RealT>>()), z_type_(z_type), num_state_solves_(num_state_solves)
     {
-      if (!(z_type == "spatial field" || z_type == "transient vector" || z_type == "vector"))
+      Auxillary_Constructor();
+    }
+
+    MD_z_Hyperparameter_Interface(int seed, const std::string &z_type, const int &num_state_solves = 0) : random_number_generator_(HDSA::Random_Number_Generator<RealT>(seed)), z_type_(z_type), num_state_solves_(num_state_solves)
+    {
+      Auxillary_Constructor();
+    }
+
+    MD_z_Hyperparameter_Interface(const HDSA::Ptr<HDSA::Random_Number_Generator<RealT>> &random_number_generator, const std::string &z_type, const int &num_state_solves = 0) : random_number_generator_(random_number_generator), z_type_(z_type), num_state_solves_(num_state_solves)
+    {
+      Auxillary_Constructor();
+    }
+
+    void Auxillary_Constructor()
+    {
+      if (!(z_type_ == "spatial field" || z_type_ == "transient vector" || z_type_ == "vector"))
       {
         std::cout << "Error in MD_z_Hyperparameter_Interface: The input z_type should be either 'spatial field' 'transient vector' or 'vector' " << std::endl;
       }
@@ -55,7 +62,33 @@ namespace HDSA
     }
 
     virtual ~MD_z_Hyperparameter_Interface()
-    {}
+    {
+    }
+
+    const HDSA::Ptr<HDSA::Random_Number_Generator<RealT>> Get_Random_Number_Generator(void) const
+    {
+      return random_number_generator_;
+    }
+
+    std::string Get_z_type(void) const
+    {
+      return z_type_;
+    }
+
+    void Set_Discrepancy_Percent_z_Variation(RealT val)
+    {
+      discrepancy_percent_z_variation_ = val;
+    }
+
+    RealT Get_Discrepancy_Percent_z_Variation(void) const
+    {
+      return discrepancy_percent_z_variation_;
+    }
+
+    int Get_Num_State_Solves(void) const
+    {
+      return num_state_solves_;
+    }
 
     void Set_alpha_z(RealT alpha_z_new)
     {
@@ -86,7 +119,6 @@ namespace HDSA
     {
       return beta_t_;
     }
-    
   };
 
 }

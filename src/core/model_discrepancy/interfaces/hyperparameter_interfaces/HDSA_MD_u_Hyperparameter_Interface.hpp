@@ -28,23 +28,7 @@ namespace HDSA
     RealT data_noise_percent_;
     RealT W_u_inv_spectral_gap_;
 
-    RealT d1_norm_sq_;
-    std::vector<RealT> d_pert_norm_sq_;
-
   public:
-    virtual HDSA::Ptr<HDSA::Vector<RealT>> Load_Spatial_Node_Data(void) const
-    {
-      std::cout << "Load_Spatial_Node_Data is required for hyperparameter algorithm-based initialization" << std::endl;
-      HDSA::Ptr<HDSA::Vector<RealT>> vec;
-      return vec;
-    }
-
-    virtual std::vector<RealT> Load_Time_Node_Data(void) const
-    {
-      std::cout << "Load_Time_Node_Data is required for hyperparameter algorithm-based initialization" << std::endl;
-      std::vector<RealT> vec;
-      return vec;
-    }
 
     MD_u_Hyperparameter_Interface(const bool &is_transient, const bool &center_data = false, const bool &adapt_time_variance = false, const int &component_id = 1) : is_transient_(is_transient), center_data_(center_data), adapt_time_variance_(adapt_time_variance), component_id_(component_id)
     {
@@ -171,16 +155,6 @@ namespace HDSA
       return gsvd_num_subspace_iter_;
     }
 
-    void Set_d1_norm_sq(RealT val)
-    {
-      d1_norm_sq_ = val;
-      std::vector<RealT> d_pert_norm_sq_;
-    }
-
-    void Set_d_pert_norm_sq(std::vector<RealT> val)
-    {
-      d_pert_norm_sq_ = val;
-    }
   };
 
 }

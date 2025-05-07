@@ -28,15 +28,15 @@ int main(int argc, char *argv[])
 
   HDSA::Ptr<HDSA::MD_Data_Interface<RealT>> data_interface = HDSA::makePtr<MD_Data_Interface_synthetic_test<RealT>>(random_number_generator, comm, n_y, n_t, c_low, c_high);
   HDSA::Ptr<HDSA::MD_Opt_Prob_Interface<RealT>> opt_prob_interface = HDSA::makePtr<MD_Opt_Prob_Interface_synthetic_test<RealT>>(comm, n_y, n_t, c_low);
-  HDSA::Ptr<HDSA::MD_u_Hyperparameter_Interface<RealT>> u_hyperparam_interface = HDSA::makePtr<MD_u_Hyperparameter_Interface_synthetic_test<RealT>>(n_y, n_t);
-  HDSA::Ptr<HDSA::MD_z_Hyperparameter_Interface<RealT>> z_hyperparam_interface = HDSA::makePtr<MD_z_Hyperparameter_Interface_synthetic_test<RealT>>(n_y);
+  HDSA::Ptr<HDSA::MD_u_Hyperparameter_Interface<RealT>> u_hyperparam_interface = HDSA::makePtr<MD_u_Hyperparameter_Interface_synthetic_test<RealT>>();
+  HDSA::Ptr<HDSA::MD_z_Hyperparameter_Interface<RealT>> z_hyperparam_interface = HDSA::makePtr<MD_z_Hyperparameter_Interface_synthetic_test<RealT>>(random_number_generator);
 
   //u_hyperparam_interface->Set_alpha_u(0.009875147499015);
   u_hyperparam_interface->Set_beta_u(0.007702351792463);
   u_hyperparam_interface->Set_beta_t(0.027523820219143);
   //u_hyperparam_interface->Set_alpha_d(3.009059750046944e-08);
   u_hyperparam_interface->Set_GSVD_Hyperparameters(51, 0, 1);
-  z_hyperparam_interface->Set_alpha_z(0.944162068377329);
+  //z_hyperparam_interface->Set_alpha_z(0.944162068377329);
   z_hyperparam_interface->Set_beta_z(0.009305846653704);
 
   HDSA::Ptr<MD_Opt_Prob_Interface_synthetic_test<RealT>> opt_prob_interface_st = HDSA::dynamicPtrCast<MD_Opt_Prob_Interface_synthetic_test<RealT>>(opt_prob_interface);
@@ -46,10 +46,6 @@ int main(int argc, char *argv[])
   HDSA::Ptr<HDSA::MD_u_Prior_Interface<RealT>> spatial_u_prior_interface = HDSA::makePtr<HDSA::MD_Numeric_Laplacian_u_Prior_Interface<RealT>>(S, M, data_interface, u_hyperparam_interface, random_number_generator);
   HDSA::Ptr<HDSA::MD_Transient_Prior_Covariance<RealT>> transient_prior_cov = HDSA::makePtr<HDSA::MD_Transient_Prior_Covariance<RealT>>(data_interface, u_hyperparam_interface, T, n_t, n_y);
   HDSA::Ptr<HDSA::MD_u_Prior_Interface<RealT>> u_prior_interface = HDSA::makePtr<HDSA::MD_Transient_Elliptic_u_Prior_Interface<RealT>>(spatial_u_prior_interface,transient_prior_cov);
-
-  //HDSA::Ptr<HDSA::Vector<RealT>> test = data_interface->get_u_opt()->clone();
-  //u_prior_interface->Apply_W_u_Plus_scalar_M_u_Inverse(*test,*data_interface->get_u_opt(),0.75);
-  //std::cout << "test norm = " << test->norm() << std::endl;
 
   HDSA::Ptr<HDSA::MD_z_Prior_Interface<RealT>> z_prior_interface = HDSA::makePtr<HDSA::MD_Numeric_Laplacian_z_Prior_Interface<RealT>>(S, M, data_interface, z_hyperparam_interface, u_prior_interface);
 

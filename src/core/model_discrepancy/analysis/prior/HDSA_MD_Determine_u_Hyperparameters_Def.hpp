@@ -30,23 +30,6 @@ namespace HDSA
     HDSA::Ptr<HDSA::Vector<RealT>> tmp1 = delta_k->clone();
     u_prior_interface->Apply_M_u(*tmp1, *delta_k);
     RealT d1_norm_sq = tmp1->dot(*delta_k);
-    u_hyperparam_interface_->Set_d1_norm_sq(d1_norm_sq);
-
-    int N = D->Number_of_Vectors();
-    if (N > 1)
-    {
-      std::vector<RealT> d_pert_norm_sq = std::vector<RealT>(N - 1, 0.0);
-      for (int j = 0; j < N - 1; j++)
-      {
-        HDSA::Ptr<HDSA::Vector<RealT>> v = delta_k->clone();
-        v->set(*data_interface_->Extract_State_Component(*(*D)[j + 1], component_id_));
-        v->axpy(-1.0, *delta_k);
-        HDSA::Ptr<HDSA::Vector<RealT>> tmp2 = delta_k->clone();
-        u_prior_interface->Apply_M_u(*tmp2, *v);
-        d_pert_norm_sq[j] = tmp2->dot(*v);
-      }
-      u_hyperparam_interface_->Set_d_pert_norm_sq(d_pert_norm_sq);
-    }
 
     RealT u_op_trace = 0.0;
     if (is_transient_)
@@ -59,7 +42,7 @@ namespace HDSA
       int m = sing_vals->numRows();
       for (int k = 0; k < m; k++)
       {
-        u_op_trace += std::pow((*sing_vals)(k, 0),2.0);
+        u_op_trace += std::pow((*sing_vals)(k, 0), 2.0);
       }
 
       HDSA::Ptr<HDSA::MD_Transient_Prior_Covariance<RealT>> u_time = u_transient.Get_Time_Cov();
@@ -79,7 +62,7 @@ namespace HDSA
       int m = sing_vals->numRows();
       for (int k = 0; k < m; k++)
       {
-        u_op_trace += std::pow((*sing_vals)(k, 0),2.0);
+        u_op_trace += std::pow((*sing_vals)(k, 0), 2.0);
       }
     }
 
@@ -103,36 +86,36 @@ namespace HDSA
     Transient_Vector<RealT> tmp = dynamic_cast<Transient_Vector<RealT> &>(*(*D)[0]);
     int n_t = tmp.Get_n_t();
     int N = D->Number_of_Vectors();
-    HDSA::Ptr<HDSA::Dense_Matrix<RealT>> weights = HDSA::makePtr<HDSA::Dense_Matrix<RealT>>(n_t,N); 
-    for(int j = 0; j < N; j++)
+    HDSA::Ptr<HDSA::Dense_Matrix<RealT>> weights = HDSA::makePtr<HDSA::Dense_Matrix<RealT>>(n_t, N);
+    for (int j = 0; j < N; j++)
     {
       Transient_Vector<RealT> d_trans = dynamic_cast<Transient_Vector<RealT> &>(*(*D)[j]);
       RealT max_j = 0.0;
-      for(int k = 0; k < n_t; k++)
+      for (int k = 0; k < n_t; k++)
       {
         HDSA::Ptr<const HDSA::Vector<RealT>> d = data_interface_->Extract_State_Component(*d_trans[k], component_id_);
         HDSA::Ptr<HDSA::Vector<RealT>> vec = d->clone();
-        u_prior_interface->Apply_M_u(*vec,*d);
+        u_prior_interface->Apply_M_u(*vec, *d);
         RealT val = vec->dot(*d);
-        max_j = std::max(max_j,val);
-        weights->Replace_Element(k,j,val);
+        max_j = std::max(max_j, val);
+        weights->Replace_Element(k, j, val);
       }
-      for(int k = 0; k < n_t; k++)
+      for (int k = 0; k < n_t; k++)
       {
-        RealT val = (*weights)(k,j)/max_j;
+        RealT val = (*weights)(k, j) / max_j;
         val = (val + u_hyperparam_interface_->Get_Time_Variance_Inflation()) / (1.0 + u_hyperparam_interface_->Get_Time_Variance_Inflation());
-        weights->Replace_Element(k,j,val);
+        weights->Replace_Element(k, j, val);
       }
     }
-    std::vector<RealT> alpha_t_new = std::vector<RealT>(n_t,0.0);
-    for(int k = 0; k < n_t; k++)
+    std::vector<RealT> alpha_t_new = std::vector<RealT>(n_t, 0.0);
+    for (int k = 0; k < n_t; k++)
     {
       RealT val = 0.0;
-      for(int j = 0; j < N; j++)
+      for (int j = 0; j < N; j++)
       {
-        val += (*weights)(k,j);
+        val += (*weights)(k, j);
       }
-      alpha_t_new[k] = val/static_cast<RealT>(N);
+      alpha_t_new[k] = val / static_cast<RealT>(N);
     }
     u_hyperparam_interface_->Set_alpha_t(alpha_t_new);
   }
@@ -152,7 +135,7 @@ namespace HDSA
     HDSA::Ptr<const HDSA::MultiVector<RealT>> D = data_interface_->get_D();
     int N = D->Number_of_Vectors();
     RealT mags = 0.0;
-    for(int j = 0; j < N; j++)
+    for (int j = 0; j < N; j++)
     {
       HDSA::Ptr<HDSA::Vector<RealT>> delta = (*D)[j];
       HDSA::Ptr<const HDSA::Vector<RealT>> delta_k = data_interface_->Extract_State_Component(*delta, component_id_);
@@ -160,9 +143,8 @@ namespace HDSA
       u_prior_interface->Apply_M_u(*tmp1, *delta_k);
       mags += std::sqrt(tmp1->dot(*delta_k));
     }
-    mags = mags/static_cast<RealT>(N);
-
-    RealT alpha_d_new = std::pow(mags * u_hyperparam_interface_->Get_Data_Noise_Percent(),2.0);
+    mags = mags / static_cast<RealT>(N);
+    RealT alpha_d_new = std::pow(mags * u_hyperparam_interface_->Get_Data_Noise_Percent(), 2.0);
     u_hyperparam_interface_->Set_alpha_d(alpha_d_new);
   }
 

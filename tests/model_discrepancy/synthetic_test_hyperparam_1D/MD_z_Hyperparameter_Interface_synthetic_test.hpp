@@ -1,34 +1,28 @@
 #ifndef HDSA_MD_Z_HYPERPARAMETER_INTERFACE_SYNTHETIC_TEST_HPP
 #define HDSA_MD_Z_HYPERPARAMETER_INTERFACE_SYNTHETIC_TEST_HPP
 
+template <class RealT>
+class MD_z_Hyperparameter_Interface_synthetic_test : public HDSA::MD_z_Hyperparameter_Interface<RealT>
+{
 
-  template <class RealT>
-  class MD_z_Hyperparameter_Interface_synthetic_test : public HDSA::MD_z_Hyperparameter_Interface<RealT>
+public:
+  std::vector<std::vector<RealT>> Spatial_Domain_Bounds(void) const
   {
+    std::vector<std::vector<RealT>> vec; // vec.size() = spatial dimension, e.g. 1,2, or 3, [ vec[i][0],vec[i][1] ] is an interval bounding the ith spatial coordinate
+    vec.resize(1);
+    vec[0].resize(2);
+    vec[0][0] = 0.0;
+    vec[0][1] = 1.0;
+    return vec;
+  }
 
-  private:
-    int m_;
+  MD_z_Hyperparameter_Interface_synthetic_test(const HDSA::Ptr<HDSA::Random_Number_Generator<RealT>> &random_number_generator) : HDSA::MD_z_Hyperparameter_Interface<RealT>(random_number_generator, "spatial field")
+  {
+  }
 
-  public:
-    HDSA::Ptr<HDSA::Vector<RealT>> Load_Spatial_Node_Data(void) const
-    {
-      HDSA::Ptr<Std_Vector<RealT>> x = HDSA::makePtr<Std_Vector<RealT>>(m_);
-      for (int k = 0; k < m_; k++)
-      {
-        x->Replace_Element(k, static_cast<RealT>(k)/static_cast<RealT>(m_-1));
-      }
-      return x;
-    }
-
-    MD_z_Hyperparameter_Interface_synthetic_test() : HDSA::MD_z_Hyperparameter_Interface<RealT>("spatial field")
-    {
-      m_ = 51;
-    }
-
-    virtual ~MD_z_Hyperparameter_Interface_synthetic_test()
-    {
-    }
-  };
-
+  virtual ~MD_z_Hyperparameter_Interface_synthetic_test()
+  {
+  }
+};
 
 #endif
