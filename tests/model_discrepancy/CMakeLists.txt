@@ -4,6 +4,7 @@ ADD_SUBDIRECTORY(synthetic_test_hessian_gevp)
 ADD_SUBDIRECTORY(synthetic_test_hyperparam_1D)
 ADD_SUBDIRECTORY(synthetic_test_transient)
 ADD_SUBDIRECTORY(synthetic_test_multi_state)
+ADD_SUBDIRECTORY(synthetic_test_transient_multi_state)
 ADD_SUBDIRECTORY(PDE_Test_Problem)
 
  TRIBITS_COPY_FILES_TO_BINARY_DIR(
