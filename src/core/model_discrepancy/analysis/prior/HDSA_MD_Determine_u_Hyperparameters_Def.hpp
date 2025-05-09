@@ -80,8 +80,6 @@ namespace HDSA
   template <class RealT>
   void MD_Determine_u_Hyperparameters<RealT>::Determine_alpha_t(HDSA::MD_u_Prior_Interface<RealT> *u_prior_interface) const
   {
-    std::cout << "Need to implement test for Determine_alpha_t" << std::endl;
-
     HDSA::Ptr<const HDSA::MultiVector<RealT>> D = data_interface_->get_D();
     Transient_Vector<RealT> tmp = dynamic_cast<Transient_Vector<RealT> &>(*(*D)[0]);
     int n_t = tmp.Get_n_t();

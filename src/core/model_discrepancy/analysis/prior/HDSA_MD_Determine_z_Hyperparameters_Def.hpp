@@ -17,7 +17,6 @@ namespace HDSA
   template <class RealT>
   void MD_Determine_z_Hyperparameters<RealT>::Determine_alpha_z(HDSA::MD_z_Prior_Interface<RealT> *z_prior_interface) const
   {
-    std::cout << "Need to test Determine_alpha_z" << std::endl;
     HDSA::Ptr<const HDSA::Vector<RealT>> z_opt = data_interface_->get_z_opt();
     HDSA::Ptr<HDSA::Vector<RealT>> tmp = z_opt->clone();
     z_prior_interface->Apply_M_z(*tmp, *z_opt);

@@ -25,11 +25,9 @@ int main(int argc, char *argv[])
   HDSA::Ptr<HDSA::MD_u_Hyperparameter_Interface<RealT>> u_hyperparam_interface = HDSA::makePtr<MD_u_Hyperparameter_Interface_synthetic_test<RealT>>();
   HDSA::Ptr<HDSA::MD_z_Hyperparameter_Interface<RealT>> z_hyperparam_interface = HDSA::makePtr<MD_z_Hyperparameter_Interface_synthetic_test<RealT>>(random_number_generator);
 
-  //u_hyperparam_interface->Set_alpha_u(0.048969233204560);
   u_hyperparam_interface->Set_beta_u(0.007702351792463);
   u_hyperparam_interface->Set_alpha_d(2.177109166165424e-07);
   u_hyperparam_interface->Set_GSVD_Hyperparameters(51, 0, 1);
-  //z_hyperparam_interface->Set_alpha_z(4.198227272539055);
   z_hyperparam_interface->Set_beta_z(0.009305846653704);
 
   HDSA::Ptr<MD_Opt_Prob_Interface_synthetic_test<RealT>> opt_prob_interface_st = HDSA::dynamicPtrCast<MD_Opt_Prob_Interface_synthetic_test<RealT>>(opt_prob_interface);

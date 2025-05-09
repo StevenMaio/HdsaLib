@@ -42,7 +42,6 @@ int main(int argc, char *argv[])
   u_prior_interface_std.resize(2);
 
   u_hyperparam_interface_std[0] = HDSA::makePtr<MD_u_Hyperparameter_Interface_synthetic_test<RealT>>(0);
-  //u_hyperparam_interface_std[0]->Set_alpha_u(0.001688110759857);
   u_hyperparam_interface_std[0]->Set_beta_u(0.009166435191031);
   u_hyperparam_interface_std[0]->Set_beta_t(0.027499305573092);
   u_hyperparam_interface_std[0]->Set_GSVD_Hyperparameters(50, 0, 1);
@@ -51,7 +50,6 @@ int main(int argc, char *argv[])
   u_prior_interface_std[0] = HDSA::makePtr<HDSA::MD_Transient_Elliptic_u_Prior_Interface<RealT>>(spatial_prior_interface_std[0],transient_prior_cov_std[0]);
 
   u_hyperparam_interface_std[1] = HDSA::makePtr<MD_u_Hyperparameter_Interface_synthetic_test<RealT>>(1);
-  //u_hyperparam_interface_std[1]->Set_alpha_u(0.006235002943316);
   u_hyperparam_interface_std[1]->Set_beta_u(0.009166435191031);
   u_hyperparam_interface_std[1]->Set_beta_t(0.027499305573092);
   u_hyperparam_interface_std[1]->Set_GSVD_Hyperparameters(50, 0, 1);
@@ -63,8 +61,6 @@ int main(int argc, char *argv[])
 
   int num_state_solves = 100;
   HDSA::Ptr<HDSA::MD_z_Hyperparameter_Interface<RealT>> z_hyperparam_interface = HDSA::makePtr<MD_z_Hyperparameter_Interface_synthetic_test<RealT>>(random_number_generator, num_state_solves, n_y, n_t, c_low);
-  //z_hyperparam_interface->Set_alpha_z(1.076021648025798e+03);
-  // Something is wrong in the computation of alpha_z. I think the issue is coming from the separating of state variables with time dependence.
   z_hyperparam_interface->Set_beta_z(0.009305846653704);
   HDSA::Ptr<HDSA::MD_z_Prior_Interface<RealT>> z_prior_interface = HDSA::makePtr<HDSA::MD_Numeric_Laplacian_z_Prior_Interface<RealT>>(S, M, data_interface, z_hyperparam_interface, u_prior_interface);
 

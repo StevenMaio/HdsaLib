@@ -25,7 +25,7 @@ def compare_files(file1, file2):
 
 def main():
     # Define paths
-    executable_path = './ROL_example_tests_model_discrepancy_synthetic_test_transient_example_sensitivity.exe'
+    executable_path = './ROL_example_tests_model_discrepancy_synthetic_test_transient_multi_state_example_sensitivity.exe'
     output_directory = '.'  # Assuming the .exe outputs files in the current directory and subdirectories
     reference_directory = 'reference_output'
 
