@@ -8,6 +8,7 @@
 #include "core/base/HDSA_Random_Number_Generator.hpp"
 #include "core/base/HDSA_Linear_Operator.hpp"
 #include "core/base/HDSA_Transient_Vector.hpp"
+#include "core/base/HDSA_Transient_Vector_Const.hpp"
 #include "core/base/HDSA_Std_Vector.hpp"
 #include "core/base/HDSA_MultiVector.hpp"
 #include "core/base/HDSA_Stream.hpp"

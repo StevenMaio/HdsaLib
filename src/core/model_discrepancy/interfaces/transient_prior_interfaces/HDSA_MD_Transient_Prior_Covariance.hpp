@@ -135,7 +135,7 @@ namespace HDSA
         {
           for (int j = 0; j < n_t_; j++)
           {
-            RealT val = (*E_t_)(i, j) * alpha_t_[i] * alpha_t_[j];
+            RealT val = (*E_t_)(i, j) * std::sqrt(alpha_t_[i] * alpha_t_[j]);
             A->Replace_Element(i, j, val);
           }
         }

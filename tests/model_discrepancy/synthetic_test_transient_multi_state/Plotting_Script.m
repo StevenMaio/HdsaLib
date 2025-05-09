@@ -14,14 +14,14 @@ prior_delta = cell(100,1);
 prior_delta_sabl = cell(100,1);
 prior_delta_sabl_load = load('Sabl_Output.mat','prior_delta').prior_delta;
 for k = 1:100
-    prior_delta{k} = zeros(51,3);
+    prior_delta{k} = zeros(100,3);
     data_obj = importdata(['prior_discrepancy_sample_',num2str(k),'/Vector_1_time_8.txt'], ' ', 2);  %% we need to skip the first two lines
     prior_delta{k}(:,1)= data_obj.data;
     data_obj = importdata(['prior_discrepancy_sample_',num2str(k),'/Vector_2_time_8.txt'], ' ', 2);  %% we need to skip the first two lines
     prior_delta{k}(:,2)= data_obj.data;
     data_obj = importdata(['prior_discrepancy_sample_',num2str(k),'/Vector_3_time_8.txt'], ' ', 2);  %% we need to skip the first two lines
     prior_delta{k}(:,3)= data_obj.data;
-    I = (51*7+1):(51*8);
+    I = (100*7+1):(100*8);
     prior_delta_sabl{k} = prior_delta_sabl_load{k}(I,:);
 end
 
@@ -31,25 +31,25 @@ for k = 1:100
 end
 diff = [diff;local_diff];
 
-prior_delta_z_opt = zeros(51,100);
+prior_delta_z_opt = zeros(100,100);
 for j = 1:100
     data_obj = importdata(['prior_discrepancy_evaluated_at_z_opt/Vector_',num2str(j),'_time_6.txt'], ' ', 2);  %% we need to skip the first two lines
     prior_delta_z_opt(:,j)= data_obj.data;
 end
 prior_delta_z_opt_sabl = load('Sabl_Output.mat','prior_delta_z_opt').prior_delta_z_opt;
-I = (51*5+1):(51*6);
+I = (100*5+1):(100*6);
 prior_delta_z_opt_sabl = prior_delta_z_opt_sabl(I,:);
 
 local_diff = norm(prior_delta_z_opt - prior_delta_z_opt_sabl);
 diff = [diff;local_diff];
 
-post_delta_mean = zeros(51,3);
+post_delta_mean = zeros(100,3);
 for k = 1:3
     data_obj = importdata(['posterior_discrepancy_mean_',num2str(k),'_time_5.txt'], ' ', 2);  %% we need to skip the first two lines
     post_delta_mean(:,k)= data_obj.data;
 end
 post_delta_mean_sabl = load('Sabl_Output.mat','post_delta_mean').post_delta_mean;
-I = (51*4+1):(51*5);
+I = (100*4+1):(100*5);
 post_delta_mean_sabl = post_delta_mean_sabl(I,:);
 
 local_diff = norm(post_delta_mean - post_delta_mean_sabl);
@@ -59,12 +59,12 @@ post_delta_samples = cell(3,1);
 post_delta_samples_sabl = cell(3,1);
 post_delta_samples_sabl_load = load('Sabl_Output.mat','post_delta_samples').post_delta_samples;
 for k = 1:3
-    post_delta_samples{k} = zeros(51,100);
+    post_delta_samples{k} = zeros(100,100);
     for j = 1:100
         data_obj = importdata(['posterior_discrepancy_samples_',num2str(k),'/Vector_',num2str(j),'_time_5.txt'], ' ', 2);  %% we need to skip the first two lines
         post_delta_samples{k}(:,j) = data_obj.data;
     end
-    I = (51*4+1):(51*5);
+    I = (100*4+1):(100*5);
     post_delta_samples_sabl{k} = post_delta_samples_sabl_load{k}(I,:);
 end
 
@@ -76,7 +76,7 @@ diff = [diff;local_diff];
 
 data_obj = importdata('posterior_update_mean.txt', ' ', 2);  %% we need to skip the first two lines
 post_z_mean = data_obj.data;
-post_z_samples = zeros(51,100);
+post_z_samples = zeros(50,100);
 for k = 1:100
     data_obj = importdata(['posterior_update_samples/Vector_',num2str(k),'.txt'], ' ', 2);  %% we need to skip the first two lines
     post_z_samples(:,k) = data_obj.data;
@@ -93,23 +93,23 @@ diff = [diff;local_diff];
 
 if ~surpress_figures
 
-    x = linspace(0,1,51)';
+    x = linspace(0,1,50)';
 
     figure,
-    plot(x,prior_delta_z_opt,'LineWidth',3)
+    plot(x,prior_delta_z_opt(1:50,:),'LineWidth',3)
     title('HdsaLib')
     figure,
-    plot(x,prior_delta_z_opt_sabl,'LineWidth',3)
+    plot(x,prior_delta_z_opt_sabl(1:50,:),'LineWidth',3)
     title('Sabl')
     pause()
     close all
 
     for k = 1:5
         figure,
-        plot(x,prior_delta{k},'LineWidth',3)
+        plot(x,prior_delta{k}(1:50,:),'LineWidth',3)
         title('HdsaLib')
         figure,
-        plot(x,prior_delta_sabl{k},'LineWidth',3)
+        plot(x,prior_delta_sabl{k}(1:50,:),'LineWidth',3)
         title('Sabl')
         pause()
         close all
@@ -118,13 +118,13 @@ if ~surpress_figures
     for k = 1:3
         figure
         hold on
-        plot(x,post_delta_samples{k},'LineWidth',3,'Color',.9*ones(3,1))
-        plot(x,post_delta_mean(:,k),'LineWidth',3,'Color','red')
+        plot(x,post_delta_samples{k}(1:50,:),'LineWidth',3,'Color',.9*ones(3,1))
+        plot(x,post_delta_mean(1:50,k),'LineWidth',3,'Color','red')
         title('HdsaLib')
         figure
         hold on
-        plot(x,post_delta_samples_sabl{k},'LineWidth',3,'Color',.9*ones(3,1))
-        plot(x,post_delta_mean_sabl(:,k),'LineWidth',3,'Color','red')
+        plot(x,post_delta_samples_sabl{k}(1:50,:),'LineWidth',3,'Color',.9*ones(3,1))
+        plot(x,post_delta_mean_sabl(1:50,k),'LineWidth',3,'Color','red')
         title('Sabl')
         pause()
         close all

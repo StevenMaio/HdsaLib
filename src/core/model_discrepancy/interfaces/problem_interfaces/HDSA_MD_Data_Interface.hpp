@@ -75,6 +75,62 @@ namespace HDSA
     }
 
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // functions to manage abstraction for stationary and transient problems
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////// 
+
+    HDSA::Ptr<const HDSA::Vector<RealT>> Extract_State_Component(const HDSA::Vector<RealT> & u, int component_id, bool check_transient) const 
+    { 
+      HDSA::Ptr<const HDSA::Vector<RealT>> u_component;
+      if(check_transient)
+      {
+        if (const Transient_Vector<RealT>* u_trans = dynamic_cast<const Transient_Vector<RealT>*>(&(u)))
+        {
+          int n_t = u_trans->Get_n_t();
+          std::vector<HDSA::Ptr<const HDSA::Vector<RealT>>> u_component_trans;
+          u_component_trans.resize(n_t);
+          for(int k = 0; k < n_t; k++)
+          {
+            u_component_trans[k] = Extract_State_Component(*(*u_trans)[k],component_id);
+          }
+          u_component = HDSA::makePtr<Transient_Vector_Const<RealT>>(u_component_trans);
+        }
+        else
+        {
+          u_component = Extract_State_Component(u,component_id);
+        }
+      }
+      else
+      {
+        u_component = Extract_State_Component(u,component_id);
+      }
+      return u_component;
+    }
+
+    void Set_State_Component(HDSA::Vector<RealT> & u, const HDSA::Vector<RealT> & u_component, int component_id, bool check_transient) const 
+    { 
+      if(check_transient)
+      {
+        if (Transient_Vector<RealT>* u_trans = dynamic_cast<Transient_Vector<RealT>*>(&(u)))
+        {
+          const Transient_Vector<RealT>* u_component_trans = dynamic_cast<const Transient_Vector<RealT>*>(&(u_component));
+          int n_t = u_trans->Get_n_t();
+          for(int k = 0; k < n_t; k++)
+          {
+             Set_State_Component(*(*u_trans)[k],*(*u_component_trans)[k],component_id);
+          }
+        }
+        else
+        {
+           Set_State_Component(u,u_component,component_id);
+        }
+      }
+      else
+      {
+         Set_State_Component(u,u_component,component_id);
+      }
+    }
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // accessor functions
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////// 
 

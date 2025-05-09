@@ -25,7 +25,7 @@ namespace HDSA
         Transient_Vector<RealT> *u_tmp_trans = dynamic_cast<Transient_Vector<RealT> *>(&(*u_tmp));
         for (int j = 0; j < n_t_; j++)
         {
-          spatial_prior_cov_->Apply_M_u(*(*u_tmp_trans)[j], *(*u_in_trans)[j]);
+          spatial_prior_cov_->Apply_M_u(*(*u_tmp_trans)[j], *u_in_trans->Get_Vector_Const(j));
         }
         for (int j = 0; j < n_t_; j++)
         {
@@ -55,13 +55,13 @@ namespace HDSA
       {
         for (int j = 0; j < n_t_; j++)
         {
-          RealT val = (*spatial_sing_vecs)[i]->dot(*(*u_in_trans)[j]);
+          RealT val = (*spatial_sing_vecs)[i]->dot(*u_in_trans->Get_Vector_Const(j));
           tmp1->Replace_Element(i, j, val);
         }
       }
       HDSA::Ptr<HDSA::Dense_Matrix<RealT>> tmp2 = HDSA::makePtr<HDSA::Dense_Matrix<RealT>>(spatial_rank, n_t_);
       tmp1->Multiply(*tmp2, *transient_prior_cov_->Get_Evecs());
-      // tmp2 corresponds to u_tmp output in line 61
+
       HDSA::Ptr<HDSA::Dense_Matrix<RealT>> spatial_sing_vals = spatial_prior_cov_cast->Get_Sing_Vals();
       HDSA::Ptr<HDSA::Dense_Matrix<RealT>> time_sing_vals = transient_prior_cov_->Get_Evals();
       for (int i = 0; i < spatial_rank; i++)
@@ -74,10 +74,9 @@ namespace HDSA
           tmp2->Replace_Element(i, j, val3);
         }
       }
-      // tmp2 corresponds to u_tmp output from line 64
+
       HDSA::Ptr<HDSA::Dense_Matrix<RealT>> tmp3 = HDSA::makePtr<HDSA::Dense_Matrix<RealT>>(spatial_rank, n_t_);
       tmp2->Multiply(*tmp3, *transient_prior_cov_->Get_Evecs(), false, true);
-      // tmp3 corresponds to u_tmp * this.transient_prior_cov.evecs' within line 64
       for (int j = 0; j < n_t_; j++)
       {
         (*u_out_trans)[j]->zeros();
@@ -97,7 +96,7 @@ namespace HDSA
       Transient_Vector<RealT> *u_tmp_trans = dynamic_cast<Transient_Vector<RealT> *>(&(*u_tmp));
       for (int j = 0; j < n_t_; j++)
       {
-        spatial_prior_cov_cast->Apply_W_u_Acute_Inverse(*(*u_tmp_trans)[j], *(*u_in_trans)[j]);
+        spatial_prior_cov_cast->Apply_W_u_Acute_Inverse(*(*u_tmp_trans)[j], *u_in_trans->Get_Vector_Const(j));
       }
       for (int j = 0; j < n_t_; j++)
       {
@@ -123,7 +122,6 @@ namespace HDSA
       {
         HDSA::Ptr<HDSA::Vector<RealT>> sk = samples[k];
         Transient_Vector<RealT> *sk_trans = dynamic_cast<Transient_Vector<RealT> *>(&(*sk));
-        // Random number generation in Sabl follows the pattern sample 1: time 1 space vector, time 2 space vector,... time n_t space vector; sample 2:...
 
         HDSA::Ptr<HDSA::Dense_Matrix<RealT>> tmp1 = HDSA::makePtr<HDSA::Dense_Matrix<RealT>>(spatial_rank, n_t_);
         for (int j = 0; j < n_t_; j++)
@@ -150,7 +148,6 @@ namespace HDSA
 
     void Sample_with_Covariance_W_u_Acute_Plus_scalar_M_u_Inverse(HDSA::MultiVector<RealT> &samples, const RealT &scalar) const
     {
-      // NEED TO IMPLEMENT
       int num_samples = samples.Number_of_Vectors();
       const MD_Elliptic_u_Prior_Interface<RealT> *spatial_prior_cov_cast = dynamic_cast<const MD_Elliptic_u_Prior_Interface<RealT> *>(&(*spatial_prior_cov_));
       HDSA::Ptr<HDSA::Random_Number_Generator<RealT>> random_number_generator = spatial_prior_cov_cast->Get_Random_Number_Generator();
@@ -163,15 +160,14 @@ namespace HDSA
       {
         HDSA::Ptr<HDSA::Vector<RealT>> sk = samples[k];
         Transient_Vector<RealT> *sk_trans = dynamic_cast<Transient_Vector<RealT> *>(&(*sk));
-        // Random number generation in Sabl follows the pattern sample 1: time 1 space vector, time 2 space vector,... time n_t space vector; sample 2:...
-
+        
         HDSA::Ptr<HDSA::Dense_Matrix<RealT>> tmp1 = HDSA::makePtr<HDSA::Dense_Matrix<RealT>>(spatial_rank, n_t_);
         for (int j = 0; j < n_t_; j++)
         {
           for (int i = 0; i < spatial_rank; i++)
           {
             RealT omega = random_number_generator->Generate_Standard_Normal_Sample();
-            RealT val1 = std::pow((*spatial_sing_vals)(i, 0),2.0) * (*time_evals)(j, 0);
+            RealT val1 = std::pow((*spatial_sing_vals)(i, 0), 2.0) * (*time_evals)(j, 0);
             RealT val2 = val1 / (1.0 + scalar * val1);
             RealT val = std::sqrt(val2) * omega;
             tmp1->Replace_Element(i, j, val);
@@ -224,8 +220,6 @@ namespace HDSA
     {
       return transient_prior_cov_;
     }
-
-
   };
 }
 

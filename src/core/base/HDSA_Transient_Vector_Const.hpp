@@ -1,30 +1,26 @@
-#ifndef HDSA_TRANSIENT_VECTOR_HPP
-#define HDSA_TRANSIENT_VECTOR_HPP
+#ifndef HDSA_TRANSIENT_VECTOR_CONST_HPP
+#define HDSA_TRANSIENT_VECTOR_CONST_HPP
 
 template <class RealT>
-class Transient_Vector : public HDSA::Vector<RealT>
+class Transient_Vector_Const : public Transient_Vector<RealT>
 {
 
 private:
     int n_t_;
-    std::vector<HDSA::Ptr<HDSA::Vector<RealT>>> vec_;
+    std::vector<HDSA::Ptr<const HDSA::Vector<RealT>>> const_vec_;
 
 public:
-    Transient_Vector()
+    Transient_Vector_Const(std::vector<HDSA::Ptr<const HDSA::Vector<RealT>>> &trans_vec)
     {
-    }
-
-    Transient_Vector(int n_t, const HDSA::Ptr<const HDSA::Vector<RealT>> &spatial_vec)
-    {
-        n_t_ = n_t;
-        vec_.resize(n_t);
-        for (int k = 0; k < n_t; k++)
+        n_t_ = trans_vec.size();
+        const_vec_.resize(n_t_);
+        for (int k = 0; k < n_t_; k++)
         {
-            vec_[k] = spatial_vec->clone();
+            const_vec_[k] = trans_vec[k];
         }
     }
 
-    ~Transient_Vector()
+    ~Transient_Vector_Const()
     {
     }
 
@@ -39,7 +35,7 @@ public:
 
     HDSA::Ptr<HDSA::Vector<RealT>> clone() const override
     {
-        HDSA::Ptr<HDSA::Vector<RealT>> vec = HDSA::makePtr<Transient_Vector<RealT>>(n_t_, vec_[0]);
+        HDSA::Ptr<HDSA::Vector<RealT>> vec = HDSA::makePtr<Transient_Vector<RealT>>(n_t_, const_vec_[0]);
         return vec;
     }
 
@@ -50,42 +46,44 @@ public:
         const Transient_Vector<RealT> x_trans = dynamic_cast<const Transient_Vector<RealT> &>(x);
         for (int k = 0; k < n_t_; k++)
         {
-            val += Get_Vector_Const(k)->dot(*x_trans.Get_Vector_Const(k));
+            val += const_vec_[k]->dot(*x_trans.Get_Vector_Const(k));
         }
+        return val;
+    }
+
+    // compute the dot product of this and x
+    RealT norm(void) const override
+    {
+        RealT val = 0.0;
+        for (int k = 0; k < n_t_; k++)
+        {
+            val += const_vec_[k]->dot(*const_vec_[k]);
+        }
+        val = std::sqrt(val);
         return val;
     }
 
     // add alpha*x to this
     void axpy(const RealT alpha, const HDSA::Vector<RealT> &x) override
     {
-        const Transient_Vector<RealT> x_trans = dynamic_cast<const Transient_Vector<RealT> &>(x);
-        for (int k = 0; k < n_t_; k++)
-        {
-            vec_[k]->axpy(alpha, *x_trans.Get_Vector_Const(k));
-        }
+        std::cout << "Cannot use axpy on Transient_Vector_Const" << std::endl;
     }
 
     // return vector dimension
     int dimension() const override
     {
-        return n_t_ * vec_[0]->dimension();
+        return n_t_ * const_vec_[0]->dimension();
     }
 
     // set this=val elementwise
     void setScalar(const RealT val) override
     {
-        for (int k = 0; k < n_t_; k++)
-        {
-            vec_[k]->setScalar(val);
-        }
+        std::cout << "Cannot use setScalar on Transient_Vector_Const" << std::endl;
     }
 
     void randomize_standard_normal() override
     {
-        for (int k = 0; k < n_t_; k++)
-        {
-            vec_[k]->randomize_standard_normal();
-        }
+        std::cout << "Cannot use randomize_standard_normal on Transient_Vector_Const" << std::endl;
     }
 
     void Write_to_File(const std::string &name) const override
@@ -95,7 +93,7 @@ public:
         for (int k = 0; k < n_t_; k++)
         {
             std::string name_k = name_tmp + "_time_" + std::to_string(k + 1) + ".txt";
-            vec_[k]->Write_to_File(name_k);
+            const_vec_[k]->Write_to_File(name_k);
         }
     }
 
@@ -103,14 +101,9 @@ public:
     // Function specific to this class for convenience
     //////////////////////////////////////////////////////////////////////////////////
 
-    HDSA::Ptr<HDSA::Vector<RealT>> operator[](int k) const
+    HDSA::Ptr<const HDSA::Vector<RealT>> Get_Vector_Const(int k) const override
     {
-        return vec_[k];
-    }
-
-    virtual HDSA::Ptr<const HDSA::Vector<RealT>> Get_Vector_Const(int k) const
-    {
-        return vec_[k];
+        return const_vec_[k];
     }
 };
 

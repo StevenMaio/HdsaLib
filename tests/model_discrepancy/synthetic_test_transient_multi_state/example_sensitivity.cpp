@@ -28,32 +28,6 @@ int main(int argc, char *argv[])
 
   HDSA::Ptr<HDSA::MD_Data_Interface<RealT>> data_interface = HDSA::makePtr<MD_Data_Interface_synthetic_test<RealT>>(random_number_generator, comm, n_y, n_t, c_low, c_high);
   HDSA::Ptr<HDSA::MD_Opt_Prob_Interface<RealT>> opt_prob_interface = HDSA::makePtr<MD_Opt_Prob_Interface_synthetic_test<RealT>>(data_interface, comm, n_y, n_t, c_low);
-
-  // std::cout << "u_opt->norm() = " << data_interface->get_u_opt()->norm() << std::endl;
-  // std::cout << "z_opt->norm() = " << data_interface->get_z_opt()->norm() << std::endl;
-  // std::cout << "D[0]->norm() = " << (*data_interface->get_D())[0]->norm() << std::endl;
-  // std::cout << "D[1]->norm() = " << (*data_interface->get_D())[1]->norm() << std::endl;
-  // std::cout << "Z[0]->norm() = " << (*data_interface->get_Z())[0]->norm() << std::endl;
-  // std::cout << "Z[1]->norm() = " << (*data_interface->get_Z())[1]->norm() << std::endl;
-
-  // HDSA::Ptr<HDSA::Vector<RealT>> u_tmp1 = data_interface->get_u_opt()->clone();
-  // u_tmp1->setScalar(1.0);
-  // HDSA::Ptr<HDSA::Vector<RealT>> u_tmp2 = data_interface->get_u_opt()->clone();
-  // opt_prob_interface->Misfit_Gradient(*u_tmp2,*u_tmp1,*data_interface->get_z_opt());
-  // std::cout << "Misfit gradient norm = " << u_tmp2->norm() << std::endl;
-
-  // HDSA::Ptr<HDSA::Vector<RealT>> u_tmp3 = data_interface->get_u_opt()->clone();
-  // opt_prob_interface->Apply_Misfit_Hessian(*u_tmp3,*u_tmp2,*data_interface->get_u_opt(),*data_interface->get_z_opt());
-  // std::cout << "Misfit HessVec norm = " << u_tmp3->norm() << std::endl;
-
-  // HDSA::Ptr<HDSA::Vector<RealT>> z_tmp1 = data_interface->get_z_opt()->clone();
-  // opt_prob_interface->Apply_Solution_Operator_z_Jacobian_Transpose(*z_tmp1, *u_tmp2, *data_interface->get_z_opt());
-  // std::cout << "Solution_Operator_Jacobian_Transpose Matvec norm = " << z_tmp1->norm() << std::endl;
-
-  // HDSA::Ptr<HDSA::Vector<RealT>> z_tmp2 = data_interface->get_z_opt()->clone();
-  // opt_prob_interface->Apply_RS_Hessian(*z_tmp2, *z_tmp1, *data_interface->get_z_opt());
-  // std::cout << "RS_Hessian Matvec norm = " << z_tmp2->norm() << std::endl;
-
   HDSA::Ptr<MD_Opt_Prob_Interface_synthetic_test<RealT>> opt_prob_interface_st = HDSA::dynamicPtrCast<MD_Opt_Prob_Interface_synthetic_test<RealT>>(opt_prob_interface);
   HDSA::Ptr<HDSA::Sparse_Matrix<RealT>> M = opt_prob_interface_st->Get_Mass_Matrix();
   HDSA::Ptr<HDSA::Sparse_Matrix<RealT>> S = opt_prob_interface_st->Get_Stiffness_Matrix();
@@ -68,27 +42,29 @@ int main(int argc, char *argv[])
   u_prior_interface_std.resize(2);
 
   u_hyperparam_interface_std[0] = HDSA::makePtr<MD_u_Hyperparameter_Interface_synthetic_test<RealT>>(0);
-  u_hyperparam_interface_std[0]->Set_alpha_u(0.001688110759857);
+  //u_hyperparam_interface_std[0]->Set_alpha_u(0.001688110759857);
   u_hyperparam_interface_std[0]->Set_beta_u(0.009166435191031);
   u_hyperparam_interface_std[0]->Set_beta_t(0.027499305573092);
-  u_hyperparam_interface_std[0]->Set_GSVD_Hyperparameters(51, 0, 1);
+  u_hyperparam_interface_std[0]->Set_GSVD_Hyperparameters(50, 0, 1);
   spatial_prior_interface_std[0] = HDSA::makePtr<HDSA::MD_Numeric_Laplacian_u_Prior_Interface<RealT>>(S, M, data_interface, u_hyperparam_interface_std[0], random_number_generator);
   transient_prior_cov_std[0] = HDSA::makePtr<HDSA::MD_Transient_Prior_Covariance<RealT>>(data_interface, u_hyperparam_interface_std[0], T, n_t, n_y);
   u_prior_interface_std[0] = HDSA::makePtr<HDSA::MD_Transient_Elliptic_u_Prior_Interface<RealT>>(spatial_prior_interface_std[0],transient_prior_cov_std[0]);
 
   u_hyperparam_interface_std[1] = HDSA::makePtr<MD_u_Hyperparameter_Interface_synthetic_test<RealT>>(1);
-  u_hyperparam_interface_std[1]->Set_alpha_u(0.006235002943316);
+  //u_hyperparam_interface_std[1]->Set_alpha_u(0.006235002943316);
   u_hyperparam_interface_std[1]->Set_beta_u(0.009166435191031);
   u_hyperparam_interface_std[1]->Set_beta_t(0.027499305573092);
-  u_hyperparam_interface_std[1]->Set_GSVD_Hyperparameters(51, 0, 1);
+  u_hyperparam_interface_std[1]->Set_GSVD_Hyperparameters(50, 0, 1);
   spatial_prior_interface_std[1] = HDSA::makePtr<HDSA::MD_Numeric_Laplacian_u_Prior_Interface<RealT>>(S, M, data_interface, u_hyperparam_interface_std[1], random_number_generator);
   transient_prior_cov_std[1] = HDSA::makePtr<HDSA::MD_Transient_Prior_Covariance<RealT>>(data_interface, u_hyperparam_interface_std[1], T, n_t, n_y);
   u_prior_interface_std[1] = HDSA::makePtr<HDSA::MD_Transient_Elliptic_u_Prior_Interface<RealT>>(spatial_prior_interface_std[1],transient_prior_cov_std[1]);
 
   HDSA::Ptr<HDSA::MD_u_Prior_Interface<RealT>> u_prior_interface = HDSA::makePtr<HDSA::MD_Multi_State_u_Prior_Interface<RealT>>(data_interface,u_prior_interface_std);
 
-  HDSA::Ptr<HDSA::MD_z_Hyperparameter_Interface<RealT>> z_hyperparam_interface = HDSA::makePtr<MD_z_Hyperparameter_Interface_synthetic_test<RealT>>(random_number_generator, n_y, n_t, c_low);
-  z_hyperparam_interface->Set_alpha_z(1.076021648025798e+03);
+  int num_state_solves = 100;
+  HDSA::Ptr<HDSA::MD_z_Hyperparameter_Interface<RealT>> z_hyperparam_interface = HDSA::makePtr<MD_z_Hyperparameter_Interface_synthetic_test<RealT>>(random_number_generator, num_state_solves, n_y, n_t, c_low);
+  //z_hyperparam_interface->Set_alpha_z(1.076021648025798e+03);
+  // Something is wrong in the computation of alpha_z. I think the issue is coming from the separating of state variables with time dependence.
   z_hyperparam_interface->Set_beta_z(0.009305846653704);
   HDSA::Ptr<HDSA::MD_z_Prior_Interface<RealT>> z_prior_interface = HDSA::makePtr<HDSA::MD_Numeric_Laplacian_z_Prior_Interface<RealT>>(S, M, data_interface, z_hyperparam_interface, u_prior_interface);
 
@@ -132,7 +108,7 @@ int main(int argc, char *argv[])
   HDSA::Ptr<HDSA::MD_Posterior_Data<RealT>> post_data = HDSA::makePtr<HDSA::MD_Posterior_Data<RealT>>();
 
   HDSA::Ptr<HDSA::MD_Posterior_Sampling<RealT>> post_sampling = HDSA::makePtr<HDSA::MD_Posterior_Sampling<RealT>>(data_interface, u_prior_interface, z_prior_interface);
-  RealT alpha_d = 1.535037355490585e-07;
+  RealT alpha_d = 3.585573600185340e-08;
   int num_post_samples = 100;
   post_sampling->Compute_Posterior_Data(alpha_d, num_post_samples);
 

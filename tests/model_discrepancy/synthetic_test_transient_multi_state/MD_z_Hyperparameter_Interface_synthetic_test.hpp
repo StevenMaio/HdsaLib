@@ -34,7 +34,7 @@ public:
       HDSA_Tpetra_Vector<RealT> u_tpetra = dynamic_cast<HDSA_Tpetra_Vector<RealT> &>(*u_j);
       for (int k = 0; k < n_y_; k++)
       {
-        RealT zk = z_view[k];
+        RealT zk = std::pow(z_view[k],3.0);
         u_tpetra.getVector()->replaceGlobalValue(k, 0, coeff_low* zk);
         u_tpetra.getVector()->replaceGlobalValue(n_y_ + k, 0, c_low_ * coeff_low * zk);
       }
@@ -42,7 +42,7 @@ public:
     }
   }
 
-  MD_z_Hyperparameter_Interface_synthetic_test(const HDSA::Ptr<HDSA::Random_Number_Generator<RealT>> &random_number_generator, int n_y, int n_t, RealT c_low) : HDSA::MD_z_Hyperparameter_Interface<RealT>(random_number_generator, "spatial field"), n_y_(n_y), n_t_(n_t), c_low_(c_low)
+  MD_z_Hyperparameter_Interface_synthetic_test(const HDSA::Ptr<HDSA::Random_Number_Generator<RealT>> &random_number_generator, int num_state_solves, int n_y, int n_t, RealT c_low) : HDSA::MD_z_Hyperparameter_Interface<RealT>(random_number_generator, "spatial field",num_state_solves), n_y_(n_y), n_t_(n_t), c_low_(c_low)
   {
   }
 

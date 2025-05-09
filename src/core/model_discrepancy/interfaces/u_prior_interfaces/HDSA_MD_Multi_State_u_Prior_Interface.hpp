@@ -27,10 +27,10 @@ namespace HDSA
     {
       for (int k = 0; k < num_components_; k++)
       {
-        HDSA::Ptr<const HDSA::Vector<RealT>> u_in_k = data_interface_->Extract_State_Component(u_in, k);
+        HDSA::Ptr<const HDSA::Vector<RealT>> u_in_k = data_interface_->Extract_State_Component(u_in, k, true);
         HDSA::Ptr<HDSA::Vector<RealT>> u_out_k = u_in_k->clone();
         u_prior_interface_std_[k]->Apply_M_u(*u_out_k, *u_in_k);
-        data_interface_->Set_State_Component(u_out, *u_out_k, k);
+        data_interface_->Set_State_Component(u_out, *u_out_k, k, true);
       }
     }
 
@@ -38,10 +38,10 @@ namespace HDSA
     {
       for (int k = 0; k < num_components_; k++)
       {
-        HDSA::Ptr<const HDSA::Vector<RealT>> u_in_k = data_interface_->Extract_State_Component(u_in, k);
+        HDSA::Ptr<const HDSA::Vector<RealT>> u_in_k = data_interface_->Extract_State_Component(u_in, k, true);
         HDSA::Ptr<HDSA::Vector<RealT>> u_out_k = u_in_k->clone();
         u_prior_interface_std_[k]->Apply_W_u_Inverse(*u_out_k, *u_in_k);
-        data_interface_->Set_State_Component(u_out, *u_out_k, k);
+        data_interface_->Set_State_Component(u_out, *u_out_k, k, true);
       }
     }
 
@@ -49,10 +49,10 @@ namespace HDSA
     {
       for (int k = 0; k < num_components_; k++)
       {
-        HDSA::Ptr<const HDSA::Vector<RealT>> u_in_k = data_interface_->Extract_State_Component(u_in, k);
+        HDSA::Ptr<const HDSA::Vector<RealT>> u_in_k = data_interface_->Extract_State_Component(u_in, k, true);
         HDSA::Ptr<HDSA::Vector<RealT>> u_out_k = u_in_k->clone();
         u_prior_interface_std_[k]->Apply_W_u_Plus_scalar_M_u_Inverse(*u_out_k, *u_in_k, scalar);
-        data_interface_->Set_State_Component(u_out, *u_out_k, k);
+        data_interface_->Set_State_Component(u_out, *u_out_k, k, true);
       }
     }
 
@@ -61,12 +61,12 @@ namespace HDSA
       int num_vecs = samples.Number_of_Vectors();
       for (int k = 0; k < num_components_; k++)
       {
-        HDSA::Ptr<const HDSA::Vector<RealT>> vec = data_interface_->Extract_State_Component(*(samples[0]), k);
+        HDSA::Ptr<const HDSA::Vector<RealT>> vec = data_interface_->Extract_State_Component(*(samples[0]), k, true);
         HDSA::Ptr<HDSA::MultiVector<RealT>> samples_k = HDSA::makePtr<HDSA::MultiVector<RealT>>(num_vecs,*vec);
         u_prior_interface_std_[k]->Sample_with_Covariance_W_u_Inverse(*samples_k);
         for (int j = 0; j < num_vecs; j++)
         {
-          data_interface_->Set_State_Component(*(samples[j]), *((*samples_k)[j]), k);
+          data_interface_->Set_State_Component(*(samples[j]), *((*samples_k)[j]), k, true);
         }
       }
     }
@@ -76,12 +76,12 @@ namespace HDSA
       int num_vecs = samples.Number_of_Vectors();
       for (int k = 0; k < num_components_; k++)
       {
-        HDSA::Ptr<const HDSA::Vector<RealT>> vec = data_interface_->Extract_State_Component(*(samples[0]), k);
+        HDSA::Ptr<const HDSA::Vector<RealT>> vec = data_interface_->Extract_State_Component(*(samples[0]), k, true);
         HDSA::Ptr<HDSA::MultiVector<RealT>> samples_k = HDSA::makePtr<HDSA::MultiVector<RealT>>(num_vecs,*vec);
         u_prior_interface_std_[k]->Sample_with_Covariance_W_u_Plus_scalar_M_u_Inverse(*samples_k, scalar);
         for (int j = 0; j < num_vecs; j++)
         {
-          data_interface_->Set_State_Component(*(samples[j]), *((*samples_k)[j]), k);
+          data_interface_->Set_State_Component(*(samples[j]), *((*samples_k)[j]), k, true);
         }
       }
     }

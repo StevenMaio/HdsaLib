@@ -26,10 +26,10 @@ namespace HDSA
   {
     HDSA::Ptr<const HDSA::MultiVector<RealT>> D = data_interface_->get_D();
     HDSA::Ptr<HDSA::Vector<RealT>> delta = (*D)[0];
-    HDSA::Ptr<const HDSA::Vector<RealT>> delta_k = data_interface_->Extract_State_Component(*delta, component_id_);
+    HDSA::Ptr<const HDSA::Vector<RealT>> delta_k = data_interface_->Extract_State_Component(*delta, component_id_, true);
     HDSA::Ptr<HDSA::Vector<RealT>> tmp1 = delta_k->clone();
     u_prior_interface->Apply_M_u(*tmp1, *delta_k);
-    RealT d1_norm_sq = tmp1->dot(*delta_k);
+    RealT d1_norm_sq = delta_k->dot(*tmp1);
 
     RealT u_op_trace = 0.0;
     if (is_transient_)
@@ -138,7 +138,7 @@ namespace HDSA
     for (int j = 0; j < N; j++)
     {
       HDSA::Ptr<HDSA::Vector<RealT>> delta = (*D)[j];
-      HDSA::Ptr<const HDSA::Vector<RealT>> delta_k = data_interface_->Extract_State_Component(*delta, component_id_);
+      HDSA::Ptr<const HDSA::Vector<RealT>> delta_k = data_interface_->Extract_State_Component(*delta, component_id_, true);
       HDSA::Ptr<HDSA::Vector<RealT>> tmp1 = delta_k->clone();
       u_prior_interface->Apply_M_u(*tmp1, *delta_k);
       mags += std::sqrt(tmp1->dot(*delta_k));
