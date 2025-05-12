@@ -6,6 +6,6 @@ ANONYMOUS:
     readExo+forward:
       DataLoadParameters:
         ExoFile: "output_lofi_opt.exo"
-        OptVariablePhysics: "e"
-        OverWriteParams: false
+        OptVariablePhysics: "T"
+        OverWriteParams: true
 ...

@@ -91,7 +91,7 @@ public:
       ez_tmp.set(*ez.mrhyde_vec);
       
       params_->updateParams(ez_tmp);
-      DFAD val = 0.0;
+      ScalarT val = 0.0;
       solver_->forwardModel(val);
     }
     Opt_Vector_MrHyDE<RealT> e_grad_z = Teuchos::dyn_cast<Opt_Vector_MrHyDE<RealT> >(dynamic_cast<HDSA::Vector<RealT> &>(grad_z));
