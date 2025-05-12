@@ -58,36 +58,24 @@ public:
   HDSA::Ptr<HDSA::Vector<RealT> > Load_Optimal_u(void) const{
 
     Teuchos::RCP<Tpetra::MultiVector<ScalarT,LO,GO,SolverNode> > u_tpetra =  Read_Exodus_Data(opt_solution_exo_file_); 
-    HDSA::Ptr<HDSA::Vector<RealT> > u_opt = HDSA::makePtr<State_Vector_MrHyDE<RealT> >(solve_,random_number_generator_);
-    State_Vector_MrHyDE<RealT> &eu_opt = dynamic_cast<State_Vector_MrHyDE<RealT>&>(*u_opt);
-    eu_opt.mrhyde_state_vec[0][0]->update(1.0,*u_tpetra,0.0); 
-    
+    HDSA::Ptr<State_Vector_MrHyDE<RealT> > u_opt_mrhyde = HDSA::makePtr<State_Vector_MrHyDE<RealT> >(solve_,random_number_generator_);
+    u_opt_mrhyde->mrhyde_state_vec[0][0]->update(1.0,*u_tpetra,0.0); 
+    HDSA::Ptr<HDSA::Vector<RealT> > u_opt = HDSA::makePtr<HDSA_Tpetra_Vector<RealT> >(u_opt_mrhyde->mrhyde_state_vec[0][0],random_number_generator_);   
     return u_opt;
   } 
   
   HDSA::Ptr<HDSA::Vector<RealT> > Load_Optimal_z(void) const{
     
     Teuchos::RCP<Tpetra::MultiVector<ScalarT,LO,GO,SolverNode> > z_tpetra =  Read_Exodus_Data(opt_solution_exo_file_,false); 
-
-    ROL::Ptr<ROL::Vector<RealT> > z_opt_rol = solve_->params->getCurrentVector().clone();
-    HDSA::Ptr<MrHyDE_OptVector> z_opt = HDSA::dynamicPtrCast<MrHyDE_OptVector>(z_opt_rol);
-    z_opt->getField()[0]->getVector()->update(1.0,*z_tpetra,0.0);
-
-    HDSA::Ptr<HDSA::Vector<RealT> > z_opt_hdsa = HDSA::makePtr<Opt_Vector_MrHyDE<RealT> >(z_opt, random_number_generator_);
-
-    return z_opt_hdsa; 
+    HDSA::Ptr<HDSA::Vector<RealT> > z_opt_hdsa = HDSA::makePtr<HDSA_Tpetra_Vector<RealT> >(z_tpetra, random_number_generator_);
+    return z_opt_hdsa;
   }
 
   HDSA::Ptr<HDSA::MultiVector<RealT> > Load_Z_Data(void) const{
     std::vector<HDSA::Ptr<HDSA::Vector<RealT> > > z_vecs;
     for(int k=0; k<num_hifi_; k++) {
       Teuchos::RCP<Tpetra::MultiVector<ScalarT,LO,GO,SolverNode> > z_tpetra =  Read_Exodus_Data(lofi_exo_files_[k],false); 
-    
-      ROL::Ptr<ROL::Vector<RealT> > z_opt_rol = solve_->params->getCurrentVector().clone();
-      HDSA::Ptr<MrHyDE_OptVector> z_opt = HDSA::dynamicPtrCast<MrHyDE_OptVector>(z_opt_rol);
-      z_opt->getField()[0]->getVector()->update(1.0,*z_tpetra,0.0);
-      
-      HDSA::Ptr<HDSA::Vector<RealT> > z_opt_hdsa = HDSA::makePtr<Opt_Vector_MrHyDE<RealT> >(z_opt, random_number_generator_);
+      HDSA::Ptr<HDSA::Vector<RealT> > z_opt_hdsa = HDSA::makePtr< HDSA_Tpetra_Vector<RealT> >(z_tpetra, random_number_generator_);
       z_vecs.push_back(z_opt_hdsa);
     }
 
@@ -100,11 +88,11 @@ public:
     for(int k=0; k<num_hifi_; k++) {
       Teuchos::RCP<Tpetra::MultiVector<ScalarT,LO,GO,SolverNode> > u_tpetra_hifi =  Read_Exodus_Data(hifi_exo_files_[k]);
       Teuchos::RCP<Tpetra::MultiVector<ScalarT,LO,GO,SolverNode> > u_tpetra_lofi =  Read_Exodus_Data(lofi_exo_files_[k]); 
-      HDSA::Ptr<HDSA::Vector<RealT> > u_vec_k = HDSA::makePtr<State_Vector_MrHyDE<RealT> >(solve_,random_number_generator_);
-      State_Vector_MrHyDE<RealT> &eu_vec_k = dynamic_cast<State_Vector_MrHyDE<RealT>&>(*u_vec_k);
-      eu_vec_k.mrhyde_state_vec[0][0]->update(1.0,*u_tpetra_hifi,0.0);
-      eu_vec_k.mrhyde_state_vec[0][0]->update(-1.0,*u_tpetra_lofi,1.0);
-      u_vecs.push_back(u_vec_k);
+      HDSA::Ptr<State_Vector_MrHyDE<RealT> > u_vec_k = HDSA::makePtr<State_Vector_MrHyDE<RealT> >(solve_,random_number_generator_);
+      u_vec_k->mrhyde_state_vec[0][0]->update(1.0,*u_tpetra_hifi,0.0);
+      u_vec_k->mrhyde_state_vec[0][0]->update(-1.0,*u_tpetra_lofi,1.0);
+      HDSA::Ptr<HDSA::Vector<RealT> > u_k = HDSA::makePtr<HDSA_Tpetra_Vector<RealT> >(u_vec_k->mrhyde_state_vec[0][0],random_number_generator_);   
+      u_vecs.push_back(u_k);
     }
     HDSA::Ptr<HDSA::MultiVector<RealT> > D = HDSA::makePtr<HDSA::MultiVector<RealT> >(u_vecs);
     
