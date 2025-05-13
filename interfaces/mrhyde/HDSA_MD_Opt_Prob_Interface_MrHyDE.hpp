@@ -13,8 +13,6 @@ private:
 public:
   MD_Opt_Prob_Interface_MrHyDE(HDSA::Ptr<MrHyDE::SolverManager<SolverNode> > & solver, HDSA::Ptr<MrHyDE::PostprocessManager<SolverNode> > & postproc, HDSA::Ptr<MrHyDE::ParameterManager<SolverNode> > & params,const HDSA::Ptr<HDSA::Random_Number_Generator<RealT> > & random_number_generator)
   {  
-    //    HDSA::Ptr<HDSA::Vector<RealT> > u_vec = HDSA::makePtr<State_Vector_MrHyDE<RealT> > (solver,random_number_generator);
-        
     postproc_ = postproc;
     solver_ = solver;
     params_ = params;
@@ -48,18 +46,24 @@ public:
   }
 
   void Misfit_Gradient(HDSA::Vector<RealT> & u_grad, const HDSA::Vector<RealT> & u, const HDSA::Vector<RealT> & z) const{
-    const HDSA_Tpetra_Vector<RealT> &eu = dynamic_cast<const HDSA_Tpetra_Vector<RealT>&>(u);
-    HDSA_Tpetra_Vector<RealT> &eu_grad = dynamic_cast<HDSA_Tpetra_Vector<RealT>&>(u_grad);
-    HDSA::Ptr<Tpetra::MultiVector<RealT>> grad = eu_grad.getVector();
-    postproc_->computeObjectiveGradState(0,eu.getVector(), 0.0, solver_->deltat,grad);
-    
-    // for (int set = 0; set<eu.mrhyde_state_vec.size(); ++set) {
-    //   for (int i = 0; i<solver_->numsteps[set]; i++) {
-    // 	RealT currenttime = solver_->initial_time + (double)i*solver_->deltat;
-    // 	postproc_->computeObjectiveGradState(set,eu.mrhyde_state_vec[set][i], currenttime,solver_->deltat,eu_grad.mrhyde_state_vec[set][i]);
-    //   }
-    // }
-    
+    if(solver_->isTransient) {
+      const Transient_Vector<RealT> &eu = dynamic_cast<const Transient_Vector<RealT>&>(u);
+      Transient_Vector<RealT> &eu_grad = dynamic_cast<Transient_Vector<RealT>&>(u_grad);
+      int n_t = solver_->settings->sublist("Solver").get<int>("number of steps",0)+1;
+
+      for (int i=0; i< n_t; i++) {
+	const HDSA_Tpetra_Vector<RealT> &eu_i = dynamic_cast<const HDSA_Tpetra_Vector<RealT>&>(*eu[i]);
+	HDSA_Tpetra_Vector<RealT> &eu_grad_i = dynamic_cast<HDSA_Tpetra_Vector<RealT>&>(*eu_grad[i]);
+	RealT currenttime = solver_->initial_time + (double)i*solver_->deltat;
+	HDSA::Ptr<Tpetra::MultiVector<RealT> > eu_grad_i_tpetra = eu_grad_i.getVector();
+	postproc_->computeObjectiveGradState(0,eu_i.getVector(), currenttime, solver_->deltat,eu_grad_i_tpetra);
+      }
+    } else {
+      const HDSA_Tpetra_Vector<RealT> &eu = dynamic_cast<const HDSA_Tpetra_Vector<RealT>&>(u);
+      HDSA_Tpetra_Vector<RealT> &eu_grad = dynamic_cast<HDSA_Tpetra_Vector<RealT>&>(u_grad);
+      HDSA::Ptr<Tpetra::MultiVector<RealT>> grad = eu_grad.getVector();
+      postproc_->computeObjectiveGradState(0,eu.getVector(), 0.0, solver_->deltat,grad);
+    }    
   }
 
   void Apply_Misfit_Hessian(HDSA::Vector<RealT> & u_out, const HDSA::Vector<RealT> & u_in, const HDSA::Vector<RealT> & u, const HDSA::Vector<RealT> & z) const {
@@ -75,15 +79,18 @@ public:
   }
 
   void writedata_solopt(const HDSA::Vector<RealT> &u) const {
-    const HDSA_Tpetra_Vector<RealT> &eu = dynamic_cast<const HDSA_Tpetra_Vector<RealT>&>(u);
-    postproc_->hdsa_solop_data[0]->store(eu.getVector(),0.0,0);
-	
-    // for (int set = 0; set<eu.mrhyde_state_vec.size(); ++set) {
-    //   for (int i = 0; i<solver_->numsteps[set]; i++) { 
-    //     RealT currenttime = solver_->initial_time + (double)i*solver_->deltat;
-    //     postproc_->hdsa_solop_data[set]->store(eu.mrhyde_state_vec[set][i],currenttime,0);
-    //   }
-    // }
+    if(solver_->isTransient) {
+      const Transient_Vector<RealT> &eu = dynamic_cast<const Transient_Vector<RealT>&>(u);
+      int n_t = solver_->settings->sublist("Solver").get<int>("number of steps",0)+1;
+      for (int i=0; i< n_t; i++) {
+	const HDSA_Tpetra_Vector<RealT> &eu_i = dynamic_cast<const HDSA_Tpetra_Vector<RealT>&>(*eu[i]);
+	RealT currenttime = solver_->initial_time + (double)i*solver_->deltat;
+	postproc_->hdsa_solop_data[0]->store(eu_i.getVector(),currenttime,0);
+      }
+    } else {
+      const HDSA_Tpetra_Vector<RealT> &eu = dynamic_cast<const HDSA_Tpetra_Vector<RealT>&>(u);
+      postproc_->hdsa_solop_data[0]->store(eu.getVector(),0.0,0);
+    }
   }
 
   void gradient(HDSA::Vector<RealT> & grad_z, const HDSA::Vector<RealT> & z) const {      

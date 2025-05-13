@@ -57,10 +57,25 @@ public:
 
   HDSA::Ptr<HDSA::Vector<RealT> > Load_Optimal_u(void) const{
 
-    Teuchos::RCP<Tpetra::MultiVector<ScalarT,LO,GO,SolverNode> > u_tpetra =  Read_Exodus_Data(opt_solution_exo_file_); 
-    HDSA::Ptr<State_Vector_MrHyDE<RealT> > u_opt_mrhyde = HDSA::makePtr<State_Vector_MrHyDE<RealT> >(solve_,random_number_generator_);
-    u_opt_mrhyde->mrhyde_state_vec[0][0]->update(1.0,*u_tpetra,0.0); 
-    HDSA::Ptr<HDSA::Vector<RealT> > u_opt = HDSA::makePtr<HDSA_Tpetra_Vector<RealT> >(u_opt_mrhyde->mrhyde_state_vec[0][0],random_number_generator_);   
+    int numtimenodes = solve_->settings->sublist("Solver").get<int>("number of steps",0)+1;
+    
+    HDSA::Ptr<HDSA::Vector<RealT> > u_opt;
+    if(numtimenodes > 1) {
+      std::vector<Teuchos::RCP<Tpetra::MultiVector<ScalarT,LO,GO,SolverNode> > > u_tpetra;
+      std::vector<HDSA::Ptr<HDSA::Vector<ScalarT> > > u_hdsa;
+      u_tpetra.resize(numtimenodes);
+      u_hdsa.resize(numtimenodes);
+      for (int i = 0; i<numtimenodes; i++) {
+	u_tpetra[i] = Read_Exodus_Data(opt_solution_exo_file_,true,i+1);
+	u_hdsa[i] = HDSA::makePtr<HDSA_Tpetra_Vector<RealT> >(u_tpetra[i],random_number_generator_);
+      }
+      u_opt = HDSA::makePtr<Transient_Vector<ScalarT> >(u_hdsa);
+    } else {
+      Teuchos::RCP<Tpetra::MultiVector<ScalarT,LO,GO,SolverNode> > u_tpetra =  Read_Exodus_Data(opt_solution_exo_file_); 
+      HDSA::Ptr<State_Vector_MrHyDE<RealT> > u_opt_mrhyde = HDSA::makePtr<State_Vector_MrHyDE<RealT> >(solve_,random_number_generator_);
+      u_opt_mrhyde->mrhyde_state_vec[0][0]->update(1.0,*u_tpetra,0.0); 
+      u_opt = HDSA::makePtr<HDSA_Tpetra_Vector<RealT> >(u_opt_mrhyde->mrhyde_state_vec[0][0],random_number_generator_);   
+    }
     return u_opt;
   } 
   
@@ -84,22 +99,46 @@ public:
   }
 
   HDSA::Ptr<HDSA::MultiVector<RealT> > Load_D_Data(void) const{
+    int numtimenodes = solve_->settings->sublist("Solver").get<int>("number of steps",0)+1;
     std::vector<HDSA::Ptr<HDSA::Vector<RealT> > > u_vecs; 
     for(int k=0; k<num_hifi_; k++) {
-      Teuchos::RCP<Tpetra::MultiVector<ScalarT,LO,GO,SolverNode> > u_tpetra_hifi =  Read_Exodus_Data(hifi_exo_files_[k]);
-      Teuchos::RCP<Tpetra::MultiVector<ScalarT,LO,GO,SolverNode> > u_tpetra_lofi =  Read_Exodus_Data(lofi_exo_files_[k]); 
-      HDSA::Ptr<State_Vector_MrHyDE<RealT> > u_vec_k = HDSA::makePtr<State_Vector_MrHyDE<RealT> >(solve_,random_number_generator_);
-      u_vec_k->mrhyde_state_vec[0][0]->update(1.0,*u_tpetra_hifi,0.0);
-      u_vec_k->mrhyde_state_vec[0][0]->update(-1.0,*u_tpetra_lofi,1.0);
-      HDSA::Ptr<HDSA::Vector<RealT> > u_k = HDSA::makePtr<HDSA_Tpetra_Vector<RealT> >(u_vec_k->mrhyde_state_vec[0][0],random_number_generator_);   
-      u_vecs.push_back(u_k);
+       if(numtimenodes > 1) {
+	 std::vector<Teuchos::RCP<Tpetra::MultiVector<ScalarT,LO,GO,SolverNode> > > u_tpetra_lofi;
+	 std::vector<HDSA::Ptr<HDSA::Vector<ScalarT> > > u_hdsa_lofi;
+	 u_tpetra_lofi.resize(numtimenodes);
+	 u_hdsa_lofi.resize(numtimenodes);
+
+	 std::vector<Teuchos::RCP<Tpetra::MultiVector<ScalarT,LO,GO,SolverNode> > > u_tpetra_hifi;
+	 std::vector<HDSA::Ptr<HDSA::Vector<ScalarT> > > u_hdsa_hifi;
+	 u_tpetra_hifi.resize(numtimenodes);
+	 u_hdsa_hifi.resize(numtimenodes);
+
+	 for (int i = 0; i<numtimenodes; i++) {
+	   u_tpetra_hifi[i] =  Read_Exodus_Data(hifi_exo_files_[k],true,i+1);
+	   u_tpetra_lofi[i] =  Read_Exodus_Data(lofi_exo_files_[k],true,i+1);
+	   u_hdsa_hifi[i] = HDSA::makePtr<HDSA_Tpetra_Vector<RealT> >(u_tpetra_hifi[i],random_number_generator_);
+	   u_hdsa_lofi[i] = HDSA::makePtr<HDSA_Tpetra_Vector<RealT> >(u_tpetra_lofi[i],random_number_generator_);
+	 }
+	  HDSA::Ptr<HDSA::Vector<RealT> > u_k_hifi = HDSA::makePtr<Transient_Vector<ScalarT> >(u_hdsa_hifi);
+	  HDSA::Ptr<HDSA::Vector<RealT> > u_k_lofi = HDSA::makePtr<Transient_Vector<ScalarT> >(u_hdsa_lofi);
+	  u_k_hifi->axpy(-1.0,*u_k_lofi);
+	  u_vecs.push_back(u_k_hifi);
+       } else {
+	 Teuchos::RCP<Tpetra::MultiVector<ScalarT,LO,GO,SolverNode> > u_tpetra_hifi =  Read_Exodus_Data(hifi_exo_files_[k]);
+	 Teuchos::RCP<Tpetra::MultiVector<ScalarT,LO,GO,SolverNode> > u_tpetra_lofi =  Read_Exodus_Data(lofi_exo_files_[k]); 
+	 HDSA::Ptr<State_Vector_MrHyDE<RealT> > u_vec_k = HDSA::makePtr<State_Vector_MrHyDE<RealT> >(solve_,random_number_generator_);
+	 u_vec_k->mrhyde_state_vec[0][0]->update(1.0,*u_tpetra_hifi,0.0);
+	 u_vec_k->mrhyde_state_vec[0][0]->update(-1.0,*u_tpetra_lofi,1.0);
+	 HDSA::Ptr<HDSA::Vector<RealT> > u_k = HDSA::makePtr<HDSA_Tpetra_Vector<RealT> >(u_vec_k->mrhyde_state_vec[0][0],random_number_generator_);   
+	 u_vecs.push_back(u_k);
+       }
     }
     HDSA::Ptr<HDSA::MultiVector<RealT> > D = HDSA::makePtr<HDSA::MultiVector<RealT> >(u_vecs);
     
     return D;
   }
 
-  Teuchos::RCP<Tpetra::MultiVector<ScalarT,LO,GO,SolverNode> > Read_Exodus_Data(std::string exofile, bool load_state = true) const {
+  Teuchos::RCP<Tpetra::MultiVector<ScalarT,LO,GO,SolverNode> > Read_Exodus_Data(std::string exofile, bool load_state = true, int step=1) const {
   
   string fname;
 
@@ -130,9 +169,8 @@ public:
                   &exo_version);
   exo_error = ex_get_init(exoid, title, &num_dim, &num_nods, &num_el,
                           &num_el_blk, &num_ns, &num_ss);
-  
   int id = 1; 
-  int step = 1;
+  //int step = 1;
   ex_block eblock;
   eblock.id = id;
   eblock.type = EX_ELEM_BLOCK;

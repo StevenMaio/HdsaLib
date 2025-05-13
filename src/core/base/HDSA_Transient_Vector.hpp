@@ -24,6 +24,16 @@ public:
         }
     }
 
+    Transient_Vector(std::vector<HDSA::Ptr<HDSA::Vector<RealT>>> &trans_vec)
+    {
+        n_t_ = trans_vec.size();
+        vec_.resize(n_t_);
+        for (int k = 0; k < n_t_; k++)
+        {
+            vec_[k] = trans_vec[k];
+        }
+    }
+  
     ~Transient_Vector()
     {
     }
