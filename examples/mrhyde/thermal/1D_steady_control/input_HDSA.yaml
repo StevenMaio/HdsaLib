@@ -6,7 +6,7 @@ ANONYMOUS:
     HDSA:
       HyperParameters:
         alpha_u: 0.25
-        alpha_z: 2.7778E-06
+        alpha_z: .111111111
         beta_u: 1.0E-2
         beta_z: 1.0E-3
         alpha_d: 1.0E-5

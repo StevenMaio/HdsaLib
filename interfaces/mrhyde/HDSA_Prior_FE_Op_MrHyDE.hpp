@@ -20,6 +20,7 @@ public:
     settings_prior->sublist("Analysis").set("Analysis type","forward");
     settings_prior->sublist("Functions").set("ellipticPrior diffusion","0.0");
     settings_prior->sublist("Functions").set("ellipticPrior reaction","1.0");
+    settings_prior->sublist("Functions").set("specific heat","0.0");
 
     M = Instantiate_Prior_Operators(comm,settings_prior,blockNames);
     settings_prior->sublist("Functions").set("ellipticPrior diffusion","1.0");

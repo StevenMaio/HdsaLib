@@ -11,6 +11,7 @@ ANONYMOUS:
     NX: 199
   Physics: 
     modules: thermal
+    include advection: false
     Neumann conditions:
       T:
         all boundaries: '-2.0*T'

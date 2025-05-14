@@ -30,6 +30,7 @@ public:
     writedata_solopt(u_in);
     do_solop(true);
     gradient(z_out,z);
+    z_out.scale(-1.0);
   }
 
   void Apply_RS_Hessian(HDSA::Vector<RealT> & z_out, const HDSA::Vector<RealT> & z_in, const HDSA::Vector<RealT> & z) const {
@@ -51,18 +52,34 @@ public:
       Transient_Vector<RealT> &eu_grad = dynamic_cast<Transient_Vector<RealT>&>(u_grad);
       int n_t = solver_->settings->sublist("Solver").get<int>("number of steps",0)+1;
 
-      for (int i=0; i< n_t; i++) {
-	const HDSA_Tpetra_Vector<RealT> &eu_i = dynamic_cast<const HDSA_Tpetra_Vector<RealT>&>(*eu[i]);
-	HDSA_Tpetra_Vector<RealT> &eu_grad_i = dynamic_cast<HDSA_Tpetra_Vector<RealT>&>(*eu_grad[i]);
-	RealT currenttime = solver_->initial_time + (double)i*solver_->deltat;
-	HDSA::Ptr<Tpetra::MultiVector<RealT> > eu_grad_i_tpetra = eu_grad_i.getVector();
-	postproc_->computeObjectiveGradState(0,eu_i.getVector(), currenttime, solver_->deltat,eu_grad_i_tpetra);
+      if(postproc_->objectives[0].type == "integrated control") { //only works for one objective term
+	eu_grad[0]->zeros();
+	for (int i=1; i< n_t; i++) { //exludes initial condition
+	  const HDSA_Tpetra_Vector<RealT> &eu_i = dynamic_cast<const HDSA_Tpetra_Vector<RealT>&>(*eu[i]);
+	  HDSA_Tpetra_Vector<RealT> &eu_grad_i = dynamic_cast<HDSA_Tpetra_Vector<RealT>&>(*eu_grad[i]);
+	  RealT currenttime = solver_->initial_time + (double)i*solver_->deltat;
+	  HDSA::Ptr<Tpetra::MultiVector<RealT> > eu_grad_i_tpetra = eu_grad_i.getVector();
+
+	  // params_->updateDynamicParams(i);
+	  // solver_->assembler->updateTimeStep(i);
+	  // solver_->assembler->updatePhysicsSet(0);
+	  // auto obj_dev = solver_->assembler->function_managers[0]->evaluate(postproc_->objectives[0].name,"ip");
+
+	  // std::vector<HDSA::Ptr<Tpetra::MultiVector<RealT> > > tmp;
+	  // tmp.resize(1);
+	  // tmp[0] = eu_i.getVector();
+	  // postproc_->record(tmp,currenttime,i);	  
+	  postproc_->computeObjectiveGradState(0,eu_i.getVector(), currenttime, solver_->deltat,eu_grad_i_tpetra);
+	  //postproc_->record(tmp,currenttime,i);	  
+	}
+	u_grad.scale(-1.0);
       }
     } else {
       const HDSA_Tpetra_Vector<RealT> &eu = dynamic_cast<const HDSA_Tpetra_Vector<RealT>&>(u);
       HDSA_Tpetra_Vector<RealT> &eu_grad = dynamic_cast<HDSA_Tpetra_Vector<RealT>&>(u_grad);
       HDSA::Ptr<Tpetra::MultiVector<RealT>> grad = eu_grad.getVector();
       postproc_->computeObjectiveGradState(0,eu.getVector(), 0.0, solver_->deltat,grad);
+      u_grad.scale(-1.0);
     }    
   }
 
