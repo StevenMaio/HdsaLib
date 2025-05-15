@@ -54,23 +54,18 @@ public:
 
       if(postproc_->objectives[0].type == "integrated control") { //only works for one objective term
 	eu_grad[0]->zeros();
-	for (int i=1; i< n_t; i++) { //exludes initial condition
-	  const HDSA_Tpetra_Vector<RealT> &eu_i = dynamic_cast<const HDSA_Tpetra_Vector<RealT>&>(*eu[i]);
-	  HDSA_Tpetra_Vector<RealT> &eu_grad_i = dynamic_cast<HDSA_Tpetra_Vector<RealT>&>(*eu_grad[i]);
+	for (int i=0; i< n_t-1; i++) { //exludes initial condition
+	  const HDSA_Tpetra_Vector<RealT> &eu_i = dynamic_cast<const HDSA_Tpetra_Vector<RealT>&>(*eu[i+1]);
+	  HDSA_Tpetra_Vector<RealT> &eu_grad_i = dynamic_cast<HDSA_Tpetra_Vector<RealT>&>(*eu_grad[i+1]);
 	  RealT currenttime = solver_->initial_time + (double)i*solver_->deltat;
 	  HDSA::Ptr<Tpetra::MultiVector<RealT> > eu_grad_i_tpetra = eu_grad_i.getVector();
 
-	  // params_->updateDynamicParams(i);
-	  // solver_->assembler->updateTimeStep(i);
-	  // solver_->assembler->updatePhysicsSet(0);
-	  // auto obj_dev = solver_->assembler->function_managers[0]->evaluate(postproc_->objectives[0].name,"ip");
-
-	  // std::vector<HDSA::Ptr<Tpetra::MultiVector<RealT> > > tmp;
-	  // tmp.resize(1);
-	  // tmp[0] = eu_i.getVector();
-	  // postproc_->record(tmp,currenttime,i);	  
+	  postproc_->setTimeIndex(i);
+	  solver_->assembler->updateStage(0, currenttime, solver_->deltat);
 	  postproc_->computeObjectiveGradState(0,eu_i.getVector(), currenttime, solver_->deltat,eu_grad_i_tpetra);
-	  //postproc_->record(tmp,currenttime,i);	  
+	  if(i==0) {
+	    eu_grad_i.scale(solver_->deltat);
+	  }
 	}
 	u_grad.scale(-1.0);
       }
