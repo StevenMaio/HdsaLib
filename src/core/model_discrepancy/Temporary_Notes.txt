@@ -1,5 +1,0 @@
-The remaining classes/functions to be implemented are:
-
-- The prior data visualization calculations in "analysis/prior/HDSA_MD_Prior_Sampling.hpp"
-- The vectorial controller option in "interfaces/z_prior_interfaces/HDSA_MD_Vector_z_Prior_Interface.hpp"
-- The transient vector controller option in "interfaces/z_prior_interfaces/HDSA_MD_Transient_Vector_z_Prior_Interface.hpp"

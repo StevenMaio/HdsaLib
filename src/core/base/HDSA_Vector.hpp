@@ -50,6 +50,18 @@ namespace HDSA
       fout.close();
     }
 
+    virtual RealT Get_Entry(int k) const
+    {
+      RealT val = 0.0;
+      std::cout << "Get_Entry has not been implemented for this vector type" << std::endl;
+      return val;
+    }
+
+    virtual void Set_Entry(int k, RealT val) 
+    {
+      std::cout << "Set_Entry has not been implemented for this vector type" << std::endl;
+    }
+
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // Implementations using the pure virtual functions above, may be overloaded if an efficiency gain is possible
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////

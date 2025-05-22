@@ -97,6 +97,17 @@ public:
     fout.close();
   }
 
+  virtual RealT Get_Entry(int k) const override
+  {
+    RealT val = (*vec_)[k];
+    return val;
+  }
+
+  virtual void Set_Entry(int k, RealT val) override
+  {
+    (*vec_)[k] = val;
+  }
+
   //////////////////////////////////////////////////////////////////////////////////
   // Function specific to this class for convenience
   //////////////////////////////////////////////////////////////////////////////////

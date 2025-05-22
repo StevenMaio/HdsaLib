@@ -86,12 +86,35 @@ public:
 
   void Write_to_File(const std::string &name) const override
   {
-    Tpetra::MatrixMarket::Writer< Tpetra::CrsMatrix<>> vecWriter;
+    Tpetra::MatrixMarket::Writer<Tpetra::CrsMatrix<>> vecWriter;
     vecWriter.writeDenseFile(name, tpetra_vec_);
-    //std::string mapfile = "map_" + name;
-    //vecWriter.writeMapFile(mapfile, *(tpetra_vec_->getMap()));
+    // std::string mapfile = "map_" + name;
+    // vecWriter.writeMapFile(mapfile, *(tpetra_vec_->getMap()));
   }
 
+  RealT Get_Entry(int k) const override
+  {
+    bool isOwned = map_->isNodeGlobalElement(k);
+    RealT val = 0.0;
+    if (isOwned)
+    {
+      int localIndex = map_->getLocalElement(k);
+      Teuchos::ArrayRCP<const RealT> vecT_data = tpetra_vec_->get1dView();
+      val = vecT_data[localIndex];
+    }
+    comm_->barrier();
+    return val;
+  }
+
+  void Set_Entry(int k, RealT val) override
+  {
+    bool isOwned = map_->isNodeGlobalElement(k);
+    if (isOwned)
+    {
+      tpetra_vec_->replaceGlobalValue(k, 0, val);
+    }
+    comm_->barrier();
+  }
 };
 
 #endif

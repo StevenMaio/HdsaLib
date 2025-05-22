@@ -26,13 +26,25 @@ public:
   {
   }
 
+  HDSA::Ptr<HDSA::Vector<RealT>> Generate_Spatial_Nodes() const
+  {
+    auto map = Tpetra::createUniformContigMap<Tpetra::Map<>::local_ordinal_type, Tpetra::Map<>::global_ordinal_type>(m_, comm_->Get_Teuchos_Communicator());
+    HDSA::Ptr<Tpetra::MultiVector<RealT, Tpetra::Map<>::local_ordinal_type, Tpetra::Map<>::global_ordinal_type, Tpetra::Map<>::node_type>> tpetra_vec = Tpetra::createMultiVector<RealT, Tpetra::Map<>::local_ordinal_type, Tpetra::Map<>::global_ordinal_type, Tpetra::Map<>::node_type>(map, 1);
+    for (int k = 0; k < m_; k++)
+    {
+      tpetra_vec->replaceGlobalValue(k, 0, (*x_)(k, 0));
+    }
+    HDSA::Ptr<HDSA::Vector<RealT>> spatial_nodes = HDSA::makePtr<HDSA_Tpetra_Vector<RealT>>(tpetra_vec, random_number_generator_);
+    return spatial_nodes;
+  }
+
   HDSA::Ptr<HDSA::Vector<RealT>> Load_Optimal_u() const
   {
     auto map = Tpetra::createUniformContigMap<Tpetra::Map<>::local_ordinal_type, Tpetra::Map<>::global_ordinal_type>(m_, comm_->Get_Teuchos_Communicator());
     HDSA::Ptr<Tpetra::MultiVector<RealT, Tpetra::Map<>::local_ordinal_type, Tpetra::Map<>::global_ordinal_type, Tpetra::Map<>::node_type>> tpetra_vec = Tpetra::createMultiVector<RealT, Tpetra::Map<>::local_ordinal_type, Tpetra::Map<>::global_ordinal_type, Tpetra::Map<>::node_type>(map, 1);
     for (int k = 0; k < m_; k++)
     {
-      tpetra_vec->replaceGlobalValue(k,0,std::pow((*x_)(k, 0) + 1.0, 3.0));
+      tpetra_vec->replaceGlobalValue(k, 0, std::pow((*x_)(k, 0) + 1.0, 3.0));
     }
     HDSA::Ptr<HDSA::Vector<RealT>> u_opt = HDSA::makePtr<HDSA_Tpetra_Vector<RealT>>(tpetra_vec, random_number_generator_);
     return u_opt;
@@ -44,7 +56,7 @@ public:
     HDSA::Ptr<Tpetra::MultiVector<RealT, Tpetra::Map<>::local_ordinal_type, Tpetra::Map<>::global_ordinal_type, Tpetra::Map<>::node_type>> tpetra_vec = Tpetra::createMultiVector<RealT, Tpetra::Map<>::local_ordinal_type, Tpetra::Map<>::global_ordinal_type, Tpetra::Map<>::node_type>(map, 1);
     for (int k = 0; k < m_; k++)
     {
-      tpetra_vec->replaceGlobalValue(k,0,(*x_)(k, 0) + 1.0);
+      tpetra_vec->replaceGlobalValue(k, 0, (*x_)(k, 0) + 1.0);
     }
     HDSA::Ptr<HDSA::Vector<RealT>> z_opt = HDSA::makePtr<HDSA_Tpetra_Vector<RealT>>(tpetra_vec, random_number_generator_);
     return z_opt;
@@ -64,8 +76,8 @@ public:
 
     for (int k = 0; k < m_; k++)
     {
-      z0_tpetra.getVector()->replaceGlobalValue(k,0,(*x_)(k, 0) + 1.0);
-      z1_tpetra.getVector()->replaceGlobalValue(k,0,(*x_)(k, 0) + std::pow((*x_)(k, 0), 2.0));
+      z0_tpetra.getVector()->replaceGlobalValue(k, 0, (*x_)(k, 0) + 1.0);
+      z1_tpetra.getVector()->replaceGlobalValue(k, 0, (*x_)(k, 0) + std::pow((*x_)(k, 0), 2.0));
     }
     return Z;
   }
@@ -84,8 +96,8 @@ public:
 
     for (int k = 0; k < m_; k++)
     {
-      d0_tpetra.getVector()->replaceGlobalValue(k,0,0.2 * std::pow((*x_)(k, 0) + 1.0, 3.0));
-      d1_tpetra.getVector()->replaceGlobalValue(k,0,0.2 * std::pow((*x_)(k, 0) + std::pow((*x_)(k, 0), 2.0), 3.0));
+      d0_tpetra.getVector()->replaceGlobalValue(k, 0, 0.2 * std::pow((*x_)(k, 0) + 1.0, 3.0));
+      d1_tpetra.getVector()->replaceGlobalValue(k, 0, 0.2 * std::pow((*x_)(k, 0) + std::pow((*x_)(k, 0), 2.0), 3.0));
     }
     return D;
   }

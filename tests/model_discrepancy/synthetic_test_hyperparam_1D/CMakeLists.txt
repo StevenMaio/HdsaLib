@@ -14,8 +14,8 @@ INCLUDE_DIRECTORIES(${${PACKAGE_NAME}_SOURCE_DIR}/adapters/tpetra/src/vector)
     SyntheticTestHyperparam1DDataCopy
     SOURCE_FILES
 	Plotting_Script.m Sabl_Output.mat random_numbers.txt run_test.py 
-	reference_output/prior_discrepancy_sample_1/Vector_3.txt
-	reference_output/prior_discrepancy_evaluated_at_z_opt/Vector_10.txt
+	reference_output/prior_delta_z_opt/Vector_3.txt
+	reference_output/prior_delta_z_pert_2/Vector_10.txt
 	reference_output/posterior_discrepancy_mean_1.txt
 	reference_output/posterior_discrepancy_mean_3.txt
 	reference_output/posterior_discrepancy_samples_3/Vector_20.txt
