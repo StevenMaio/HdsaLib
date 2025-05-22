@@ -50,7 +50,7 @@ def main():
             print(f"Reference file {reference_file} does not exist.")
 
     # Define the command to execute
-    command = 'rm -rf prior_discrepancy_* posterior_* hessian_evals.txt'
+    command = 'rm -rf prior_* posterior_* hessian_evals.txt'
 
     # Execute the command
     try:
