@@ -15,24 +15,44 @@ private:
   Teuchos::RCP<MrHyDE::SolverManager<SolverNode> > solve_;
   const HDSA::Ptr<HDSA::Random_Number_Generator<RealT> > random_number_generator_;
   Teuchos::ParameterList data_load_list_;
+  int num_hifi_;
+  
   std::string opt_var_physics_;
   std::string opt_solution_exo_file_;
-  int num_hifi_;
   std::vector<std::string> hifi_exo_files_;
-  std::vector<std::string> lofi_exo_files_; 
+  std::vector<std::string> lofi_exo_files_;
+  
+  std::string opt_solution_txt_file_u_;
+  std::string opt_solution_txt_file_z_;
+  std::vector<std::string> hifi_txt_files_u_;
+  std::vector<std::string> lofi_txt_files_u_;
+  std::vector<std::string> txt_files_z_;
   
 public:
   MD_Data_Interface_MrHyDE(Teuchos::RCP<Teuchos::MpiComm<int> > &comm, Teuchos::RCP<MrHyDE::SolverManager<SolverNode> > &solve, const HDSA::Ptr<HDSA::Random_Number_Generator<RealT> > &random_number_generator, Teuchos::ParameterList &data_load_list):
     comm_(comm), solve_(solve), random_number_generator_(random_number_generator), data_load_list_(data_load_list)
   {
+    num_hifi_ = data_load_list_.get<int>("NumHifi", 1);
+    
     opt_var_physics_ = data_load_list_.get<std::string>("OptVariablePhysics", "error");
     opt_solution_exo_file_ = data_load_list_.get<std::string>("OptimalSolutionExoFile", "error");
-    num_hifi_ = data_load_list_.get<int>("NumHifi", 1);
+
+    opt_solution_txt_file_u_ = data_load_list_.get<std::string>("OptimalSolutionTxtFileU", "error");
+    opt_solution_txt_file_z_ = data_load_list_.get<std::string>("OptimalSolutionTxtFileZ", "error");
+
     hifi_exo_files_.resize(num_hifi_);
     lofi_exo_files_.resize(num_hifi_);
+
+    hifi_txt_files_u_.resize(num_hifi_);
+    lofi_txt_files_u_.resize(num_hifi_);
+    txt_files_z_.resize(num_hifi_);
     for (int k=0;k<num_hifi_;k++) {
       hifi_exo_files_[k] = data_load_list_.get<std::string>("HifiExoFile" + std::to_string(k+1), "error");
       lofi_exo_files_[k] = data_load_list_.get<std::string>("LofiExoFile" + std::to_string(k+1), "error");
+
+      hifi_txt_files_u_[k] = data_load_list_.get<std::string>("HifiTxtFileU" + std::to_string(k+1), "error");
+      lofi_txt_files_u_[k] = data_load_list_.get<std::string>("LofiTxtFileU" + std::to_string(k+1), "error");
+      txt_files_z_[k] = data_load_list_.get<std::string>("TxtFileZ" + std::to_string(k+1), "error");
     }
     
     if(opt_var_physics_ == "error") {
@@ -66,35 +86,60 @@ public:
       u_tpetra.resize(numtimenodes);
       u_hdsa.resize(numtimenodes);
       for (int i = 0; i<numtimenodes; i++) {
-	u_tpetra[i] = Read_Exodus_Data(opt_solution_exo_file_,true,i+1);
+	if (opt_solution_exo_file_ != "error" ) {
+	  u_tpetra[i] = Read_Exodus_Data(opt_solution_exo_file_,true,i+1);
+	} else if(opt_solution_txt_file_u_ != "error") {
+	  u_tpetra[i] =  Read_Text_Data(opt_solution_txt_file_u_,true,i+1); 
+	} else {
+	  std::cout << "no valid input file given for Load_Optimal_u" <<  std::endl;
+	}
 	u_hdsa[i] = HDSA::makePtr<HDSA_Tpetra_Vector<RealT> >(u_tpetra[i],random_number_generator_);
       }
       u_opt = HDSA::makePtr<Transient_Vector<ScalarT> >(u_hdsa);
     } else {
-      Teuchos::RCP<Tpetra::MultiVector<ScalarT,LO,GO,SolverNode> > u_tpetra =  Read_Exodus_Data(opt_solution_exo_file_); 
+      Teuchos::RCP<Tpetra::MultiVector<ScalarT,LO,GO,SolverNode> > u_tpetra;
+      if (opt_solution_exo_file_.substr(opt_solution_exo_file_.length()-3,opt_solution_exo_file_.length()) =="exo") {
+	u_tpetra =  Read_Exodus_Data(opt_solution_exo_file_); 
+      } else {
+	u_tpetra =  Read_Text_Data(opt_solution_txt_file_u_); 
+      }
+
       HDSA::Ptr<State_Vector_MrHyDE<RealT> > u_opt_mrhyde = HDSA::makePtr<State_Vector_MrHyDE<RealT> >(solve_,random_number_generator_);
       u_opt_mrhyde->mrhyde_state_vec[0][0]->update(1.0,*u_tpetra,0.0); 
-      u_opt = HDSA::makePtr<HDSA_Tpetra_Vector<RealT> >(u_opt_mrhyde->mrhyde_state_vec[0][0],random_number_generator_);   
+      u_opt = HDSA::makePtr<HDSA_Tpetra_Vector<RealT> >(u_opt_mrhyde->mrhyde_state_vec[0][0],random_number_generator_);
+      
     }
     return u_opt;
   } 
   
   HDSA::Ptr<HDSA::Vector<RealT> > Load_Optimal_z(void) const{
-    
-    Teuchos::RCP<Tpetra::MultiVector<ScalarT,LO,GO,SolverNode> > z_tpetra =  Read_Exodus_Data(opt_solution_exo_file_,false); 
+    Teuchos::RCP<Tpetra::MultiVector<ScalarT,LO,GO,SolverNode> > z_tpetra;
+    if (opt_solution_exo_file_ != "error") {
+      z_tpetra =  Read_Exodus_Data(opt_solution_exo_file_,false); 
+    } else if (opt_solution_txt_file_z_ != "error") {
+      z_tpetra =  Read_Text_Data(opt_solution_txt_file_z_,false); 
+    } else {
+      std::cout << "no valid input file given for Load_Optimal_z" <<  std::endl;
+    }
     HDSA::Ptr<HDSA::Vector<RealT> > z_opt_hdsa = HDSA::makePtr<HDSA_Tpetra_Vector<RealT> >(z_tpetra, random_number_generator_);
     return z_opt_hdsa;
   }
 
   HDSA::Ptr<HDSA::MultiVector<RealT> > Load_Z_Data(void) const{
-    std::vector<HDSA::Ptr<HDSA::Vector<RealT> > > z_vecs;
+    HDSA::Ptr<HDSA::MultiVector<RealT> > Z = HDSA::makePtr<HDSA::MultiVector<RealT> >();
+    
     for(int k=0; k<num_hifi_; k++) {
-      Teuchos::RCP<Tpetra::MultiVector<ScalarT,LO,GO,SolverNode> > z_tpetra =  Read_Exodus_Data(lofi_exo_files_[k],false); 
-      HDSA::Ptr<HDSA::Vector<RealT> > z_opt_hdsa = HDSA::makePtr< HDSA_Tpetra_Vector<RealT> >(z_tpetra, random_number_generator_);
-      z_vecs.push_back(z_opt_hdsa);
+      Teuchos::RCP<Tpetra::MultiVector<ScalarT,LO,GO,SolverNode> > z_tpetra;
+      if (hifi_exo_files_[k] != "error") {
+	z_tpetra =  Read_Exodus_Data(hifi_exo_files_[k],false); 
+      } else if (txt_files_z_[k] != "error") {
+	z_tpetra =  Read_Text_Data(txt_files_z_[k],false); 
+      } else {
+	std::cout << "no valid input file given for Load_Optimal_Z" <<  std::endl;
+      }
+      HDSA::Ptr<HDSA::Vector<RealT> > z_hdsa = HDSA::makePtr<HDSA_Tpetra_Vector<RealT> >(z_tpetra, random_number_generator_);  
+      Z->push_back(z_hdsa);
     }
-
-    HDSA::Ptr<HDSA::MultiVector<RealT> > Z = HDSA::makePtr<HDSA::MultiVector<RealT> >(z_vecs);
     return Z;
   }
 
@@ -114,8 +159,22 @@ public:
 	 u_hdsa_hifi.resize(numtimenodes);
 
 	 for (int i = 0; i<numtimenodes; i++) {
-	   u_tpetra_hifi[i] =  Read_Exodus_Data(hifi_exo_files_[k],true,i+1);
-	   u_tpetra_lofi[i] =  Read_Exodus_Data(lofi_exo_files_[k],true,i+1);
+	   if (hifi_exo_files_[k] != "error") {
+	     u_tpetra_hifi[i] =  Read_Exodus_Data(hifi_exo_files_[k],true,i+1);
+	   } else if (hifi_txt_files_u_[k] != "error") {
+	     u_tpetra_hifi[i] =  Read_Text_Data(hifi_txt_files_u_[k],true,i+1); 
+	   } else {
+	     std::cout << "no valid input file given for Load_Optimal_D" <<  std::endl;
+	   }
+
+	   if (lofi_exo_files_[k] != "error") {
+	     u_tpetra_lofi[i] =  Read_Exodus_Data(lofi_exo_files_[k],true,i+1);
+	   } else if (lofi_txt_files_u_[k] != "error") {
+	     u_tpetra_lofi[i] =  Read_Text_Data(lofi_txt_files_u_[k],true,i+1); 
+	   } else {
+	     std::cout << "no valid input file given for Load_Optimal_D" <<  std::endl;
+	   }
+	   
 	   u_hdsa_hifi[i] = HDSA::makePtr<HDSA_Tpetra_Vector<RealT> >(u_tpetra_hifi[i],random_number_generator_);
 	   u_hdsa_lofi[i] = HDSA::makePtr<HDSA_Tpetra_Vector<RealT> >(u_tpetra_lofi[i],random_number_generator_);
 	 }
@@ -124,17 +183,29 @@ public:
 	  u_k_hifi->axpy(-1.0,*u_k_lofi);
 	  u_vecs.push_back(u_k_hifi);
        } else {
-	 Teuchos::RCP<Tpetra::MultiVector<ScalarT,LO,GO,SolverNode> > u_tpetra_hifi =  Read_Exodus_Data(hifi_exo_files_[k]);
-	 Teuchos::RCP<Tpetra::MultiVector<ScalarT,LO,GO,SolverNode> > u_tpetra_lofi =  Read_Exodus_Data(lofi_exo_files_[k]); 
-	 HDSA::Ptr<State_Vector_MrHyDE<RealT> > u_vec_k = HDSA::makePtr<State_Vector_MrHyDE<RealT> >(solve_,random_number_generator_);
-	 u_vec_k->mrhyde_state_vec[0][0]->update(1.0,*u_tpetra_hifi,0.0);
-	 u_vec_k->mrhyde_state_vec[0][0]->update(-1.0,*u_tpetra_lofi,1.0);
-	 HDSA::Ptr<HDSA::Vector<RealT> > u_k = HDSA::makePtr<HDSA_Tpetra_Vector<RealT> >(u_vec_k->mrhyde_state_vec[0][0],random_number_generator_);   
+	 Teuchos::RCP<Tpetra::MultiVector<ScalarT,LO,GO,SolverNode> > u_tpetra_hifi;
+	 Teuchos::RCP<Tpetra::MultiVector<ScalarT,LO,GO,SolverNode> > u_tpetra_lofi;
+	 if (hifi_exo_files_[k] != "error") {
+	   u_tpetra_hifi = Read_Exodus_Data(hifi_exo_files_[k]);
+	   u_tpetra_lofi = Read_Exodus_Data(lofi_exo_files_[k]);
+	 } else if (hifi_txt_files_u_[k] != "error") {
+	   u_tpetra_hifi = Read_Text_Data(hifi_txt_files_u_[k]);
+	   u_tpetra_lofi = Read_Text_Data(lofi_txt_files_u_[k]);
+	 } else {
+	   std::cout << "no valid input file given for Load_Optimal_D" <<  std::endl;
+	 }
+	 
+	 //HDSA::Ptr<State_Vector_MrHyDE<RealT> > u_vec_k = HDSA::makePtr<State_Vector_MrHyDE<RealT> >(solve_,random_number_generator_);
+	 //u_vec_k->mrhyde_state_vec[0][0]->update(1.0,*u_tpetra_hifi,0.0);
+	 //u_vec_k->mrhyde_state_vec[0][0]->update(-1.0,*u_tpetra_lofi,1.0);
+	 //HDSA::Ptr<HDSA::Vector<RealT> > u_k = HDSA::makePtr<HDSA_Tpetra_Vector<RealT> >(u_vec_k->mrhyde_state_vec[0][0],random_number_generator_);
+
+	 u_tpetra_hifi->update(-1.0,*u_tpetra_lofi,1.0);
+	 HDSA::Ptr<HDSA::Vector<RealT> > u_k = HDSA::makePtr<HDSA_Tpetra_Vector<RealT> >(u_tpetra_hifi,random_number_generator_);   
 	 u_vecs.push_back(u_k);
        }
     }
     HDSA::Ptr<HDSA::MultiVector<RealT> > D = HDSA::makePtr<HDSA::MultiVector<RealT> >(u_vecs);
-    
     return D;
   }
 
@@ -266,5 +337,36 @@ public:
   return vec;
   }
 
+  Teuchos::RCP<Tpetra::MultiVector<ScalarT,LO,GO,SolverNode> > Read_Text_Data(std::string txtfile, bool load_state = true, int step=1) const {
+    RealT val = 0.0;
+    int numtimenodes = solve_->settings->sublist("Solver").get<int>("number of steps",0)+1;
+    Teuchos::RCP<Tpetra::MultiVector<ScalarT,LO,GO,SolverNode> > vec = solve_->linalg->getNewVector(0);
+    int spatialdim = vec->getGlobalLength();
+    
+    // read in data
+    std::ifstream in(txtfile);           
+    if (in) {
+      if(load_state) {
+	for(int i = 0; i < numtimenodes; i++) {
+	  for(int j=0; j < spatialdim; j++) { 
+	    in >> val;
+	    if(i==step-1) {
+	      vec->replaceGlobalValue(j,0,val);
+	    }
+	  }
+	}
+      } else {
+	for(int j=0; j < spatialdim; j++) { 
+	  in >> val;
+	  vec->replaceGlobalValue(j,0,val);
+	}	
+      }
+    }
+    else
+      {
+	std::cout << "Error loading the data from " << txtfile << std::endl;
+      }  
+    return vec;
+  }
 };
 #endif
