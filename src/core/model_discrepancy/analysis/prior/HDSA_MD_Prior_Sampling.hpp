@@ -28,10 +28,10 @@ namespace HDSA
     {
     }
 
-    void Generate_Prior_Discrepancy_Sample_Data(int &num_samps, const HDSA::Ptr<HDSA::MD_u_Hyperparameter_Interface<RealT>> &u_hyperparam_interface, const HDSA::Ptr<HDSA::MD_z_Hyperparameter_Interface<RealT>> &z_hyperparam_interface, const HDSA::Ptr<HDSA::MultiVector<RealT>> &normalized_spatial_coords, const std::vector<RealT> &coord_ranges)
+    void Generate_Prior_Discrepancy_Sample_Data(int &num_samps, const HDSA::Ptr<HDSA::MD_u_Hyperparameter_Interface<RealT>> &u_hyperparam_interface, const HDSA::Ptr<HDSA::MD_z_Hyperparameter_Interface<RealT>> &z_hyperparam_interface, const HDSA::Ptr<HDSA::MultiVector<RealT>> &spatial_coords)
     {
       Generate_Prior_Discrepancy_z_opt_Sample_Data(num_samps, u_hyperparam_interface);
-      Generate_Prior_Discrepancy_z_pert_Sample_Data(num_samps, z_hyperparam_interface, normalized_spatial_coords, coord_ranges);
+      Generate_Prior_Discrepancy_z_pert_Sample_Data(num_samps, z_hyperparam_interface, spatial_coords);
     }
 
     HDSA::Ptr<HDSA::MultiVector<RealT>> Get_prior_delta_z_opt(void) const
@@ -91,7 +91,7 @@ namespace HDSA
       }
     }
 
-    void Generate_Prior_Discrepancy_z_pert_Sample_Data(int &num_samps, const HDSA::Ptr<HDSA::MD_z_Hyperparameter_Interface<RealT>> &z_hyperparam_interface, const HDSA::Ptr<HDSA::MultiVector<RealT>> &normalized_spatial_coords, const std::vector<RealT> &coord_ranges)
+    void Generate_Prior_Discrepancy_z_pert_Sample_Data(int &num_samps, const HDSA::Ptr<HDSA::MD_z_Hyperparameter_Interface<RealT>> &z_hyperparam_interface, const HDSA::Ptr<HDSA::MultiVector<RealT>> &spatial_coords)
     {
       // THIS CODE NEEDS TO BE GENERALIZED TO TREAT MULTI-COMPONENT SYSTEMS, THE CURRENT CODE IS WILL EXECUTE BUT AGGREGATE OVER COMPONENETS
       prior_z_pert_.resize(2);
@@ -113,22 +113,23 @@ namespace HDSA
 
       prior_z_pert_[1] = data_interface_->get_z_opt()->clone();
       HDSA::Ptr<HDSA::Vector<RealT>> z2 = prior_z_pert_[1];
-      int spatial_dim = normalized_spatial_coords->Number_of_Vectors();
+      int spatial_dim = spatial_coords->Number_of_Vectors();
       RealT omega = 0.0;
+      std::vector<std::vector<RealT>> coord_bounds = z_hyperparam_interface->Spatial_Domain_Bounds(); 
       for (int j = 0; j < spatial_dim; j++)
       {
-        omega += std::pow(coord_ranges[j], 2.0);
+        omega += std::pow(coord_bounds[j][1]-coord_bounds[j][0], 2.0);
       }
       omega *= z_hyperparam_interface->Get_beta_z();
       omega = 1.5 * std::sqrt(1.0 / omega) / M_PI;
       omega = std::round(omega);
-      int num_spatial_nodes = (*normalized_spatial_coords)[0]->dimension();
+      int num_spatial_nodes = (*spatial_coords)[0]->dimension();
       for (int i = 0; i < num_spatial_nodes; i++)
       {
         RealT val = 1.0;
         for (int j = 0; j < spatial_dim; j++)
         {
-          RealT x = (*normalized_spatial_coords)[j]->Get_Entry(i);
+          RealT x = ( (*spatial_coords)[j]->Get_Entry(i) - coord_bounds[j][0]) / (coord_bounds[j][1]-coord_bounds[j][0]);
           val *= std::cos(2.0 * M_PI * omega * x);
         }
         z2->Set_Entry(i, val);

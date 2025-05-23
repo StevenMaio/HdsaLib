@@ -56,7 +56,7 @@ namespace HDSA
 
       if (u_hyperparam_interface_->Get_beta_u() == 0.0)
       {
-        determine_u_hyperparams_->Determine_beta_u();
+        std::cout << "Error: the value of beta_u must be specificed" << std::endl;
       }
       Set_beta_u(u_hyperparam_interface_->Get_beta_u());
 

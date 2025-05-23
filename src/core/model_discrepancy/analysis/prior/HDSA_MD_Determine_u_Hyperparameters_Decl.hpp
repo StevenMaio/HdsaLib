@@ -21,11 +21,7 @@ namespace HDSA
 
     void Determine_alpha_u(HDSA::MD_u_Prior_Interface<RealT> *u_prior_interface) const;
 
-    void Determine_beta_u(void) const;
-
     void Determine_alpha_t(HDSA::MD_u_Prior_Interface<RealT> *u_prior_interface) const;
-
-    void Determine_beta_t(void) const;
 
     void Determine_alpha_d(HDSA::MD_u_Prior_Interface<RealT> *u_prior_interface) const;
 
