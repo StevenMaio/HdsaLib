@@ -23,9 +23,6 @@ namespace HDSA
 
     std::vector<RealT> Compute_Eigenvalues(HDSA::MD_z_Prior_Interface<RealT> *z_prior_interface) const;
 
-    void Determine_beta_z(void) const;
-
-    void Determine_beta_t(void) const;
   };
 
 }

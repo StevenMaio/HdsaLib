@@ -43,10 +43,9 @@ int main(int argc, char *argv[])
 
   HDSA::Ptr<MD_Data_Interface_synthetic_test<RealT>> data_interface_st = HDSA::dynamicPtrCast<MD_Data_Interface_synthetic_test<RealT>>(data_interface);
   HDSA::Ptr<HDSA::Vector<RealT>> x_coords = data_interface_st->Generate_Spatial_Nodes();
-  HDSA::Ptr<HDSA::MultiVector<RealT>> normalized_spatial_coords = HDSA::makePtr<HDSA::MultiVector<RealT>>();
-  normalized_spatial_coords->push_back(x_coords);
-  std::vector<RealT> spatial_ranges = std::vector<RealT>(1, 1.0);
-  prior_sampling->Generate_Prior_Discrepancy_Sample_Data(num_prior_samples, u_hyperparam_interface, z_hyperparam_interface, normalized_spatial_coords, spatial_ranges);
+  HDSA::Ptr<HDSA::MultiVector<RealT>> spatial_coords = HDSA::makePtr<HDSA::MultiVector<RealT>>();
+  spatial_coords->push_back(x_coords);
+  prior_sampling->Generate_Prior_Discrepancy_Sample_Data(num_prior_samples, u_hyperparam_interface, z_hyperparam_interface, spatial_coords);
   HDSA::Ptr<HDSA::MultiVector<RealT>> prior_delta_z_opt = prior_sampling->Get_prior_delta_z_opt();
   std::vector<HDSA::Ptr<HDSA::Vector<RealT>>> prior_z_pert = prior_sampling->Get_prior_z_pert();
   std::vector<HDSA::Ptr<HDSA::MultiVector<RealT>>> prior_delta_z_pert = prior_sampling->Get_prior_delta_z_pert();

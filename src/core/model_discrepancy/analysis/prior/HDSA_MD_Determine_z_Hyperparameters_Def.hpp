@@ -200,20 +200,6 @@ namespace HDSA
     return evals;
   }
 
-  template <class RealT>
-  void MD_Determine_z_Hyperparameters<RealT>::Determine_beta_z(void) const
-  {
-    RealT beta_z_new = 0.008;
-    z_hyperparam_interface_->Set_beta_z(beta_z_new);
-  }
-
-  template <class RealT>
-  void MD_Determine_z_Hyperparameters<RealT>::Determine_beta_t(void) const
-  {
-    RealT beta_t_new = 0.027;
-    z_hyperparam_interface_->Set_beta_t(beta_t_new);
-  }
-
 }
 
 #endif

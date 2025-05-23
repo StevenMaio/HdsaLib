@@ -72,7 +72,7 @@ namespace HDSA
 
       if (z_hyperparam_interface_->Get_beta_z() == 0.0)
       {
-        determine_z_hyperparams_->Determine_beta_z();
+        std::cout << "Error: the value of beta_z must be specificed" << std::endl;
       }
       Set_beta_z(z_hyperparam_interface_->Get_beta_z());
 

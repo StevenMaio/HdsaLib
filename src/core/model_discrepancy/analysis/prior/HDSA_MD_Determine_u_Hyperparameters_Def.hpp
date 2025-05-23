@@ -71,13 +71,6 @@ namespace HDSA
   }
 
   template <class RealT>
-  void MD_Determine_u_Hyperparameters<RealT>::Determine_beta_u(void) const
-  {
-    RealT beta_u_new = 0.008;
-    u_hyperparam_interface_->Set_beta_u(beta_u_new);
-  }
-
-  template <class RealT>
   void MD_Determine_u_Hyperparameters<RealT>::Determine_alpha_t(HDSA::MD_u_Prior_Interface<RealT> *u_prior_interface) const
   {
     HDSA::Ptr<const HDSA::MultiVector<RealT>> D = data_interface_->get_D();
@@ -119,17 +112,8 @@ namespace HDSA
   }
 
   template <class RealT>
-  void MD_Determine_u_Hyperparameters<RealT>::Determine_beta_t(void) const
-  {
-    RealT beta_t_new = 0.027;
-    u_hyperparam_interface_->Set_beta_t(beta_t_new);
-  }
-
-  template <class RealT>
   void MD_Determine_u_Hyperparameters<RealT>::Determine_alpha_d(HDSA::MD_u_Prior_Interface<RealT> *u_prior_interface) const
   {
-    std::cout << "Need to implement test for Determine_alpha_d" << std::endl;
-
     HDSA::Ptr<const HDSA::MultiVector<RealT>> D = data_interface_->get_D();
     int N = D->Number_of_Vectors();
     RealT mags = 0.0;
