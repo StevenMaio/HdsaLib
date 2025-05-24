@@ -1,0 +1,27 @@
+%YAML 1.1
+---
+ANONYMOUS:
+  Analysis: 
+    analysis type: HDSA
+    HDSA:
+      HyperParameters:
+        alpha_u: 1.0E-4
+        alpha_z: 0.05
+        beta_u: 0.006
+        beta_t: 0.027
+        beta_z: 0.006
+        alpha_d: 1.0E-9
+        prior_num_sing_vals: 50
+        prior_oversampling: 0
+        prior_num_subspace_iter: 1
+        hessian_num_eig_vals: 10
+        hessian_oversampling: 10
+        num_prior_samples: 0
+        num_posterior_samples: 0
+      DataLoadParameters:
+        OptimalSolutionExoFile: "output_after_optimization.exo"
+        OptVariablePhysics: "T"
+        NumHifi: 1
+        HifiExoFile1: "output_hifi_1.exo"
+        LofiExoFile1: "output_lofi_1.exo"
+...

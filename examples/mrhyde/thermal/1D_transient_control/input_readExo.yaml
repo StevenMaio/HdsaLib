@@ -1,0 +1,11 @@
+%YAML 1.1
+---
+ANONYMOUS:
+  Analysis: 
+    analysis type: readExo+forward
+    readExo+forward:
+      DataLoadParameters:
+        ExoFile: "output_after_optimization.exo"
+        OptVariablePhysics: "T"
+        OverWriteParams: true
+...
