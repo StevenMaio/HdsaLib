@@ -25,7 +25,7 @@ INCLUDE_DIRECTORIES(${${PACKAGE_NAME}_SOURCE_DIR}/adapters/tpetra/src/vector)
  TRIBITS_COPY_FILES_TO_BINARY_DIR(
     ShallowIceBedrockInversionHDSADataCopy
     SOURCE_FILES
-      input.xml Sensitivity_input.xml copy_results.py initial_bedrock.m add_noise.m 
+      input.xml Sensitivity_input.xml copy_results.py initial_bedrock.m add_noise.m prior_mean.m plotresults.m
     SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}"
     DEST_DIR "${CMAKE_CURRENT_BINARY_DIR}"
   )

@@ -1,5 +1,7 @@
 #include "Teuchos_GlobalMPISession.hpp"
 
+#include "./modified_rol_source_code/ROL_ReducedDynamicObjective_Stationary_Control.hpp"
+
 #include "ROL_Stream.hpp"
 #include "ROL_ParameterList.hpp"
 #include "ROL_Objective_SimOpt.hpp"
@@ -14,8 +16,6 @@
 #include "../../../../Trilinos/packages/rol/example/PDE-OPT/TOOLS/pdeobjective.hpp"
 #include "../../../../Trilinos/packages/rol/example/PDE-OPT/TOOLS/pdevector.hpp"
 
-
-#include "./modified_rol_source_code/ROL_ReducedDynamicObjective_Stationary_Control.hpp"
 #include "./modified_rol_source_code/Objective_SimOpt_TS.hpp"
 #include "./modified_rol_source_code/Misfit_Regularization_TS_Objective_SimOpt.hpp"
 #include "./modified_rol_source_code/ltiobjective_TS.hpp"
