@@ -52,9 +52,9 @@ ANONYMOUS:
             function: thermal_source^2
             weight: 5.0E-4
   Functions: 
-    thermal source: 1.0*thermal_source
+    thermal source: 100.0*thermal_source
     #targ: '50.0-30.0*(x-0.5)^2'
-    targ: '0.2*t^2.0*exp(-10.0*(x-0.5)^2.0)'
+    targ: '100.0*t*x' #'100.0*0.2*t^2.0*exp(-10.0*(x-0.5)^2.0)'
     #targ: '0.2*exp(-10.0*(x-0.5)^2.0)'
     #targ: '0.0'
     #advection x: '3.0'

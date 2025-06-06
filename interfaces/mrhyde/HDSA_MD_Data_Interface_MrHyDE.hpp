@@ -117,7 +117,7 @@ public:
     if (opt_solution_exo_file_ != "error") {
       z_tpetra =  Read_Exodus_Data(opt_solution_exo_file_,false); 
     } else if (opt_solution_txt_file_z_ != "error") {
-      z_tpetra =  Read_Text_Data(opt_solution_txt_file_zl_,false); 
+      z_tpetra =  Read_Text_Data(opt_solution_txt_file_z_,false); 
     } else {
       std::cout << "no valid input file given for Load_Optimal_z" <<  std::endl;
     }
