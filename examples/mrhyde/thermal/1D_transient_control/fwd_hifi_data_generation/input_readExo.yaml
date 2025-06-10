@@ -5,7 +5,7 @@ ANONYMOUS:
     analysis type: readExo+forward
     readExo+forward:
       DataLoadParameters:
-        ExoFile: "output_after_optimization.exo"
+        ExoFile: "output_lofi_opt.exo"
         OptVariablePhysics: "T"
         OverWriteParams: true
 ...

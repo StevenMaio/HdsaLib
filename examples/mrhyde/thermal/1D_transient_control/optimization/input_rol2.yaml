@@ -8,7 +8,7 @@ ANONYMOUS:
     save sensor data: false
     move sensors to IP: false
     use line search: false
-    write output: true
+    write output: false
     ROL:
       General:
         Variable Objective Function: false
@@ -32,7 +32,7 @@ ANONYMOUS:
           Type: Conjugate Gradients
           Absolute Tolerance: 1.0e-6
           Relative Tolerance: 1.0e-4
-          Iteration Limit: 20
+          Iteration Limit: 200
       Step:
         Line Search:
           Function Evaluation Limit: 20

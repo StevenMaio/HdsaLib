@@ -19,12 +19,7 @@ ANONYMOUS:
         num_prior_samples: 0
         num_posterior_samples: 1
       DataLoadParameters:
-        #OptimalSolutionExoFile: "output_after_optimization.exo"
-        #OptVariablePhysics: "T"
-        #NumHifi: 1
-        #HifiExoFile1: "output_hifi_1.exo"
-        #LofiExoFile1: "output_lofi_1.exo"
-        NumHifi:1
+        NumHifi: 1
         OptimalSolutionTxtFileU: "u_opt.txt"
         OptimalSolutionTxtFileZ: "z_opt.txt"
         HifiTxtFileU1: "U_Hifi_1.txt"
