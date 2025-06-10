@@ -1,0 +1,14 @@
+# Ensure that the MrHyDE executable has been linked to the current directory under the name "mrhyde"
+
+# Link output to hdsa_exo directory
+ln -s ../optimization/output_lofi_opt.exo .
+ln -s ../fwd_lofi_data_generation/output_lofi_1.exo .
+ln -s ../fwd_lofi_data_generation/output_lofi_2.exo .
+ln -s ../fwd_hifi_data_generation/output_hifi_1.exo .
+ln -s ../fwd_hifi_data_generation/output_hifi_2.exo .
+
+# Compute HDSA update
+./mrhyde 
+
+# Remove unneeded files
+rm hessian_evals.txt

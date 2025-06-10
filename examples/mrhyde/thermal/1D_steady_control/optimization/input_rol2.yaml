@@ -8,7 +8,7 @@ ANONYMOUS:
     save sensor data: false
     move sensors to IP: false
     use line search: false
-    write output: true
+    write output: false
     ROL:
       General:
         Variable Objective Function: false
@@ -25,7 +25,7 @@ ANONYMOUS:
         Secant:
           Type: Limited-Memory BFGS
           Use as Preconditioner: false
-          Use as Hessian: true
+          Use as Hessian: false
           Maximum Storage: 10
           Barzilai-Borwein Type: 1
         Krylov:
