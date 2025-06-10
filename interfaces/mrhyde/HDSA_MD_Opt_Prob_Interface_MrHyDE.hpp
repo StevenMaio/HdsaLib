@@ -9,9 +9,10 @@ private:
   HDSA::Ptr<MrHyDE::PostprocessManager<SolverNode>> postproc_;
   HDSA::Ptr<MrHyDE::SolverManager<SolverNode>> solver_;
   HDSA::Ptr<MrHyDE::ParameterManager<SolverNode>> params_;
+  HDSA::Ptr<HDSA::Vector<RealT> > grad_nom_;
 
 public:
-  MD_Opt_Prob_Interface_MrHyDE(HDSA::Ptr<MrHyDE::SolverManager<SolverNode>> &solver, HDSA::Ptr<MrHyDE::PostprocessManager<SolverNode>> &postproc, HDSA::Ptr<MrHyDE::ParameterManager<SolverNode>> &params, const HDSA::Ptr<HDSA::Random_Number_Generator<RealT>> &random_number_generator)
+  MD_Opt_Prob_Interface_MrHyDE(HDSA::Ptr<MrHyDE::SolverManager<SolverNode>> &solver, HDSA::Ptr<MrHyDE::PostprocessManager<SolverNode>> &postproc, HDSA::Ptr<MrHyDE::ParameterManager<SolverNode>> &params, const HDSA::Ptr<HDSA::MD_Data_Interface<RealT> > &data_interface, const HDSA::Ptr<HDSA::Random_Number_Generator<RealT>> &random_number_generator)
   {
     postproc_ = postproc;
     solver_ = solver;
@@ -22,6 +23,9 @@ public:
     {
       postproc_->hdsa_solop_data[set] = HDSA::makePtr<MrHyDE::SolutionStorage<SolverNode>>(solver_->settings);
     }
+
+   grad_nom_ = data_interface->get_z_opt()->clone();
+   gradient(*grad_nom_, *data_interface->get_z_opt());
   }
 
   virtual ~MD_Opt_Prob_Interface_MrHyDE()
@@ -39,14 +43,12 @@ public:
   void Apply_RS_Hessian(HDSA::Vector<RealT> &z_out, const HDSA::Vector<RealT> &z_in, const HDSA::Vector<RealT> &z) const
   {
     do_solop(false);
-    HDSA::Ptr<HDSA::Vector<RealT>> g = z.clone();
     HDSA::Ptr<HDSA::Vector<RealT>> z_pert = z.clone();
-    gradient(*g, z);
     z_pert->set(z);
     RealT h = 1.e-4;
     z_pert->axpy(h, z_in);
     gradient(z_out, *z_pert);
-    z_out.axpy(-1.0, *g);
+    z_out.axpy(-1.0, *grad_nom_);
     z_out.scale(1 / h);
   }
 
