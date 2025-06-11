@@ -22,6 +22,16 @@ INCLUDE_DIRECTORIES(${${PACKAGE_NAME}_SOURCE_DIR}/adapters/tpetra/src/vector)
     ADD_DIR_TO_NAME
   )
 
+    TRIBITS_ADD_EXECUTABLE_AND_TEST(
+    example_reoptimization
+    SOURCES example_reoptimization.cpp
+    ARGS PrintItAll
+    NUM_MPI_PROCS 4
+    NUM_TOTAL_CORES_USED 4
+    PASS_REGULAR_EXPRESSION "TEST PASSED"
+    ADD_DIR_TO_NAME
+  )
+
  TRIBITS_COPY_FILES_TO_BINARY_DIR(
     ShallowIceBedrockInversionHDSADataCopy
     SOURCE_FILES
