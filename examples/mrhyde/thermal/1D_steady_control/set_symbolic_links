@@ -11,11 +11,6 @@ ln -s $MRHYDE_EXE_PATH ./mrhyde
 ln -s $DMRHYDE_EXE_PATH ./dmrhyde
 cd ../
 
-cd fwd_lofi_data_generation
-ln -s $MRHYDE_EXE_PATH ./mrhyde
-ln -s $DMRHYDE_EXE_PATH ./dmrhyde
-cd ../
-
 cd hdsa_exo
 ln -s $MRHYDE_EXE_PATH ./mrhyde
 ln -s $DMRHYDE_EXE_PATH ./dmrhyde

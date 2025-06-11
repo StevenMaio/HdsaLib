@@ -8,11 +8,6 @@ rm mrhyde
 rm dmrhyde
 cd ../
 
-cd fwd_lofi_data_generation
-rm mrhyde
-rm dmrhyde
-cd ../
-
 cd hdsa_exo
 rm mrhyde
 rm dmrhyde

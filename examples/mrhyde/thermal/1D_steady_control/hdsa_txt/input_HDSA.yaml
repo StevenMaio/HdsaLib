@@ -24,8 +24,6 @@ ANONYMOUS:
         OptimalSolutionTxtFileZ: "z_opt.txt"
         HifiTxtFileU1: "U_Hifi_1.txt"
         HifiTxtFileU2: "U_Hifi_2.txt"
-        LofiTxtFileU1: "U_Lofi_1.txt"
-        LofiTxtFileU2: "U_Lofi_2.txt"
         TxtFileZ1: "Z_1.txt"
         TxtFileZ2: "Z_2.txt"
         random_number_file: "random_numbers.txt"
