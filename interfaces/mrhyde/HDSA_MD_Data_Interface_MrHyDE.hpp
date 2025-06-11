@@ -107,9 +107,7 @@ public:
         std::cout << "no valid input file given for Load_Optimal_u" << std::endl;
       }
 
-      HDSA::Ptr<State_Vector_MrHyDE<RealT>> u_opt_mrhyde = HDSA::makePtr<State_Vector_MrHyDE<RealT>>(solve_, random_number_generator_);
-      u_opt_mrhyde->mrhyde_state_vec[0][0]->update(1.0, *u_tpetra, 0.0);
-      u_opt = HDSA::makePtr<HDSA_Tpetra_Vector<RealT>>(u_opt_mrhyde->mrhyde_state_vec[0][0], random_number_generator_);
+      u_opt = HDSA::makePtr<HDSA_Tpetra_Vector<RealT>>(u_tpetra, random_number_generator_);
     }
     return u_opt;
   }

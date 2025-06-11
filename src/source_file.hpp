@@ -68,11 +68,8 @@
 
 #if defined(MrHyDE_ENABLE_HDSA)
 #include "../interfaces/mrhyde/HDSA_Opt_Vector_MrHyDE.hpp"
-#include "../interfaces/mrhyde/HDSA_State_Vector_MrHyDE.hpp"
 #include "../interfaces/mrhyde/HDSA_MD_Data_Interface_MrHyDE.hpp"
 #include "../interfaces/mrhyde/HDSA_MD_Opt_Prob_Interface_MrHyDE.hpp"
 #include "../interfaces/mrhyde/HDSA_Prior_FE_Op_MrHyDE.hpp"
 #include "../interfaces/mrhyde/HDSA_MD_z_Hyperparameter_Interface_MrHyDE.hpp"
-#include "../interfaces/mrhyde/HDSA_MD_Elliptic_u_Prior_Interface_MrHyDE.hpp"
-#include "../interfaces/mrhyde/HDSA_MD_Elliptic_z_Prior_Interface_MrHyDE.hpp"
 #endif
