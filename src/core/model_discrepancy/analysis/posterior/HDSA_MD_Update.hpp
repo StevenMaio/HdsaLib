@@ -80,19 +80,24 @@ namespace HDSA
       B_theta_hat->scale(std::sqrt(post_sampling_->post_data->alpha_d));
 
       //////////////// B_theta_breve
-      HDSA::Ptr<HDSA::Dense_Matrix<RealT>> tmp1 = post_sampling_->post_data->M_z_z_breve->MatMat(*post_sampling_->post_data->Zc); // Dimension (N-1)x(num_post_samples)
-
-      HDSA::Ptr<HDSA::Dense_Matrix<RealT>> tmp2 = HDSA::makePtr<HDSA::Dense_Matrix<RealT>>(post_sampling_->post_data->N - 1, post_sampling_->post_data->num_samples);
-      HDSA::Linear_Algebra::Symmetric_Direct_Linear_Solve<RealT>(*post_sampling_->post_data->Zc_M_z_W_z_inv_M_z_Zc, *tmp2, *tmp1);
-
       HDSA::Ptr<HDSA::MultiVector<RealT>> B_theta_breve = HDSA::makePtr<HDSA::MultiVector<RealT>>(post_sampling_->post_data->num_samples, *data_interface_->get_z_opt());
-      for (int k = 0; k < post_sampling_->post_data->num_samples; k++)
+
+      if (post_sampling_->post_data->N > 1)
       {
-        for (int i = 0; i < post_sampling_->post_data->N - 1; i++)
+        HDSA::Ptr<HDSA::Dense_Matrix<RealT>> tmp1 = post_sampling_->post_data->M_z_z_breve->MatMat(*post_sampling_->post_data->Zc); // Dimension (N-1)x(num_post_samples)
+
+        HDSA::Ptr<HDSA::Dense_Matrix<RealT>> tmp2 = HDSA::makePtr<HDSA::Dense_Matrix<RealT>>(post_sampling_->post_data->N - 1, post_sampling_->post_data->num_samples);
+        HDSA::Linear_Algebra::Symmetric_Direct_Linear_Solve<RealT>(*post_sampling_->post_data->Zc_M_z_W_z_inv_M_z_Zc, *tmp2, *tmp1);
+
+        for (int k = 0; k < post_sampling_->post_data->num_samples; k++)
         {
-          (*B_theta_breve)[k]->axpy(-(*tmp2)(i, k), *(*post_sampling_->post_data->M_z_W_z_inv_M_z_Zc)[i]);
+          for (int i = 0; i < post_sampling_->post_data->N - 1; i++)
+          {
+            (*B_theta_breve)[k]->axpy(-(*tmp2)(i, k), *(*post_sampling_->post_data->M_z_W_z_inv_M_z_Zc)[i]);
+          }
         }
       }
+
       B_theta_breve->axpy(1.0, *post_sampling_->post_data->M_z_z_breve);
       B_theta_breve->scale(std::sqrt(state_grad_W_u_inv_state_grad_));
 
@@ -124,7 +129,7 @@ namespace HDSA
           u_tmp1->axpy(-coeff, *(*post_sampling_->post_data->u_i_ell[i])[ell]);
         }
       }
-      u_tmp1->axpy(post_sampling_->post_data->alpha_d,*data_interface_->get_data_shift());
+      u_tmp1->axpy(post_sampling_->post_data->alpha_d, *data_interface_->get_data_shift());
       HDSA::Ptr<HDSA::Vector<RealT>> u_tmp2 = u_tmp1->clone();
       opt_prob_interface_->Apply_Misfit_Hessian(*u_tmp2, *u_tmp1, *data_interface_->get_u_opt(), *data_interface_->get_z_opt());
 
