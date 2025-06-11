@@ -7,6 +7,3 @@ ln -s ../fwd_hifi_data_generation/output_hifi_1.exo .
 
 # Compute HDSA update
 ./mrhyde 
-
-# Remove unneeded files
-rm hessian_evals.txt

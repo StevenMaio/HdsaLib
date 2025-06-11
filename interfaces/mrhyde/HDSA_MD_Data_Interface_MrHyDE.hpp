@@ -55,26 +55,6 @@ public:
       lofi_txt_files_u_[k] = data_load_list_.get<std::string>("LofiTxtFileU" + std::to_string(k + 1), "error");
       txt_files_z_[k] = data_load_list_.get<std::string>("TxtFileZ" + std::to_string(k + 1), "error");
     }
-
-    if (opt_var_physics_ == "error")
-    {
-      std::cout << "Error: specify OptVariablePhysics" << std::endl;
-    }
-    if (opt_solution_exo_file_ == "error")
-    {
-      std::cout << "Error: specify OptimalSolutionExoFile" << std::endl;
-    }
-    for (int k = 0; k < num_hifi_; k++)
-    {
-      if (hifi_exo_files_[k] == "error")
-      {
-        std::cout << "Error: specify HifiExoFile" + std::to_string(k + 1) << std::endl;
-      }
-      if (lofi_exo_files_[k] == "error")
-      {
-        std::cout << "Error: specify fiExoFile" + std::to_string(k + 1) << std::endl;
-      }
-    }
   }
 
   virtual ~MD_Data_Interface_MrHyDE()
@@ -118,9 +98,13 @@ public:
       {
         u_tpetra = Read_Exodus_Data(opt_solution_exo_file_);
       }
-      else
+      else if (opt_solution_txt_file_u_ != "error")
       {
         u_tpetra = Read_Text_Data(opt_solution_txt_file_u_);
+      }
+      else
+      {
+        std::cout << "no valid input file given for Load_Optimal_u" << std::endl;
       }
 
       HDSA::Ptr<State_Vector_MrHyDE<RealT>> u_opt_mrhyde = HDSA::makePtr<State_Vector_MrHyDE<RealT>>(solve_, random_number_generator_);
@@ -246,11 +230,6 @@ public:
         {
           std::cout << "no valid input file given for Load_Optimal_D" << std::endl;
         }
-
-        // HDSA::Ptr<State_Vector_MrHyDE<RealT> > u_vec_k = HDSA::makePtr<State_Vector_MrHyDE<RealT> >(solve_,random_number_generator_);
-        // u_vec_k->mrhyde_state_vec[0][0]->update(1.0,*u_tpetra_hifi,0.0);
-        // u_vec_k->mrhyde_state_vec[0][0]->update(-1.0,*u_tpetra_lofi,1.0);
-        // HDSA::Ptr<HDSA::Vector<RealT> > u_k = HDSA::makePtr<HDSA_Tpetra_Vector<RealT> >(u_vec_k->mrhyde_state_vec[0][0],random_number_generator_);
 
         u_tpetra_hifi->update(-1.0, *u_tpetra_lofi, 1.0);
         HDSA::Ptr<HDSA::Vector<RealT>> u_k = HDSA::makePtr<HDSA_Tpetra_Vector<RealT>>(u_tpetra_hifi, random_number_generator_);

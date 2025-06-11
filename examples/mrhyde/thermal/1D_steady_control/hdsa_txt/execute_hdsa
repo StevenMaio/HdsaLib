@@ -2,6 +2,3 @@
 
 # Compute HDSA update
 ./mrhyde 
-
-# Remove unneeded files
-rm hessian_evals.txt

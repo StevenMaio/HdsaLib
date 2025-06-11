@@ -17,7 +17,7 @@ ANONYMOUS:
         hessian_num_eig_vals: 10
         hessian_oversampling: 10
         num_prior_samples: 10
-        num_posterior_samples: 0
+        num_posterior_samples: 10
       DataLoadParameters:
         NumHifi: 2
         OptimalSolutionTxtFileU: "u_opt.txt"
