@@ -14,6 +14,7 @@ ANONYMOUS:
         prior_num_sing_vals: 50
         prior_oversampling: 0
         prior_num_subspace_iter: 1
+        prior_num_state_solves: 10
         hessian_num_eig_vals: 3
         hessian_oversampling: 4
         num_prior_samples: 0

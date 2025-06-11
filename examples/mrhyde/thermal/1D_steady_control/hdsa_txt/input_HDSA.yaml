@@ -13,12 +13,13 @@ ANONYMOUS:
         prior_num_sing_vals: 200
         prior_oversampling: 0
         prior_num_subspace_iter: 1
+        prior_num_state_solves: 10
         hessian_num_eig_vals: 10
         hessian_oversampling: 10
-        num_prior_samples: 0
+        num_prior_samples: 10
         num_posterior_samples: 0
       DataLoadParameters:
-        NumHifi:2
+        NumHifi: 2
         OptimalSolutionTxtFileU: "u_opt.txt"
         OptimalSolutionTxtFileZ: "z_opt.txt"
         HifiTxtFileU1: "U_Hifi_1.txt"
