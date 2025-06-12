@@ -40,7 +40,7 @@ typedef double RealT;
 template<class RealT>
 void Set_Initial_Iterate(HDSA::Ptr<Tpetra::MultiVector<> > & z_ptr, const HDSA::Ptr<HDSA::ParameterList> & parlist) 
 {
-  int num_coeff_load = parlist->sublist("Problem").get("Number of Coefficients in Loaded Fields", 10); 
+  int num_coeff_load = 3*parlist->sublist("Problem").get("Number of Coefficients in Loaded Fields", 10); 
   std::vector<RealT> initial_iter_coeff = std::vector<RealT>(num_coeff_load);
   // read in data
   std::ifstream in("z_bar.txt");          
@@ -60,7 +60,7 @@ void Set_Initial_Iterate(HDSA::Ptr<Tpetra::MultiVector<> > & z_ptr, const HDSA::
   
   for(int k = 0; k < num_coeff_load; k++)
     {
-      z_ptr->replaceGlobalValue(3*k,0,initial_iter_coeff[k]);
+      z_ptr->replaceGlobalValue(k,0,initial_iter_coeff[k]);
     }
 
 }
@@ -312,7 +312,6 @@ int main(int argc, char *argv[]) {
   z->zero();
   Set_Initial_Iterate<RealT>(z_ptr,parlist);
   dyn_con->outputTpetraVector(z_ptr,"initial_iterate.txt");
-
 	
   // Build optimization problem and check derivatives
   ROL::OptimizationProblem<RealT> optProb(robj,z);
