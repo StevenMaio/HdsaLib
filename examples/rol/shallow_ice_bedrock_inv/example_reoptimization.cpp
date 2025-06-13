@@ -55,7 +55,7 @@ void Set_Initial_Iterate(HDSA::Ptr<Tpetra::MultiVector<> > & z_ptr, const HDSA::
     }
   else
     {
-      std::cout << "Error loading the data from matlab_initial_iterate.txt" << std::endl;
+      std::cout << "Error loading the data from z_bar.txt" << std::endl;
     }  
   
   for(int k = 0; k < num_coeff_load; k++)
@@ -103,7 +103,7 @@ int main(int argc, char *argv[]) {
   HDSA::updateParametersFromXmlFile( filename, *parlist );
 
   int L = parlist->sublist("Problem").get("Number of Uncertain Basis Functions", 10);
-  int theta_dim = (L+1)*(L+1);
+  int theta_dim = 2*(L+1)*(L+1);
   HDSA::Ptr<HDSA::Vector<RealT> > theta = HDSA::makePtr<Std_Vector<RealT> >(theta_dim);
   Std_Vector<RealT> &theta_std = dynamic_cast<Std_Vector<RealT> &>(*theta);
   RealT x = 0.0;
