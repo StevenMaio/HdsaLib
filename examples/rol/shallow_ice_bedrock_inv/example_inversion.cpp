@@ -231,7 +231,7 @@ int main(int argc, char *argv[]) {
   HDSA::Ptr<QoI<RealT> > qoiH1 = HDSA::makePtr<QoI_H1_shallow_ice<RealT> >(pde_shallow_ice->getFE(),pde_shallow_ice->getFieldHelper());
   std::vector<HDSA::Ptr<ROL::Objective_SimOpt<RealT> > > reg_obj(1);  
   bool construct_matrices = parlist->sublist("Problem").get("Construct Matrices",false);
-  reg_obj[0] = HDSA::makePtr<Elliptic_Prior_Regularization_Objective<RealT> >(comm->Get_Teuchos_Communicator(), parlist, outStream, construct_matrices);
+  reg_obj[0] = HDSA::makePtr<Elliptic_Prior_Regularization_Objective_SimOpt<RealT> >(comm->Get_Teuchos_Communicator(), parlist, outStream, construct_matrices);
   std::vector<RealT> weights = std::vector<RealT>(2,1.0);
   weights[0] = parlist->sublist("Problem").get("State Cost",1.0);
   weights[0] = weights[0]*(static_cast<RealT>(nt)/T);
