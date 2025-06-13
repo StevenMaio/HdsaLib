@@ -67,7 +67,6 @@
 #include "../interfaces/rol/HDSA_MD_ROL_Opt_Prob_Interface.hpp"
 
 #if defined(MrHyDE_ENABLE_HDSA)
-#include "../interfaces/mrhyde/HDSA_Opt_Vector_MrHyDE.hpp"
 #include "../interfaces/mrhyde/HDSA_MD_Data_Interface_MrHyDE.hpp"
 #include "../interfaces/mrhyde/HDSA_MD_Opt_Prob_Interface_MrHyDE.hpp"
 #include "../interfaces/mrhyde/HDSA_Prior_FE_Op_MrHyDE.hpp"
