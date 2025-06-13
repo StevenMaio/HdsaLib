@@ -61,6 +61,11 @@ public:
     return comm_;
   }
 
+  std::string Get_Opt_Solution_Exo_File(void) const
+  {
+    return opt_solution_exo_file_;
+  }
+
   void State_Solve(HDSA::Vector<RealT> &u, const HDSA::Vector<RealT> &z) const
   {
 

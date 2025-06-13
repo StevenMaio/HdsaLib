@@ -71,4 +71,5 @@
 #include "../interfaces/mrhyde/HDSA_MD_Opt_Prob_Interface_MrHyDE.hpp"
 #include "../interfaces/mrhyde/HDSA_Prior_FE_Op_MrHyDE.hpp"
 #include "../interfaces/mrhyde/HDSA_MD_z_Hyperparameter_Interface_MrHyDE.hpp"
+#include "../interfaces/mrhyde/HDSA_Write_Output_MrHyDE.hpp"
 #endif
