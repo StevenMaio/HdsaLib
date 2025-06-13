@@ -56,7 +56,12 @@ public:
   {
   }
 
-  void State_Solve(HDSA::Vector<RealT> &u, const HDSA::Vector<RealT> &z) const 
+  Teuchos::RCP<Teuchos::MpiComm<int>> Get_Communicator(void) const
+  {
+    return comm_;
+  }
+
+  void State_Solve(HDSA::Vector<RealT> &u, const HDSA::Vector<RealT> &z) const
   {
 
     const HDSA_Tpetra_Vector<RealT> &ez = dynamic_cast<const HDSA_Tpetra_Vector<RealT> &>(z);
@@ -237,7 +242,7 @@ public:
           std::cout << "no valid input file given for Load_Optimal_D" << std::endl;
         }
         HDSA::Ptr<HDSA::Vector<RealT>> u_k = HDSA::makePtr<HDSA_Tpetra_Vector<RealT>>(u_tpetra_hifi, random_number_generator_);
-        u_k->axpy(-1.0,*u_k_lofi);
+        u_k->axpy(-1.0, *u_k_lofi);
         u_vecs.push_back(u_k);
       }
     }
@@ -387,7 +392,161 @@ public:
     solve_->linalg->exportVectorFromOverlappedReplace(0, vec, vec_over);
 
     exo_error = ex_close(exoid);
+    if (exo_error != 0)
+    {
+      std::cout << "Exodus reader error" << std::endl;
+    }
     return vec;
+  }
+
+  HDSA::Ptr<HDSA::MultiVector<RealT>> Read_Spatial_Node_Data() const
+  {
+    HDSA::Ptr<HDSA::MultiVector<RealT>> spatial_nodes;
+    if (opt_solution_exo_file_ != "error")
+    {
+      spatial_nodes = Read_Exodus_Spatial_Node_Data(opt_solution_exo_file_);
+    }
+    else
+    {
+      std::cout << "Error: Read_Spatial_Node_Data is currently only supported for Exodus file reading" << std::endl;
+
+      // Default to assume 1D on the domain [0,1] so that test problems will run
+      Teuchos::RCP<Tpetra::MultiVector<ScalarT, LO, GO, SolverNode>> vec = solve_->linalg->getNewVector(0);
+      int dim = vec->getGlobalLength();
+      for (int k = 0; k < dim; k++)
+      {
+        RealT val = double(k) / double(dim - 1);
+        vec->replaceGlobalValue(k, 0, val);
+      }
+      std::vector<HDSA::Ptr<HDSA::Vector<RealT>>> coord_vecs;
+      coord_vecs.resize(1);
+      coord_vecs[0] = HDSA::makePtr<HDSA_Tpetra_Vector<RealT>>(vec, random_number_generator_);
+      spatial_nodes = HDSA::makePtr<HDSA::MultiVector<RealT>>(coord_vecs);
+    }
+    return spatial_nodes;
+  }
+
+  HDSA::Ptr<HDSA::MultiVector<RealT>> Read_Exodus_Spatial_Node_Data(std::string exofile) const
+  {
+
+    string fname;
+    std::vector<std::string> block_names, side_names, node_names;
+
+    if (comm_->getSize() > 1)
+    {
+      std::stringstream ssProc, ssPID;
+      ssProc << comm_->getSize();
+      ssPID << comm_->getRank();
+      string strProc = ssProc.str();
+      string strPID = ssPID.str();
+      // this section may need tweaking if the input exodus mesh is
+      // spread across 10's, 100's, or 1000's (etc) of processors
+      fname = exofile + "." + strProc + "." + strPID;
+    }
+    else
+    {
+      fname = exofile;
+    }
+
+    int CPU_word_size, IO_word_size, exoid, exo_error;
+    int num_dim, num_nods, num_el, num_el_blk, num_ns, num_ss;
+    char title[MAX_STR_LENGTH + 1];
+    float exo_version;
+    CPU_word_size = sizeof(ScalarT);
+    IO_word_size = 0;
+    exoid = ex_open(fname.c_str(), EX_READ, &CPU_word_size, &IO_word_size,
+                    &exo_version);
+    exo_error = ex_get_init(exoid, title, &num_dim, &num_nods, &num_el,
+                            &num_el_blk, &num_ns, &num_ss);
+    int id = 1;
+    // int step = 1;
+    ex_block eblock;
+    eblock.id = id;
+    eblock.type = EX_ELEM_BLOCK;
+
+    exo_error = ex_get_block_param(exoid, &eblock);
+
+    int num_el_in_blk = eblock.num_entry;
+    int num_node_per_el = eblock.num_nodes_per_entry;
+
+    int *connect = new int[num_el_in_blk * num_node_per_el];
+    int edgeconn, faceconn;
+    exo_error = ex_get_conn(exoid, EX_ELEM_BLOCK, id, connect, &edgeconn, &faceconn);
+
+    int num_node_vars = 0;
+    exo_error = ex_get_variable_param(exoid, EX_NODAL, &num_node_vars);
+
+    ScalarT *x_coords = new double[num_nods];
+    ScalarT *y_coords = new double[num_nods];
+    ScalarT *z_coords = new double[num_nods];
+    ex_get_coord(exoid, x_coords, y_coords, z_coords);
+    std::vector<std::vector<ScalarT>> spatial_coords;
+    spatial_coords.resize(num_dim);
+    for (int i = 0; i < num_dim; i++)
+    {
+      spatial_coords[i].resize(num_nods);
+      for (int j = 0; j < num_nods; j++)
+      {
+        if (i == 0)
+        {
+          spatial_coords[i][j] = x_coords[j];
+        }
+        if (i == 1)
+        {
+          spatial_coords[i][j] = y_coords[j];
+        }
+        if (i == 2)
+        {
+          spatial_coords[i][j] = z_coords[j];
+        }
+      }
+    }
+
+    std::vector<HDSA::Ptr<HDSA::Vector<ScalarT>>> coord_vecs;
+    coord_vecs.resize(num_dim);
+
+    for (int spatial_id = 0; spatial_id < num_dim; spatial_id++)
+    {
+      Teuchos::RCP<Tpetra::MultiVector<ScalarT, LO, GO, SolverNode>> vec_over = Teuchos::rcp(new Tpetra::MultiVector<ScalarT, LO, GO, SolverNode>(solve_->linalg->overlapped_map[0], 1));
+      auto vec_over_kv = vec_over->template getLocalView<HostDevice>(Tpetra::Access::ReadWrite);
+      int index, dindex;
+
+      auto dev_offsets = solve_->assembler->wkset[0]->offsets;
+      auto offsets = Kokkos::create_mirror_view(dev_offsets);
+      Kokkos::deep_copy(offsets, dev_offsets);
+
+      vector<string> blockNames = solve_->mesh->getBlockNames();
+      for (int block = 0; block < blockNames.size(); block++)
+      {
+        for (int grp = 0; grp < solve_->assembler->groups[block].size(); ++grp)
+        {
+          auto LIDs = solve_->assembler->groups[block][grp]->LIDs_host;
+          auto nDOF = solve_->assembler->groups[block][grp]->group_data->num_dof_host;
+          for (int p = 0; p < solve_->assembler->groups[block][grp]->numElem; p++)
+          {
+            for (int i = 0; i < nDOF(0); i++)
+            {
+              index = LIDs[0](p, offsets(0, i));
+              dindex = connect[grp * num_node_per_el + i] - 1;
+              vec_over_kv(index, 0) = spatial_coords[spatial_id][dindex];
+            }
+          }
+        }
+      }
+      Teuchos::RCP<Tpetra::MultiVector<ScalarT, LO, GO, SolverNode>> vec = solve_->linalg->getNewVector(0);
+      solve_->linalg->exportVectorFromOverlappedReplace(0, vec, vec_over);
+      coord_vecs[spatial_id] = HDSA::makePtr<HDSA_Tpetra_Vector<RealT>>(vec, random_number_generator_);
+    }
+
+    delete[] connect;
+    exo_error = ex_close(exoid);
+    if (exo_error != 0)
+    {
+      std::cout << "Exodus reader error" << std::endl;
+    }
+
+    HDSA::Ptr<HDSA::MultiVector<RealT>> coords = HDSA::makePtr<HDSA::MultiVector<RealT>>(coord_vecs);
+    return coords;
   }
 
   Teuchos::RCP<Tpetra::MultiVector<ScalarT, LO, GO, SolverNode>> Read_Text_Data(std::string txtfile, bool load_state = true, int step = 1) const

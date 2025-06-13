@@ -7,6 +7,7 @@ rm ./hdsa_exo/output_hifi_1.exo
 rm ./hdsa_exo/output_hifi_2.exo
 rm ./hdsa_exo/posterior_update_mean.txt
 rm ./hdsa_exo/hessian_evals.txt
+rm -r ./hdsa_exo/prior*
 rm ./hdsa_txt/posterior_update_mean.txt
 rm -r ./hdsa_txt/posterior_update_samples
 rm -r ./hdsa_txt/prior*

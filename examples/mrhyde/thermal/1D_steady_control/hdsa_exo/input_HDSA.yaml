@@ -15,7 +15,7 @@ ANONYMOUS:
         prior_num_subspace_iter: 1
         hessian_num_eig_vals: 10
         hessian_oversampling: 10
-        num_prior_samples: 0
+        num_prior_samples: 10
         num_posterior_samples: 0
       DataLoadParameters:
         OptimalSolutionExoFile: "output_lofi_opt.exo"
