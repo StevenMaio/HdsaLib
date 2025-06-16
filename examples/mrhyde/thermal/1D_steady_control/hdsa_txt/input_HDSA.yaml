@@ -4,6 +4,12 @@ ANONYMOUS:
   Analysis: 
     analysis type: HDSA
     HDSA:
+      Configuration:
+        num_prior_samples: 10
+        num_posterior_samples: 10
+        execute_prior_discrepancy_sampling: true
+        execute_posterior_discrepancy_sampling: true
+        execute_optimal_solution_update: true
       HyperParameters:
         alpha_u: 0.25
         alpha_z: .111111111
@@ -16,8 +22,6 @@ ANONYMOUS:
         prior_num_state_solves: 10
         hessian_num_eig_vals: 10
         hessian_oversampling: 10
-        num_prior_samples: 10
-        num_posterior_samples: 10
       DataLoadParameters:
         NumHifi: 2
         OptimalSolutionTxtFileU: "u_opt.txt"

@@ -28,7 +28,12 @@ namespace HDSA
     {
     }
 
-    void Compute_Hessian_GEVP(const HDSA::Vector<RealT> &z, const int &num_evals, const int &oversampling)
+    HDSA::Ptr<HDSA::Dense_Matrix<RealT>> Get_Evals(void) const 
+    {
+      return evals_;
+    }
+
+    void Compute_Hessian_GEVP(const HDSA::Vector<RealT> &z, const int &num_evals, const int &oversampling, bool write_output = true)
     {
       HDSA::Ptr<HDSA::Randomized_GEVP<RealT>> hessian_gevp = HDSA::makePtr<MD_Hessian_GEVP<RealT>>(opt_prob_interface_, z_prior_interface_, z);
       evecs_ = HDSA::makePtr<HDSA::MultiVector<RealT>>(num_evals, z);
@@ -37,14 +42,17 @@ namespace HDSA
       z_current_->set(z);
       hessian_gevp->Compute_GEVP(*evecs_, *evals_, num_evals, oversampling);
       use_projector_ = true;
-      std::ofstream fout;
-      std::string name = "hessian_evals.txt";
-      fout.open(name);
-      for (int i = 0; i < num_evals; i++)
+      if (write_output)
       {
-        fout << std::setprecision(16) << (*evals_)(i, 0) << "  ";
+        std::ofstream fout;
+        std::string name = "hessian_evals.txt";
+        fout.open(name);
+        for (int i = 0; i < num_evals; i++)
+        {
+          fout << std::setprecision(16) << (*evals_)(i, 0) << "  ";
+        }
+        fout.close();
       }
-      fout.close();
     }
 
     void Apply_RS_Hessian_Inverse(HDSA::Vector<RealT> &z_out, const HDSA::Vector<RealT> &z_in, const HDSA::Vector<RealT> &z) const

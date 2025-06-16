@@ -16,7 +16,7 @@ public:
         write_exo_ = false;
         if (opt_solution_exo_file != "error")
         {
-            write_exo_ = true;
+            //write_exo_ = true;
         }
 
         output_dir_name_ = "hdsa_output";
@@ -108,6 +108,58 @@ public:
             name = output_dir_name_ + "/prior/prior_delta_z_pert_2";
             prior_delta_z_pert[1]->Write_to_File(name);
         }
+    }
+
+    void Write_Posterior_Discrepancy_Samples(std::vector<HDSA::Ptr<HDSA::MD_Posterior_Vectors<RealT>>> post_delta) const
+    {
+        if (write_exo_)
+        {
+            std::cout << "Need to implement Exodus writer" << std::endl;
+        }
+        else
+        {
+            std::filesystem::create_directory(output_dir_name_ + "/posterior");
+            int N = post_delta.size();
+            for (int k = 0; k < N; k++)
+            {
+                std::filesystem::create_directory(output_dir_name_ + "/posterior/posterior_delta_z_" + std::to_string(k + 1));
+                std::string name = output_dir_name_ + "/posterior/posterior_delta_z_" + std::to_string(k + 1) + "/posterior_mean.txt";
+                post_delta[k]->mean->Write_to_File(name);
+                name = output_dir_name_ + "/posterior/posterior_delta_z_" + std::to_string(k + 1) + "/posterior_samples";
+                post_delta[k]->samples->Write_to_File(name);
+            }
+        }
+    }
+
+    void Write_Hessian_Eigenvalues(HDSA::Ptr<HDSA::Dense_Matrix<RealT>> &evals) const
+    {
+        std::string name = output_dir_name_ + "/hessian_evals.txt";
+        std::ofstream fout;
+        fout.open(name);
+        int num_evals = evals->numRows();
+        for (int i = 0; i < num_evals; i++)
+        {
+            fout << std::setprecision(8) << (*evals)(i, 0) << "  ";
+        }
+        fout.close();
+    }
+
+    void Write_Optimal_Solution_Update(HDSA::Ptr<HDSA::MD_Posterior_Vectors<ScalarT>> &posterior_update_samples) const
+    {
+        std::filesystem::create_directory(output_dir_name_ + "/posterior");
+        std::filesystem::create_directory(output_dir_name_ + "/posterior/z_update");
+        std::string name = output_dir_name_ + "/posterior/z_update/mean.txt";
+        posterior_update_samples->mean->Write_to_File(name);
+        name = output_dir_name_ + "/posterior/z_update/posterior_samples";
+        posterior_update_samples->samples->Write_to_File(name);
+    }
+
+    void Write_Optimal_Solution_Update(HDSA::Ptr<HDSA::Vector<ScalarT>> &posterior_update_mean) const
+    {
+        std::filesystem::create_directory(output_dir_name_ + "/posterior");
+        std::filesystem::create_directory(output_dir_name_ + "/posterior/z_update");
+        std::string name = output_dir_name_ + "/posterior/z_update/mean.txt";
+        posterior_update_mean->Write_to_File(name);
     }
 };
 #endif

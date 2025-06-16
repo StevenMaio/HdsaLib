@@ -5,10 +5,5 @@ rm ./fwd_hifi_data_generation/output_hifi_2.exo
 rm ./hdsa_exo/output_lofi_opt.exo
 rm ./hdsa_exo/output_hifi_1.exo
 rm ./hdsa_exo/output_hifi_2.exo
-rm ./hdsa_exo/posterior_update_mean.txt
-rm ./hdsa_exo/hessian_evals.txt
 rm -r ./hdsa_exo/hdsa_output*
-rm ./hdsa_txt/posterior_update_mean.txt
-rm -r ./hdsa_txt/posterior_update_samples
-rm ./hdsa_txt/hessian_evals.txt
 rm -r ./hdsa_txt/hdsa_output*
