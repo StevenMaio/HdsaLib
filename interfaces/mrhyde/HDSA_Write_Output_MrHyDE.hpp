@@ -8,15 +8,18 @@ class Write_Output_MrHyDE
 private:
     bool write_exo_;
     std::string output_dir_name_;
+    HDSA::Ptr<MrHyDE::PostprocessManager<SolverNode>> postproc_;
+    HDSA::Ptr<MrHyDE::SolverManager<SolverNode>> solver_;
 
 public:
-    Write_Output_MrHyDE(const HDSA::Ptr<MD_Data_Interface_MrHyDE<RealT>> data_interface)
+    Write_Output_MrHyDE(const HDSA::Ptr<MD_Data_Interface_MrHyDE<RealT>> &data_interface, const HDSA::Ptr<MrHyDE::PostprocessManager<SolverNode>> &postproc, const HDSA::Ptr<MrHyDE::SolverManager<SolverNode>> &solver) : postproc_(postproc), solver_(solver)
     {
         std::string opt_solution_exo_file = data_interface->Get_Opt_Solution_Exo_File();
         write_exo_ = false;
         if (opt_solution_exo_file != "error")
         {
-            //write_exo_ = true;
+            write_exo_ = true;
+            postproc_->write_optimization_solution = false;
         }
 
         output_dir_name_ = "hdsa_output";
@@ -90,44 +93,39 @@ public:
 
     void Write_Prior_Discrepancy_Samples(HDSA::Ptr<HDSA::MultiVector<ScalarT>> &prior_delta_z_opt, std::vector<HDSA::Ptr<HDSA::Vector<ScalarT>>> &prior_z_pert, std::vector<HDSA::Ptr<HDSA::MultiVector<ScalarT>>> &prior_delta_z_pert) const
     {
-        if (write_exo_)
-        {
-            std::cout << "Need to implement Exodus writer" << std::endl;
-        }
-        else
-        {
-            std::filesystem::create_directory(output_dir_name_ + "/prior");
-            std::string name = output_dir_name_ + "/prior/prior_delta_z_opt";
-            prior_delta_z_opt->Write_to_File(name);
-            name = output_dir_name_ + "/prior/prior_z_pert_1.txt";
-            prior_z_pert[0]->Write_to_File(name);
-            name = output_dir_name_ + "/prior/prior_z_pert_2.txt";
-            prior_z_pert[1]->Write_to_File(name);
-            name = output_dir_name_ + "/prior/prior_delta_z_pert_1";
-            prior_delta_z_pert[0]->Write_to_File(name);
-            name = output_dir_name_ + "/prior/prior_delta_z_pert_2";
-            prior_delta_z_pert[1]->Write_to_File(name);
-        }
+        std::filesystem::create_directory(output_dir_name_ + "/prior");
+
+        std::string name = output_dir_name_ + "/prior/prior_delta_z_opt";
+        std::filesystem::create_directory(name);
+        Write_to_File(prior_delta_z_opt, name, true);
+
+        name = output_dir_name_ + "/prior/prior_z_pert_1";
+        Write_to_File(prior_z_pert[0], name, false);
+        name = output_dir_name_ + "/prior/prior_z_pert_2";
+        Write_to_File(prior_z_pert[1], name, false);
+
+        name = output_dir_name_ + "/prior/prior_delta_z_pert_1";
+        std::filesystem::create_directory(name);
+        Write_to_File(prior_delta_z_pert[0], name, true);
+
+        name = output_dir_name_ + "/prior/prior_delta_z_pert_2";
+        std::filesystem::create_directory(name);
+        Write_to_File(prior_delta_z_pert[1], name, true);
     }
 
     void Write_Posterior_Discrepancy_Samples(std::vector<HDSA::Ptr<HDSA::MD_Posterior_Vectors<RealT>>> post_delta) const
     {
-        if (write_exo_)
+        std::filesystem::create_directory(output_dir_name_ + "/posterior");
+        int N = post_delta.size();
+        for (int k = 0; k < N; k++)
         {
-            std::cout << "Need to implement Exodus writer" << std::endl;
-        }
-        else
-        {
-            std::filesystem::create_directory(output_dir_name_ + "/posterior");
-            int N = post_delta.size();
-            for (int k = 0; k < N; k++)
-            {
-                std::filesystem::create_directory(output_dir_name_ + "/posterior/posterior_delta_z_" + std::to_string(k + 1));
-                std::string name = output_dir_name_ + "/posterior/posterior_delta_z_" + std::to_string(k + 1) + "/posterior_mean.txt";
-                post_delta[k]->mean->Write_to_File(name);
-                name = output_dir_name_ + "/posterior/posterior_delta_z_" + std::to_string(k + 1) + "/posterior_samples";
-                post_delta[k]->samples->Write_to_File(name);
-            }
+            std::string name = output_dir_name_ + "/posterior/posterior_delta_z_" + std::to_string(k + 1);
+            std::filesystem::create_directory(name);
+            std::string filename = name + "/posterior_mean";
+            Write_to_File(post_delta[k]->mean, filename, true);
+            name = name + "/posterior_samples";
+            std::filesystem::create_directory(name);
+            Write_to_File(post_delta[k]->samples, name, true);
         }
     }
 
@@ -146,20 +144,87 @@ public:
 
     void Write_Optimal_Solution_Update(HDSA::Ptr<HDSA::MD_Posterior_Vectors<ScalarT>> &posterior_update_samples) const
     {
-        std::filesystem::create_directory(output_dir_name_ + "/posterior");
-        std::filesystem::create_directory(output_dir_name_ + "/posterior/z_update");
-        std::string name = output_dir_name_ + "/posterior/z_update/mean.txt";
-        posterior_update_samples->mean->Write_to_File(name);
-        name = output_dir_name_ + "/posterior/z_update/posterior_samples";
-        posterior_update_samples->samples->Write_to_File(name);
+        std::string name = output_dir_name_ + "/posterior";
+        std::filesystem::create_directory(name);
+        name = name + "/z_update";
+        std::filesystem::create_directory(name);
+        std::string filename = name + "/mean";
+        Write_to_File(posterior_update_samples->mean, filename, false);
+        name = name + "/posterior_samples";
+        std::filesystem::create_directory(name);
+        Write_to_File(posterior_update_samples->samples, name, false);
     }
 
     void Write_Optimal_Solution_Update(HDSA::Ptr<HDSA::Vector<ScalarT>> &posterior_update_mean) const
     {
-        std::filesystem::create_directory(output_dir_name_ + "/posterior");
-        std::filesystem::create_directory(output_dir_name_ + "/posterior/z_update");
-        std::string name = output_dir_name_ + "/posterior/z_update/mean.txt";
-        posterior_update_mean->Write_to_File(name);
+        std::string name = output_dir_name_ + "/posterior";
+        std::filesystem::create_directory(name);
+        name = name + "/z_update";
+        std::filesystem::create_directory(name);
+        name = name + "/mean";
+        Write_to_File(posterior_update_mean, name, false);
+    }
+
+    void Write_to_File(const HDSA::Ptr<HDSA::MultiVector<RealT>> &vec, std::string &name, bool is_state) const
+    {
+        int num_vecs = vec->Number_of_Vectors();
+        for (int k = 0; k < num_vecs; k++)
+        {
+            HDSA::Ptr<HDSA::Vector<RealT>> vec_k = (*vec)[k];
+            std::string filename = name + "/Vector_" + std::to_string(k + 1);
+            Write_to_File(vec_k, filename, is_state);
+        }
+    }
+
+    void Write_to_File(const HDSA::Ptr<HDSA::Vector<RealT>> &vec, std::string &filename, bool is_state) const
+    {
+        if (write_exo_)
+        {
+            std::string name = filename + ".exo";
+            postproc_->write_solution = true;
+            postproc_->exodus_filename = name;
+
+            if (is_state)
+            {
+                std::vector<std::string> discretized_param_names = postproc_->params->discretized_param_names;
+                postproc_->params->discretized_param_names.clear();
+                postproc_->setNewExodusFile(name);
+                std::vector<HDSA::Ptr<Tpetra::MultiVector<RealT>>> sol;
+                sol.resize(1);
+                RealT current_time = 0.0;
+                if (postproc_->isTD)
+                {
+                    Transient_Vector<RealT> &evec = dynamic_cast<Transient_Vector<RealT> &>(*vec);
+                    int n_t = evec.Get_n_t();
+                    for (int i = 0; i < n_t; i++)
+                    {
+                        HDSA_Tpetra_Vector<RealT> &evec_i = dynamic_cast<HDSA_Tpetra_Vector<RealT> &>(*evec[i]);
+                        sol[0] = evec_i.getVector();
+                        postproc_->writeSolution(sol, current_time);
+                        current_time = current_time + solver_->deltat;
+                    }
+                }
+                else
+                {
+                    HDSA_Tpetra_Vector<RealT> &evec = dynamic_cast<HDSA_Tpetra_Vector<RealT> &>(*vec);
+                    sol[0] = evec.getVector();
+                    postproc_->writeSolution(sol, current_time);
+                }
+                postproc_->params->discretized_param_names = discretized_param_names;
+            }
+            else
+            {
+                postproc_->mesh->setupOptimizationExodusFile(name);
+                HDSA_Tpetra_Vector<RealT> &evec = dynamic_cast<HDSA_Tpetra_Vector<RealT> &>(*vec);
+                postproc_->params->updateParams(evec.getVector());
+                postproc_->writeOptimizationSolution(name);
+            }
+            postproc_->write_solution = false;
+        }
+        else
+        {
+            vec->Write_to_File(filename + ".txt");
+        }
     }
 };
 #endif
