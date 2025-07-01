@@ -19,7 +19,8 @@ private:
   Teuchos::ParameterList data_load_list_;
   int num_hifi_;
 
-  std::string opt_var_physics_;
+  std::string state_var_name_;
+  std::string opt_var_name_;
   std::string opt_solution_exo_file_;
   std::vector<std::string> hifi_exo_files_;
 
@@ -33,7 +34,8 @@ public:
   {
     num_hifi_ = data_load_list_.get<int>("NumHifi", 1);
 
-    opt_var_physics_ = data_load_list_.get<std::string>("OptVariablePhysics", "error");
+    state_var_name_ = data_load_list_.get<std::string>("StateVariableName", "error");
+    opt_var_name_ = data_load_list_.get<std::string>("OptVariableName", "error");
     opt_solution_exo_file_ = data_load_list_.get<std::string>("OptimalSolutionExoFile", "error");
 
     opt_solution_txt_file_u_ = data_load_list_.get<std::string>("OptimalSolutionTxtFileU", "error");
@@ -342,51 +344,42 @@ public:
         auto LIDs = solve_->assembler->groups[block][grp]->LIDs_host;
         auto nDOF = solve_->assembler->groups[block][grp]->group_data->num_dof_host;
 
-        int bound_nv = solve_->physics->getVarList()[0][block].size();
+        std::string var;
+        if (load_state)
+        {
+          var = state_var_name_;
+        }
+        else
+        {
+          var = opt_var_name_;
+        }
+        int n = -1;
+        for (int j = 0; j < nfield_names.size(); j++)
+        {
+          if (nfield_names[j] == var)
+          {
+            n = j;
+          }
+        }
+        int n_var = n;
         if (!load_state)
         {
-          bound_nv = solve_->params->getParamsNames(4).size();
-        }
-
-        for (int nv = 0; nv < bound_nv; nv++)
-        {
-          std::string var;
-          if (load_state)
-          {
-            var = solve_->physics->getVarList()[0][block][nv];
-          }
-          else
-          {
-            var = solve_->params->getParamsNames(4)[nv];
-          }
-          int n = -1;
-
           for (int j = 0; j < nfield_names.size(); j++)
           {
-            if (nfield_names[j] == var)
+            if (nfield_names[j] == state_var_name_)
             {
-              n = j;
+              n_var = j;
             }
           }
-          int n_var = n;
-          if (!load_state)
+        }
+
+        for (int p = 0; p < solve_->assembler->groups[block][grp]->numElem; p++)
+        {
+          for (int i = 0; i < nDOF(n_var); i++)
           {
-            for (int j = 0; j < nfield_names.size(); j++)
-            {
-              if (nfield_names[j] == opt_var_physics_)
-              {
-                n_var = j;
-              }
-            }
-          }
-          for (int p = 0; p < solve_->assembler->groups[block][grp]->numElem; p++)
-          {
-            for (int i = 0; i < nDOF(n_var); i++)
-            {
-              index = LIDs[0](p, offsets(n_var, i));
-              dindex = connect[grp * num_node_per_el + i] - 1;
-              vec_over_kv(index, 0) = nfield_vals[n][dindex];
-            }
+            index = LIDs[0](p, offsets(n_var, i));
+            dindex = connect[grp * num_node_per_el + i] - 1;
+            vec_over_kv(index, 0) = nfield_vals[n][dindex];
           }
         }
       }
