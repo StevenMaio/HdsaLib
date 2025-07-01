@@ -28,5 +28,4 @@ ANONYMOUS:
         OptVariableName: "thermal_source"
         NumHifi: 1
         HifiExoFile1: "output_hifi_1.exo"
-        LofiExoFile1: "output_lofi_1.exo"
 ...
