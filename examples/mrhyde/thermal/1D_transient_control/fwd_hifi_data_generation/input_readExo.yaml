@@ -1,0 +1,10 @@
+%YAML 1.1
+---
+ANONYMOUS:
+  Analysis: 
+    analysis type: readExo+forward
+    readExo+forward:
+      DataLoadParameters:
+        ExoFile: "output_lofi_opt.exo"
+        StateVariableName: "T"
+        OptVariableName: "thermal_source"

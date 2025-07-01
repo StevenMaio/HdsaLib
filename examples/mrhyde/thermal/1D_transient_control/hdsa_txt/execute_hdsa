@@ -1,0 +1,4 @@
+# Ensure that the MrHyDE executable has been linked to the current directory under the name "mrhyde"
+
+# Compute HDSA update
+./mrhyde 

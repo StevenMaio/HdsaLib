@@ -11,7 +11,7 @@ load clean_true_state.txt
 %clean_true_state = coarse_data;
 %nt = 21; 
 %nt = 41;
-nt = 11;
+nt = 121;
 %T = 0.5;
 %T = 0.75;
 %T = 1.0;

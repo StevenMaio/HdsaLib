@@ -2,6 +2,7 @@ clear
 close all
 clc
 
+%write_fine_mesh = true; 
 write_fine_mesh = false;
 
 %load gis_2d.mat
@@ -34,8 +35,8 @@ xb = 50;
 yb = 50;
 I = intersect(intersect(find(x>xmin-xb),find(x<xmax+xb)),intersect(find(y>ymin-yb),find(y<ymax+yb)));
 
-m = 31; % mesh size for extrapolation
-n = 21; % mesh size for interpolation after smoothing
+m = 101; % mesh size for extrapolation
+n = 71; % mesh size for interpolation after smoothing
 bandwidth = 1; % number of nearest neighbors used for averaging 
 
 

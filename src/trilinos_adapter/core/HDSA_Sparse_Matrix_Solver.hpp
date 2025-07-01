@@ -12,17 +12,17 @@ namespace HDSA {
   class Sparse_Matrix_Solver{
   
   private:
-    HDSA::Ptr<Tpetra::CrsMatrix<RealT,LO,GO,Node>> A_;
+    const HDSA::Ptr<HDSA::Sparse_Matrix<RealT>> A_;
     bool use_direct_;
     HDSA::Ptr<Amesos2::Solver< Tpetra::CrsMatrix<>, Tpetra::MultiVector<>>> solver_;
 
   public:
 
-    Sparse_Matrix_Solver(HDSA::Ptr<Tpetra::CrsMatrix<RealT,LO,GO,Node>> & A, bool use_direct = true): A_(A), use_direct_(use_direct)
+    Sparse_Matrix_Solver(const HDSA::Ptr<HDSA::Sparse_Matrix<RealT>> & A, bool use_direct = true): A_(A), use_direct_(use_direct)
     {
       if(use_direct_)
       {
-        solver_ = Amesos2::create< Tpetra::CrsMatrix<>,Tpetra::MultiVector<>>("KLU2", A);
+        solver_ = Amesos2::create< Tpetra::CrsMatrix<>,Tpetra::MultiVector<>>("KLU2", A_->Get_Tpetra_Matrix());
         solver_->symbolicFactorization();
         solver_->numericFactorization();
       }
@@ -65,9 +65,7 @@ namespace HDSA {
       
       void matvec(HDSA::Vector<ScalarType> & y, const HDSA::Vector<ScalarType> & x) const
       {
-        const HDSA_Tpetra_Vector<ScalarType> &ex = dynamic_cast<const HDSA_Tpetra_Vector<ScalarType>&>(x);
-        HDSA_Tpetra_Vector<ScalarType> &ey = dynamic_cast<HDSA_Tpetra_Vector<ScalarType>&>(y);
-        A_invert_->A_->apply(*ex.getVector(),*ey.getVector()); 
+        A_invert_->A_->Apply(y,x);
       }
 
     };

@@ -1,0 +1,57 @@
+Steps to run shallow ice bedrock inversion:
+
+1. From 
+"~/software/hdsalib/examples/rol/shallow_ice_bedrock_inv/Matlab_Data_Processing/GIS_Data/"
+execute the Matlab script "NewProcess.m" with "write_fine_mesh = true" to generate fine mesh data.
+
+2. From
+"~/software/hdsalib/examples/rol/shallow_ice_bedrock_inv/Matlab_Data_Processing/GIS_Data/"
+execute "copy_greenland_data.py" to move the fine mesh data to the Data_Generation executable folder.
+
+3. From
+"~/software/Trilinos/build_opt/packages/rol/example/rol/shallow_ice_bedrock_inv/Data_Generation'"
+with the "input_data_generation.xml" set to the fine mesh parameters, execute 
+"ROL_example_rol_shallow_ice_bedrock_inv_Data_Generation_shallow_ice_inversion_data_generation.exe"
+to generate fine mesh forward solve data.
+
+4. From
+"~/software/Trilinos/build_opt/packages/rol/example/rol/shallow_ice_bedrock_inv/Data_Generation"
+execute "sparsify_data.m" to map the fine scale data to the coarse mesh
+
+5. From 
+"~/software/hdsalib/examples/rol/shallow_ice_bedrock_inv/Matlab_Data_Processing/GIS_Data/"
+execute the Matlab script "NewProcess.m" with "write_fine_mesh = false" to generate coarse mesh data.
+
+6. From
+"~/software/hdsalib/examples/rol/shallow_ice_bedrock_inv/Matlab_Data_Processing/GIS_Data/"
+execute "copy_greenland_data.py" to move the coarse mesh data to the Data_Generation executable folder.
+
+7. From
+"~/software/Trilinos/build_opt/packages/rol/example/rol/shallow_ice_bedrock_inv/Data_Generation'"
+with the "input_data_generation.xml" set to the coarse mesh parameters, execute 
+"ROL_example_rol_shallow_ice_bedrock_inv_Data_Generation_shallow_ice_inversion_data_generation.exe"
+to generate coarse mesh forward solve data.
+
+8. From
+"~/software/Trilinos/build_opt/packages/rol/example/rol/shallow_ice_bedrock_inv/Data_Generation'"
+Execute "push_data_to_ip.py" to move data to the inverse problem folder
+
+9. From
+"~/software/Trilinos/build_opt/packages/rol/example/rol/shallow_ice_bedrock_inv"
+Execute "add_noise.m" "initial_bedrock.m" and "prior_mean.m" to prepare data for inversion
+
+10. From
+"~/software/Trilinos/build_opt/packages/rol/example/rol/shallow_ice_bedrock_inv"
+with the "input.xml" set to the coarse mesh parameters, execute
+"ROL_example_rol_shallow_ice_bedrock_inv_example_inversion.exe" 
+to solve the inverse problem
+
+11. From
+"~/software/Trilinos/build_opt/packages/rol/example/rol/shallow_ice_bedrock_inv"
+execute "cp optimal_z.txt z_bar.txt" and then remove the first two lines of "z_bar.txt"
+
+12. From
+"~/software/Trilinos/build_opt/packages/rol/example/rol/shallow_ice_bedrock_inv"
+with the "input.xml" set to the coarse mesh parameters, execute
+"ROL_example_rol_shallow_ice_bedrock_inv_example_sensitivity.exe" 
+to compute the sensitivities 

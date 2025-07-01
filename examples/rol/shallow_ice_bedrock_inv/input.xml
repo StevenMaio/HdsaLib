@@ -12,8 +12,8 @@
     <Parameter name="Order of FE discretization" type="int"     value="1"     />
     <Parameter name="Sliding Scale"                    type="double"  value="1.e-6"   />
     <Parameter name="Thermal Scaling"                    type="double"  value="1.e-12"   />
-    <Parameter name="Number of Coefficients in Loaded Fields"  type="int"  value="441"   />
-    <Parameter name="Number of Uncertain Basis Functions"   type="int"  value="21"   />
+    <Parameter name="Number of Coefficients in Loaded Fields"  type="int"  value="5041"   />
+    <Parameter name="Number of Uncertain Basis Functions"   type="int"  value="31"   />
     <Parameter name="Noise Level" type="double"     value="0.2"     />
   </ParameterList>
 
@@ -33,7 +33,7 @@
   <!-- Time Discretization                                                            --> 
   <ParameterList name="Time Discretization">
     <Parameter name="End Time"                type="double"   value="10.0"   />
-    <Parameter name="Number of Time Steps"    type="int"      value="31"   />
+    <Parameter name="Number of Time Steps"    type="int"      value="61"   />
     <Parameter name="Theta"                   type="double"   value="1.0"   />
   </ParameterList>
   <!--================================================================================-->
@@ -65,10 +65,10 @@
     <Parameter name="X0"                type="double"  value="0.0"  />
     <Parameter name="Y0"                type="double"  value="0.0"  />
     <Parameter name="Partition type"    type="int"     value="1"    />
-    <Parameter name="NX"                type="int"     value="20"   />
-    <Parameter name="NY"                type="int"     value="20"   />
-    <Parameter name="Sensors Per x-Dimension"         type="int"     value="21"  />
-    <Parameter name="Sensors Per y-Dimension"         type="int"     value="21"  />
+    <Parameter name="NX"                type="int"     value="70"   />
+    <Parameter name="NY"                type="int"     value="70"   />
+    <Parameter name="Sensors Per x-Dimension"         type="int"     value="71"  />
+    <Parameter name="Sensors Per y-Dimension"         type="int"     value="71"  />
     <Parameter name="Random Sensors"    type="bool"    value="false"/>
     <Parameter name="Number of Random Sensors"        type="int"     value="0" />
     <Parameter name="x Subsections"     type="int"     value="7"    />

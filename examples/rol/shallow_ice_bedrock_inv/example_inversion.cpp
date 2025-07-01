@@ -1,5 +1,7 @@
 #include "Teuchos_GlobalMPISession.hpp"
 
+#include "./modified_rol_source_code/ROL_ReducedDynamicObjective_Stationary_Control.hpp"
+
 #include "ROL_Stream.hpp"
 #include "ROL_ParameterList.hpp"
 #include "ROL_Objective_SimOpt.hpp"
@@ -14,8 +16,6 @@
 #include "../../../../Trilinos/packages/rol/example/PDE-OPT/TOOLS/pdeobjective.hpp"
 #include "../../../../Trilinos/packages/rol/example/PDE-OPT/TOOLS/pdevector.hpp"
 
-
-#include "./modified_rol_source_code/ROL_ReducedDynamicObjective_Stationary_Control.hpp"
 #include "./modified_rol_source_code/Objective_SimOpt_TS.hpp"
 #include "./modified_rol_source_code/Misfit_Regularization_TS_Objective_SimOpt.hpp"
 #include "./modified_rol_source_code/ltiobjective_TS.hpp"
@@ -231,7 +231,7 @@ int main(int argc, char *argv[]) {
   HDSA::Ptr<QoI<RealT> > qoiH1 = HDSA::makePtr<QoI_H1_shallow_ice<RealT> >(pde_shallow_ice->getFE(),pde_shallow_ice->getFieldHelper());
   std::vector<HDSA::Ptr<ROL::Objective_SimOpt<RealT> > > reg_obj(1);  
   bool construct_matrices = parlist->sublist("Problem").get("Construct Matrices",false);
-  reg_obj[0] = HDSA::makePtr<Elliptic_Prior_Regularization_Objective<RealT> >(comm->Get_Teuchos_Communicator(), parlist, outStream, construct_matrices);
+  reg_obj[0] = HDSA::makePtr<Elliptic_Prior_Regularization_Objective_SimOpt<RealT> >(comm->Get_Teuchos_Communicator(), parlist, outStream, construct_matrices);
   std::vector<RealT> weights = std::vector<RealT>(2,1.0);
   weights[0] = parlist->sublist("Problem").get("State Cost",1.0);
   weights[0] = weights[0]*(static_cast<RealT>(nt)/T);

@@ -1,0 +1,49 @@
+%YAML 0.1
+---
+ANONYMOUS:
+  debug level: 0
+  verbosity: 0
+  Mesh:
+    dimension: 1
+    element type: interval
+    xmin: 0.0
+    xmax: 1.0
+    NX: 49
+  Physics: 
+    modules: thermal
+    include advection: false
+  Discretization:
+    order:
+      T: 1
+    quadrature: 2
+  Parameters input file: input_params.yaml
+  Analysis input file: input_rol2.yaml
+  Solver:
+    workset size: 1
+    solver: transient
+    transient BDF order: 1
+    transient Butcher tableau: BWE
+    nonlineam TOL: 1.0e-9
+    linear TOL: 1.0e-13
+    max nonlinear iters: 4
+    final time: 1.0
+    number of steps: 10
+  Postprocess: 
+    response type: pointwise
+    compute objective: true
+    write solution: true 
+    Objective functions:
+      obj0:
+        type: integrated control
+        function: '0.5*(T-targ)^2'
+        weight: 1.0
+        Regularization functions:
+          reg0:
+            type: integrated
+            location: volume
+            function: thermal_source^2
+            weight: 5.0E-4
+  Functions: 
+    thermal source: 100.0*thermal_source
+    targ: '100.0*t*x' 
+...

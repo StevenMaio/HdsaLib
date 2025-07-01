@@ -1,0 +1,35 @@
+%YAML 1.1
+---
+ANONYMOUS:
+  Analysis: 
+    analysis type: HDSA
+    HDSA:
+      Configuration:
+        num_prior_samples: 10
+        num_posterior_samples: 10
+        execute_prior_discrepancy_sampling: true
+        execute_posterior_discrepancy_sampling: true
+        execute_optimal_solution_update: true
+      HyperParameters:
+        alpha_u: 0.25
+        alpha_z: .111111111
+        beta_u: 1.0E-2
+        beta_z: 1.0E-3
+        alpha_d: 1.0E-5
+        prior_num_sing_vals: 200
+        prior_oversampling: 0
+        prior_num_subspace_iter: 1
+        prior_num_state_solves: 10
+        hessian_num_eig_vals: 10
+        hessian_oversampling: 10
+      DataLoadParameters:
+        NumHifi: 2
+        OptimalSolutionTxtFileU: "u_opt.txt"
+        OptimalSolutionTxtFileZ: "z_opt.txt"
+        HifiTxtFileU1: "U_Hifi_1.txt"
+        HifiTxtFileU2: "U_Hifi_2.txt"
+        TxtFileZ1: "Z_1.txt"
+        TxtFileZ2: "Z_2.txt"
+        random_number_file: "random_numbers.txt"
+        num_random_numbers: 4000000
+...
