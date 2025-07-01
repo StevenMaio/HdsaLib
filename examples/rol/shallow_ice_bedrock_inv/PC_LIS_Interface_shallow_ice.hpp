@@ -62,14 +62,14 @@ public:
     const HDSA::ROL_Vector<RealT> &z_in_rol = dynamic_cast<const HDSA::ROL_Vector<RealT> &>(z_in);
     HDSA::ROL_Vector<RealT> &z_out_rol = dynamic_cast<HDSA::ROL_Vector<RealT> &>(z_out);
 
-    Elliptic_Prior_Regularization_Objective<RealT> &reg_obj_cast = dynamic_cast<Elliptic_Prior_Regularization_Objective<RealT> &>(*reg_obj_);
+    Elliptic_Prior_Regularization_Objective_SimOpt<RealT> &reg_obj_cast = dynamic_cast<Elliptic_Prior_Regularization_Objective_SimOpt<RealT> &>(*reg_obj_);
     reg_obj_cast.Apply_Prior_Covariance(*z_out_rol.rol_vec, *z_in_rol.rol_vec, tol);
   }
 
   void Generate_Prior_Samples(HDSA::MultiVector<RealT> &samples) const
   {
     RealT tol = 1.e-8;
-    Elliptic_Prior_Regularization_Objective<RealT> &reg_obj_cast = dynamic_cast<Elliptic_Prior_Regularization_Objective<RealT> &>(*reg_obj_);
+    Elliptic_Prior_Regularization_Objective_SimOpt<RealT> &reg_obj_cast = dynamic_cast<Elliptic_Prior_Regularization_Objective_SimOpt<RealT> &>(*reg_obj_);
     HDSA::Ptr<HDSA::Vector<RealT>> z_in = samples[0]->clone();
     HDSA::ROL_Vector<RealT> &z_in_rol = dynamic_cast<HDSA::ROL_Vector<RealT> &>(*z_in);
 
