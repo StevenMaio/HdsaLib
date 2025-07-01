@@ -10,7 +10,7 @@ variable_name = 'thermal_source'
 
 # Define the desired z for high-fidelity simulation input
 def Define_z(coords):
-    return coords[:,0]**2 + 1.0
+    return 0.0
 
 # Set "add_to_lofi_opt" as True to add to the low-fidelity optimization solution to the output of "Define_z", 
 # Set "add_to_lofi_opt" as False to use only the output of "Define_z"
@@ -18,7 +18,7 @@ add_to_lofi_opt = True
 
 # Define file names
 input_file_base = 'output_lofi_opt.exo'  # Base name for the input files
-output_file_base = 'HiFi_z1.exo'  # Base name for the output files
+output_file_base = 'hifi_z1.exo'  # Base name for the output files
 
 ##################################################################################################################################
 
@@ -43,7 +43,7 @@ coords = exo_in.get_coords()
 transformed_data = Define_z(coords)
 
 if add_to_lofi_opt:
-    lofi_opt = exo_in.get_node_variable_values(variable_name).squeeze()
+    lofi_opt = exo_in.get_node_variable_values(variable_name)[0,:].squeeze()
     transformed_data = transformed_data + lofi_opt
 
 # Write the transformed data to a new Exodus file
@@ -65,4 +65,4 @@ exodusii.copy.copy_mesh(exo_in, exo_out)
 
 exo_out.put_node_variable_params(len(exo_in.get_node_variable_names()))
 exo_out.put_node_variable_names(exo_in.get_node_variable_names())
-exo_out.put_node_variable_values(1,'thermal_source',transformed_data)
+exo_out.put_node_variable_values(1,variable_name,transformed_data)

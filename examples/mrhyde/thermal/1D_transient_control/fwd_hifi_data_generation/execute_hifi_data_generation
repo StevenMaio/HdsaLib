@@ -3,6 +3,8 @@
 # Set link to optimization solution
 ln -s ../optimization/output_lofi_opt.exo .
 
+python3 generate_hifi_z1.py
+
 # Solve forward problem
 ./mrhyde 
 

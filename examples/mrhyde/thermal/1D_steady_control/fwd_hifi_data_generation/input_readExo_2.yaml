@@ -5,7 +5,7 @@ ANONYMOUS:
     analysis type: readExo+forward
     readExo+forward:
       DataLoadParameters:
-        ExoFile: "output_lofi_opt.exo"
-        OptVariablePhysics: "T"
-        OverWriteParams: false
+        ExoFile: "hifi_z2.exo"
+        StateVariableName: "T"
+        OptVariableName: "thermal_source"
 ...

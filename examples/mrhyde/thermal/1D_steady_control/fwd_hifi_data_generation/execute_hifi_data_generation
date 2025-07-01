@@ -3,6 +3,9 @@
 # Set link to optimization solution
 ln -s ../optimization/output_lofi_opt.exo .
 
+python3 generate_hifi_z1.py
+python3 generate_hifi_z2.py
+
 # Set yaml file
 cp input_readExo_1.yaml input_readExo.yaml
 # Solve forward problem

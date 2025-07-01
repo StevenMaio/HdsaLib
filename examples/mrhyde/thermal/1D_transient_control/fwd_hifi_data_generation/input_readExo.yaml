@@ -6,6 +6,6 @@ ANONYMOUS:
     readExo+forward:
       DataLoadParameters:
         ExoFile: "output_lofi_opt.exo"
-        OptVariablePhysics: "T"
-        OverWriteParams: true
+        StateVariableName: "T"
+        OptVariableName: "thermal_source"
 ...
