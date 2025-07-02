@@ -19,7 +19,7 @@ ANONYMOUS:
         FD Check Use Ones Vector: false
         Inexact Objective Function: false
         Inexact Gradient: false
-        Write Final Parameters: true
+        Write Final Parameters: false
         Inexact Hessian-Times-A-Vector: false
         Projected Gradient Criticality Measure: false
         Secant:
