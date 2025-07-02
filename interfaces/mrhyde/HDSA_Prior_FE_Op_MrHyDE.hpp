@@ -42,9 +42,6 @@ public:
     A.resize(blockNames.size());
     for (int i = 0; i < blockNames.size(); ++i)
     {
-
-      int debug_level = settings->get<int>("debug level", 0);
-
       Teuchos::RCP<MrHyDE::MeshInterface> mesh = Teuchos::rcp(new MrHyDE::MeshInterface(settings, comm));
 
       Teuchos::RCP<MrHyDE::PhysicsInterface> physics = Teuchos::rcp(new MrHyDE::PhysicsInterface(settings, comm,
@@ -73,7 +70,7 @@ public:
 
       Teuchos::RCP<MrHyDE::PostprocessManager<SolverNode>>
           postproc = Teuchos::rcp(new MrHyDE::PostprocessManager<SolverNode>(comm, settings, mesh,
-                                                                             disc, physics, // assembler->function_managers_AD,
+                                                                             disc, physics, 
                                                                              multiscale_manager,
                                                                              assembler, params));
 
@@ -85,49 +82,15 @@ public:
 
       mesh->allocateMeshDataStructures();
       assembler->allocateGroupStorage();
-
-      if (settings->get<bool>("enable memory purge", false))
-      {
-        if (debug_level > 0 && comm->getRank() == 0)
-        {
-          std::cout << "******** Starting driver memory purge ..." << std::endl;
-        }
-        if (!settings->sublist("Postprocess").get("write solution", false) &&
-            !settings->sublist("Postprocess").get("create optimization movie", false))
-        {
-          mesh->purgeMesh();
-          disc->mesh = Teuchos::null;
-          params->mesh = Teuchos::null;
-        }
-        disc->purgeOrientations();
-        disc->purgeLIDs();
-        mesh->purgeMemory();
-        assembler->purgeMemory();
-        params->purgeMemory();
-        physics->purgeMemory();
-        if (debug_level > 0 && comm->getRank() == 0)
-        {
-          std::cout << "******** Finished driver memory purge ..." << std::endl;
-        }
-      }
-
       solve->completeSetup();
       postproc->linalg = solve->linalg;
       solve->setupExplicitMass();
-
-      if (settings->get<bool>("enable memory purge", false))
-      {
-        disc->purgeMemory();
-      }
-
       assembler->finalizeFunctions();
-
       solve->finalizeMultiscale();
 
       Kokkos::fence();
       comm->barrier();
 
-      A[i] = solve->linalg->getNewMatrix(i);
       std::vector<HDSA::Ptr<Tpetra::MultiVector<RealT, LO, GO, Node>>> veci_out;
       veci_out.resize(1);
       veci_out[0] = solve->linalg->getNewVector(i);
@@ -136,6 +99,8 @@ public:
       assembler->assembleJacRes(i, 0, veci_out, veci_out, veci_out, veci_out, veci_out, veci_out, true, false, false,
                                 veci_out[0], A_over, false, 0, false, false, veci_out[0]->getGlobalLength(), veci_out[0], veci_out[0], false, 0.0);
       solve->linalg->fillComplete(A_over);
+
+      A[i] = solve->linalg->getNewMatrix(i);
       A[i]->resumeFill();
       solve->linalg->exportMatrixFromOverlapped(i, A[i], A_over);
       solve->linalg->fillComplete(A[i]);
