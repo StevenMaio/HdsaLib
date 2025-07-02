@@ -29,8 +29,8 @@ size = comm.Get_size()
 
 # Each process reads its corresponding parallel file
 if(size > 1):
-    input_file = f"{input_file_base}.{rank}"
-    output_file = f"{output_file_base}.{rank}"
+    input_file = f"{input_file_base}.{size}.{rank}"
+    output_file = f"{output_file_base}.{size}.{rank}"
 else:
     input_file = input_file_base
     output_file = output_file_base

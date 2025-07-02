@@ -1,0 +1,24 @@
+# Ensure that the MrHyDE executable has been linked to the current directory under the name "mrhyde"
+
+# Set link to optimization solution
+ln -s ../optimization/output_lofi_opt.exo.2.0 .
+ln -s ../optimization/output_lofi_opt.exo.2.1 .
+
+mpiexec -n 2 python3 generate_hifi_z1.py
+mpiexec -n 2 python3 generate_hifi_z2.py
+
+# Set yaml file
+cp input_readExo_1.yaml input_readExo.yaml
+# Solve forward problem
+mpiexec -n 2 mrhyde
+# Change file name
+mv output.exo.2.0 output_hifi_1.exo.2.0
+mv output.exo.2.1 output_hifi_1.exo.2.1
+
+# Set yaml file
+cp input_readExo_2.yaml input_readExo.yaml
+# Solve forward problem
+mpiexec -n 2 mrhyde
+# Change file name
+mv output.exo.2.0 output_hifi_2.exo.2.0
+mv output.exo.2.1 output_hifi_2.exo.2.1
