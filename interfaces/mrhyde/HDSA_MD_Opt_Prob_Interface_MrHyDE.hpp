@@ -9,10 +9,10 @@ private:
   HDSA::Ptr<MrHyDE::PostprocessManager<SolverNode>> postproc_;
   HDSA::Ptr<MrHyDE::SolverManager<SolverNode>> solver_;
   HDSA::Ptr<MrHyDE::ParameterManager<SolverNode>> params_;
-  HDSA::Ptr<HDSA::Vector<RealT> > grad_nom_;
+  HDSA::Ptr<HDSA::Vector<RealT>> grad_nom_;
 
 public:
-  MD_Opt_Prob_Interface_MrHyDE(HDSA::Ptr<MrHyDE::SolverManager<SolverNode>> &solver, HDSA::Ptr<MrHyDE::PostprocessManager<SolverNode>> &postproc, HDSA::Ptr<MrHyDE::ParameterManager<SolverNode>> &params, const HDSA::Ptr<HDSA::MD_Data_Interface<RealT> > &data_interface, const HDSA::Ptr<HDSA::Random_Number_Generator<RealT>> &random_number_generator)
+  MD_Opt_Prob_Interface_MrHyDE(HDSA::Ptr<MrHyDE::SolverManager<SolverNode>> &solver, HDSA::Ptr<MrHyDE::PostprocessManager<SolverNode>> &postproc, HDSA::Ptr<MrHyDE::ParameterManager<SolverNode>> &params, const HDSA::Ptr<HDSA::MD_Data_Interface<RealT>> &data_interface, const HDSA::Ptr<HDSA::Random_Number_Generator<RealT>> &random_number_generator)
   {
     postproc_ = postproc;
     solver_ = solver;
@@ -24,8 +24,8 @@ public:
       postproc_->hdsa_solop_data[set] = HDSA::makePtr<MrHyDE::SolutionStorage<SolverNode>>(solver_->settings);
     }
 
-   grad_nom_ = data_interface->get_z_opt()->clone();
-   gradient(*grad_nom_, *data_interface->get_z_opt());
+    grad_nom_ = data_interface->get_z_opt()->clone();
+    gradient(*grad_nom_, *data_interface->get_z_opt());
   }
 
   virtual ~MD_Opt_Prob_Interface_MrHyDE()
@@ -49,7 +49,7 @@ public:
     z_pert->axpy(h, z_in);
     gradient(z_out, *z_pert);
     z_out.axpy(-1.0, *grad_nom_);
-    z_out.scale(1 / h);
+    z_out.scale(1.0 / h);
   }
 
   void Misfit_Gradient(HDSA::Vector<RealT> &u_grad, const HDSA::Vector<RealT> &u, const HDSA::Vector<RealT> &z) const
@@ -97,7 +97,7 @@ public:
     Misfit_Gradient(*ugrad_nom, u, z);
     HDSA::Ptr<HDSA::Vector<RealT>> u_pert = u_out.clone();
     u_pert->set(u);
-    RealT h = 1.0E-4;
+    RealT h = 1.0e-4;
     u_pert->axpy(h, u_in);
     Misfit_Gradient(u_out, *u_pert, z);
     u_out.axpy(-1.0, *ugrad_nom);

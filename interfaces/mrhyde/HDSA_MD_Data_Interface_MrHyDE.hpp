@@ -2,7 +2,6 @@
 #define HDSA_MD_DATA_INTERFACE_MRHYDE_HPP
 
 #include "exodusII.h"
-#include "preferences.hpp"
 
 template <class RealT,
           class LO = Tpetra::Map<>::local_ordinal_type,
@@ -104,16 +103,16 @@ public:
   HDSA::Ptr<HDSA::Vector<RealT>> Load_Optimal_u(void) const
   {
 
-    int numtimenodes = solve_->settings->sublist("Solver").get<int>("number of steps", 0) + 1;
+    int num_time_nodes = solve_->settings->sublist("Solver").get<int>("number of steps", 0) + 1;
 
     HDSA::Ptr<HDSA::Vector<RealT>> u_opt;
-    if (numtimenodes > 1)
+    if (num_time_nodes > 1)
     {
       std::vector<Teuchos::RCP<Tpetra::MultiVector<ScalarT, LO, GO, SolverNode>>> u_tpetra;
       std::vector<HDSA::Ptr<HDSA::Vector<ScalarT>>> u_hdsa;
-      u_tpetra.resize(numtimenodes);
-      u_hdsa.resize(numtimenodes);
-      for (int i = 0; i < numtimenodes; i++)
+      u_tpetra.resize(num_time_nodes);
+      u_hdsa.resize(num_time_nodes);
+      for (int i = 0; i < num_time_nodes; i++)
       {
         if (opt_solution_exo_file_ != "error")
         {
@@ -198,7 +197,7 @@ public:
 
   HDSA::Ptr<HDSA::MultiVector<RealT>> Load_D_Data(void) const
   {
-    int numtimenodes = solve_->settings->sublist("Solver").get<int>("number of steps", 0) + 1;
+    int num_time_nodes = solve_->settings->sublist("Solver").get<int>("number of steps", 0) + 1;
     std::vector<HDSA::Ptr<HDSA::Vector<RealT>>> u_vecs;
     HDSA::Ptr<HDSA::MultiVector<RealT>> Z = Load_Z_Data();
     for (int k = 0; k < num_hifi_; k++)
@@ -206,14 +205,14 @@ public:
       HDSA::Ptr<HDSA::Vector<RealT>> u_k_lofi = Load_Optimal_u()->clone();
       State_Solve(*u_k_lofi, *(*Z)[k]);
 
-      if (numtimenodes > 1)
+      if (num_time_nodes > 1)
       {
         std::vector<Teuchos::RCP<Tpetra::MultiVector<ScalarT, LO, GO, SolverNode>>> u_tpetra_hifi;
         std::vector<HDSA::Ptr<HDSA::Vector<ScalarT>>> u_hdsa_hifi;
-        u_tpetra_hifi.resize(numtimenodes);
-        u_hdsa_hifi.resize(numtimenodes);
+        u_tpetra_hifi.resize(num_time_nodes);
+        u_hdsa_hifi.resize(num_time_nodes);
 
-        for (int i = 0; i < numtimenodes; i++)
+        for (int i = 0; i < num_time_nodes; i++)
         {
           if (hifi_exo_files_[k] != "error")
           {
@@ -550,9 +549,9 @@ public:
   Teuchos::RCP<Tpetra::MultiVector<ScalarT, LO, GO, SolverNode>> Read_Text_Data(std::string txtfile, bool load_state = true, int step = 1) const
   {
     RealT val = 0.0;
-    int numtimenodes = solve_->settings->sublist("Solver").get<int>("number of steps", 0) + 1;
+    int num_time_nodes = solve_->settings->sublist("Solver").get<int>("number of steps", 0) + 1;
     Teuchos::RCP<Tpetra::MultiVector<ScalarT, LO, GO, SolverNode>> vec = solve_->linalg->getNewVector(0);
-    int spatialdim = vec->getGlobalLength();
+    int spatial_dim = vec->getGlobalLength();
 
     // read in data
     std::ifstream in(txtfile);
@@ -560,9 +559,9 @@ public:
     {
       if (load_state)
       {
-        for (int i = 0; i < numtimenodes; i++)
+        for (int i = 0; i < num_time_nodes; i++)
         {
-          for (int j = 0; j < spatialdim; j++)
+          for (int j = 0; j < spatial_dim; j++)
           {
             in >> val;
             if (i == step - 1)
@@ -574,7 +573,7 @@ public:
       }
       else
       {
-        for (int j = 0; j < spatialdim; j++)
+        for (int j = 0; j < spatial_dim; j++)
         {
           in >> val;
           vec->replaceGlobalValue(j, 0, val);
