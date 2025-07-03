@@ -1,6 +1,8 @@
 #ifndef HDSA_WRITE_OUTPUT_MRHYDE_HPP
 #define HDSA_WRITE_OUTPUT_MRHYDE_HPP
 
+#include <filesystem>
+
 template <class RealT>
 class Write_Output_MrHyDE
 {

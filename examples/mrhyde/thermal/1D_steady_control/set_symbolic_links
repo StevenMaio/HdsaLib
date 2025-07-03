@@ -1,4 +1,4 @@
-MRHYDE_EXE_PATH="/Users/joshart/software/MrHyDE/build_opt/src/mrhyde"
+MRHYDE_EXE_PATH="~/software/MrHyDE/build_opt/src/mrhyde"
 DMRHYDE_EXE_PATH="~/software/MrHyDE/build_debug/src/mrhyde"
 
 cd optimization
