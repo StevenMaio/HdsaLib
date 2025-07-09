@@ -11,6 +11,7 @@
 #include "core/base/HDSA_Transient_Vector_Const.hpp"
 #include "core/base/HDSA_Std_Vector.hpp"
 #include "core/base/HDSA_MultiVector.hpp"
+#include "core/base/HDSA_Ensemble_Vector.hpp"
 #include "core/base/HDSA_Stream.hpp"
 
 #include "trilinos_adapter/adapters/HDSA_Belos_Adapter.hpp"
@@ -36,6 +37,10 @@
 #include "core/model_discrepancy/interfaces/z_prior_interfaces/HDSA_MD_z_Prior_Interface.hpp"
 #include "core/model_discrepancy/interfaces/z_prior_interfaces/HDSA_MD_Scaled_z_Prior_Interface.hpp"
 #include "core/model_discrepancy/interfaces/z_prior_interfaces/HDSA_MD_Elliptic_z_Prior_Interface.hpp"
+
+#include "core/model_discrepancy/interfaces/ouu_interfaces/HDSA_MD_OUU_Data_Interface.hpp"
+#include "core/model_discrepancy/interfaces/ouu_interfaces/HDSA_MD_OUU_Opt_Prob_Interface.hpp"
+#include "core/model_discrepancy/interfaces/ouu_interfaces/HDSA_MD_OUU_u_Prior_Interface.hpp"
 
 #include "core/model_discrepancy/analysis/prior/HDSA_MD_Determine_u_Hyperparameters_Decl.hpp"
 #include "core/model_discrepancy/analysis/prior/HDSA_MD_Determine_z_Hyperparameters_Decl.hpp"

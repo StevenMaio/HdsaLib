@@ -1,0 +1,93 @@
+#ifndef HDSA_MD_OUU_OPT_PROB_INTERFACE_HPP
+#define HDSA_MD_OUU_OPT_PROB_INTERFACE_HPP
+
+namespace HDSA
+{
+
+  template <class RealT>
+  class MD_OUU_Opt_Prob_Interface : public HDSA::MD_Opt_Prob_Interface<RealT>
+  {
+
+  private:
+    int ens_size_;
+
+  public:
+    MD_OUU_Opt_Prob_Interface(int ens_size) : ens_size_(ens_size)
+    {
+    }
+
+    virtual ~MD_OUU_Opt_Prob_Interface()
+    {
+    }
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // Pure virtual functions
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    virtual void Apply_Solution_Operator_z_Jacobian_Transpose_Per_Sample(HDSA::Vector<RealT> &z_out, const HDSA::Vector<RealT> &u_in, const HDSA::Vector<RealT> &z, int s) const = 0;
+
+    virtual void Apply_RS_Hessian_Per_Sample(HDSA::Vector<RealT> &z_out, const HDSA::Vector<RealT> &z_in, const HDSA::Vector<RealT> &z, int s) const = 0;
+
+    virtual void Misfit_Gradient_Per_Sample(HDSA::Vector<RealT> &u_grad, const HDSA::Vector<RealT> &u, const HDSA::Vector<RealT> &z, int s) const = 0;
+
+    virtual void Apply_Misfit_Hessian_Per_Sample(HDSA::Vector<RealT> &u_out, const HDSA::Vector<RealT> &u_in, const HDSA::Vector<RealT> &u, const HDSA::Vector<RealT> &z, int s) const = 0;
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // Base class pure virtual function implementations
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    void Apply_Solution_Operator_z_Jacobian_Transpose(HDSA::Vector<RealT> &z_out, const HDSA::Vector<RealT> &u_in, const HDSA::Vector<RealT> &z) const
+    {
+      z_out.zeros();
+      HDSA::Ptr<HDSA::Vector<RealT>> z_tmp = z_out.clone();
+
+      const HDSA::Ensemble_Vector<RealT> u_in_ens = dynamic_cast<const HDSA::Ensemble_Vector<RealT> &>(u_in);
+
+      for (int s = 0; s < ens_size_; s++)
+      {
+        z_tmp->zeros();
+        Apply_Solution_Operator_z_Jacobian_Transpose_Per_Sample(*z_tmp, *u_in_ens[s], z, s);
+        z_out.plus(*z_tmp);
+      }
+    }
+
+    void Apply_RS_Hessian(HDSA::Vector<RealT> &z_out, const HDSA::Vector<RealT> &z_in, const HDSA::Vector<RealT> &z) const
+    {
+      z_out.zeros();
+      HDSA::Ptr<HDSA::Vector<RealT>> z_tmp = z_out.clone();
+      for (int s = 0; s < ens_size_; s++)
+      {
+        z_tmp->zeros();
+        Apply_RS_Hessian_Per_Sample(*z_tmp, z_in, z, s);
+        z_out.plus(*z_tmp);
+      }
+      z_out.scale(1.0/static_cast<RealT>(ens_size_));
+    }
+
+    void Misfit_Gradient(HDSA::Vector<RealT> &u_grad, const HDSA::Vector<RealT> &u, const HDSA::Vector<RealT> &z) const
+    {
+      const HDSA::Ensemble_Vector<RealT> u_ens = dynamic_cast<const HDSA::Ensemble_Vector<RealT> &>(u);
+      HDSA::Ensemble_Vector<RealT> u_grad_ens = dynamic_cast<HDSA::Ensemble_Vector<RealT> &>(u_grad);
+      for(int s = 0; s < ens_size_; s++)
+      {
+        Misfit_Gradient_Per_Sample(*u_grad_ens[s],*u_ens[s],z,s);
+      }
+      u_grad.scale(1.0/static_cast<RealT>(ens_size_));
+    }
+
+    void Apply_Misfit_Hessian(HDSA::Vector<RealT> &u_out, const HDSA::Vector<RealT> &u_in, const HDSA::Vector<RealT> &u, const HDSA::Vector<RealT> &z) const
+    {
+      const HDSA::Ensemble_Vector<RealT> u_ens = dynamic_cast<const HDSA::Ensemble_Vector<RealT> &>(u);
+      const HDSA::Ensemble_Vector<RealT> u_in_ens = dynamic_cast<const HDSA::Ensemble_Vector<RealT> &>(u_in);
+      HDSA::Ensemble_Vector<RealT> u_out_ens = dynamic_cast<HDSA::Ensemble_Vector<RealT> &>(u_out);
+      for(int s = 0; s < ens_size_; s++)
+      {
+        Apply_Misfit_Hessian_Per_Sample(*u_out_ens[s],*u_in_ens[s],*u_ens[s],z,s);
+      }
+      u_out.scale(1.0/static_cast<RealT>(ens_size_));
+    }
+  };
+
+}
+
+#endif
