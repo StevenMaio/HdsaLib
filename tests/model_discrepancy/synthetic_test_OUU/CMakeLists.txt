@@ -14,11 +14,11 @@ INCLUDE_DIRECTORIES(${${PACKAGE_NAME}_SOURCE_DIR}/adapters/tpetra/src/vector)
     SyntheticTestOUUDataCopy
     SOURCE_FILES
 	Plotting_Script.m Sabl_Output.mat random_numbers.txt z_opt.txt Z.txt run_test.py 
-	reference_output/prior_discrepancy_sample_1/Vector_3.txt
-	reference_output/prior_discrepancy_evaluated_at_z_opt/Vector_10.txt
-	reference_output/posterior_discrepancy_mean_1.txt
-	reference_output/posterior_discrepancy_mean_3.txt
-	reference_output/posterior_discrepancy_samples_3/Vector_20.txt
+	reference_output/prior_discrepancy_sample_1/Vector_3_ens_5.txt
+	reference_output/prior_discrepancy_evaluated_at_z_opt/Vector_10_ens_20.txt
+	reference_output/posterior_discrepancy_mean_1_ens_2.txt
+	reference_output/posterior_discrepancy_mean_3_ens_24.txt
+	reference_output/posterior_discrepancy_samples_3/Vector_20_ens_12.txt
 	reference_output/posterior_update_mean.txt 
 	reference_output/posterior_update_samples/Vector_40.txt
     SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}"

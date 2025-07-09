@@ -31,7 +31,8 @@ def main():
         'synthetic_test_hyperparam_1D',
         'synthetic_test_transient',
         'synthetic_test_multi_state',
-        'synthetic_test_transient_multi_state'
+        'synthetic_test_transient_multi_state',
+        'synthetic_test_OUU'
     ]
 
     # Execute the script in each subdirectory
