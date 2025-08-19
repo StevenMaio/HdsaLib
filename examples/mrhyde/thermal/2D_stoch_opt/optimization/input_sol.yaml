@@ -11,8 +11,8 @@ ANONYMOUS:
     write output: true
     ROL:
       SOL:
-        Read Sample Set: true
-        #Write Samples: true
+        #Read Sample Set: true
+        Write Samples: true
         Number of Samples: 10
         Objective:
           Type: Risk Neutral
@@ -28,7 +28,7 @@ ANONYMOUS:
         Output Level: 1
         Write Iteration History: false
         Write Final Parameters: true
-        Initial Iterate File: "final_params_.dat"
+        #Initial Iterate File: "final_params_.dat"
         Variable Objective Function: false
         Scale for Epsilon Active Sets: 1.0
         Use Scaling For Epsilon-Active Sets: false

@@ -26,7 +26,7 @@ namespace HDSA
 
     void Load_Data(void)
     {
-      u_opt_ = u_opt_ = Load_Optimal_u();
+      u_opt_ = Load_Optimal_u();
       z_opt_ = Load_Optimal_z();
       Z_ = Load_Z_Data();
       D_ = Load_D_Data();

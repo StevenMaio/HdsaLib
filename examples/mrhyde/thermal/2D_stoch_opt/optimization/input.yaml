@@ -38,7 +38,7 @@ ANONYMOUS:
   Postprocess: 
     response type: pointwise
     compute objective: true
-    write solution: false
+    write solution: true
     Objective functions:
       obj0:
         type: integrated control

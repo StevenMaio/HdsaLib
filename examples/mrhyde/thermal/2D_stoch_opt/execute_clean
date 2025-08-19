@@ -1,0 +1,7 @@
+rm ./optimization/*.exo
+rm ./optimization/*.dat
+rm ./fwd_hifi_data_generation/*.exo
+rm ./fwd_hifi_data_generation/*.dat
+rm ./hdsa/*.exo
+rm ./hdsa/*.dat
+rm -r ./hdsa/hdsa_output*

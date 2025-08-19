@@ -12,7 +12,7 @@ private:
   HDSA::Ptr<HDSA::Vector<RealT>> grad_nom_;
 
 public:
-  MD_Opt_Prob_Interface_MrHyDE(HDSA::Ptr<MrHyDE::SolverManager<SolverNode>> &solver, HDSA::Ptr<MrHyDE::PostprocessManager<SolverNode>> &postproc, HDSA::Ptr<MrHyDE::ParameterManager<SolverNode>> &params, const HDSA::Ptr<HDSA::MD_Data_Interface<RealT>> &data_interface, const HDSA::Ptr<HDSA::Random_Number_Generator<RealT>> &random_number_generator)
+  MD_Opt_Prob_Interface_MrHyDE(HDSA::Ptr<MrHyDE::SolverManager<SolverNode>> &solver, HDSA::Ptr<MrHyDE::PostprocessManager<SolverNode>> &postproc, HDSA::Ptr<MrHyDE::ParameterManager<SolverNode>> &params, const HDSA::Ptr<HDSA::MD_Data_Interface<RealT>> &data_interface)
   {
     postproc_ = postproc;
     solver_ = solver;
@@ -131,16 +131,22 @@ public:
     const std::vector<ROL::Ptr<std::vector<ScalarT>>> svec;
     if (new_z)
     {
+      ROL::Ptr<MrHyDE_OptVector> z_rol;
+      if (const HDSA_Tpetra_Vector<RealT> *ez = dynamic_cast<const HDSA_Tpetra_Vector<RealT> *>(&z))
+      {
+        HDSA::Ptr<Tpetra::MultiVector<ScalarT, LO, GO, SolverNode>> fvec = ez->getVector();
+        ROL::Ptr<std::vector<ScalarT>> svec = ROL::makePtr<std::vector<RealT>>(0);
+        z_rol = ROL::makePtr<MrHyDE_OptVector>(fvec, svec);
+      }
+      else if (const Std_Vector<RealT> *ez = dynamic_cast<const Std_Vector<RealT> *>(&z))
+      {
+        ROL::Ptr<std::vector<ScalarT>> svec = ez->get_std_vec();
+        z_rol = ROL::makePtr<MrHyDE_OptVector>(svec);
+      }
+
       MrHyDE_OptVector curr_z = params_->getCurrentVector();
       ROL::Ptr<ROL::Vector<RealT>> z_tmp = curr_z.clone();
       MrHyDE_OptVector ez_tmp = Teuchos::dyn_cast<MrHyDE_OptVector>(dynamic_cast<ROL::Vector<RealT> &>(*z_tmp));
-
-      const HDSA_Tpetra_Vector<RealT> &ez = dynamic_cast<const HDSA_Tpetra_Vector<RealT> &>(z);
-      std::vector<ROL::Ptr<Tpetra::MultiVector<ScalarT, LO, GO, SolverNode>>> fvec;
-      fvec.resize(1);
-      fvec[0] = ez.getVector();
-      ROL::Ptr<MrHyDE_OptVector> z_rol = ROL::makePtr<MrHyDE_OptVector>(fvec, svec, 1.0);
-
       ez_tmp.set(*z_rol);
 
       params_->updateParams(ez_tmp);
@@ -148,11 +154,18 @@ public:
       solver_->forwardModel(val);
     }
 
-    HDSA_Tpetra_Vector<RealT> &e_grad_z = dynamic_cast<HDSA_Tpetra_Vector<RealT> &>(grad_z);
-    std::vector<ROL::Ptr<Tpetra::MultiVector<ScalarT, LO, GO, SolverNode>>> fvec_grad;
-    fvec_grad.resize(1);
-    fvec_grad[0] = e_grad_z.getVector();
-    ROL::Ptr<MrHyDE_OptVector> grad_z_rol = ROL::makePtr<MrHyDE_OptVector>(fvec_grad, svec, 1.0);
+    ROL::Ptr<MrHyDE_OptVector> grad_z_rol;
+    if (const HDSA_Tpetra_Vector<RealT> *egrad_z = dynamic_cast<const HDSA_Tpetra_Vector<RealT> *>(&grad_z))
+    {
+      HDSA::Ptr<Tpetra::MultiVector<ScalarT, LO, GO, SolverNode>> fvec = egrad_z->getVector();
+      ROL::Ptr<std::vector<ScalarT>> svec = ROL::makePtr<std::vector<RealT>>(0);
+      grad_z_rol = ROL::makePtr<MrHyDE_OptVector>(fvec, svec);
+    }
+    else if (const Std_Vector<RealT> *egrad_z = dynamic_cast<const Std_Vector<RealT> *>(&grad_z))
+    {
+      ROL::Ptr<std::vector<ScalarT>> svec = egrad_z->get_std_vec();
+      grad_z_rol = ROL::makePtr<MrHyDE_OptVector>(svec);
+    }
     grad_z_rol->zero();
 
     solver_->adjointModel(*grad_z_rol);
@@ -162,19 +175,24 @@ public:
   {
     MrHyDE_OptVector curr_z = params_->getCurrentVector();
     ROL::Ptr<ROL::Vector<RealT>> diff = curr_z.clone();
-    MrHyDE_OptVector ediff = Teuchos::dyn_cast<MrHyDE_OptVector>(const_cast<ROL::Vector<RealT> &>(*diff));
 
-    const HDSA_Tpetra_Vector<RealT> &ez = dynamic_cast<const HDSA_Tpetra_Vector<RealT> &>(z);
-    std::vector<ROL::Ptr<Tpetra::MultiVector<ScalarT, LO, GO, SolverNode>>> fvec;
-    fvec.resize(1);
-    fvec[0] = ez.getVector();
-    const std::vector<ROL::Ptr<std::vector<ScalarT>>> svec;
-    ROL::Ptr<MrHyDE_OptVector> z_rol = ROL::makePtr<MrHyDE_OptVector>(fvec, svec, 1.0);
+    ROL::Ptr<MrHyDE_OptVector> z_rol;
+    if (const HDSA_Tpetra_Vector<RealT> *ez = dynamic_cast<const HDSA_Tpetra_Vector<RealT> *>(&z))
+    {
+      HDSA::Ptr<Tpetra::MultiVector<ScalarT, LO, GO, SolverNode>> fvec = ez->getVector();
+      ROL::Ptr<std::vector<ScalarT>> svec = ROL::makePtr<std::vector<RealT>>(0);
+      z_rol = ROL::makePtr<MrHyDE_OptVector>(fvec, svec);
+    }
+    else if (const Std_Vector<RealT> *ez = dynamic_cast<const Std_Vector<RealT> *>(&z))
+    {
+      ROL::Ptr<std::vector<ScalarT>> svec = ez->get_std_vec();
+      z_rol = ROL::makePtr<MrHyDE_OptVector>(svec);
+    }
 
-    ediff.zero();
-    ediff.set(curr_z);
-    ediff.axpy(-1.0, *z_rol);
-    ScalarT dnorm = ediff.norm();
+    diff->zero();
+    diff->set(curr_z);
+    diff->axpy(-1.0, *z_rol);
+    ScalarT dnorm = diff->norm();
     ScalarT refnorm = curr_z.norm();
     dnorm = dnorm / refnorm;
     ScalarT reltol = 1.0e-12;

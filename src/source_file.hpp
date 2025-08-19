@@ -39,6 +39,7 @@
 #include "core/model_discrepancy/interfaces/z_prior_interfaces/HDSA_MD_Elliptic_z_Prior_Interface.hpp"
 
 #include "core/model_discrepancy/interfaces/ouu_interfaces/HDSA_MD_OUU_Data_Interface.hpp"
+#include "core/model_discrepancy/interfaces/ouu_interfaces/HDSA_MD_OUU_Hyperparameter_Data_Interface.hpp"
 #include "core/model_discrepancy/interfaces/ouu_interfaces/HDSA_MD_OUU_Opt_Prob_Interface.hpp"
 #include "core/model_discrepancy/interfaces/ouu_interfaces/HDSA_MD_OUU_u_Prior_Interface.hpp"
 
@@ -73,7 +74,9 @@
 
 #if defined(MrHyDE_ENABLE_HDSA)
 #include "../interfaces/mrhyde/HDSA_MD_Data_Interface_MrHyDE.hpp"
+#include "../interfaces/mrhyde/HDSA_MD_OUU_Data_Interface_MrHyDE.hpp"
 #include "../interfaces/mrhyde/HDSA_MD_Opt_Prob_Interface_MrHyDE.hpp"
+#include "../interfaces/mrhyde/HDSA_MD_OUU_Opt_Prob_Interface_MrHyDE.hpp"
 #include "../interfaces/mrhyde/HDSA_Prior_FE_Op_MrHyDE.hpp"
 #include "../interfaces/mrhyde/HDSA_MD_z_Hyperparameter_Interface_MrHyDE.hpp"
 #include "../interfaces/mrhyde/HDSA_Write_Output_MrHyDE.hpp"

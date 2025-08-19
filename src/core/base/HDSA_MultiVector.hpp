@@ -98,6 +98,12 @@ namespace HDSA
       }
     }
 
+    HDSA::Ptr<HDSA::MultiVector<RealT>> clone() const 
+    {
+      HDSA::Ptr<HDSA::MultiVector<RealT>> x = HDSA::makePtr<HDSA::MultiVector<RealT>>(num_vecs_, *vecs_[0]);
+      return x;
+    }
+
     std::vector<RealT> norms(void) const
     {
       std::vector<RealT> n = std::vector<RealT>(num_vecs_);
@@ -106,6 +112,11 @@ namespace HDSA
         n[k] = vecs_[k]->norm();
       }
       return n;
+    }
+
+    void plus(const HDSA::MultiVector<RealT> &y)
+    {
+      this->axpy(1.0,y);
     }
 
     void axpy(const RealT &alpha, const HDSA::MultiVector<RealT> &y)

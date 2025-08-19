@@ -62,18 +62,49 @@ public:
     return comm_;
   }
 
+  HDSA::Ptr<MrHyDE::ParameterManager<SolverNode>> Get_Parameter_Manager(void) const 
+  {
+    return params_;
+  }
+
   std::string Get_Opt_Solution_Exo_File(void) const
   {
     return opt_solution_exo_file_;
   }
 
+  void Overwrite_Opt_Solution_Exo_File(std::string &exo_file)
+  {
+    opt_solution_exo_file_ = exo_file;
+  }
+
+  std::vector<std::string> Get_HiFi_Exo_Files(void) const
+  {
+    return hifi_exo_files_;
+  }
+
+  void Overwrite_HiFi_Exo_Files(std::vector<std::string> &exo_files)
+  {
+    for (int k = 0; k < exo_files.size(); k++)
+    {
+      hifi_exo_files_[k] = exo_files[k];
+    }
+  }
+
   void State_Solve(HDSA::Vector<RealT> &u, const HDSA::Vector<RealT> &z) const
   {
 
-    const HDSA_Tpetra_Vector<RealT> &ez = dynamic_cast<const HDSA_Tpetra_Vector<RealT> &>(z);
-    HDSA::Ptr<Tpetra::MultiVector<ScalarT, LO, GO, SolverNode>> fvec = ez.getVector();
-    ROL::Ptr<std::vector<ScalarT>> svec = ROL::makePtr<std::vector<RealT>>(0);
-    ROL::Ptr<MrHyDE_OptVector> z_rol = ROL::makePtr<MrHyDE_OptVector>(fvec, svec);
+    ROL::Ptr<MrHyDE_OptVector> z_rol;
+    if ( const HDSA_Tpetra_Vector<RealT>* ez = dynamic_cast<const HDSA_Tpetra_Vector<RealT>*>(&z) )
+    {
+      HDSA::Ptr<Tpetra::MultiVector<ScalarT, LO, GO, SolverNode>> fvec = ez->getVector();
+      ROL::Ptr<std::vector<ScalarT>> svec = ROL::makePtr<std::vector<RealT>>(0);
+      z_rol = ROL::makePtr<MrHyDE_OptVector>(fvec, svec);
+    }
+    else if ( const Std_Vector<RealT>* ez = dynamic_cast<const Std_Vector<RealT>*>(&z))
+    {
+      ROL::Ptr<std::vector<ScalarT>> svec = ez->get_std_vec();
+      z_rol = ROL::makePtr<MrHyDE_OptVector>(svec);
+    }
 
     params_->updateParams(*z_rol);
     ScalarT val = 0.0;
@@ -153,20 +184,31 @@ public:
 
   HDSA::Ptr<HDSA::Vector<RealT>> Load_Optimal_z(void) const
   {
-    Teuchos::RCP<Tpetra::MultiVector<ScalarT, LO, GO, SolverNode>> z_tpetra;
-    if (opt_solution_exo_file_ != "error")
+    HDSA::Ptr<HDSA::Vector<RealT>> z_opt_hdsa;
+
+    if (opt_solution_txt_file_z_ != "error")
     {
-      z_tpetra = Read_Exodus_Data(opt_solution_exo_file_, false);
+      if (params_->getNumParams("discretized") > 0)
+      {
+        Teuchos::RCP<Tpetra::MultiVector<ScalarT, LO, GO, SolverNode>> z_tpetra = Read_Text_Data(opt_solution_txt_file_z_, false);
+        z_opt_hdsa = HDSA::makePtr<HDSA_Tpetra_Vector<RealT>>(z_tpetra, random_number_generator_);
+      }
+      else
+      {
+        std::vector<RealT> z_vec = Read_Text_Data_std(opt_solution_txt_file_z_);
+        z_opt_hdsa = HDSA::makePtr<Std_Vector<RealT>>(z_vec, random_number_generator_);
+      }
     }
-    else if (opt_solution_txt_file_z_ != "error")
+    else if (opt_solution_exo_file_ != "error")
     {
-      z_tpetra = Read_Text_Data(opt_solution_txt_file_z_, false);
+      Teuchos::RCP<Tpetra::MultiVector<ScalarT, LO, GO, SolverNode>> z_tpetra = Read_Exodus_Data(opt_solution_exo_file_, false);
+      z_opt_hdsa = HDSA::makePtr<HDSA_Tpetra_Vector<RealT>>(z_tpetra, random_number_generator_);
     }
     else
     {
       std::cout << "no valid input file given for Load_Optimal_z" << std::endl;
     }
-    HDSA::Ptr<HDSA::Vector<RealT>> z_opt_hdsa = HDSA::makePtr<HDSA_Tpetra_Vector<RealT>>(z_tpetra, random_number_generator_);
+
     return z_opt_hdsa;
   }
 
@@ -176,20 +218,29 @@ public:
 
     for (int k = 0; k < num_hifi_; k++)
     {
-      Teuchos::RCP<Tpetra::MultiVector<ScalarT, LO, GO, SolverNode>> z_tpetra;
-      if (hifi_exo_files_[k] != "error")
+      HDSA::Ptr<HDSA::Vector<RealT>> z_hdsa;
+      if (txt_files_z_[k] != "error")
       {
-        z_tpetra = Read_Exodus_Data(hifi_exo_files_[k], false);
+        if (params_->getNumParams("discretized") > 0)
+        {
+          Teuchos::RCP<Tpetra::MultiVector<ScalarT, LO, GO, SolverNode>> z_tpetra = Read_Text_Data(txt_files_z_[k], false);
+          z_hdsa = HDSA::makePtr<HDSA_Tpetra_Vector<RealT>>(z_tpetra, random_number_generator_);
+        }
+        else
+        {
+          std::vector<RealT> z_vec = Read_Text_Data_std(txt_files_z_[k]);
+          z_hdsa = HDSA::makePtr<Std_Vector<RealT>>(z_vec, random_number_generator_);
+        }
       }
-      else if (txt_files_z_[k] != "error")
+      else if (hifi_exo_files_[k] != "error")
       {
-        z_tpetra = Read_Text_Data(txt_files_z_[k], false);
+        Teuchos::RCP<Tpetra::MultiVector<ScalarT, LO, GO, SolverNode>> z_tpetra = Read_Exodus_Data(hifi_exo_files_[k], false);
+        z_hdsa = HDSA::makePtr<HDSA_Tpetra_Vector<RealT>>(z_tpetra, random_number_generator_);
       }
       else
       {
         std::cout << "no valid input file given for Load_Optimal_Z" << std::endl;
       }
-      HDSA::Ptr<HDSA::Vector<RealT>> z_hdsa = HDSA::makePtr<HDSA_Tpetra_Vector<RealT>>(z_tpetra, random_number_generator_);
       Z->push_back(z_hdsa);
     }
     return Z;
@@ -578,6 +629,29 @@ public:
           in >> val;
           vec->replaceGlobalValue(j, 0, val);
         }
+      }
+    }
+    else
+    {
+      std::cout << "Error loading the data from " << txtfile << std::endl;
+    }
+    return vec;
+  }
+
+  std::vector<RealT> Read_Text_Data_std(std::string txtfile) const
+  {
+    RealT val = 0.0;
+    int dim = params_->getNumParams("active");
+    std::vector<RealT> vec = std::vector<RealT>(dim, 0.0);
+
+    // read in data
+    std::ifstream in(txtfile);
+    if (in)
+    {
+      for (int j = 0; j < dim; j++)
+      {
+        in >> val;
+        vec[j] = val;
       }
     }
     else

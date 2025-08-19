@@ -27,6 +27,15 @@ public:
     vec_ = HDSA::makePtr<std::vector<RealT>>(dim, 0.0);
   }
 
+  Std_Vector(std::vector<RealT> &vec_in, const HDSA::Ptr<HDSA::Random_Number_Generator<RealT>> &random_number_generator): dim_(vec_in.size()), random_number_generator_(random_number_generator)
+  {
+    vec_ = HDSA::makePtr<std::vector<RealT>>(vec_in.size());
+    for(int k = 0; k < vec_in.size(); k++)
+    {
+      (*vec_)[k] = vec_in[k];
+    }
+  }
+
   ~Std_Vector()
   {
   }
