@@ -22,7 +22,7 @@ namespace HDSA
       }
     }
 
-    Ensemble_Vector(std::vector<HDSA::Ptr<HDSA::Vector<RealT>>> &vecs): vecs_(vecs)
+    Ensemble_Vector(std::vector<HDSA::Ptr<HDSA::Vector<RealT>>> &vecs) : vecs_(vecs)
     {
       num_vecs_ = vecs.size();
     }
@@ -94,9 +94,21 @@ namespace HDSA
     {
       for (int k = 0; k < num_vecs_; k++)
       {
-        std::string name_k = name.substr(0,name.length()-4) + "_ens_" + std::to_string(k + 1) + ".txt";
+        std::string name_k = name.substr(0, name.length() - 4) + "_ens_" + std::to_string(k + 1) + ".txt";
         vecs_[k]->Write_to_File(name_k);
       }
+    }
+
+    HDSA::Ptr<HDSA::Vector<RealT>> Ensemble_Average(void) const
+    {
+      HDSA::Ptr<HDSA::Vector<RealT>> avg_vec = vecs_[0]->clone();
+      avg_vec->zeros();
+      for (int k = 0; k < num_vecs_; k++)
+      {
+        avg_vec->plus(*vecs_[k]);
+      }
+      avg_vec->scale(1.0 / static_cast<RealT>(num_vecs_));
+      return avg_vec;
     }
   };
 

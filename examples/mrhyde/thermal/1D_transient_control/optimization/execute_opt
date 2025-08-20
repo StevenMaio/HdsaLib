@@ -4,7 +4,7 @@
 ./mrhyde 
 
 # Remove unneeded files
-rm param_stash.dat output.exo
+rm output.exo
 
 # Change file name
 mv output_after_optimization.exo output_lofi_opt.exo

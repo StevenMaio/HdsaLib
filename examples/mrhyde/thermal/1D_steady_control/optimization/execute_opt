@@ -3,8 +3,5 @@
 # Solve optimization problem
 ./mrhyde 
 
-# Remove unneeded files
-rm param_stash.dat
-
 # Change file name
 mv output.exo output_lofi_opt.exo

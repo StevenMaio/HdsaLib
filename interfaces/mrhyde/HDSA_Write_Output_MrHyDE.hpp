@@ -101,18 +101,16 @@ public:
         std::filesystem::create_directory(name);
         Write_to_File(prior_delta_z_opt, name, true);
 
-        name = output_dir_name_ + "/prior/prior_z_pert_1";
-        Write_to_File(prior_z_pert[0], name, false);
-        name = output_dir_name_ + "/prior/prior_z_pert_2";
-        Write_to_File(prior_z_pert[1], name, false);
+        int N = prior_z_pert.size();
+        for (int k = 0; k < N; k++)
+        {
+            name = output_dir_name_ + "/prior/prior_z_pert_" + std::to_string(k + 1);
+            Write_to_File(prior_z_pert[k], name, false);
 
-        name = output_dir_name_ + "/prior/prior_delta_z_pert_1";
-        std::filesystem::create_directory(name);
-        Write_to_File(prior_delta_z_pert[0], name, true);
-
-        name = output_dir_name_ + "/prior/prior_delta_z_pert_2";
-        std::filesystem::create_directory(name);
-        Write_to_File(prior_delta_z_pert[1], name, true);
+            name = output_dir_name_ + "/prior/prior_delta_z_pert_" + std::to_string(k + 1);
+            std::filesystem::create_directory(name);
+            Write_to_File(prior_delta_z_pert[k], name, true);
+        }
     }
 
     void Write_Posterior_Discrepancy_Samples(std::vector<HDSA::Ptr<HDSA::MD_Posterior_Vectors<RealT>>> post_delta) const
@@ -188,38 +186,53 @@ public:
 
             if (is_state)
             {
-                std::vector<std::string> discretized_param_names = postproc_->params->discretized_param_names;
-                postproc_->params->discretized_param_names.clear();
-                postproc_->setNewExodusFile(name);
-                std::vector<HDSA::Ptr<Tpetra::MultiVector<RealT>>> sol;
-                sol.resize(1);
-                RealT current_time = 0.0;
-                if (postproc_->isTD)
+                if (HDSA::Ensemble_Vector<RealT> *evec = dynamic_cast<HDSA::Ensemble_Vector<RealT> *>(&(*vec)))
                 {
-                    Transient_Vector<RealT> &evec = dynamic_cast<Transient_Vector<RealT> &>(*vec);
-                    int n_t = evec.Get_n_t();
-                    for (int i = 0; i < n_t; i++)
+                    for (int s = 0; s < evec->Number_of_Vectors(); s++)
                     {
-                        HDSA_Tpetra_Vector<RealT> &evec_i = dynamic_cast<HDSA_Tpetra_Vector<RealT> &>(*evec[i]);
-                        sol[0] = evec_i.getVector();
-                        postproc_->writeSolution(sol, current_time);
-                        current_time = current_time + solver_->deltat;
+                        std::string name_s = filename + "_ens_" + std::to_string(s + 1) + ".exo";
+                        Write_to_File((*evec)[s], name_s, is_state);
                     }
                 }
                 else
                 {
-                    HDSA_Tpetra_Vector<RealT> &evec = dynamic_cast<HDSA_Tpetra_Vector<RealT> &>(*vec);
-                    sol[0] = evec.getVector();
-                    postproc_->writeSolution(sol, current_time);
+                    std::vector<std::string> discretized_param_names = postproc_->params->discretized_param_names;
+                    postproc_->params->discretized_param_names.clear();
+                    postproc_->setNewExodusFile(name);
+                    std::vector<HDSA::Ptr<Tpetra::MultiVector<RealT>>> sol;
+                    sol.resize(1);
+                    RealT current_time = 0.0;
+                    if (Transient_Vector<RealT> *evec = dynamic_cast<Transient_Vector<RealT> *>(&(*vec)))
+                    {
+                        int n_t = evec->Get_n_t();
+                        for (int i = 0; i < n_t; i++)
+                        {
+                            HDSA_Tpetra_Vector<RealT> &evec_i = dynamic_cast<HDSA_Tpetra_Vector<RealT> &>(*(*evec)[i]);
+                            sol[0] = evec_i.getVector();
+                            postproc_->writeSolution(sol, current_time);
+                            current_time = current_time + solver_->deltat;
+                        }
+                    }
+                    else if (HDSA_Tpetra_Vector<RealT> *evec = dynamic_cast<HDSA_Tpetra_Vector<RealT> *>(&(*vec)))
+                    {
+                        sol[0] = evec->getVector();
+                        postproc_->writeSolution(sol, current_time);
+                    }
+                    postproc_->params->discretized_param_names = discretized_param_names;
                 }
-                postproc_->params->discretized_param_names = discretized_param_names;
             }
             else
             {
-                postproc_->mesh->setupOptimizationExodusFile(name);
-                HDSA_Tpetra_Vector<RealT> &evec = dynamic_cast<HDSA_Tpetra_Vector<RealT> &>(*vec);
-                postproc_->params->updateParams(evec.getVector());
-                postproc_->writeOptimizationSolution(name);
+                if (HDSA_Tpetra_Vector<RealT> *evec = dynamic_cast<HDSA_Tpetra_Vector<RealT> *>(&(*vec)))
+                {
+                    postproc_->mesh->setupOptimizationExodusFile(name);
+                    postproc_->params->updateParams(evec->getVector());
+                    postproc_->writeOptimizationSolution(name);
+                }
+                else if (Std_Vector<RealT> *evec = dynamic_cast<Std_Vector<RealT> *>(&(*vec)))
+                {
+                    vec->Write_to_File(filename + ".txt");
+                }
             }
             postproc_->write_solution = false;
         }

@@ -98,23 +98,30 @@ namespace HDSA
     void Apply_M_u(HDSA::Vector<RealT> &u_out, const HDSA::Vector<RealT> &u_in) const
     {
       u_out.zeros();
-      HDSA::Ptr<HDSA::Vector<RealT>> u_tmp = u_out.clone();
 
-      const HDSA::Ensemble_Vector<RealT> u_in_ens = dynamic_cast<const HDSA::Ensemble_Vector<RealT> &>(u_in);
-      HDSA::Ensemble_Vector<RealT> u_out_ens = dynamic_cast<HDSA::Ensemble_Vector<RealT> &>(u_out);
-      HDSA::Ensemble_Vector<RealT> u_tmp_ens = dynamic_cast<HDSA::Ensemble_Vector<RealT> &>(*u_tmp);
-
-      for (int s = 0; s < ens_size_; s++)
+      if (const HDSA::Ensemble_Vector<RealT> *u_in_ens = dynamic_cast<const HDSA::Ensemble_Vector<RealT> *>(&u_in))
       {
-        us_prior_interface_->Apply_M_u(*u_tmp_ens[s], *u_in_ens[s]);
-      }
+        HDSA::Ptr<HDSA::Vector<RealT>> u_tmp = u_out.clone();
 
-      for (int s = 0; s < ens_size_; s++)
-      {
-        for (int i = 0; i < ens_size_; i++)
+        HDSA::Ensemble_Vector<RealT> u_out_ens = dynamic_cast<HDSA::Ensemble_Vector<RealT> &>(u_out);
+        HDSA::Ensemble_Vector<RealT> u_tmp_ens = dynamic_cast<HDSA::Ensemble_Vector<RealT> &>(*u_tmp);
+
+        for (int s = 0; s < ens_size_; s++)
         {
-          u_out_ens[s]->axpy((*C_)(s, i), *u_tmp_ens[i]);
+          us_prior_interface_->Apply_M_u(*u_tmp_ens[s], *(*u_in_ens)[s]);
         }
+
+        for (int s = 0; s < ens_size_; s++)
+        {
+          for (int i = 0; i < ens_size_; i++)
+          {
+            u_out_ens[s]->axpy((*C_)(s, i), *u_tmp_ens[i]);
+          }
+        }
+      }
+      else
+      {
+        us_prior_interface_->Apply_M_u(u_out, u_in);
       }
     }
 
