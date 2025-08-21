@@ -7,6 +7,8 @@ ln -s ../optimization/sample_set.dat .
 # Solve forward problem
 ./mrhyde 
 
+rm output.exo
+
 # Change file name
 for (( i=0; i<10; i++ ))
 do
