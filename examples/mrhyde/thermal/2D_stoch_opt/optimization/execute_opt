@@ -1,13 +1,48 @@
 # Ensure that the MrHyDE executable has been linked to the current directory under the name "mrhyde"
 
-# Solve optimization problem
+# Solve the risk neutral optimization problem
+cp input_sol_RN_init.yaml input_sol.yaml
+./mrhyde 
+
+# Remove unneeded files
+rm output.exo
+
+mkdir RN_init_solution
+# Change file name
+for (( i=0; i<10; i++ ))
+do
+    mv "output_after_optimization_sample_${i}.exo" RN_init_solution/
+done
+
+cp *.dat RN_init_solution/
+
+# Solve the risk averse optimization problem
+cp input_sol_AVaR.yaml input_sol.yaml
+./mrhyde 
+
+# Remove unneeded files
+rm output.exo
+
+mkdir AVaR_init_solution
+# Change file name
+for (( i=0; i<10; i++ ))
+do
+    mv "output_after_optimization_sample_${i}.exo" AVaR_init_solution/
+done
+
+cp *.dat AVaR_init_solution/
+
+python3 Reduce_Sample_Set.py
+
+# Converge the risk averse optimization problem
+cp input_sol_RA_converge.yaml input_sol.yaml
 ./mrhyde 
 
 # Remove unneeded files
 rm output.exo
 
 # Change file name
-for (( i=0; i<10; i++ ))
+for (( i=0; i<6; i++ ))
 do
     mv "output_after_optimization_sample_${i}.exo" "output_lofi_opt_sample_${i}.exo"
 done

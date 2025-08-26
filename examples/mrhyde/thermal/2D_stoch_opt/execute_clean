@@ -1,5 +1,7 @@
 rm ./optimization/*.exo
 rm ./optimization/*.dat
+rm -rf ./optimization/RN_init_solution/
+rm -rf ./optimization/AVaR_init_solution/
 rm ./fwd_hifi_data_generation/*.exo
 rm ./fwd_hifi_data_generation/*.dat
 rm ./hdsa/*.exo

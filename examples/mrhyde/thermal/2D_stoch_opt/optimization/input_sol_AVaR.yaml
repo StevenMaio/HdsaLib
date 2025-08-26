@@ -8,15 +8,21 @@ ANONYMOUS:
     save sensor data: false
     move sensors to IP: false
     use line search: false
-    write output: false
+    write output: true
     ROL:
       SOL:
+        Use Primal Dual: true
         Sample Set File: "sample_set.dat"
         Sample Weight File: "sample_weights.dat"
         Write Samples: true
-        Number of Samples: 6
+        Number of Samples: 10
         Objective:
-          Type: Risk Neutral
+          Type: Risk Averse
+          Risk Measure:
+            Name: AVaR
+            AVaR:
+              Confidence Level: 0.5
+              Convex Combination Parameter: 1.0
       General: 
         Output Level: 1
         Write Iteration History: false

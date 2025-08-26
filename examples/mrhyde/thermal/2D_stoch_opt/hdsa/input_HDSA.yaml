@@ -23,11 +23,13 @@ ANONYMOUS:
         hessian_num_eig_vals: 3
         hessian_oversampling: 4
       DataLoadParameters:
-        Ensemble Size: 10
+        Ensemble Size: 6
         OptimalSolutionExoFile: "output_lofi_opt_sample_"
         OptimalSolutionTxtFileZ: "final_params_.dat"
         StateVariableName: "T"
         NumHifi: 1
         HifiExoFile1: "output_hifi_sample_"
         TxtFileZ1: "final_params_.dat"
+        Sample Set File: "sample_set.dat"
+        Sample Weight File: "sample_weights.dat"
 ...

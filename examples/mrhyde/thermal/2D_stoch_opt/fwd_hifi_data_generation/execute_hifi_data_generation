@@ -3,6 +3,7 @@
 # Set link to optimization solution
 ln -s ../optimization/final_params_.dat .
 ln -s ../optimization/sample_set.dat .
+ln -s ../optimization/sample_weights.dat .
 
 # Solve forward problem
 ./mrhyde 
@@ -10,7 +11,7 @@ ln -s ../optimization/sample_set.dat .
 rm output.exo
 
 # Change file name
-for (( i=0; i<10; i++ ))
+for (( i=0; i<6; i++ ))
 do
     mv "output_sample_${i}.exo" "output_hifi_sample_${i}.exo"
 done
