@@ -9,10 +9,9 @@ private:
   HDSA::Ptr<HDSA::MD_Opt_Prob_Interface<RealT>> opt_prob_interface_mrhyde_;
   HDSA::Ptr<MrHyDE::ParameterManager<SolverNode>> params_;
   HDSA::Ptr<ROL::SampleGenerator<RealT>> sampler_;
-  int ens_size_;
 
 public:
-  MD_OUU_Opt_Prob_Interface_MrHyDE(HDSA::Ptr<HDSA::MD_Opt_Prob_Interface<RealT>> &opt_prob_interface_mrhyde, HDSA::Ptr<MrHyDE::ParameterManager<SolverNode>> &params, HDSA::Ptr<ROL::SampleGenerator<RealT>> &sampler, int ens_size) : HDSA::MD_OUU_Opt_Prob_Interface<RealT>(ens_size), opt_prob_interface_mrhyde_(opt_prob_interface_mrhyde), params_(params), sampler_(sampler), ens_size_(ens_size)
+  MD_OUU_Opt_Prob_Interface_MrHyDE(HDSA::Ptr<HDSA::MD_Opt_Prob_Interface<RealT>> &opt_prob_interface_mrhyde, HDSA::Ptr<MrHyDE::ParameterManager<SolverNode>> &params, HDSA::Ptr<ROL::SampleGenerator<RealT>> &sampler, std::vector<RealT> &ens_weights) : HDSA::MD_OUU_Opt_Prob_Interface<RealT>(ens_weights), opt_prob_interface_mrhyde_(opt_prob_interface_mrhyde), params_(params), sampler_(sampler)
   {
   }
 

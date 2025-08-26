@@ -9,11 +9,20 @@ namespace HDSA
   {
 
   private:
+    std::vector<RealT> ens_weights_;
     int ens_size_;
 
   public:
-    MD_OUU_Opt_Prob_Interface(int ens_size) : ens_size_(ens_size)
+    MD_OUU_Opt_Prob_Interface(std::vector<RealT> & ens_weights)
     {
+      ens_weights_ = ens_weights;
+      ens_size_ = ens_weights.size();
+    }
+
+    MD_OUU_Opt_Prob_Interface(int ens_size)
+    {
+      ens_weights_ = std::vector<RealT>(ens_size,1.0/static_cast<RealT>(ens_size));
+      ens_size_ = ens_size;
     }
 
     virtual ~MD_OUU_Opt_Prob_Interface()
@@ -59,9 +68,8 @@ namespace HDSA
       {
         z_tmp->zeros();
         Apply_RS_Hessian_Per_Sample(*z_tmp, z_in, z, s);
-        z_out.plus(*z_tmp);
+        z_out.axpy(ens_weights_[s], *z_tmp);
       }
-      z_out.scale(1.0/static_cast<RealT>(ens_size_));
     }
 
     void Misfit_Gradient(HDSA::Vector<RealT> &u_grad, const HDSA::Vector<RealT> &u, const HDSA::Vector<RealT> &z) const
@@ -71,8 +79,8 @@ namespace HDSA
       for(int s = 0; s < ens_size_; s++)
       {
         Misfit_Gradient_Per_Sample(*u_grad_ens[s],*u_ens[s],z,s);
+        u_grad_ens[s]->scale(ens_weights_[s]);
       }
-      u_grad.scale(1.0/static_cast<RealT>(ens_size_));
     }
 
     void Apply_Misfit_Hessian(HDSA::Vector<RealT> &u_out, const HDSA::Vector<RealT> &u_in, const HDSA::Vector<RealT> &u, const HDSA::Vector<RealT> &z) const
@@ -83,8 +91,8 @@ namespace HDSA
       for(int s = 0; s < ens_size_; s++)
       {
         Apply_Misfit_Hessian_Per_Sample(*u_out_ens[s],*u_in_ens[s],*u_ens[s],z,s);
+        u_out_ens[s]->scale(ens_weights_[s]);
       }
-      u_out.scale(1.0/static_cast<RealT>(ens_size_));
     }
   };
 
