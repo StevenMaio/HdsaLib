@@ -14,7 +14,7 @@ ANONYMOUS:
         Sample Set File: "sample_set.dat"
         Sample Weight File: "sample_weights.dat"
         Write Samples: true
-        Number of Samples: 6
+        Number of Samples: 4
         Objective:
           Type: Risk Neutral
       General: 

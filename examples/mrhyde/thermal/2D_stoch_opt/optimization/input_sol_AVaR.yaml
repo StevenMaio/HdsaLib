@@ -21,7 +21,7 @@ ANONYMOUS:
           Risk Measure:
             Name: AVaR
             AVaR:
-              Confidence Level: 0.5
+              Confidence Level: 0.7
               Convex Combination Parameter: 1.0
       General: 
         Output Level: 1

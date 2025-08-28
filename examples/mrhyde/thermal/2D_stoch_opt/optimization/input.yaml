@@ -14,7 +14,7 @@ ANONYMOUS:
   Physics: 
     modules: thermal
     Initial conditions:
-      T: '1.0 + x + y'
+      T: '0.0'
     Neumann conditions:
       T:
         left: thermal_source_left(0)
@@ -42,15 +42,15 @@ ANONYMOUS:
     Objective functions:
       obj0:
         type: integrated control
-        function: '1.0*(T-targ)^2'
+        function: '(T-targ)^2*(t>0.99)'
         weight: 0.5
         Regularization functions:
           reg0:
             type: integrated
             location: boundary
             function: thermal_source_left(0)^2 + thermal_source_right(0)^2 +thermal_source_top(0)^2 + thermal_source_bottom(0)^2
-            weight: 5.0E-4
+            weight: 0.0 #5.0E-4
   Functions: 
-    targ: '2.0'
-    thermal source: -thermal_source_1(0) * sin(2*pi*x)^2 - thermal_source_2(0) * cos(2*pi*y)^2
+    targ: '0.0'
+    thermal source: exp(-1.0*t)*1000*exp(-100*(x-thermal_source_x(0))^2 - 100*(y-thermal_source_y(0))^2)
 ...
