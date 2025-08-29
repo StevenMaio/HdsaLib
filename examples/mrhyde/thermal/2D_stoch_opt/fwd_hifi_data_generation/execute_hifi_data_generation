@@ -11,7 +11,7 @@ ln -s ../optimization/sample_weights.dat .
 rm output.exo
 
 # Change file name
-for (( i=0; i<6; i++ ))
+for (( i=0; i<4; i++ ))
 do
     mv "output_sample_${i}.exo" "output_hifi_sample_${i}.exo"
 done

@@ -42,7 +42,7 @@ cp input_sol_RA_converge.yaml input_sol.yaml
 rm output.exo
 
 # Change file name
-for (( i=0; i<3; i++ ))
+for (( i=0; i<4; i++ ))
 do
     mv "output_after_optimization_sample_${i}.exo" "output_lofi_opt_sample_${i}.exo"
 done

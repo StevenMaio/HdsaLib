@@ -140,7 +140,7 @@ ANONYMOUS:
           Cutting Plane Tolerance: 1.0e-8
           Cutting Plane Iteration Limit: 1000
       Status Test:
-        Gradient Tolerance: 1.0e-6
+        Gradient Tolerance: 1.0e-8
         Constraint Tolerance: 1.0e-8
         Step Tolerance: 1.0e-8
         Iteration Limit: 200

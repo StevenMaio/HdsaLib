@@ -23,7 +23,7 @@ ANONYMOUS:
         hessian_num_eig_vals: 3
         hessian_oversampling: 4
       DataLoadParameters:
-        Ensemble Size: 6
+        Ensemble Size: 4
         OptimalSolutionExoFile: "output_lofi_opt_sample_"
         OptimalSolutionTxtFileZ: "final_params_.dat"
         StateVariableName: "T"
