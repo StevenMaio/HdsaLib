@@ -15,3 +15,13 @@ cd hdsa
 ln -s $MRHYDE_EXE_PATH ./mrhyde
 ln -s $DMRHYDE_EXE_PATH ./dmrhyde
 cd ../
+
+cd hifi_optimization
+ln -s $MRHYDE_EXE_PATH ./mrhyde
+ln -s $DMRHYDE_EXE_PATH ./dmrhyde
+cd ../
+
+cd cvar_obj_compare
+ln -s $MRHYDE_EXE_PATH ./mrhyde
+ln -s $DMRHYDE_EXE_PATH ./dmrhyde
+cd ../

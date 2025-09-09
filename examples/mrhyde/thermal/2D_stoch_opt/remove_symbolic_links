@@ -12,3 +12,13 @@ cd hdsa
 rm mrhyde
 rm dmrhyde
 cd ../
+
+cd hifi_optimization
+rm mrhyde
+rm dmrhyde
+cd ../
+
+cd cvar_obj_compare
+rm mrhyde
+rm dmrhyde
+cd ../

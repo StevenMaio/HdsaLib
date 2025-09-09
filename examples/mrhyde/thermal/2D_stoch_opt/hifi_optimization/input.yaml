@@ -13,6 +13,7 @@ ANONYMOUS:
     NY: 20
   Physics: 
     modules: thermal
+    include advection: true
     Initial conditions:
       T: '0.0'
     Neumann conditions:
@@ -53,4 +54,5 @@ ANONYMOUS:
   Functions: 
     targ: '0.0'
     thermal source: exp(-1.0*t)*1000*exp(-100*(x-thermal_source_x(0))^2 - 100*(y-thermal_source_y(0))^2)
+    advection x: '1.0'
 ...
