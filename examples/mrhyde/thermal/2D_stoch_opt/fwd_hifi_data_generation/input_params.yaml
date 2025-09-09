@@ -6,7 +6,7 @@ ANONYMOUS:
       type: scalar
       value: 1.0
       usage: inactive
-    thermal_source_1:
+    thermal_source_x:
       type: scalar
       value: 1.0
       usage: stochastic
@@ -14,9 +14,9 @@ ANONYMOUS:
         Distribution:
             Name: Uniform
             Uniform:
-              Lower Bound: 0.5 #0.99
-              Upper Bound: 1.5 #1.01
-    thermal_source_2:
+              Lower Bound: 0.4 
+              Upper Bound: 0.8 
+    thermal_source_y:
       type: scalar
       value: 1.0
       usage: stochastic
@@ -24,8 +24,8 @@ ANONYMOUS:
         Distribution:
             Name: Uniform
             Uniform:
-              Lower Bound: 0.5 #0.99
-              Upper Bound: 1.5 #1.01
+              Lower Bound: 0.4
+              Upper Bound: 0.8 
     thermal_source_left: 
       type: scalar
       value: 1.0

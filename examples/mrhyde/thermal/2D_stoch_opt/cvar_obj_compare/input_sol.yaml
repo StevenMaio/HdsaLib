@@ -21,7 +21,7 @@ ANONYMOUS:
       General: 
         Output Level: 1
         Write Iteration History: false
-        Write Final Parameters: true
+        Write Final Parameters: false
         Initial Iterate File: "final_params_load_.dat"
         Variable Objective Function: false
         Scale for Epsilon Active Sets: 1.0
