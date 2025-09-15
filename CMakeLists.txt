@@ -1,0 +1,262 @@
+# CMAKE File for "main" application building against an installed Trilinos
+
+cmake_minimum_required(VERSION 2.8.12)
+
+# not every version of CMAKE uses the new version of policy CMP0057
+# this enforces it since Kokkos assumes the new version of the policy
+CMAKE_POLICY(SET CMP0057 NEW)
+
+ENABLE_TESTING()
+
+SET(TRILINOS_DIR ${Trilinos_INSTALL_DIR})
+SET(Trilinos_SRC_DIR ${Trilinos_SRC_DIR})
+
+set(CMAKE_PREFIX_PATH ${TRILINOS_DIR} ${CMAKE_PREFIX_PATH})
+
+project(hdsa
+  LANGUAGES NONE  # Defined below after reading in compilers
+)
+
+find_package(Trilinos REQUIRED)
+
+IF(NOT Trilinos_FOUND)
+  MESSAGE(FATAL_ERROR "Could not find Trilinos!")
+ENDIF()
+
+# Echo trilinos build info just for fun
+MESSAGE("\nFound Trilinos!  Here are the details: ")
+MESSAGE("   Trilinos_DIR = ${Trilinos_DIR}")
+MESSAGE("   Trilinos_VERSION = ${Trilinos_VERSION}")
+MESSAGE("   Trilinos_PACKAGE_LIST = ${Trilinos_PACKAGE_LIST}")
+MESSAGE("   Trilinos_LIBRARIES = ${Trilinos_LIBRARIES}")
+MESSAGE("   Trilinos_INCLUDE_DIRS = ${Trilinos_INCLUDE_DIRS}")
+MESSAGE("   Trilinos_LIBRARY_DIRS = ${Trilinos_LIBRARY_DIRS}")
+MESSAGE("   Trilinos_TPL_LIST = ${Trilinos_TPL_LIST}")
+MESSAGE("   Trilinos_TPL_INCLUDE_DIRS = ${Trilinos_TPL_INCLUDE_DIRS}")
+MESSAGE("   Trilinos_TPL_LIBRARIES = ${Trilinos_TPL_LIBRARIES}")
+MESSAGE("   Trilinos_TPL_LIBRARY_DIRS = ${Trilinos_TPL_LIBRARY_DIRS}")
+MESSAGE("   Trilinos_BUILD_SHARED_LIBS = ${Trilinos_BUILD_SHARED_LIBS}")
+MESSAGE("   Trilinos_CXX_FLAGS = ${Trilinos_CXX_COMPILER_FLAGS}")
+IF(Trilinos_VERSION LESS 14.0) # GH: if a version is not detected, CMake defaults to 0, so I'm making <14 the default behavior
+  MESSAGE("   Trilinos_VERSION < 14 detected, using old names for Kokkos::Compat objects")
+ELSE()
+  MESSAGE("   Trilinos_VERSION >= 14 detected, using new names for Tpetra::KokkosCompat objects")
+  ADD_DEFINITIONS(-DHdsaLib_HAVE_TRILINOS14)
+ENDIF()
+MESSAGE("End of Trilinos details\n")
+
+
+# Check the available Kokkos devices at the time of configuration
+MESSAGE("\n")
+MESSAGE("=======================================================")
+MESSAGE("HdsaLib configuration details")
+MESSAGE("-- Checking if Kokkos has CUDA enabled")
+kokkos_check(DEVICES CUDA RETURN_VALUE HAS_CUDA) # GH: This doesn't seem to work on my desktop, but it works on other machines.
+IF(HAS_CUDA)
+  MESSAGE("---- Found Kokkos::CUDA ")
+  MESSAGE("---- HdsaLib is temporarily disabling Compadre functionality since a GPU is available.  Affects data import.")
+  ADD_DEFINITIONS(-DHdsaLib_DISABLE_COMPADRE)
+ELSE()
+  MESSAGE("---- Did not find Kokkos::CUDA ")
+ENDIF()
+
+MESSAGE("-- Checking if Kokkos has OpenMP enabled")
+kokkos_check(DEVICES OPENMP RETURN_VALUE HAS_OPENMP)
+IF(HAS_OPENMP)
+  MESSAGE("---- Found Kokkos::OPENMP ")
+ELSE()
+  MESSAGE("---- Did not find Kokkos::OPENMP ")
+ENDIF()
+
+# Flags to set the Kokkos devices at configuration time
+IF(HdsaLib_ALL_SERIAL OR HdsaLib_ALL_CPU) 
+  MESSAGE("-- Configuration specified using a serial configuration for HdsaLib.")
+ELSEIF(HdsaLib_ALL_OPENMP) 
+  IF(HAS_OPENMP)
+    MESSAGE("-- Configuration specified using a OpenMP configuration for HdsaLib.")
+    ADD_DEFINITIONS(-DHdsaLib_HOSTEXEC_OPENMP)
+    ADD_DEFINITIONS(-DHdsaLib_ASSEMBLYSPACE_OPENMP)
+    ADD_DEFINITIONS(-DHdsaLib_SOLVERSPACE_OPENMP)
+  ELSE()
+    MESSAGE("-- Configuration specified using OpenMP, but Trilinos was not configured with OpenMP.  Defaulting to serial.")
+  ENDIF()
+ELSEIF(HdsaLib_ALL_CUDA OR HdsaLib_ALL_GPU) 
+  IF(HAS_CUDA)
+    MESSAGE("-- Configuration specified using a CUDA configuration for HdsaLib.")
+    IF(HAS_OPENMP)
+      ADD_DEFINITIONS(-DHdsaLib_HOSTEXEC_OPENMP)
+    ENDIF()
+    ADD_DEFINITIONS(-DHdsaLib_ASSEMBLYSPACE_CUDA)
+    ADD_DEFINITIONS(-DHdsaLib_SOLVERSPACE_CUDA)
+  ELSE()
+    MESSAGE("-- Configuration specified using CUDA, but Trilinos was not configured with CUDA.  Defaulting to serial.")
+  ENDIF()
+ELSEIF(HdsaLib_ASSEMBLY_CUDA OR HdsaLib_ASSEMBLY_GPU)
+  IF(HAS_CUDA)
+    MESSAGE("-- Configuration specified performing assembly using CUDA for HdsaLib.")
+    ADD_DEFINITIONS(-DHdsaLib_ASSEMBLYSPACE_CUDA)
+    IF(HdsaLib_SOLVER_CUDA OR HdsaLib_SOLVER_GPU)
+      MESSAGE("---- Configuration is enabling CUDA for solver in HdsaLib.")
+      ADD_DEFINITIONS(-DHdsaLib_SOLVERSPACE_CUDA)
+    ELSE()
+      IF(HAS_OPENMP) 
+        MESSAGE("---- CUDA was enabled, but HdsaLib is defaulting to OpenMP for the linear solvers. Turn on HdsaLib_SOLVER_CUDA to change.")
+        ADD_DEFINITIONS(-DHdsaLib_SOLVERSPACE_OPENMP)
+      ELSE()
+        MESSAGE("---- CUDA was enabled, but HdsaLib is defaulting to serial for the linear solvers. Turn on HdsaLib_SOLVER_CUDA to change.")
+      ENDIF()
+    ENDIF()
+  ELSE()
+    MESSAGE("-- Configuration requested to use CUDA for assembly in HdsaLib but no available Kokkos device was found. Defaulting to serial.")
+  ENDIF()
+ELSEIF(HdsaLib_ASSEMBLY_OPENMP)
+  IF(HAS_OPENMP)
+    MESSAGE("-- Configuration specified performing assembly using OpenMP for HdsaLib.")
+    ADD_DEFINITIONS(-DHdsaLib_ASSEMBLYSPACE_OPENMP)
+    IF(HdsaLib_SOLVER_OPENMP)
+      MESSAGE("-- Configuration is enabling OpenMP for solver in HdsaLib.")
+      ADD_DEFINITIONS(-DHdsaLib_SOLVERSPACE_OPENMP)
+    ENDIF()
+  ELSE()
+    MESSAGE("-- Configuration requested to use OpenMP for HdsaLib but no available Kokkos device was found. Defaulting to serial.")
+  ENDIF()
+ELSE()
+  MESSAGE("-- No device configurations specified. Defaulting to a serial configuration for HdsaLib.")
+ENDIF()
+
+IF(HdsaLib_USE_HDF5)
+  ADD_DEFINITIONS(-DHdsaLib_USE_HDF5)
+ENDIF()
+
+IF(HdsaLib_MAX_DERIVS)
+  MESSAGE("-- Setting max derivs to ${HdsaLib_MAX_DERIVS} based on input flag")
+  add_definitions(-DHdsaLib_SET_MAX_DERIVS=${HdsaLib_MAX_DERIVS})
+ELSE()
+  MESSAGE("-- No max derivs specified. Defaulting to 64.")
+ENDIF()
+
+IF(HdsaLib_DISABLE_AD)
+  MESSAGE("-- Turning OFF automatic differentiation (AD) based on input flag")
+  MESSAGE("-- CAUTION: THIS SHOULD ONLY BE USED WITH THE FULLY EXPLICIT MODE")
+  ADD_DEFINITIONS(-DHdsaLib_NO_AD)
+ENDIF()
+
+IF(HdsaLib_SINGLE_PRECISION)
+  MESSAGE("-- Running with single precision based on input flag")
+  MESSAGE("-- CAUTION: I HOPE YOU KNOW WHAT YOU ARE DOING")
+  ADD_DEFINITIONS(-DHdsaLib_SINGLE_PRECISION)
+ENDIF()
+
+IF(HdsaLib_VECTOR_SIZE)
+  MESSAGE("-- Setting vector size to ${HdsaLib_VECTOR_SIZE} based on input flag")
+  add_definitions(-DHdsaLib_SET_VECTOR_SIZE=${HdsaLib_VECTOR_SIZE})
+ELSE()
+  IF(HdsaLib_MAX_DERIVS)
+    MESSAGE("-- No vector size specified. Defaulting to ${HdsaLib_MAX_DERIVS}.")
+  ELSE()
+    MESSAGE("-- No vector size specified. Defaulting to 64.")
+  ENDIF()
+ENDIF()
+
+IF(HdsaLib_BUILD_DOXYGEN)
+  MESSAGE("Processing Doxygen build")
+  find_package(Doxygen)
+  IF(DOXYGEN_FOUND)
+    MESSAGE(STATUS "Doxygen found")
+
+    SET(DOXYGEN_IN ${CMAKE_CURRENT_SOURCE_DIR}/doc/Doxyfile.in)
+    SET(DOXYGEN_OUT ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile)
+    configure_file(${DOXYGEN_IN} ${DOXYGEN_OUT} @ONLY)
+
+    # note the option ALL which allows to build the docs together with the application
+    add_custom_target( doc_doxygen ALL
+        COMMAND ${DOXYGEN_EXECUTABLE} ${DOXYGEN_OUT}
+        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/src
+        COMMENT "Generating documentation with Doxygen"
+        VERBATIM )
+  ELSE()
+    MESSAGE(FATAL_ERROR "Doxygen requested, but not found!")
+  ENDIF()
+ENDIF()
+
+IF(HdsaLib_ENABLE_MIRAGE_EXTENSIONS)
+  ADD_DEFINITIONS(-DHdsaLib_ENABLE_MIRAGE)
+  MESSAGE("-- Mirage extensions have been enabled.")
+  IF(HdsaLib_MIRAGE_EXTENSIONS_DIR) 
+    MESSAGE("-- Mirage extensions directory: ${HdsaLib_MIRAGE_EXTENSIONS_DIR}")
+  ELSE()
+    MESSAGE(FATAL_ERROR "Mirage extensions requested, but HdsaLib_MIRAGE_EXTENSIONS_DIR was not set.")
+  ENDIF()  
+ENDIF()
+
+IF(HdsaLib_ENABLE_HDSA)
+  ADD_DEFINITIONS(-DHdsaLib_ENABLE_HDSA)
+  MESSAGE("-- HDSA has been enabled.")
+#  IF(HdsaLib_HDSA_DIR) 
+#    MESSAGE("-- HDSA directory: ${HdsaLib_HDSA_DIR}")
+#  ELSE()
+#    MESSAGE(FATAL_ERROR "HDSA requested, but HdsaLib_HDSA_DIR was not set.")
+#  ENDIF()  
+ENDIF()
+
+IF(HdsaLib_ENABLE_FFTW)
+  ADD_DEFINITIONS(-DHdsaLib_ENABLE_FFTW)
+  MESSAGE("-- FFTW functionality enabled.")
+  IF(HdsaLib_FFTW_INCLUDE_DIR)
+    MESSAGE("-- FFTW include directory: ${HdsaLib_FFTW_INCLUDE_DIR}")
+  ELSE()
+    MESSAGE(FATAL_ERROR "FFTW requested, but HdsaLib_FFTW_INCLUDE_DIR was not set.")
+  ENDIF()
+  IF(HdsaLib_FFTW_LIB_DIR)
+    MESSAGE("-- FFTW library directory: ${HdsaLib_FFTW_LIB_DIR}")
+  ELSE()
+    MESSAGE(FATAL_ERROR "FFTW requested, but HdsaLib_FFTW_LIB_DIR was not set.")
+  ENDIF()
+ENDIF()
+
+MESSAGE("End of HdsaLib configuration details")
+MESSAGE("=======================================================")
+MESSAGE("\n")
+
+# Make sure to use same compilers and flags as Trilinos
+SET(CMAKE_CXX_COMPILER ${Trilinos_CXX_COMPILER} )
+SET(CMAKE_C_COMPILER ${Trilinos_C_COMPILER} )
+SET(CMAKE_Fortran_COMPILER ${Trilinos_Fortran_COMPILER} )
+
+SET(CMAKE_CXX_FLAGS  "${Trilinos_CXX_COMPILER_FLAGS} ${CMAKE_CXX_FLAGS}")
+SET(CMAKE_C_FLAGS  "${Trilinos_C_COMPILER_FLAGS} ${CMAKE_C_FLAGS}")
+SET(CMAKE_Fortran_FLAGS  "${Trilinos_Fortran_COMPILER_FLAGS} ${CMAKE_Fortran_FLAGS}")
+
+enable_language(C)
+enable_language(CXX)
+if (CMAKE_Fortran_COMPILER)
+  enable_language(Fortran)
+endif()
+#
+# End of setup and error checking
+#  NOTE: PROJECT command checks for compilers, so this statement
+#        is moved AFTER setting CMAKE_CXX_COMPILER from Trilinos
+#PROJECT(HdsaLib)
+
+# SET(CMAKE_CXX_FLAGS  "${Trilinos_CXX_COMPILER_FLAGS} ${CMAKE_CXX_FLAGS}")
+
+include(CTest)
+
+# MPI check 
+MESSAGE("-- Checking if MPI is enabled in Trilinos:")
+LIST(FIND Trilinos_TPL_LIST MPI MPI_List_ID)
+IF (MPI_List_ID GREATER -1)
+  MESSAGE("-- Checking if MPI is enabled in Trilinos: MPI ENABLED")
+  SET(main_MPI TRUE)
+  ADD_DEFINITIONS(-Dmain_MPI)
+ELSE()
+  MESSAGE("-- Checking if MPI is enabled in Trilinos: MPI NOT ENABLED")
+  SET(main_MPI FALSE)
+ENDIF()
+
+MESSAGE("   CMAKE_CXX_FLAGS = ${CMAKE_CXX_FLAGS}")
+
+add_subdirectory(src)
+add_subdirectory(tests)
+add_subdirectory(interfaces)
+add_subdirectory(examples)
