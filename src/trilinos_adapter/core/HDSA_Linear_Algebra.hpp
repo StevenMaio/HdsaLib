@@ -12,6 +12,10 @@
 #include "Teuchos_SerialDenseSolver.hpp"
 #include "Teuchos_SerialSpdDenseSolver.hpp"
 
+#include "HDSA_Linear_Operator.hpp"
+#include "HDSA_Vector.hpp"
+#include "HDSA_Belos_Adapter.hpp"
+
 namespace HDSA
 {
 

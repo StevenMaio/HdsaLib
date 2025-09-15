@@ -1,6 +1,10 @@
 #ifndef HDSA_PC_QUASI_NEWTON_PRECONDITIONER_LIS_HPP
 #define HDSA_PC_QUASI_NEWTON_PRECONDITIONER_LIS_HPP
 
+#include "HDSA_PC_Quasi_Newton_Preconditioner.hpp"
+#include "HDSA_PC_LIS_Interface.hpp"
+#include "HDSA_Randomized_GEVP.hpp"
+
 namespace HDSA
 {
 

@@ -1,12 +1,15 @@
-INCLUDE_DIRECTORIES(${${PACKAGE_NAME}_SOURCE_DIR}/adapters/tpetra/src/vector)	
+# Include directories for the test
+include_directories(${CMAKE_CURRENT_SOURCE_DIR})  # Include the current directory
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../..)  # Include the src directory
 
-  TRIBITS_ADD_EXECUTABLE_AND_TEST(
-    example
-    SOURCES example.cpp
-    ARGS PrintItAll
-    NUM_MPI_PROCS 4
-    NUM_TOTAL_CORES_USED 4
-    PASS_REGULAR_EXPRESSION "TEST PASSED"
-    ADD_DIR_TO_NAME
-  )
+# Add the test executable
+add_executable(operator_sqrt_test_example.exe example.cpp)
+
+# Link the test executable against the HDSALib interface library and any necessary libraries
+target_link_libraries(operator_sqrt_test_example.exe HDSALib ${Trilinos_LIBRARIES} ${MPI_LIBRARIES})
+
+# Set the output directory for the executable
+set_target_properties(operator_sqrt_test_example.exe PROPERTIES
+    RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/tests/base/operator_sqrt_test
+)
 

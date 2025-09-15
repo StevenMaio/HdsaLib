@@ -21,7 +21,11 @@
 #include "./modified_rol_source_code/ltiobjective_TS.hpp"
 #include "./modified_rol_source_code/Reduced_Objective_Regularization.hpp"
 
-#include "../../../src/source_file.hpp"
+#include "HDSA_Stream.hpp"
+#include "HDSA_Comm.hpp"
+#include "HDSA_Ptr.hpp"
+#include "HDSA_ParameterList.hpp"
+#include "HDSA_Std_Vector.hpp"
 
 #include "mesh_shallow_ice.hpp"
 #include "elliptic_prior_reg_obj.hpp"

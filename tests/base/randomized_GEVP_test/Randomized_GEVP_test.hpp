@@ -1,6 +1,7 @@
 #ifndef RANDOMIZED_GEVP_TEST_HPP
 #define RANDOMIZED_GEVP_TEST_HPP
 
+#include "HDSA_Randomized_GEVP.hpp"
 
 template <class RealT>
 class Randomized_GEVP_test : public HDSA::Randomized_GEVP<RealT> {

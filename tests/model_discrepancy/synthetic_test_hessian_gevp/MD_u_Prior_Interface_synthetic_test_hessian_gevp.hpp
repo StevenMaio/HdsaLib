@@ -1,6 +1,8 @@
 #ifndef HDSA_MD_U_PRIOR_INTERFACE_SYNTHETIC_TEST_HESSIAN_GEVEP_HPP
 #define HDSA_MD_U_PRIOR_INTERFACE_SYNTHETIC_TEST_HESSIAN_GEVEP_HPP
 
+#include "HDSA_MD_u_Prior_Interface.hpp"
+
 template <class RealT>
 class MD_u_Prior_Interface_synthetic_test_hessian_gevp : public HDSA::MD_u_Prior_Interface<RealT> {
 

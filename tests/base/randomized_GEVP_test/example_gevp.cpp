@@ -1,7 +1,13 @@
 #include "Teuchos_GlobalMPISession.hpp"
 #include <fstream>
 
-#include "../../../src/source_file.hpp"
+#include "HDSA_Stream.hpp"
+#include "HDSA_Comm.hpp"
+#include "HDSA_Ptr.hpp"
+#include "HDSA_Random_Number_Generator.hpp"
+#include "HDSA_Std_Vector.hpp"
+#include "HDSA_MultiVector.hpp"
+#include "HDSA_Dense_Matrix.hpp"
 #include "Randomized_GEVP_test.hpp"
 
 typedef double RealT;

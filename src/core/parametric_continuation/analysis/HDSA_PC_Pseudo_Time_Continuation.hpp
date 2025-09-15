@@ -1,6 +1,10 @@
 #ifndef HDSA_PC_PSEUDO_TIME_CONTINUATION_HPP
 #define HDSA_PC_PSEUDO_TIME_CONTINUATION_HPP
 
+#include "HDSA_Vector.hpp"
+#include "HDSA_PC_Sensitivity_Operator_Interface.hpp"
+#include "HDSA_PC_Quasi_Newton_Preconditioner.hpp"
+
 namespace HDSA
 {
 

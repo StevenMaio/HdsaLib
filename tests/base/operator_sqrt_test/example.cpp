@@ -1,7 +1,10 @@
 #include "Teuchos_GlobalMPISession.hpp"
 #include <fstream>
 
-#include "../../../src/source_file.hpp"
+#include "HDSA_Stream.hpp"
+#include "HDSA_Comm.hpp"
+#include "HDSA_Ptr.hpp"
+#include "HDSA_Std_Vector.hpp"
 #include "Operator_Sqrt_test.hpp"
 
 typedef double RealT;

@@ -1,19 +1,32 @@
-INCLUDE_DIRECTORIES(${${PACKAGE_NAME}_SOURCE_DIR}/adapters/tpetra/src/vector)	
+# Include directories for the test
+include_directories(${CMAKE_CURRENT_SOURCE_DIR})  # Include the current directory
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../..)  # Include the src directory
 
-  TRIBITS_ADD_EXECUTABLE_AND_TEST(
-    example_gevp
-    SOURCES example_gevp.cpp
-    ARGS PrintItAll
-    NUM_MPI_PROCS 4
-    NUM_TOTAL_CORES_USED 4
-    PASS_REGULAR_EXPRESSION "TEST PASSED"
-    ADD_DIR_TO_NAME
-  )
+# Add the test executable
+add_executable(randomized_GEVP_test_example.exe example_gevp.cpp)
 
- TRIBITS_COPY_FILES_TO_BINARY_DIR(
-    RandomizedGEVPTestDataCopy
-    SOURCE_FILES
-	Plotting_Script.m random_numbers.txt Sabl_Output.mat
-    SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}"
-    DEST_DIR "${CMAKE_CURRENT_BINARY_DIR}"
-  )
+# Link the test executable against the HDSALib interface library and any necessary libraries
+target_link_libraries(randomized_GEVP_test_example.exe HDSALib ${Trilinos_LIBRARIES} ${MPI_LIBRARIES})
+
+# Set the output directory for the executable
+set_target_properties(randomized_GEVP_test_example.exe PROPERTIES
+    RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/tests/base/randomized_GEVP_test
+)
+
+# Define the source directory and the target directory
+set(SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR})
+set(TARGET_DIR ${CMAKE_BINARY_DIR}/tests/base/randomized_GEVP_test)
+
+# Copy the required files to the output directory
+add_custom_command(TARGET randomized_GEVP_test_example.exe POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy
+        ${SOURCE_DIR}/Plotting_Script.m
+        ${TARGET_DIR}/Plotting_Script.m
+    COMMAND ${CMAKE_COMMAND} -E copy
+        ${SOURCE_DIR}/random_numbers.txt
+        ${TARGET_DIR}/random_numbers.txt
+    COMMAND ${CMAKE_COMMAND} -E copy
+        ${SOURCE_DIR}/Sabl_Output.mat
+        ${TARGET_DIR}/Sabl_Output.mat
+    COMMENT "Copying files to the output directory"
+)

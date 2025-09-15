@@ -1,2 +1,0 @@
-ADD_SUBDIRECTORY(conserve_memory_true)
-ADD_SUBDIRECTORY(conserve_memory_false)

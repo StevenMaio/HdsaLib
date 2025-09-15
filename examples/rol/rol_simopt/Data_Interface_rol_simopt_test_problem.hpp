@@ -1,6 +1,7 @@
 #ifndef DATA_INTERFACE_SIMOPT_TEST_PROBLEM_HPP
 #define DATA_INTERFACE_SIMOPT_TEST_PROBLEM_HPP
 
+#include "HDSA_MD_Data_Interface.hpp"
 
 template <class RealT>
 class Data_Interface_SimOptTestProb : public HDSA::MD_Data_Interface<RealT> {

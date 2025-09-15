@@ -1,6 +1,10 @@
 #ifndef HDSA_MD_DETERMINE_Z_HYPERPARAMETERS_DEF_HPP
 #define HDSA_MD_DETERMINE_Z_HYPERPARAMETERS_DEF_HPP
 
+#include "HDSA_MD_Determine_z_Hyperparameters_Decl.hpp"
+#include "HDSA_MD_Numeric_Laplacian_z_Prior_Interface.hpp"
+#include "HDSA_MD_Data_Interface.hpp"
+
 namespace HDSA
 {
 

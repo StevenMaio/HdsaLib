@@ -1,3 +1,3 @@
-ADD_SUBDIRECTORY(base)
-ADD_SUBDIRECTORY(model_discrepancy)
-ADD_SUBDIRECTORY(parametric_continuation)
+add_subdirectory(base)
+add_subdirectory(model_discrepancy)
+add_subdirectory(parametric_continuation)

@@ -2,6 +2,7 @@
 #define HDSA_SPARSE_MATRIX_HPP
 
 #include "Tpetra_CrsMatrix_decl.hpp"
+#include "HDSA_Tpetra_Vector.hpp"
 
 namespace HDSA
 {

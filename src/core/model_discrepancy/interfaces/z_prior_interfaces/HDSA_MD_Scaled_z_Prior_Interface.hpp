@@ -1,6 +1,8 @@
 #ifndef HDSA_MD_SCALED_Z_PRIOR_INTERFACE_HPP
 #define HDSA_MD_SCALED_Z_PRIOR_INTERFACE_HPP
 
+#include "HDSA_MD_z_Prior_Interface.hpp"
+
 namespace HDSA
 {
 

@@ -1,6 +1,8 @@
 #ifndef HDSA_MD_Z_PRIOR_INTERFACE_SYNTHETIC_TEST_OUU_HPP
 #define HDSA_MD_Z_PRIOR_INTERFACE_SYNTHETIC_TEST_OUU_HPP
 
+#include "HDSA_MD_z_Prior_Interface.hpp"
+
 template <class RealT>
 class MD_z_Prior_Interface_synthetic_test_OUU : public HDSA::MD_z_Prior_Interface<RealT>
 {

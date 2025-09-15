@@ -1,6 +1,11 @@
 #ifndef HDSA_MD_DETERMINE_U_HYPERPARAMETERS_DEF_HPP
 #define HDSA_MD_DETERMINE_U_HYPERPARAMETERS_DEF_HPP
 
+#include "HDSA_MD_Determine_u_Hyperparameters_Decl.hpp"
+#include "HDSA_MD_Data_Interface.hpp"
+#include "HDSA_MD_Numeric_Laplacian_u_Prior_Interface.hpp"
+#include "HDSA_MD_Transient_Elliptic_u_Prior_Interface.hpp"
+
 namespace HDSA
 {
 

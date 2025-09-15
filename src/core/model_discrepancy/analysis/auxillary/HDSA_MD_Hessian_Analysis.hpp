@@ -1,6 +1,11 @@
 #ifndef HDSA_MD_HESSIAN_ANALYSIS_HPP
 #define HDSA_MD_HESSIAN_ANALYSIS_HPP
 
+#include "HDSA_MD_Opt_Prob_Interface.hpp"
+#include "HDSA_MD_z_Prior_Interface.hpp"
+#include "HDSA_Hessian_Inversion.hpp"
+#include "HDSA_Randomized_GEVP.hpp"
+
 namespace HDSA
 {
 

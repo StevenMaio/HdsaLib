@@ -1,41 +1,70 @@
-ADD_SUBDIRECTORY(Data_Generation)
+add_subdirectory(Data_Generation)
 
-INCLUDE_DIRECTORIES(${${PACKAGE_NAME}_SOURCE_DIR}/adapters/tpetra/src/vector)	
+# Include directories for the test
+include_directories(${CMAKE_CURRENT_SOURCE_DIR})  # Include the current directory
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../..)  # Include the src directory
 
-  TRIBITS_ADD_EXECUTABLE_AND_TEST(
-    example_inversion
-    SOURCES example_inversion.cpp
-    ARGS PrintItAll
-    NUM_MPI_PROCS 4
-    NUM_TOTAL_CORES_USED 4
-    PASS_REGULAR_EXPRESSION "TEST PASSED"
-    ADD_DIR_TO_NAME
-  )
+# Add the test executable
+add_executable(shallow_ice_bedrock_inv_example_sensitivity.exe example_sensitivity.cpp)
 
-  TRIBITS_ADD_EXECUTABLE_AND_TEST(
-    example_sensitivity
-    SOURCES example_sensitivity.cpp
-    ARGS PrintItAll
-    NUM_MPI_PROCS 4
-    NUM_TOTAL_CORES_USED 4
-    PASS_REGULAR_EXPRESSION "TEST PASSED"
-    ADD_DIR_TO_NAME
-  )
+# Link the test executable against the HDSALib interface library and any necessary libraries
+target_link_libraries(shallow_ice_bedrock_inv_example_sensitivity.exe HDSALib HDSALibROL ${Trilinos_LIBRARIES} ${MPI_LIBRARIES})
 
-    TRIBITS_ADD_EXECUTABLE_AND_TEST(
-    example_reoptimization
-    SOURCES example_reoptimization.cpp
-    ARGS PrintItAll
-    NUM_MPI_PROCS 4
-    NUM_TOTAL_CORES_USED 4
-    PASS_REGULAR_EXPRESSION "TEST PASSED"
-    ADD_DIR_TO_NAME
-  )
+# Set the output directory for the executable
+set_target_properties(shallow_ice_bedrock_inv_example_sensitivity.exe PROPERTIES
+    RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/examples/rol/shallow_ice_bedrock_inv
+)
 
- TRIBITS_COPY_FILES_TO_BINARY_DIR(
-    ShallowIceBedrockInversionHDSADataCopy
-    SOURCE_FILES
-      input.xml Sensitivity_input.xml copy_results.py initial_bedrock.m add_noise.m prior_mean.m plotresults.m
-    SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}"
-    DEST_DIR "${CMAKE_CURRENT_BINARY_DIR}"
-  )
+add_executable(shallow_ice_bedrock_inv_example_inversion.exe example_inversion.cpp)
+
+# Link the test executable against the HDSALib interface library and any necessary libraries
+target_link_libraries(shallow_ice_bedrock_inv_example_inversion.exe HDSALib HDSALibROL ${Trilinos_LIBRARIES} ${MPI_LIBRARIES})
+
+# Set the output directory for the executable
+set_target_properties(shallow_ice_bedrock_inv_example_inversion.exe PROPERTIES
+    RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/examples/rol/shallow_ice_bedrock_inv
+)
+
+add_executable(shallow_ice_bedrock_inv_example_reoptimization.exe example_reoptimization.cpp)
+
+# Link the test executable against the HDSALib interface library and any necessary libraries
+target_link_libraries(shallow_ice_bedrock_inv_example_reoptimization.exe HDSALib HDSALibROL ${Trilinos_LIBRARIES} ${MPI_LIBRARIES})
+
+# Set the output directory for the executable
+set_target_properties(shallow_ice_bedrock_inv_example_reoptimization.exe PROPERTIES
+    RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/examples/rol/shallow_ice_bedrock_inv
+)
+
+# Define the source directory and the target directory
+set(SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR})
+set(TARGET_DIR ${CMAKE_BINARY_DIR}/examples/rol/shallow_ice_bedrock_inv)
+
+# Copy the required files to the output directory
+add_custom_command(TARGET shallow_ice_bedrock_inv_example_sensitivity.exe POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy
+        ${SOURCE_DIR}/plotresults.m
+        ${TARGET_DIR}/plotresults.m
+    COMMAND ${CMAKE_COMMAND} -E copy
+        ${SOURCE_DIR}/input.xml
+        ${TARGET_DIR}/input.xml
+    COMMAND ${CMAKE_COMMAND} -E copy
+        ${SOURCE_DIR}/Sensitivity_input.xml
+        ${TARGET_DIR}/Sensitivity_input.xml
+    COMMAND ${CMAKE_COMMAND} -E copy
+        ${SOURCE_DIR}/copy_results.py
+        ${TARGET_DIR}/copy_results.py
+    COMMAND ${CMAKE_COMMAND} -E copy
+        ${SOURCE_DIR}/initial_bedrock.m
+        ${TARGET_DIR}/initial_bedrock.m
+    COMMAND ${CMAKE_COMMAND} -E copy
+        ${SOURCE_DIR}/add_noise.m
+        ${TARGET_DIR}/add_noise.m
+    COMMAND ${CMAKE_COMMAND} -E copy
+        ${SOURCE_DIR}/prior_mean.m
+        ${TARGET_DIR}/prior_mean.m
+    COMMENT "Copying files to the output directory"
+)
+
+
+
+    

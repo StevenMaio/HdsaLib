@@ -1,6 +1,9 @@
 #ifndef HDSA_PC_LIS_INTERFACE_SHALLOW_ICE_HPP
 #define HDSA_PC_LIS_INTERFACE_SHALLOW_ICE_HPP
 
+#include "HDSA_Std_Vector.hpp"
+#include "HDSA_ROL_Vector.hpp"
+
 template <class RealT>
 class PC_LIS_Interface_shallow_ice : public HDSA::PC_LIS_Interface<RealT>
 {

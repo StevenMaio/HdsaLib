@@ -4,6 +4,7 @@
 #include "ROL_Constraint_SimOpt.hpp"
 #include "ROL_Objective_SimOpt.hpp"
 #include "ROL_Reduced_Objective_SimOpt.hpp"
+#include "HDSA_MD_Opt_Prob_Interface.hpp"
 
 namespace HDSA
 {

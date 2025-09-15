@@ -1,6 +1,15 @@
 #ifndef HDSA_MD_PRIOR_SAMPLING_HPP
 #define HDSA_MD_PRIOR_SAMPLING_HPP
 
+#include "HDSA_MD_Data_Interface.hpp"
+#include "HDSA_MD_u_Prior_Interface.hpp"
+#include "HDSA_MD_z_Prior_Interface.hpp"
+#include "HDSA_MD_Elliptic_z_Prior_Interface.hpp"
+#include "HDSA_MD_u_Hyperparameter_Interface.hpp"
+#include "HDSA_MD_z_Hyperparameter_Interface.hpp"
+#include "HDSA_Ensemble_Vector.hpp"
+#include "HDSA_Linear_Algebra.hpp"
+
 namespace HDSA
 {
 

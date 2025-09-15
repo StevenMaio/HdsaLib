@@ -1,6 +1,8 @@
 #ifndef HDSA_RANDOMIZED_GSVD_HPP
 #define HDSA_RANDOMIZED_GSVD_HPP
 
+#include "HDSA_Linear_Algebra.hpp"
+
 // This class executes the randomized GSVD solver
 
 namespace HDSA

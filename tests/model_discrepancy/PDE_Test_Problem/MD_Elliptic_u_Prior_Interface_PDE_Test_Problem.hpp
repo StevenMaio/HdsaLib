@@ -1,6 +1,8 @@
 #ifndef HDSA_MD_U_PRIOR_INTERFACE_PDE_TEST_PROBLEM_HPP
 #define HDSA_MD_U_PRIOR_INTERFACE_PDE_TEST_PROBLEM_HPP
 
+#include "HDSA_MD_Elliptic_u_Prior_Interface.hpp"
+
 template <class RealT>
 class MD_Elliptic_u_Prior_Interface_PDE_Test_Problem : public HDSA::MD_Elliptic_u_Prior_Interface<RealT> {
 

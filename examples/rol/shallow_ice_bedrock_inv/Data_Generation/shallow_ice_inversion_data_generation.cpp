@@ -18,7 +18,10 @@
 #include <unordered_set>
 #include <set>
 
-#include "../../../../src/source_file.hpp"
+#include "HDSA_Stream.hpp"
+#include "HDSA_Comm.hpp"
+#include "HDSA_Ptr.hpp"
+#include "HDSA_ParameterList.hpp"
 
 #include "../../../../../Trilinos/packages/rol/example/PDE-OPT/TOOLS/meshmanager.hpp"
 #include "../../../../../Trilinos/packages/rol/example/PDE-OPT/TOOLS/dynconstraint.hpp"

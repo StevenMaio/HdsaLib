@@ -1,6 +1,8 @@
 #ifndef HDSA_MD_OPT_PROB_INTERFACE_PDE_TEST_PROBLEM_HPP
 #define HDSA_MD_OPT_PROB_INTERFACE_PDE_TEST_PROBLEM_HPP
 
+#include "HDSA_MD_Opt_Prob_Interface.hpp"
+
 template <class RealT>
 class MD_Opt_Prob_Interface_PDE_Test_Problem : public HDSA::MD_Opt_Prob_Interface<RealT> {
 

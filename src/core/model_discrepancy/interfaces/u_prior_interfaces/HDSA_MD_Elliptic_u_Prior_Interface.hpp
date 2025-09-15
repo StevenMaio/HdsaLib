@@ -4,6 +4,10 @@
 #include <algorithm>
 #include <cstdlib>
 #include <random>
+#include "HDSA_MD_Scaled_u_Prior_Interface.hpp"
+#include "HDSA_Randomized_GSVD.hpp"
+#include "HDSA_Random_Number_Generator.hpp"
+#include "HDSA_Linear_Algebra.hpp"
 
 namespace HDSA
 {

@@ -1,6 +1,13 @@
 #ifndef HDSA_MD_NUMERIC_LAPLACIAN_U_PRIOR_INTERFACE_HPP
 #define HDSA_MD_NUMERIC_LAPLACIAN_U_PRIOR_INTERFACE_HPP
 
+#include "HDSA_MD_Elliptic_u_Prior_Interface.hpp"
+#include "HDSA_MD_Data_Interface.hpp"
+#include "HDSA_Sparse_Matrix.hpp"
+#include "HDSA_Sparse_Matrix_Solver.hpp"
+#include "HDSA_MD_u_Hyperparameter_Interface.hpp"
+#include "HDSA_MD_Determine_u_Hyperparameters_Decl.hpp"
+
 namespace HDSA
 {
 
@@ -99,5 +106,7 @@ namespace HDSA
     }
   };
 }
+
+#include "HDSA_MD_Determine_u_Hyperparameters_Def.hpp"
 
 #endif

@@ -1,6 +1,11 @@
 #ifndef HDSA_MD_DATA_INTERFACE_HPP
 #define HDSA_MD_DATA_INTERFACE_HPP
 
+#include "HDSA_Vector.hpp"
+#include "HDSA_MultiVector.hpp"
+#include "HDSA_Transient_Vector.hpp"
+#include "HDSA_Transient_Vector_Const.hpp"
+
 namespace HDSA
 {
 

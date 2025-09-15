@@ -1,6 +1,9 @@
 #ifndef HDSA_STDVECTOR_HPP
 #define HDSA_STDVECTOR_HPP
 
+#include "HDSA_Vector.hpp"
+#include "HDSA_Random_Number_Generator.hpp"
+
 template <class RealT>
 class Std_Vector : public HDSA::Vector<RealT>
 {

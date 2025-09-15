@@ -1,7 +1,0 @@
-cd brandes_griesse
-./regression_test
-cd ../
-
-cd darcy_flow
-./regression_test
-cd ../

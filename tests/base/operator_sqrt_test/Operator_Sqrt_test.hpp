@@ -1,6 +1,9 @@
 #ifndef OPERATOR_SQRT_TEST_HPP
 #define OPERATOR_SQRT_TEST_HPP
 
+#include "HDSA_Operator_Sqrt.hpp"
+#include "HDSA_Std_Vector.hpp"
+
 template <class RealT>
 class Operator_Sqrt_test : public HDSA::Operator_Sqrt<RealT> {
 

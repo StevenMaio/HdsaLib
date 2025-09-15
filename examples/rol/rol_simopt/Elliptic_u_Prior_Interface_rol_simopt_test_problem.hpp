@@ -1,6 +1,7 @@
 #ifndef ELLIPTIC_U_PRIOR_INTERFACE_SIMOPT_TEST_PROBLEM_HPP
 #define ELLIPTIC_U_PRIOR_INTERFACE_SIMOPT_TEST_PROBLEM_HPP
 
+#include "HDSA_MD_Elliptic_u_Prior_Interface.hpp"
 
 template <class RealT>
 class Elliptic_u_Prior_Interface_SimOptTestProb : public HDSA::MD_Elliptic_u_Prior_Interface<RealT> {

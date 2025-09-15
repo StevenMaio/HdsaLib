@@ -4,6 +4,7 @@
 #include "Tpetra_Core.hpp"
 #include "Teuchos_Comm.hpp"
 #include "Teuchos_Array.hpp"
+#include "HDSA_Ptr.hpp"
 
 namespace HDSA
 {

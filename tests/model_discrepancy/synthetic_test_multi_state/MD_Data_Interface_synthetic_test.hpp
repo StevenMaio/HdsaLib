@@ -1,6 +1,9 @@
 #ifndef HDSA_MD_DATA_INTERFACE_SYNTHETIC_TEST_HPP
 #define HDSA_MD_DATA_INTERFACE_SYNTHETIC_TEST_HPP
 
+#include "HDSA_MD_Data_Interface.hpp"
+#include "HDSA_Std_Vector.hpp"
+
 template <class RealT>
 class MD_Data_Interface_synthetic_test : public HDSA::MD_Data_Interface<RealT>
 {

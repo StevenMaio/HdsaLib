@@ -1,6 +1,8 @@
 #ifndef HDSA_MD_OUU_OPT_PROB_INTERFACE_HPP
 #define HDSA_MD_OUU_OPT_PROB_INTERFACE_HPP
 
+#include "HDSA_MD_Opt_Prob_Interface.hpp"
+
 namespace HDSA
 {
 

@@ -1,6 +1,9 @@
 #ifndef HDSA_MD_POSTERIOR_SAMPLING_HPP
 #define HDSA_MD_POSTERIOR_SAMPLING_HPP
 
+#include "HDSA_MD_Posterior_Data.hpp"
+#include "HDSA_MD_Posterior_Vectors.hpp"
+
 namespace HDSA
 {
 

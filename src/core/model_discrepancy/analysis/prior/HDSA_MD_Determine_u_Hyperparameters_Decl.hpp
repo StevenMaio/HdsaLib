@@ -1,6 +1,9 @@
 #ifndef HDSA_MD_DETERMINE_U_HYPERPARAMETERS_DECL_HPP
 #define HDSA_MD_DETERMINE_U_HYPERPARAMETERS_DECL_HPP
 
+#include "HDSA_MD_Data_Interface.hpp"
+#include "HDSA_MD_u_Hyperparameter_Interface.hpp"
+
 namespace HDSA
 {
 

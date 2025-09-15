@@ -1,30 +1,69 @@
-INCLUDE_DIRECTORIES(${${PACKAGE_NAME}_SOURCE_DIR}/adapters/tpetra/src/vector)	
+# Include directories for the test
+include_directories(${CMAKE_CURRENT_SOURCE_DIR})  # Include the current directory
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../..)  # Include the src directory
 
-  TRIBITS_ADD_EXECUTABLE_AND_TEST(
-    example_sensitivity
-    SOURCES example_sensitivity.cpp
-    ARGS PrintItAll
-    NUM_MPI_PROCS 4
-    NUM_TOTAL_CORES_USED 4
-    PASS_REGULAR_EXPRESSION "TEST PASSED"
-    ADD_DIR_TO_NAME
-  )
+# Add the test executable
+add_executable(PDE_Test_Problem_example_sensitivity.exe example_sensitivity.cpp)
 
- TRIBITS_COPY_FILES_TO_BINARY_DIR(
-    PDETestProblemDataCopy
-    SOURCE_FILES
-	u_opt.txt z_opt.txt Z.txt D.txt random_numbers.txt Sabl_Output.mat Plotting_Script.m run_test.py 
-	reference_output/u_opt.txt
-	reference_output/z_opt.txt
-	reference_output/Z.txt
-	reference_output/D.txt
-	reference_output/prior_discrepancy_sample_1/Vector_3.txt
-	reference_output/prior_discrepancy_evaluated_at_z_opt/Vector_10.txt
-	reference_output/posterior_discrepancy_mean_1.txt
-	reference_output/posterior_discrepancy_mean_3.txt
-	reference_output/posterior_discrepancy_samples_3/Vector_20.txt
-	reference_output/posterior_update_mean.txt 
-	reference_output/posterior_update_samples/Vector_40.txt
-    SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}"
-    DEST_DIR "${CMAKE_CURRENT_BINARY_DIR}"
-  )
+# Link the test executable against the HDSALib interface library and any necessary libraries
+target_link_libraries(PDE_Test_Problem_example_sensitivity.exe HDSALib ${Trilinos_LIBRARIES} ${MPI_LIBRARIES})
+
+# Set the output directory for the executable
+set_target_properties(PDE_Test_Problem_example_sensitivity.exe PROPERTIES
+    RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/tests/model_discrepancy/PDE_Test_Problem
+)
+
+# Define the source directory and the target directory
+set(SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR})
+set(TARGET_DIR ${CMAKE_BINARY_DIR}/tests/model_discrepancy/PDE_Test_Problem)
+
+# Copy the required files to the output directory
+add_custom_command(TARGET PDE_Test_Problem_example_sensitivity.exe POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy
+        ${SOURCE_DIR}/Plotting_Script.m
+        ${TARGET_DIR}/Plotting_Script.m
+    COMMAND ${CMAKE_COMMAND} -E copy
+        ${SOURCE_DIR}/run_test.py 
+        ${TARGET_DIR}/run_test.py 
+    COMMAND ${CMAKE_COMMAND} -E copy
+        ${SOURCE_DIR}/random_numbers.txt
+        ${TARGET_DIR}/random_numbers.txt
+    COMMAND ${CMAKE_COMMAND} -E copy
+        ${SOURCE_DIR}/Sabl_Output.mat
+        ${TARGET_DIR}/Sabl_Output.mat
+    COMMAND ${CMAKE_COMMAND} -E copy
+        ${SOURCE_DIR}/u_opt.txt
+        ${TARGET_DIR}/u_opt.txt
+    COMMAND ${CMAKE_COMMAND} -E copy
+        ${SOURCE_DIR}/z_opt.txt
+        ${TARGET_DIR}/z_opt.txt
+    COMMAND ${CMAKE_COMMAND} -E copy
+        ${SOURCE_DIR}/D.txt
+        ${TARGET_DIR}/D.txt
+    COMMAND ${CMAKE_COMMAND} -E copy
+        ${SOURCE_DIR}/Z.txt
+        ${TARGET_DIR}/Z.txt
+    # Copy the specified files from the reference_output directory
+    COMMAND ${CMAKE_COMMAND} -E copy
+        ${SOURCE_DIR}/reference_output/prior_discrepancy_sample_1/Vector_3.txt
+        ${TARGET_DIR}/reference_output/prior_discrepancy_sample_1/Vector_3.txt
+    COMMAND ${CMAKE_COMMAND} -E copy
+        ${SOURCE_DIR}/reference_output/prior_discrepancy_evaluated_at_z_opt/Vector_10.txt
+        ${TARGET_DIR}/reference_output/prior_discrepancy_evaluated_at_z_opt/Vector_10.txt
+    COMMAND ${CMAKE_COMMAND} -E copy
+        ${SOURCE_DIR}/reference_output/posterior_discrepancy_mean_1.txt
+        ${TARGET_DIR}/reference_output/posterior_discrepancy_mean_1.txt
+    COMMAND ${CMAKE_COMMAND} -E copy
+        ${SOURCE_DIR}/reference_output/posterior_discrepancy_mean_3.txt
+        ${TARGET_DIR}/reference_output/posterior_discrepancy_mean_3.txt
+    COMMAND ${CMAKE_COMMAND} -E copy
+        ${SOURCE_DIR}/reference_output/posterior_discrepancy_samples_3/Vector_20.txt
+        ${TARGET_DIR}/reference_output/posterior_discrepancy_samples_3/Vector_20.txt
+    COMMAND ${CMAKE_COMMAND} -E copy
+        ${SOURCE_DIR}/reference_output/posterior_update_mean.txt 
+        ${TARGET_DIR}/reference_output/posterior_update_mean.txt 
+    COMMAND ${CMAKE_COMMAND} -E copy
+        ${SOURCE_DIR}/reference_output/posterior_update_samples/Vector_40.txt
+        ${TARGET_DIR}/reference_output/posterior_update_samples/Vector_40.txt
+    COMMENT "Copying files to the output directory"
+)

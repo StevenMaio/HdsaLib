@@ -2,6 +2,8 @@
 #define HDSA_MULTIVECTOR_HPP
 
 #include <sys/stat.h>
+#include "HDSA_Dense_Matrix.hpp"
+#include "HDSA_Stack_Trace.hpp"
 
 namespace HDSA
 {

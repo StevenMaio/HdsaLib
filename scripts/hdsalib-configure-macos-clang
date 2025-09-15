@@ -1,0 +1,18 @@
+rm CMakeCache.txt
+rm -rf CMakeFiles/
+ 
+TRILINOS_HOME='/Users/joshart/software/Trilinos'
+ 
+TRILINOS_INSTALL='/Users/joshart/software/Trilinos/trilinos-clang'
+ 
+HDSALIB_HOME='/Users/joshart/software/test/hdsalib'
+ 
+HDSALIB_INSTALL='/Users/joshart/software/test/hdsalib/install'
+ 
+cmake \
+-GNinja \
+-D Trilinos_SRC_DIR=${TRILINOS_HOME} \
+-D Trilinos_INSTALL_DIR=${TRILINOS_INSTALL} \
+-D CMAKE_INSTALL_PREFIX:PATH=${HDSALIB_INSTALL} \
+-D CMAKE_CXX_FLAGS:STRING="-Wall" \
+${HDSALIB_HOME}

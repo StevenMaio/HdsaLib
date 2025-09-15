@@ -1,5 +1,0 @@
-# "source set_library_paths" to execute this script
-
-export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/matlab/R2019b/bin/glnxa64/
-
-export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/matlab/R2019b/extern/bin/glnxa64/

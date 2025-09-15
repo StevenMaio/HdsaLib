@@ -1,6 +1,11 @@
 #ifndef HDSA_PC_QUASI_NEWTON_PRECONDITIONER_HPP
 #define HDSA_PC_QUASI_NEWTON_PRECONDITIONER_HPP
 
+#include "HDSA_Vector.hpp"
+#include "HDSA_MultiVector.hpp"
+#include "HDSA_Dense_Matrix.hpp"
+#include "HDSA_Linear_Algebra.hpp"
+
 namespace HDSA
 {
 

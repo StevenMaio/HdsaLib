@@ -1,6 +1,8 @@
 #ifndef HDSA_MD_OPT_PROB_INTERFACE_SYNTHETIC_TEST_OUU_HPP
 #define HDSA_MD_OPT_PROB_INTERFACE_SYNTHETIC_TEST_OUU_HPP
 
+#include "HDSA_MD_OUU_Opt_Prob_Interface.hpp"
+
 template <class RealT>
 class MD_Opt_Prob_Interface_synthetic_test_OUU : public HDSA::MD_OUU_Opt_Prob_Interface<RealT>
 {

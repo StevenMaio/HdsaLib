@@ -1,2 +1,0 @@
-ADD_SUBDIRECTORY(enforce_z_zeros_true)
-ADD_SUBDIRECTORY(enforce_z_zeros_false)

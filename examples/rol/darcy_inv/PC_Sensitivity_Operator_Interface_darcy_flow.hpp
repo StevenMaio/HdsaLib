@@ -1,6 +1,9 @@
 #ifndef HDSA_PC_SENSITIVITY_OPERATOR_INTERFACE_DARCY_FLOW_HPP
 #define HDSA_PC_SENSITIVITY_OPERATOR_INTERFACE_DARCY_FLOW_HPP
 
+#include "HDSA_ROL_Vector.hpp"
+#include "HDSA_Std_Vector.hpp"
+
 template <class RealT>
 class PC_Sensitivity_Operator_Interface_darcy_flow : public HDSA::PC_Sensitivity_Operator_Interface<RealT> {
 

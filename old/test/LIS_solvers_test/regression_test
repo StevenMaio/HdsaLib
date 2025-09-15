@@ -1,7 +1,0 @@
-cd regularization_update_false
-./regression_test
-cd ../
-
-cd regularization_update_true
-./regression_test
-cd ../

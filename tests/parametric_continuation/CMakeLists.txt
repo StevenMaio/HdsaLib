@@ -1,2 +1,2 @@
-ADD_SUBDIRECTORY(parametric_sensitivity_rosenbrock_test)
-ADD_SUBDIRECTORY(parametric_sensitivity_diff_inv_test)
+add_subdirectory(rosenbrock_test)
+add_subdirectory(diff_inv_test)

@@ -1,6 +1,10 @@
 #ifndef HDSA_MD_TRANSIENT_PRIOR_COVARIANCE_HPP
 #define HDSA_MD_TRANSIENT_PRIOR_COVARIANCE_HPP
 
+#include "HDSA_MD_Data_Interface.hpp"
+#include "HDSA_MD_u_Hyperparameter_Interface.hpp"
+#include "HDSA_MD_Determine_u_Hyperparameters_Def.hpp"
+
 namespace HDSA
 {
 

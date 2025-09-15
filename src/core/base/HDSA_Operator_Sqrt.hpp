@@ -1,6 +1,9 @@
 #ifndef HDSA_OPERATOR_SQRT_HPP
 #define HDSA_OPERATOR_SQRT_HPP
 
+#include "HDSA_Dense_Matrix.hpp"
+#include "HDSA_Linear_Algebra.hpp"
+
 namespace HDSA
 {
 

@@ -1,6 +1,8 @@
 #ifndef HDSA_MD_U_PRIOR_INTERFACE_SYNTHETIC_TEST_ELLIPTIC_PRIOR_HPP
 #define HDSA_MD_U_PRIOR_INTERFACE_SYNTHETIC_TEST_ELLIPTIC_PRIOR_HPP
 
+#include "HDSA_MD_Elliptic_u_Prior_Interface.hpp"
+
 template <class RealT>
 class MD_Elliptic_u_Prior_Interface_synthetic_test_elliptic_prior : public HDSA::MD_Elliptic_u_Prior_Interface<RealT> {
 
