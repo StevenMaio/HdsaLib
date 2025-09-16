@@ -29,27 +29,33 @@ public:
         }
 
         output_dir_name_ = "hdsa_output";
-        try
+        if (solver_->Comm->getRank() == 0)
         {
-            bool stop = false;
-            int count = 1;
-            while (!stop)
+            try
             {
-                if (std::filesystem::create_directory(output_dir_name_))
+                bool stop = false;
+                int count = 1;
+                while (!stop)
                 {
-                    stop = true;
-                }
-                else
-                {
-                    output_dir_name_ = "hdsa_output_" + std::to_string(count);
-                    count += 1;
+                    if (std::filesystem::create_directory(output_dir_name_))
+                    {
+                        stop = true;
+                    }
+                    else
+                    {
+                        output_dir_name_ = "hdsa_output_" + std::to_string(count);
+                        count += 1;
+                    }
                 }
             }
+            catch (const std::filesystem::filesystem_error &e)
+            {
+                std::cout << "Error creating directory for output data" << std::endl;
+            }
         }
-        catch (const std::filesystem::filesystem_error &e)
-        {
-            std::cout << "Error creating directory for output data" << std::endl;
-        }
+        solver_->Comm->barrier();
+        int len = output_dir_name_.size();
+        solver_->Comm->broadcast(0,len,output_dir_name_.data());
     }
 
     virtual ~Write_Output_MrHyDE()

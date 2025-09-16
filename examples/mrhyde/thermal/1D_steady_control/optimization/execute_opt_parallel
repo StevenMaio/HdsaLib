@@ -3,9 +3,6 @@
 # Solve optimization problem
 mpiexec -n 2 mrhyde
 
-# Remove unneeded files
-rm param_stash.dat
-
 # Change file name
 mv output.exo.2.0 output_lofi_opt.exo.2.0
 mv output.exo.2.1 output_lofi_opt.exo.2.1
