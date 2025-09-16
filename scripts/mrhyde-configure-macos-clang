@@ -14,11 +14,11 @@ TRILINOS_HOME='/Users/joshart/software/Trilinos'
  
 TRILINOS_INSTALL='/Users/joshart/software/Trilinos/trilinos-clang'
 
-HDSALIB_HOME='/Users/joshart/software/test/hdsalib' 
+HDSALIB_HOME='/Users/joshart/software/hdsalib' 
  
-MRHYDE_HOME='/Users/joshart/software/test/MrHyDE'
+MRHYDE_HOME='/Users/joshart/software/MrHyDE'
  
-MRHYDE_INSTALL='/Users/joshart/software/test/MrHyDE/install'
+MRHYDE_INSTALL='/Users/joshart/software/MrHyDE/install'
  
 cmake \
 -GNinja \
