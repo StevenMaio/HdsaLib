@@ -5,8 +5,8 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../..)  # Include the src dir
 # Add the test executable
 add_executable(rol_simopt_example_sensitivity.exe example_sensitivity.cpp)
 
-# Link the test executable against the HDSALib interface library and any necessary libraries
-target_link_libraries(rol_simopt_example_sensitivity.exe HDSALib HDSALibROL ${Trilinos_LIBRARIES} ${MPI_LIBRARIES})
+# Link the test executable against the HdsaLib interface library and any necessary libraries
+target_link_libraries(rol_simopt_example_sensitivity.exe HdsaLib ${Trilinos_LIBRARIES} ${MPI_LIBRARIES})
 
 # Set the output directory for the executable
 set_target_properties(rol_simopt_example_sensitivity.exe PROPERTIES
@@ -15,8 +15,8 @@ set_target_properties(rol_simopt_example_sensitivity.exe PROPERTIES
 
 add_executable(rol_simopt_example_optimization.exe example_optimization.cpp)
 
-# Link the test executable against the HDSALib interface library and any necessary libraries
-target_link_libraries(rol_simopt_example_optimization.exe HDSALib HDSALibROL ${Trilinos_LIBRARIES} ${MPI_LIBRARIES})
+# Link the test executable against the HdsaLib interface library and any necessary libraries
+target_link_libraries(rol_simopt_example_optimization.exe HdsaLib ${Trilinos_LIBRARIES} ${MPI_LIBRARIES})
 
 # Set the output directory for the executable
 set_target_properties(rol_simopt_example_optimization.exe PROPERTIES

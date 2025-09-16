@@ -3,10 +3,10 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR})  # Include the current director
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../..)  # Include the src directory
 
 # Add the test executable
-add_executable(shallow_ice_bedrock_inv_example_data_generation.exe shallow_ice_inversion_data_generation)
+add_executable(shallow_ice_bedrock_inv_example_data_generation.exe shallow_ice_inversion_data_generation.cpp)
 
 # Link the test executable against the HDSALib interface library and any necessary libraries
-target_link_libraries(shallow_ice_bedrock_inv_example_data_generation.exe HDSALib HDSALibROL ${Trilinos_LIBRARIES} ${MPI_LIBRARIES})
+target_link_libraries(shallow_ice_bedrock_inv_example_data_generation.exe HdsaLib ${Trilinos_LIBRARIES} ${MPI_LIBRARIES})
 
 # Set the output directory for the executable
 set_target_properties(shallow_ice_bedrock_inv_example_data_generation.exe PROPERTIES

@@ -1,6 +1,10 @@
 #ifndef HDSA_MD_OPT_PROB_INTERFACE_MRHYDE_HPP
 #define HDSA_MD_OPT_PROB_INTERFACE_MRHYDE_HPP
 
+#include "HDSA_MD_Opt_Prob_Interface.hpp"
+#include "HDSA_Tpetra_Vector.hpp"
+#include "HDSA_Std_Vector.hpp"
+
 template <class RealT>
 class MD_Opt_Prob_Interface_MrHyDE : public HDSA::MD_Opt_Prob_Interface<RealT>
 {

@@ -1,6 +1,9 @@
 #ifndef HDSA_MD_OUU_DATA_INTERFACE_MRHYDE_HPP
 #define HDSA_MD_OUU_DATA_INTERFACE_MRHYDE_HPP
 
+#include "HDSA_MD_OUU_Data_Interface.hpp"
+#include "HDSA_MD_Data_Interface_MrHyDE.hpp"
+
 template <class RealT>
 class MD_OUU_Data_Interface_MrHyDE : public HDSA::MD_OUU_Data_Interface<RealT>
 {

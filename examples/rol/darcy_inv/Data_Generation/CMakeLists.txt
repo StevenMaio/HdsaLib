@@ -5,8 +5,8 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../..)  # Include the src dir
 # Add the test executable
 add_executable(darcy_inv_example_data_generation.exe example_data_generation.cpp)
 
-# Link the test executable against the HDSALib interface library and any necessary libraries
-target_link_libraries(darcy_inv_example_data_generation.exe HDSALib HDSALibROL ${Trilinos_LIBRARIES} ${MPI_LIBRARIES})
+# Link the test executable against the HdsaLib interface library and any necessary libraries
+target_link_libraries(darcy_inv_example_data_generation.exe HdsaLib ${Trilinos_LIBRARIES} ${MPI_LIBRARIES})
 
 # Set the output directory for the executable
 set_target_properties(darcy_inv_example_data_generation.exe PROPERTIES

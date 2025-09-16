@@ -2,6 +2,10 @@
 #define HDSA_WRITE_OUTPUT_MRHYDE_HPP
 
 #include <filesystem>
+#include "HDSA_MD_u_Hyperparameter_Interface.hpp"
+#include "HDSA_MD_z_Hyperparameter_Interface.hpp"
+#include "HDSA_MD_Posterior_Vectors.hpp"
+#include "HDSA_Ensemble_Vector.hpp"
 
 template <class RealT>
 class Write_Output_MrHyDE

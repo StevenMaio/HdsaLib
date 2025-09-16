@@ -2,6 +2,9 @@
 #define HDSA_MD_DATA_INTERFACE_MRHYDE_HPP
 
 #include "exodusII.h"
+#include "HDSA_MD_Data_Interface.hpp"
+#include "HDSA_Tpetra_Vector.hpp"
+#include "HDSA_Std_Vector.hpp"
 
 template <class RealT,
           class LO = Tpetra::Map<>::local_ordinal_type,

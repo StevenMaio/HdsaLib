@@ -1,6 +1,8 @@
 #ifndef HDSA_MD_OUU_OPT_PROB_INTERFACE_MRHYDE_HPP
 #define HDSA_MD_OUU_OPT_PROB_INTERFACE_MRHYDE_HPP
 
+#include "HDSA_MD_OUU_Opt_Prob_Interface.hpp"
+
 template <class RealT>
 class MD_OUU_Opt_Prob_Interface_MrHyDE : public HDSA::MD_OUU_Opt_Prob_Interface<RealT>
 {

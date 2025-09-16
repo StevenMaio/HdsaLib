@@ -5,8 +5,8 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../..)  # Include the src dir
 # Add the test executable
 add_executable(PDE_Test_Problem_example_sensitivity.exe example_sensitivity.cpp)
 
-# Link the test executable against the HDSALib interface library and any necessary libraries
-target_link_libraries(PDE_Test_Problem_example_sensitivity.exe HDSALib ${Trilinos_LIBRARIES} ${MPI_LIBRARIES})
+# Link the test executable against the HdsaLib interface library and any necessary libraries
+target_link_libraries(PDE_Test_Problem_example_sensitivity.exe HdsaLib ${Trilinos_LIBRARIES} ${MPI_LIBRARIES})
 
 # Set the output directory for the executable
 set_target_properties(PDE_Test_Problem_example_sensitivity.exe PROPERTIES

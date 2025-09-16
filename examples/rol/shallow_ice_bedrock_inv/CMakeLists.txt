@@ -7,8 +7,8 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../..)  # Include the src dir
 # Add the test executable
 add_executable(shallow_ice_bedrock_inv_example_sensitivity.exe example_sensitivity.cpp)
 
-# Link the test executable against the HDSALib interface library and any necessary libraries
-target_link_libraries(shallow_ice_bedrock_inv_example_sensitivity.exe HDSALib HDSALibROL ${Trilinos_LIBRARIES} ${MPI_LIBRARIES})
+# Link the test executable against the HdsaLib interface library and any necessary libraries
+target_link_libraries(shallow_ice_bedrock_inv_example_sensitivity.exe HdsaLib ${Trilinos_LIBRARIES} ${MPI_LIBRARIES})
 
 # Set the output directory for the executable
 set_target_properties(shallow_ice_bedrock_inv_example_sensitivity.exe PROPERTIES
@@ -17,8 +17,8 @@ set_target_properties(shallow_ice_bedrock_inv_example_sensitivity.exe PROPERTIES
 
 add_executable(shallow_ice_bedrock_inv_example_inversion.exe example_inversion.cpp)
 
-# Link the test executable against the HDSALib interface library and any necessary libraries
-target_link_libraries(shallow_ice_bedrock_inv_example_inversion.exe HDSALib HDSALibROL ${Trilinos_LIBRARIES} ${MPI_LIBRARIES})
+# Link the test executable against the HdsaLib interface library and any necessary libraries
+target_link_libraries(shallow_ice_bedrock_inv_example_inversion.exe HdsaLib ${Trilinos_LIBRARIES} ${MPI_LIBRARIES})
 
 # Set the output directory for the executable
 set_target_properties(shallow_ice_bedrock_inv_example_inversion.exe PROPERTIES
@@ -27,8 +27,8 @@ set_target_properties(shallow_ice_bedrock_inv_example_inversion.exe PROPERTIES
 
 add_executable(shallow_ice_bedrock_inv_example_reoptimization.exe example_reoptimization.cpp)
 
-# Link the test executable against the HDSALib interface library and any necessary libraries
-target_link_libraries(shallow_ice_bedrock_inv_example_reoptimization.exe HDSALib HDSALibROL ${Trilinos_LIBRARIES} ${MPI_LIBRARIES})
+# Link the test executable against the HdsaLib interface library and any necessary libraries
+target_link_libraries(shallow_ice_bedrock_inv_example_reoptimization.exe HdsaLib ${Trilinos_LIBRARIES} ${MPI_LIBRARIES})
 
 # Set the output directory for the executable
 set_target_properties(shallow_ice_bedrock_inv_example_reoptimization.exe PROPERTIES
