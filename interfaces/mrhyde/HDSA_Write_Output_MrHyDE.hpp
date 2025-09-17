@@ -33,29 +33,13 @@ public:
         {
             try
             {
-                bool stop = false;
-                int count = 1;
-                while (!stop)
-                {
-                    if (std::filesystem::create_directory(output_dir_name_))
-                    {
-                        stop = true;
-                    }
-                    else
-                    {
-                        output_dir_name_ = "hdsa_output_" + std::to_string(count);
-                        count += 1;
-                    }
-                }
+                std::filesystem::create_directory(output_dir_name_);
             }
-            catch (const std::filesystem::filesystem_error &e)
+            catch (const std::exception &e)
             {
-                std::cout << "Error creating directory for output data" << std::endl;
             }
         }
         solver_->Comm->barrier();
-        int len = output_dir_name_.size();
-        solver_->Comm->broadcast(0,len,output_dir_name_.data());
     }
 
     virtual ~Write_Output_MrHyDE()
