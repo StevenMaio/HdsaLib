@@ -65,7 +65,7 @@ public:
     return comm_;
   }
 
-  HDSA::Ptr<MrHyDE::ParameterManager<SolverNode>> Get_Parameter_Manager(void) const 
+  HDSA::Ptr<MrHyDE::ParameterManager<SolverNode>> Get_Parameter_Manager(void) const
   {
     return params_;
   }
@@ -97,13 +97,13 @@ public:
   {
 
     ROL::Ptr<MrHyDE_OptVector> z_rol;
-    if ( const HDSA_Tpetra_Vector<RealT>* ez = dynamic_cast<const HDSA_Tpetra_Vector<RealT>*>(&z) )
+    if (const HDSA_Tpetra_Vector<RealT> *ez = dynamic_cast<const HDSA_Tpetra_Vector<RealT> *>(&z))
     {
       HDSA::Ptr<Tpetra::MultiVector<ScalarT, LO, GO, SolverNode>> fvec = ez->getVector();
       ROL::Ptr<std::vector<ScalarT>> svec = ROL::makePtr<std::vector<RealT>>(0);
       z_rol = ROL::makePtr<MrHyDE_OptVector>(fvec, svec);
     }
-    else if ( const Std_Vector<RealT>* ez = dynamic_cast<const Std_Vector<RealT>*>(&z))
+    else if (const Std_Vector<RealT> *ez = dynamic_cast<const Std_Vector<RealT> *>(&z))
     {
       ROL::Ptr<std::vector<ScalarT>> svec = ez->get_std_vec();
       z_rol = ROL::makePtr<MrHyDE_OptVector>(svec);
@@ -390,50 +390,51 @@ public:
 
     vector<string> blockNames = solve_->mesh->getBlockNames();
 
+    std::string var;
+    if (load_state)
+    {
+      var = state_var_name_;
+    }
+    else
+    {
+      var = opt_var_name_;
+    }
+    int n = -1;
+    for (int j = 0; j < nfield_names.size(); j++)
+    {
+      if (nfield_names[j] == var)
+      {
+        n = j;
+      }
+    }
+    int n_var = n;
+    if (!load_state)
+    {
+      for (int j = 0; j < nfield_names.size(); j++)
+      {
+        if (nfield_names[j] == state_var_name_)
+        {
+          n_var = j;
+        }
+      }
+    }
+
     for (int block = 0; block < blockNames.size(); block++)
     {
+      int e = 0;
       for (int grp = 0; grp < solve_->assembler->groups[block].size(); ++grp)
       {
         auto LIDs = solve_->assembler->groups[block][grp]->LIDs_host;
         auto nDOF = solve_->assembler->groups[block][grp]->group_data->num_dof_host;
-
-        std::string var;
-        if (load_state)
-        {
-          var = state_var_name_;
-        }
-        else
-        {
-          var = opt_var_name_;
-        }
-        int n = -1;
-        for (int j = 0; j < nfield_names.size(); j++)
-        {
-          if (nfield_names[j] == var)
-          {
-            n = j;
-          }
-        }
-        int n_var = n;
-        if (!load_state)
-        {
-          for (int j = 0; j < nfield_names.size(); j++)
-          {
-            if (nfield_names[j] == state_var_name_)
-            {
-              n_var = j;
-            }
-          }
-        }
-
         for (int p = 0; p < solve_->assembler->groups[block][grp]->numElem; p++)
         {
           for (int i = 0; i < nDOF(n_var); i++)
           {
             index = LIDs[0](p, offsets(n_var, i));
-            dindex = connect[grp * num_node_per_el + i] - 1;
+            dindex = connect[e * num_node_per_el + i] - 1;
             vec_over_kv(index, 0) = nfield_vals[n][dindex];
           }
+          e += 1;
         }
       }
     }

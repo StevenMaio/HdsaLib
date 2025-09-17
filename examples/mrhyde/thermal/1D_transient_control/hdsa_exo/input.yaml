@@ -19,7 +19,7 @@ ANONYMOUS:
   Parameters input file: input_params.yaml
   Analysis input file: input_HDSA.yaml
   Solver:
-    workset size: 1
+    workset size: 5
     solver: transient
     transient BDF order: 1
     transient Butcher tableau: BWE
