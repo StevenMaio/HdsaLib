@@ -8,7 +8,7 @@ ANONYMOUS:
     element type: interval
     xmin: 0.0
     xmax: 1.0
-    NX: 49
+    NX: 99
   Physics: 
     modules: thermal
     include advection: true
