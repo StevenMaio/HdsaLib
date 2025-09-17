@@ -380,7 +380,7 @@ public:
       delete[] var_vals;
     }
 
-    Teuchos::RCP<Tpetra::MultiVector<ScalarT, LO, GO, SolverNode>> vec_over = Teuchos::rcp(new Tpetra::MultiVector<ScalarT, LO, GO, SolverNode>(solve_->linalg->overlapped_map[0], 1));
+    Teuchos::RCP<Tpetra::MultiVector<ScalarT, LO, GO, SolverNode>> vec_over = solve_->linalg->getNewOverlappedVector(0);
     auto vec_over_kv = vec_over->template getLocalView<HostDevice>(Tpetra::Access::ReadWrite);
     int index, dindex;
 

@@ -72,11 +72,15 @@ public:
           const HDSA_Tpetra_Vector<RealT> &eu_i = dynamic_cast<const HDSA_Tpetra_Vector<RealT> &>(*eu[i + 1]);
           HDSA_Tpetra_Vector<RealT> &eu_grad_i = dynamic_cast<HDSA_Tpetra_Vector<RealT> &>(*eu_grad[i + 1]);
           RealT currenttime = solver_->initial_time + (double)i * solver_->deltat;
+
+          // the gradient should be a non-overlapping vector, but the state should be an overlapping vector
           HDSA::Ptr<Tpetra::MultiVector<RealT>> eu_grad_i_tpetra = eu_grad_i.getVector();
+          HDSA::Ptr<Tpetra::MultiVector<RealT>> ui_over = solver_->linalg->getNewOverlappedVector(0);
+          solver_->linalg->importVectorToOverlapped(0, ui_over, eu_i.getVector());
 
           postproc_->setTimeIndex(i);
           solver_->assembler->updateStage(0, currenttime, solver_->deltat);
-          postproc_->computeObjectiveGradState(0, eu_i.getVector(), currenttime, solver_->deltat, eu_grad_i_tpetra);
+          postproc_->computeObjectiveGradState(0, ui_over, currenttime, solver_->deltat, eu_grad_i_tpetra);
           if (i == 0)
           {
             eu_grad_i.scale(solver_->deltat);
@@ -89,8 +93,13 @@ public:
     {
       const HDSA_Tpetra_Vector<RealT> &eu = dynamic_cast<const HDSA_Tpetra_Vector<RealT> &>(u);
       HDSA_Tpetra_Vector<RealT> &eu_grad = dynamic_cast<HDSA_Tpetra_Vector<RealT> &>(u_grad);
+
+      // the gradient should be a non-overlapping vector, but the state should be an overlapping vector
       HDSA::Ptr<Tpetra::MultiVector<RealT>> grad = eu_grad.getVector();
-      postproc_->computeObjectiveGradState(0, eu.getVector(), 0.0, solver_->deltat, grad);
+      HDSA::Ptr<Tpetra::MultiVector<RealT>> u_over = solver_->linalg->getNewOverlappedVector(0);
+      solver_->linalg->importVectorToOverlapped(0, u_over, eu.getVector());
+      postproc_->computeObjectiveGradState(0, u_over, 0.0, solver_->deltat, grad);
+
       u_grad.scale(-1.0);
     }
   }
@@ -99,11 +108,13 @@ public:
   {
     HDSA::Ptr<HDSA::Vector<RealT>> ugrad_nom = u_out.clone();
     Misfit_Gradient(*ugrad_nom, u, z);
+
     HDSA::Ptr<HDSA::Vector<RealT>> u_pert = u_out.clone();
     u_pert->set(u);
     RealT h = 1.0e-4;
     u_pert->axpy(h, u_in);
     Misfit_Gradient(u_out, *u_pert, z);
+
     u_out.axpy(-1.0, *ugrad_nom);
     u_out.scale(1.0 / h);
   }
