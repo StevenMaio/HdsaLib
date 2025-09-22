@@ -1,0 +1,10 @@
+# Ensure that the MrHyDE executable has been linked to the current directory under the name "mrhyde"
+
+# Solve optimization problem
+./mrhyde 
+
+# Remove unneeded files
+rm output.exo
+
+# Change file name
+mv output_after_optimization.exo output_lofi_opt.exo

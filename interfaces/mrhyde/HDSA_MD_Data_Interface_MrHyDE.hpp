@@ -380,7 +380,15 @@ public:
       delete[] var_vals;
     }
 
-    Teuchos::RCP<Tpetra::MultiVector<ScalarT, LO, GO, SolverNode>> vec_over = solve_->linalg->getNewOverlappedVector(0);
+    Teuchos::RCP<Tpetra::MultiVector<ScalarT, LO, GO, SolverNode>> vec_over;
+    if(load_state)
+    {
+      vec_over = solve_->linalg->getNewOverlappedVector(0);
+    } 
+    else
+    {
+      vec_over = solve_->linalg->getNewOverlappedParamVector();
+    }
     auto vec_over_kv = vec_over->template getLocalView<HostDevice>(Tpetra::Access::ReadWrite);
     int index, dindex;
 
@@ -440,8 +448,18 @@ public:
     }
     delete[] connect;
 
-    Teuchos::RCP<Tpetra::MultiVector<ScalarT, LO, GO, SolverNode>> vec = solve_->linalg->getNewVector(0);
-    solve_->linalg->exportVectorFromOverlappedReplace(0, vec, vec_over);
+    Teuchos::RCP<Tpetra::MultiVector<ScalarT, LO, GO, SolverNode>> vec;
+    if(load_state)
+    {
+      vec = solve_->linalg->getNewVector(0);
+      solve_->linalg->exportVectorFromOverlappedReplace(0, vec, vec_over);
+    } 
+    else
+    {
+      vec = solve_->linalg->getNewParamVector();
+      solve_->linalg->exportParamVectorFromOverlapped(vec, vec_over);
+    }
+
 
     exo_error = ex_close(exoid);
     if (exo_error != 0)
