@@ -1,0 +1,19 @@
+cd optimization
+rm mrhyde
+rm dmrhyde
+cd ../
+
+# cd fwd_hifi_data_generation
+# rm mrhyde
+# rm dmrhyde
+# cd ../
+
+# cd hdsa_exo
+# rm mrhyde
+# rm dmrhyde
+# cd ../
+
+# cd hdsa_txt
+# rm mrhyde
+# rm dmrhyde
+# cd ../
