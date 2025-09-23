@@ -129,7 +129,63 @@ public:
     }
   }
 
-  HDSA::Ptr<HDSA::Vector<RealT>> Load_Optimal_u(void) const
+  HDSA::Ptr<const HDSA::Vector<RealT>> Extract_State_Component(const HDSA::Vector<RealT> & u, int component_id) const override
+  { 
+
+    HDSA::Ptr<const HDSA::Vector<RealT>> u_component;
+    int num_states = solve_->varlist[0][0].size();
+    if(num_states == 1) 
+    {
+      u_component = HDSA::makePtrFromRef(u);
+    }
+    else
+    {
+      const HDSA_Tpetra_Vector<RealT> &eu = dynamic_cast<const HDSA_Tpetra_Vector<RealT> &>(u);
+      HDSA::Ptr<Tpetra::MultiVector<RealT>> eu_tpetra = eu.getVector();
+      Teuchos::ArrayRCP<const RealT> u_view = eu_tpetra->get1dView();
+      Teuchos::RCP<const Tpetra::Map<LO,GO>> map = eu_tpetra->getMap();
+
+      int num_local_elements = map->getLocalNumElements()/num_states;
+      int init_index = map->getMinLocalIndex()/num_states;
+      int num_global_element = map->getGlobalNumElements()/num_states;
+      Teuchos::Array<GO> component_ids(num_local_elements);
+      for (int i = 0; i < num_local_elements; ++i) 
+      {
+        component_ids[i] = init_index + i;
+      }
+      Teuchos::RCP<const Tpetra::Map<LO,GO>> component_map = HDSA::makePtr<Tpetra::Map<LO,GO>>(num_global_element, component_ids, 0, solve_->Comm);
+
+      HDSA::Ptr<Tpetra::MultiVector<ScalarT, LO, GO, Node>> tpetra_vec = HDSA::makePtr<Tpetra::MultiVector<ScalarT, LO, GO, Node>>(component_map, 1);
+      for (int k = 0; k < num_local_elements; k++)
+      {
+        tpetra_vec->replaceLocalValue(k, 0, u_view[num_states*k + component_id]);
+      }
+      u_component = HDSA::makePtr<HDSA_Tpetra_Vector<RealT>>(tpetra_vec, random_number_generator_);
+    }
+    return u_component;
+  }
+
+  void Set_State_Component(HDSA::Vector<RealT> & u, const HDSA::Vector<RealT> & u_component, int component_id) const override
+  { 
+    int num_states = solve_->varlist[0][0].size();
+    if(num_states == 1) 
+    {
+      u.set(u_component);
+    }
+    else
+    {
+      const HDSA_Tpetra_Vector<RealT> u_tpetra = dynamic_cast<const HDSA_Tpetra_Vector<RealT> &>(u);
+      const HDSA_Tpetra_Vector<RealT> u_component_tpetra = dynamic_cast<const HDSA_Tpetra_Vector<RealT> &>(u_component);
+      Teuchos::ArrayRCP<const RealT> u_component_view = u_component_tpetra.getVector()->get1dView();
+      int local_dim = u_component_tpetra.getVector()->getLocalLength();
+      for(int k = 0; k < local_dim; k++)
+      {
+        u_tpetra.getVector()->replaceLocalValue(num_states*k + component_id, 0, u_component_view[k]);
+      }
+    }
+  }
+
+  HDSA::Ptr<HDSA::Vector<RealT>> Load_Optimal_u(void) const override
   {
 
     int num_time_nodes = solve_->settings->sublist("Solver").get<int>("number of steps", 0) + 1;
@@ -180,7 +236,7 @@ public:
     return u_opt;
   }
 
-  HDSA::Ptr<HDSA::Vector<RealT>> Load_Optimal_z(void) const
+  HDSA::Ptr<HDSA::Vector<RealT>> Load_Optimal_z(void) const override
   {
     HDSA::Ptr<HDSA::Vector<RealT>> z_opt_hdsa;
 
@@ -210,7 +266,7 @@ public:
     return z_opt_hdsa;
   }
 
-  HDSA::Ptr<HDSA::MultiVector<RealT>> Load_Z_Data(void) const
+  HDSA::Ptr<HDSA::MultiVector<RealT>> Load_Z_Data(void) const override
   {
     HDSA::Ptr<HDSA::MultiVector<RealT>> Z = HDSA::makePtr<HDSA::MultiVector<RealT>>();
 
@@ -244,7 +300,7 @@ public:
     return Z;
   }
 
-  HDSA::Ptr<HDSA::MultiVector<RealT>> Load_D_Data(void) const
+  HDSA::Ptr<HDSA::MultiVector<RealT>> Load_D_Data(void) const override
   {
     int num_time_nodes = solve_->settings->sublist("Solver").get<int>("number of steps", 0) + 1;
     std::vector<HDSA::Ptr<HDSA::Vector<RealT>>> u_vecs;
