@@ -15,13 +15,17 @@ public:
   Prior_FE_Op_MrHyDE(Teuchos::RCP<Teuchos::MpiComm<int>> &comm, Teuchos::RCP<Teuchos::ParameterList> &settings, std::vector<string> &blockNames)
   {
     Teuchos::RCP<Teuchos::ParameterList> settings_prior = HDSA::makePtr<Teuchos::ParameterList>(*settings);
+    settings_prior->remove("Physics");
     settings_prior->sublist("Physics").set("modules", "ellipticPrior");
     settings_prior->sublist("Solver").set("solver", "steady-state");
     settings_prior->sublist("Solver").set("matrix free", true);
+    settings_prior->remove("Analysis");
     settings_prior->sublist("Analysis").set("Analysis type", "forward");
+    settings_prior->remove("Functions");
     settings_prior->sublist("Functions").set("ellipticPrior diffusion", "0.0");
     settings_prior->sublist("Functions").set("ellipticPrior reaction", "1.0");
     settings_prior->sublist("Functions").set("specific heat", "0.0");
+    settings_prior->remove("Postprocess");
     settings_prior->sublist("Postprocess").set("write solution", false);
     settings_prior->sublist("Postprocess").set("create optimization movie", false);
 
