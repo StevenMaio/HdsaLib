@@ -25,6 +25,9 @@ namespace HDSA
     Comm(HDSA::Ptr<Teuchos::Comm<int> > & comm): comm_(comm)
     { }
 
+    Comm(HDSA::Ptr<Teuchos::MpiComm<int> > & comm): comm_(comm)
+    { }
+
     int getRank() const 
     {
       return comm_->getRank();
