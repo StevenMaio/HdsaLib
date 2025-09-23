@@ -426,6 +426,11 @@ public:
         }
       }
     }
+    int index_normalization = 1;
+    if (!load_state)
+    {
+      index_normalization = nfield_names.size()-1; // This only works if there is only 1 variable that is not a state
+    }
 
     for (int block = 0; block < blockNames.size(); block++)
     {
@@ -438,7 +443,7 @@ public:
         {
           for (int i = 0; i < nDOF(n_var); i++)
           {
-            index = LIDs[0](p, offsets(n_var, i));
+            index = LIDs[0](p, offsets(n_var, i))/index_normalization;
             dindex = connect[e * num_node_per_el + i] - 1;
             vec_over_kv(index, 0) = nfield_vals[n][dindex];
           }
@@ -457,8 +462,8 @@ public:
     else
     {
       vec = solve_->linalg->getNewParamVector();
-      solve_->linalg->exportParamVectorFromOverlapped(vec, vec_over);
-    }
+      solve_->linalg->exportParamVectorFromOverlappedReplace(vec, vec_over);
+  }
 
 
     exo_error = ex_close(exoid);

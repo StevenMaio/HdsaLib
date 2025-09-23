@@ -33,7 +33,7 @@ ANONYMOUS:
     nonlinear TOL: 1.0e-07
     max nonlinear iters: 10
     final time: 1.0e-1
-    delta t: 1.0e-2
+    number of steps: 10
     use strong DBCs: true
   Analysis input file: input_readExo.yaml
   Postprocess:

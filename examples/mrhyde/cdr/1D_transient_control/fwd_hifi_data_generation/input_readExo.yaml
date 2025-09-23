@@ -6,6 +6,6 @@ ANONYMOUS:
     readExo+forward:
       DataLoadParameters:
         ExoFile: "hifi_z1.exo"
-        StateVariableName: "T"
-        OptVariableName: "thermal_source"
+        StateVariableName: "c"
+        OptVariableName: "source2"
 ...
