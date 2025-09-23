@@ -11,15 +11,24 @@ ANONYMOUS:
         execute_posterior_discrepancy_sampling: true
         execute_optimal_solution_update: true
       HyperParameters:
-        alpha_u: 2000.0
+        c:
+          alpha_u: 2000.0
+          beta_u: 0.009
+          beta_t: 0.028
+          alpha_d: 0.01
+          prior_num_sing_vals: 50
+          prior_oversampling: 0
+          prior_num_subspace_iter: 1
+        c2:
+          alpha_u: 1000.0
+          beta_u: 0.09
+          beta_t: 0.058
+          alpha_d: 0.06
+          prior_num_sing_vals: 60
+          prior_oversampling: 1
+          prior_num_subspace_iter: 2
         alpha_z: 0.1
-        beta_u: 0.009
-        beta_t: 0.028
         beta_z: 0.001
-        alpha_d: 0.01
-        prior_num_sing_vals: 50
-        prior_oversampling: 0
-        prior_num_subspace_iter: 1
         hessian_num_eig_vals: 3
         hessian_oversampling: 4
       DataLoadParameters:

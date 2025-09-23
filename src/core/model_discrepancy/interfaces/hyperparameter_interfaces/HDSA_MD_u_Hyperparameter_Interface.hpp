@@ -28,10 +28,14 @@ namespace HDSA
     RealT data_noise_percent_;
     RealT W_u_inv_spectral_gap_;
 
+  protected:
+    bool is_multistate_interface_;
+
   public:
 
     MD_u_Hyperparameter_Interface(const bool &is_transient, const bool &center_data = false, const bool &adapt_time_variance = false, const int &component_id = 1) : is_transient_(is_transient), center_data_(center_data), adapt_time_variance_(adapt_time_variance), component_id_(component_id)
     {
+      is_multistate_interface_ = false;
       alpha_u_ = 0.0;
       beta_u_ = 0.0;
       alpha_t_.resize(1);
@@ -70,6 +74,11 @@ namespace HDSA
     int Get_Component_ID(void) const
     {
       return component_id_;
+    }
+
+    bool Is_Multi_State_Interface(void) const 
+    {
+      return is_multistate_interface_;
     }
 
     RealT Get_Time_Variance_Inflation(void) const
@@ -128,7 +137,7 @@ namespace HDSA
       alpha_d_ = alpha_d_new;
     }
 
-    RealT Get_alpha_d(void) const
+    virtual RealT Get_alpha_d(void) const
     {
       return alpha_d_;
     }

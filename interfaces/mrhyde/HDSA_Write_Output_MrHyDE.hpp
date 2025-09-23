@@ -3,6 +3,7 @@
 
 #include <filesystem>
 #include "HDSA_MD_u_Hyperparameter_Interface.hpp"
+#include "HDSA_MD_Multi_State_u_Hyperparameter_Interface.hpp"
 #include "HDSA_MD_z_Hyperparameter_Interface.hpp"
 #include "HDSA_MD_Posterior_Vectors.hpp"
 #include "HDSA_Ensemble_Vector.hpp"
@@ -52,28 +53,63 @@ public:
         if (outfile.is_open())
         {
             // u hyperparameters
-            outfile << "alpha_u: " << u_hyperparam_interface->Get_alpha_u() << std::endl;
-            outfile << "beta_u: " << u_hyperparam_interface->Get_beta_u() << std::endl;
-            if (u_hyperparam_interface->Is_Transient())
+            if(u_hyperparam_interface->Is_Multi_State_Interface())
             {
-                outfile << "alpha_t:";
-                for (int k = 0; k < u_hyperparam_interface->Get_alpha_t().size(); k++)
+                HDSA::MD_Multi_State_u_Hyperparameter_Interface<RealT> *u_hyperparam_interface_multistate = dynamic_cast<HDSA::MD_Multi_State_u_Hyperparameter_Interface<RealT> *>(&(*u_hyperparam_interface));
+                int num_states = u_hyperparam_interface_multistate->Get_Number_of_States();
+                for(int k = 0; k < num_states; k++)
                 {
-                    outfile << " " << u_hyperparam_interface->Get_alpha_t()[k];
+                    outfile << "Component " << k << std::endl;
+                    outfile << "alpha_u: " << u_hyperparam_interface_multistate->Get_Hyperparameter_Interface_k(k)->Get_alpha_u() << std::endl;
+                    outfile << "beta_u: " << u_hyperparam_interface_multistate->Get_Hyperparameter_Interface_k(k)->Get_beta_u() << std::endl;
+                    if (u_hyperparam_interface_multistate->Get_Hyperparameter_Interface_k(k)->Is_Transient())
+                    {
+                        outfile << "alpha_t:";
+                        for (int k = 0; k < u_hyperparam_interface_multistate->Get_Hyperparameter_Interface_k(k)->Get_alpha_t().size(); k++)
+                        {
+                            outfile << " " << u_hyperparam_interface_multistate->Get_Hyperparameter_Interface_k(k)->Get_alpha_t()[k];
+                        }
+                        outfile << " " << std::endl;
+                        outfile << "beta_t: " << u_hyperparam_interface_multistate->Get_Hyperparameter_Interface_k(k)->Get_beta_t() << std::endl;
+                    }
+                    outfile << "alpha_d: " << u_hyperparam_interface_multistate->Get_Hyperparameter_Interface_k(k)->Get_alpha_d() << std::endl;
+                    outfile << "gsvd_num_sing_vals: " << u_hyperparam_interface_multistate->Get_Hyperparameter_Interface_k(k)->Get_gsvd_num_sing_vals() << std::endl;
+                    outfile << "gsvd_oversampling: " << u_hyperparam_interface_multistate->Get_Hyperparameter_Interface_k(k)->Get_gsvd_oversampling() << std::endl;
+                    outfile << "gsvd_num_subspace_iter: " << u_hyperparam_interface_multistate->Get_Hyperparameter_Interface_k(k)->Get_gsvd_num_subspace_iter() << std::endl;
+                    outfile << "Center Data: " << u_hyperparam_interface_multistate->Get_Hyperparameter_Interface_k(k)->Center_Data() << std::endl;
+                    if (u_hyperparam_interface_multistate->Get_Hyperparameter_Interface_k(k)->Is_Transient())
+                    {
+                        outfile << "Adapt_Time_Variance: " << u_hyperparam_interface_multistate->Get_Hyperparameter_Interface_k(k)->Adapt_Time_Variance() << std::endl;
+                    }
+                    outfile << " " << std::endl;
                 }
-                outfile << " " << std::endl;
-                outfile << "beta_t: " << u_hyperparam_interface->Get_beta_t() << std::endl;
             }
-            outfile << "alpha_d: " << u_hyperparam_interface->Get_alpha_d() << std::endl;
-            outfile << "gsvd_num_sing_vals: " << u_hyperparam_interface->Get_gsvd_num_sing_vals() << std::endl;
-            outfile << "gsvd_oversampling: " << u_hyperparam_interface->Get_gsvd_oversampling() << std::endl;
-            outfile << "gsvd_num_subspace_iter: " << u_hyperparam_interface->Get_gsvd_num_subspace_iter() << std::endl;
-            outfile << "Center Data: " << u_hyperparam_interface->Center_Data() << std::endl;
-            if (u_hyperparam_interface->Is_Transient())
+            else
             {
-                outfile << "Adapt_Time_Variance: " << u_hyperparam_interface->Adapt_Time_Variance() << std::endl;
+                outfile << "alpha_u: " << u_hyperparam_interface->Get_alpha_u() << std::endl;
+                outfile << "beta_u: " << u_hyperparam_interface->Get_beta_u() << std::endl;
+                if (u_hyperparam_interface->Is_Transient())
+                {
+                    outfile << "alpha_t:";
+                    for (int k = 0; k < u_hyperparam_interface->Get_alpha_t().size(); k++)
+                    {
+                        outfile << " " << u_hyperparam_interface->Get_alpha_t()[k];
+                    }
+                    outfile << " " << std::endl;
+                    outfile << "beta_t: " << u_hyperparam_interface->Get_beta_t() << std::endl;
+                }
+                outfile << "alpha_d: " << u_hyperparam_interface->Get_alpha_d() << std::endl;
+                outfile << "gsvd_num_sing_vals: " << u_hyperparam_interface->Get_gsvd_num_sing_vals() << std::endl;
+                outfile << "gsvd_oversampling: " << u_hyperparam_interface->Get_gsvd_oversampling() << std::endl;
+                outfile << "gsvd_num_subspace_iter: " << u_hyperparam_interface->Get_gsvd_num_subspace_iter() << std::endl;
+                outfile << "Center Data: " << u_hyperparam_interface->Center_Data() << std::endl;
+                if (u_hyperparam_interface->Is_Transient())
+                {
+                    outfile << "Adapt_Time_Variance: " << u_hyperparam_interface->Adapt_Time_Variance() << std::endl;
+                }
             }
 
+            outfile << " " << std::endl;
             // z hyperparameters
             outfile << "alpha_z: " << z_hyperparam_interface->Get_alpha_z() << std::endl;
             outfile << "beta_z: " << z_hyperparam_interface->Get_beta_z() << std::endl;
