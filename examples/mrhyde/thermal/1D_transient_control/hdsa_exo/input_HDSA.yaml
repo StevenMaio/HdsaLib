@@ -24,8 +24,6 @@ ANONYMOUS:
         hessian_oversampling: 4
       DataLoadParameters:
         OptimalSolutionExoFile: "output_lofi_opt.exo"
-        StateVariableName: "T"
-        OptVariableName: "thermal_source"
         NumHifi: 1
         HifiExoFile1: "output_hifi_1.exo"
 ...

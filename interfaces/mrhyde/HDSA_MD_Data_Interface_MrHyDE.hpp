@@ -21,8 +21,6 @@ private:
   Teuchos::ParameterList data_load_list_;
   int num_hifi_;
 
-  std::string state_var_name_;
-  std::string opt_var_name_;
   std::string opt_solution_exo_file_;
   std::vector<std::string> hifi_exo_files_;
 
@@ -35,9 +33,6 @@ public:
   MD_Data_Interface_MrHyDE(Teuchos::RCP<Teuchos::MpiComm<int>> &comm, Teuchos::RCP<MrHyDE::SolverManager<SolverNode>> &solve, HDSA::Ptr<MrHyDE::ParameterManager<SolverNode>> &params, const HDSA::Ptr<HDSA::Random_Number_Generator<RealT>> &random_number_generator, Teuchos::ParameterList &data_load_list) : comm_(comm), solve_(solve), params_(params), random_number_generator_(random_number_generator), data_load_list_(data_load_list)
   {
     num_hifi_ = data_load_list_.get<int>("NumHifi", 1);
-
-    state_var_name_ = data_load_list_.get<std::string>("StateVariableName", "error");
-    opt_var_name_ = data_load_list_.get<std::string>("OptVariableName", "error");
     opt_solution_exo_file_ = data_load_list_.get<std::string>("OptimalSolutionExoFile", "error");
 
     opt_solution_txt_file_u_ = data_load_list_.get<std::string>("OptimalSolutionTxtFileU", "error");
@@ -398,56 +393,68 @@ public:
 
     vector<string> blockNames = solve_->mesh->getBlockNames();
 
-    std::string var;
+    std::vector<std::string> state_vars = solve_->varlist[0][0]; // [0][0] accesses set=0 and block=0
+    std::vector<std::string> opt_vars = solve_->params->getParamsNames(4);
+
+    std::vector<int> n_list;
     if (load_state)
-    {
-      var = state_var_name_;
-    }
-    else
-    {
-      var = opt_var_name_;
-    }
-    int n = -1;
-    for (int j = 0; j < nfield_names.size(); j++)
-    {
-      if (nfield_names[j] == var)
-      {
-        n = j;
-      }
-    }
-    int n_var = n;
-    if (!load_state)
     {
       for (int j = 0; j < nfield_names.size(); j++)
       {
-        if (nfield_names[j] == state_var_name_)
+        auto it = std::find(state_vars.begin(),state_vars.end(),nfield_names[j]);
+        if (it != state_vars.end())
         {
-          n_var = j;
+          n_list.push_back(j);
         }
       }
     }
+    else
+    {
+      for (int j = 0; j < nfield_names.size(); j++)
+      {
+        auto it = std::find(opt_vars.begin(),opt_vars.end(),nfield_names[j]);
+        if (it != opt_vars.end())
+        {
+          n_list.push_back(j);
+        }
+      }
+    }
+
     int index_normalization = 1;
     if (!load_state)
     {
-      index_normalization = nfield_names.size()-1; // This only works if there is only 1 variable that is not a state
+      index_normalization = state_vars.size(); 
+      if(opt_vars.size() > 1)
+      {
+        std::cout << "Data loading with multiple optimization variables defined on the mesh is currently not supported" << std::endl;
+      }
     }
 
-    for (int block = 0; block < blockNames.size(); block++)
+    for(int k = 0; k < n_list.size(); k++)
     {
-      int e = 0;
-      for (int grp = 0; grp < solve_->assembler->groups[block].size(); ++grp)
+      int n = n_list[k];
+      int n_var = n;
+      if(!load_state)
       {
-        auto LIDs = solve_->assembler->groups[block][grp]->LIDs_host;
-        auto nDOF = solve_->assembler->groups[block][grp]->group_data->num_dof_host;
-        for (int p = 0; p < solve_->assembler->groups[block][grp]->numElem; p++)
+        n_var = 0;
+      }
+      for (int block = 0; block < blockNames.size(); block++)
+      {
+        int e = 0;
+        for (int grp = 0; grp < solve_->assembler->groups[block].size(); ++grp)
         {
-          for (int i = 0; i < nDOF(n_var); i++)
+          auto LIDs = solve_->assembler->groups[block][grp]->LIDs_host;
+          auto nDOF = solve_->assembler->groups[block][grp]->group_data->num_dof_host;
+          for (int p = 0; p < solve_->assembler->groups[block][grp]->numElem; p++)
           {
-            index = LIDs[0](p, offsets(n_var, i))/index_normalization;
-            dindex = connect[e * num_node_per_el + i] - 1;
-            vec_over_kv(index, 0) = nfield_vals[n][dindex];
+            for (int i = 0; i < nDOF(n_var); i++)
+            {
+              index = LIDs[0](p, offsets(n_var, i))/index_normalization;
+              dindex = connect[e * num_node_per_el + i] - 1;
+              vec_over_kv(index, 0) = nfield_vals[n][dindex];
+            }
+            e += 1;
           }
-          e += 1;
         }
       }
     }
@@ -463,8 +470,7 @@ public:
     {
       vec = solve_->linalg->getNewParamVector();
       solve_->linalg->exportParamVectorFromOverlappedReplace(vec, vec_over);
-  }
-
+    }
 
     exo_error = ex_close(exoid);
     if (exo_error != 0)
