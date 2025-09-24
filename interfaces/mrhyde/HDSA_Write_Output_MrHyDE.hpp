@@ -143,6 +143,45 @@ public:
         }
     }
 
+    void Write_Prior_Discrepancy_Time_Evolution(std::vector<std::vector<std::vector<RealT>>> &prior_delta_z_opt_time_evol, std::vector<std::vector<RealT>> &prior_discrep_data_time_evol) const 
+    {
+        std::string name = output_dir_name_ + "/prior/summary_statistics";
+        std::filesystem::create_directory(name);
+
+        int num_samps = prior_delta_z_opt_time_evol.size();
+        int num_time = prior_delta_z_opt_time_evol[0].size();
+        int num_states = prior_delta_z_opt_time_evol[0][0].size();
+
+        for(int j = 0; j < num_states; j++)
+        {
+            std::string name_j = name + "/prior_delta_z_opt_time_evol_" + std::to_string(j+1) + ".txt";
+            std::ofstream fout;
+            fout.open(name_j);
+            for (int i = 0; i < num_samps; i++)
+            {
+                for(int k = 0; k < num_time; k++)
+                {
+                    fout << std::setprecision(8) << prior_delta_z_opt_time_evol[i][k][j] << "  ";
+                }
+                fout << " " << std::endl;
+            }
+            fout.close();
+        }
+
+        for(int j = 0; j < num_states; j++)
+        {
+            std::string name_j = name + "/prior_discrep_data_time_evol_" + std::to_string(j+1) + ".txt";
+            std::ofstream fout;
+            fout.open(name_j);
+            for(int k = 0; k < num_time; k++)
+            {
+                fout << std::setprecision(8) << prior_discrep_data_time_evol[k][j] << "  ";
+            }
+            fout << " " << std::endl;
+            fout.close();
+        }
+    }
+
     void Write_Posterior_Discrepancy_Samples(std::vector<HDSA::Ptr<HDSA::MD_Posterior_Vectors<RealT>>> post_delta) const
     {
         std::filesystem::create_directory(output_dir_name_ + "/posterior");

@@ -22,8 +22,8 @@ namespace HDSA
     const HDSA::Ptr<HDSA::MD_u_Prior_Interface<RealT>> u_prior_interface_;
     const HDSA::Ptr<HDSA::MD_z_Prior_Interface<RealT>> z_prior_interface_;
     HDSA::Ptr<HDSA::MultiVector<RealT>> prior_delta_z_opt_;
-    std::vector<std::vector<RealT>> prior_delta_z_opt_time_evol_;
-    std::vector<RealT> prior_discrep_data_time_evol_;
+    std::vector<std::vector<std::vector<RealT>>> prior_delta_z_opt_time_evol_; // [num_samps][num_time_steps][num_states]
+    std::vector<std::vector<RealT>> prior_discrep_data_time_evol_; // [num_time_steps][num_states]
     std::vector<HDSA::Ptr<HDSA::Vector<RealT>>> prior_z_pert_;
     std::vector<RealT> prior_z_pert_evals_;
     std::vector<HDSA::Ptr<HDSA::MultiVector<RealT>>> prior_delta_z_pert_;
@@ -48,12 +48,12 @@ namespace HDSA
       return prior_delta_z_opt_;
     }
 
-    std::vector<std::vector<RealT>> Get_prior_delta_z_opt_time_evol(void) const
+    std::vector<std::vector<std::vector<RealT>>> Get_prior_delta_z_opt_time_evol(void) const
     {
       return prior_delta_z_opt_time_evol_;
     }
 
-    std::vector<RealT> Get_prior_discrep_data_time_evol(void) const
+    std::vector<std::vector<RealT>> Get_prior_discrep_data_time_evol(void) const
     {
       return prior_discrep_data_time_evol_;
     }
@@ -70,10 +70,15 @@ namespace HDSA
 
     void Generate_Prior_Discrepancy_z_opt_Sample_Data(int &num_samps, const HDSA::Ptr<HDSA::MD_u_Hyperparameter_Interface<RealT>> &u_hyperparam_interface)
     {
-      // THIS CODE NEEDS TO BE GENERALIZED TO TREAT MULTI-COMPONENT SYSTEMS, THE CURRENT CODE IS WILL EXECUTE BUT AGGREGATE OVER COMPONENETS
       prior_delta_z_opt_ = Prior_Discrepancy_Samples_at_z_opt(num_samps);
       bool is_multi_state = u_hyperparam_interface->Is_Multi_State_Interface();
-      if (u_hyperparam_interface->Is_Transient() && !is_multi_state)
+      int num_states = 1;
+      if(is_multi_state)
+      {
+        HDSA::MD_Multi_State_u_Hyperparameter_Interface<RealT> *multi_state_u_hyperparam_interface = dynamic_cast<HDSA::MD_Multi_State_u_Hyperparameter_Interface<RealT> *>(&(*u_hyperparam_interface));
+        num_states = multi_state_u_hyperparam_interface->Get_Number_of_States();
+      }
+      if (u_hyperparam_interface->Is_Transient())
       {
         prior_delta_z_opt_time_evol_.resize(num_samps);
         for (int k = 0; k < num_samps; k++)
@@ -94,9 +99,15 @@ namespace HDSA
           prior_delta_z_opt_time_evol_[k].resize(n_t);
           for (int i = 0; i < n_t; i++)
           {
+            prior_delta_z_opt_time_evol_[k][i].resize(num_states);
             HDSA::Ptr<HDSA::Vector<RealT>> tmp = (*dk_trans)[i]->clone();
             u_prior_interface_->Apply_M_u(*tmp, *(*dk_trans)[i]);
-            prior_delta_z_opt_time_evol_[k][i] = std::sqrt((*dk_trans)[i]->dot(*tmp));
+            for(int j = 0; j < num_states; j++)
+            {
+              HDSA::Ptr<const HDSA::Vector<RealT>> dk_transi_j = data_interface_->Extract_State_Component(*(*dk_trans)[i],j);
+              HDSA::Ptr<const HDSA::Vector<RealT>> tmp_j = data_interface_->Extract_State_Component(*tmp,j);
+              prior_delta_z_opt_time_evol_[k][i][j] = std::sqrt(dk_transi_j->dot(*tmp_j));
+            }
           }
         }
         int n_t = prior_delta_z_opt_time_evol_[0].size();
@@ -118,7 +129,13 @@ namespace HDSA
         {
           HDSA::Ptr<HDSA::Vector<RealT>> tmp = (*d_trans)[i]->clone();
           u_prior_interface_->Apply_M_u(*tmp, *(*d_trans)[i]);
-          prior_discrep_data_time_evol_[i] = std::sqrt((*d_trans)[i]->dot(*tmp));
+          prior_discrep_data_time_evol_[i].resize(num_states);
+          for(int j = 0; j < num_states; j++)
+          {
+            HDSA::Ptr<const HDSA::Vector<RealT>> d_transi_j = data_interface_->Extract_State_Component(*(*d_trans)[i],j);
+            HDSA::Ptr<const HDSA::Vector<RealT>> tmp_j = data_interface_->Extract_State_Component(*tmp,j);
+            prior_discrep_data_time_evol_[i][j] = std::sqrt(d_transi_j->dot(*tmp_j));
+          }
         }
       }
     }
@@ -127,7 +144,6 @@ namespace HDSA
     {
         if (z_hyperparam_interface->Get_z_type() == "spatial field")
         {
-          // THIS CODE NEEDS TO BE GENERALIZED TO TREAT MULTI-COMPONENT SYSTEMS, THE CURRENT CODE IS WILL EXECUTE BUT AGGREGATE OVER COMPONENETS
           prior_z_pert_.resize(2);
           prior_z_pert_evals_.resize(2);
           prior_delta_z_pert_.resize(2);
@@ -187,7 +203,6 @@ namespace HDSA
         }
         else
         {
-          // THIS CODE NEEDS TO BE GENERALIZED TO TREAT MULTI-COMPONENT SYSTEMS, THE CURRENT CODE IS WILL EXECUTE BUT AGGREGATE OVER COMPONENETS
           prior_z_pert_.resize(1);
           prior_delta_z_pert_.resize(1);
 
