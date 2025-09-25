@@ -4,7 +4,6 @@
 #include "HDSA_MD_Elliptic_z_Prior_Interface.hpp"
 #include "HDSA_MD_z_Hyperparameter_Interface.hpp"
 #include "HDSA_MD_Determine_z_Hyperparameters_Decl.hpp"
-#include "HDSA_MD_Determine_z_Hyperparameters_Def.hpp"
 #include "HDSA_Std_Vector.hpp"
 
 namespace HDSA
@@ -283,9 +282,21 @@ namespace HDSA
       HDSA::Linear_Algebra::Symmetric_Gen_Eig_Decomposition<RealT>(*E_t_, *M_t_, *V_, *Lambda_);
     }
 
+    int Get_n_t(void) const 
+    {
+      return n_t_;
+    }
+
+    RealT Get_T(void) const 
+    {
+      return T_;
+    }
+
 
   };
 
 }
+
+#include "HDSA_MD_Determine_z_Hyperparameters_Def.hpp"
 
 #endif
