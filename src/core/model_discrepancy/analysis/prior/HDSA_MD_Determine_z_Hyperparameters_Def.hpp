@@ -221,7 +221,7 @@ namespace HDSA
       for(int k = 0; k < n_t; k++)
       {
         RealT valk = 1.0 + z_hyperparam_interface_->Get_beta_t() * std::pow(M_PI/T,2.0) * std::pow(static_cast<RealT>(k),2.0);
-        evals[k] = std::sqrt(valk);
+        evals[k] = std::sqrt(1.0/valk);
       }
       std::sort(evals.begin(), evals.end(), std::greater<RealT>());
     }

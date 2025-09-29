@@ -50,7 +50,7 @@ public:
       HDSA_Tpetra_Vector<RealT> uj_tpetra = dynamic_cast<HDSA_Tpetra_Vector<RealT> &>(*uj);
       for (int k = 0; k < n_y_; k++)
       {
-        uj_tpetra.getVector()->replaceGlobalValue(k, 0, 2.0 * (*x_)(k, 0) * t_[j] + t_[j]);
+        uj_tpetra.getVector()->replaceGlobalValue(k, 0, t_[j] * ( 1.0 - (*x_)(k, 0) ) + 2.0 * t_[j] * (*x_)(k, 0));
       }
     }
     return u_opt;
@@ -83,8 +83,8 @@ public:
   {
     std::vector<HDSA::Ptr<HDSA::Vector<RealT>>> u;
     u.resize(1);
-    u[0] = Load_Optimal_u(); // This leverages Load_Optimal_u to instantiate the vector
-    u[0]->setScalar(1.0); // We overload the values of Load_Optimal_u to set them to one
+    u[0] = Load_Optimal_u()->clone(); // This leverages Load_Optimal_u to instantiate the vector
+    u[0]->setScalar(1.0); // We overload the values to set them to one
     HDSA::Ptr<HDSA::MultiVector<RealT>> D = HDSA::makePtr<HDSA::MultiVector<RealT>>(u);
     return D;
   }

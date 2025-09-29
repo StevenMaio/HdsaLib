@@ -110,7 +110,7 @@ public:
       RealT val1 = 0.0;
       for (int k = 0; k < n_y_; k++)
       {
-        val0 += u_in_view[k] * (*x_)(n_y_-k-1,0);
+        val0 += u_in_view[k] * ( 1.0 - (*x_)(k,0) );
         val1 += u_in_view[k] * (*x_)(k,0);
       }
       zj->Set_Entry(0, val0);
