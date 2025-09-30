@@ -38,16 +38,21 @@ namespace HDSA
             return B_sm;
         }
 
+        RealT Frobenius_Norm(void) const
+        {
+            return A_->getFrobeniusNorm();
+        }
+
         HDSA::Ptr<Tpetra::CrsMatrix<RealT, LO, GO, Node>> Get_Tpetra_Matrix(void) const
         {
             return A_;
         }
 
-        void Apply(HDSA::Vector<RealT> & x_out, const HDSA::Vector<RealT> & x_in) const
+        void Apply(HDSA::Vector<RealT> &x_out, const HDSA::Vector<RealT> &x_in) const
         {
-          const HDSA_Tpetra_Vector<RealT> &ex_in = dynamic_cast<const HDSA_Tpetra_Vector<RealT>&>(x_in);
-          HDSA_Tpetra_Vector<RealT> &ex_out = dynamic_cast<HDSA_Tpetra_Vector<RealT>&>(x_out);
-          A_->apply(*ex_in.getVector(),*ex_out.getVector()); 
+            const HDSA_Tpetra_Vector<RealT> &ex_in = dynamic_cast<const HDSA_Tpetra_Vector<RealT> &>(x_in);
+            HDSA_Tpetra_Vector<RealT> &ex_out = dynamic_cast<HDSA_Tpetra_Vector<RealT> &>(x_out);
+            A_->apply(*ex_in.getVector(), *ex_out.getVector());
         }
 
         void set(HDSA::Sparse_Matrix<RealT> &B)
@@ -61,8 +66,8 @@ namespace HDSA
                 size_t numEntries = B.Get_Tpetra_Matrix()->getNumEntriesInGlobalRow(row);
                 typename Tpetra::CrsMatrix<>::nonconst_global_inds_host_view_type indices;
                 typename Tpetra::CrsMatrix<>::nonconst_values_host_view_type values;
-                Kokkos::resize(indices,numEntries);
-                Kokkos::resize(values,numEntries);
+                Kokkos::resize(indices, numEntries);
+                Kokkos::resize(values, numEntries);
 
                 // Get the global row copy from B
                 B.Get_Tpetra_Matrix()->getGlobalRowCopy(row, indices, values, numEntries);
@@ -83,8 +88,8 @@ namespace HDSA
                 size_t numEntries = B.Get_Tpetra_Matrix()->getNumEntriesInGlobalRow(row);
                 typename Tpetra::CrsMatrix<>::nonconst_global_inds_host_view_type indices;
                 typename Tpetra::CrsMatrix<>::nonconst_values_host_view_type values;
-                Kokkos::resize(indices,numEntries);
-                Kokkos::resize(values,numEntries);
+                Kokkos::resize(indices, numEntries);
+                Kokkos::resize(values, numEntries);
 
                 // Get the global row copy from B
                 B.Get_Tpetra_Matrix()->getGlobalRowCopy(row, indices, values, numEntries);
@@ -97,7 +102,7 @@ namespace HDSA
                 Teuchos::ArrayView<const RealT> valuesView(values.data(), numEntries);
                 A_->sumIntoGlobalValues(row, indicesView, valuesView);
             }
-            A_->fillComplete();                                                 // Complete the fill process
+            A_->fillComplete(); // Complete the fill process
         }
     };
 
