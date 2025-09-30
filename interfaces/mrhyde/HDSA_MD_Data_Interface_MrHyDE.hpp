@@ -161,7 +161,7 @@ public:
       Teuchos::RCP<const Tpetra::Map<LO, GO>> map = eu_tpetra->getMap();
 
       int num_local_elements = map->getLocalNumElements() / num_states;
-      int init_index = map->getMinLocalIndex() / num_states;
+      int init_index = map->getMinGlobalIndex() / num_states;
       int num_global_element = map->getGlobalNumElements() / num_states;
       Teuchos::Array<GO> component_ids(num_local_elements);
       for (int i = 0; i < num_local_elements; ++i)
