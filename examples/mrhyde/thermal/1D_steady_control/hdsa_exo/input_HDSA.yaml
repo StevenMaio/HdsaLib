@@ -18,8 +18,9 @@ ANONYMOUS:
           prior_num_sing_vals: 200
           prior_oversampling: 0
           prior_num_subspace_iter: 1
-        alpha_z: .111111111
-        beta_z: 1.0E-3
+        z:
+          alpha_z: .111111111
+          beta_z: 1.0E-3
         hessian_num_eig_vals: 10
         hessian_oversampling: 10
       DataLoadParameters:
