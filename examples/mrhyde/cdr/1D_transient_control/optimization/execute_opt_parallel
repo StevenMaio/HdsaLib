@@ -4,8 +4,9 @@
 mpiexec -n 2 mrhyde 
 
 # Remove unneeded files
-rm output.exo*
+rm output.exo* ROL_out.txt
 
 # Change file name
 mv output_after_optimization.exo.2.0 output_lofi_opt.exo.2.0
 mv output_after_optimization.exo.2.1 output_lofi_opt.exo.2.1
+mv final_params_.dat optimal_z.txt

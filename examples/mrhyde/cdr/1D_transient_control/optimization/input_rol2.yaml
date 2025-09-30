@@ -19,7 +19,7 @@ ANONYMOUS:
         FD Check Use Ones Vector: false
         Inexact Objective Function: false
         Inexact Gradient: false
-        Write Final Parameters: false
+        Write Final Parameters: true
         Inexact Hessian-Times-A-Vector: false
         Projected Gradient Criticality Measure: false
         Secant:
@@ -126,6 +126,6 @@ ANONYMOUS:
       Status Test:
         Gradient Tolerance: 1.0e-9
         Constraint Tolerance: 1.0e-8
-        Step Tolerance: 1.0e-12
+        Step Tolerance: 1.0e-8
         Iteration Limit: 100
 ...

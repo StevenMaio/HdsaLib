@@ -2,6 +2,7 @@
 
 # Link output to hdsa_exo directory
 ln -s ../optimization/output_lofi_opt.exo .
+ln -s ../optimization/optimal_z.txt .
 ln -s ../fwd_hifi_data_generation/output_hifi_1.exo .
 
 # Compute HDSA update

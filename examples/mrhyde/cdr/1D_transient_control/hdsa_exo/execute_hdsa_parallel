@@ -3,6 +3,7 @@
 # Link output to hdsa_exo directory
 ln -s ../optimization/output_lofi_opt.exo.2.0 .
 ln -s ../optimization/output_lofi_opt.exo.2.1 .
+ln -s ../optimization/optimal_z.txt .
 ln -s ../fwd_hifi_data_generation/output_hifi_1.exo.2.0 .
 ln -s ../fwd_hifi_data_generation/output_hifi_1.exo.2.1 .
 

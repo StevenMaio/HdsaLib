@@ -7,7 +7,7 @@ import matplotlib.animation as animation
 ########## This block contains the variables/function specified by the user on a case-by-case basis #############################
 
 # Specify the variable name assigned to the optimization variable in the exodus file
-variable_name = 'thermal_source'
+#variable_name = 'thermal_source'
 
 
 # Define file names
@@ -20,7 +20,7 @@ exo_in = exodusii.File(input_file, mode="r")
 x = exo_in.get_coords()
 c1 = exo_in.get_node_variable_values('c').squeeze()
 c2 = exo_in.get_node_variable_values('c2').squeeze()
-source2 = exo_in.get_node_variable_values('source2').squeeze()
+#source2 = exo_in.get_node_variable_values('source2').squeeze()
 
 m = c1.shape[0]
 

@@ -98,6 +98,21 @@ public:
       ROL::Ptr<std::vector<ScalarT>> svec = ROL::makePtr<std::vector<RealT>>(0);
       z_rol = ROL::makePtr<MrHyDE_OptVector>(fvec, svec);
     }
+    else if (const Transient_Vector<RealT> *ez = dynamic_cast<const Transient_Vector<RealT> *>(&z))
+    {
+      std::vector<ROL::Ptr<Tpetra::MultiVector<RealT,LO,GO,SolverNode> > > f_vec;
+      std::vector<ROL::Ptr<std::vector<RealT> > > s_vec;
+      int n_t = ez->Get_n_t();
+      s_vec.resize(n_t);
+      for(int k = 0; k < n_t; k++)
+      {
+        HDSA::Ptr<HDSA::Vector<RealT>> z_k = (*ez)[k];
+        const Std_Vector<RealT> *ez_k = dynamic_cast<const Std_Vector<RealT> *>(&(*z_k));
+        s_vec[k] = ez_k->get_std_vec();
+      }
+      RealT dt = solve_->deltat; // Assumes that z is discretized on the same time nodes as the state
+      z_rol = ROL::makePtr<MrHyDE_OptVector>(f_vec, s_vec,dt);
+    }
     else if (const Std_Vector<RealT> *ez = dynamic_cast<const Std_Vector<RealT> *>(&z))
     {
       ROL::Ptr<std::vector<ScalarT>> svec = ez->get_std_vec();
@@ -129,12 +144,12 @@ public:
     }
   }
 
-  HDSA::Ptr<const HDSA::Vector<RealT>> Extract_State_Component(const HDSA::Vector<RealT> & u, int component_id) const override
-  { 
+  HDSA::Ptr<const HDSA::Vector<RealT>> Extract_State_Component(const HDSA::Vector<RealT> &u, int component_id) const override
+  {
 
     HDSA::Ptr<const HDSA::Vector<RealT>> u_component;
     int num_states = solve_->varlist[0][0].size();
-    if(num_states == 1) 
+    if (num_states == 1)
     {
       u_component = HDSA::makePtrFromRef(u);
     }
@@ -143,32 +158,32 @@ public:
       const HDSA_Tpetra_Vector<RealT> &eu = dynamic_cast<const HDSA_Tpetra_Vector<RealT> &>(u);
       HDSA::Ptr<Tpetra::MultiVector<RealT>> eu_tpetra = eu.getVector();
       Teuchos::ArrayRCP<const RealT> u_view = eu_tpetra->get1dView();
-      Teuchos::RCP<const Tpetra::Map<LO,GO>> map = eu_tpetra->getMap();
+      Teuchos::RCP<const Tpetra::Map<LO, GO>> map = eu_tpetra->getMap();
 
-      int num_local_elements = map->getLocalNumElements()/num_states;
-      int init_index = map->getMinLocalIndex()/num_states;
-      int num_global_element = map->getGlobalNumElements()/num_states;
+      int num_local_elements = map->getLocalNumElements() / num_states;
+      int init_index = map->getMinLocalIndex() / num_states;
+      int num_global_element = map->getGlobalNumElements() / num_states;
       Teuchos::Array<GO> component_ids(num_local_elements);
-      for (int i = 0; i < num_local_elements; ++i) 
+      for (int i = 0; i < num_local_elements; ++i)
       {
         component_ids[i] = init_index + i;
       }
-      Teuchos::RCP<const Tpetra::Map<LO,GO>> component_map = HDSA::makePtr<Tpetra::Map<LO,GO>>(num_global_element, component_ids, 0, solve_->Comm);
+      Teuchos::RCP<const Tpetra::Map<LO, GO>> component_map = HDSA::makePtr<Tpetra::Map<LO, GO>>(num_global_element, component_ids, 0, solve_->Comm);
 
       HDSA::Ptr<Tpetra::MultiVector<ScalarT, LO, GO, Node>> tpetra_vec = HDSA::makePtr<Tpetra::MultiVector<ScalarT, LO, GO, Node>>(component_map, 1);
       for (int k = 0; k < num_local_elements; k++)
       {
-        tpetra_vec->replaceLocalValue(k, 0, u_view[num_states*k + component_id]);
+        tpetra_vec->replaceLocalValue(k, 0, u_view[num_states * k + component_id]);
       }
       u_component = HDSA::makePtr<HDSA_Tpetra_Vector<RealT>>(tpetra_vec, random_number_generator_);
     }
     return u_component;
   }
 
-  void Set_State_Component(HDSA::Vector<RealT> & u, const HDSA::Vector<RealT> & u_component, int component_id) const override
-  { 
+  void Set_State_Component(HDSA::Vector<RealT> &u, const HDSA::Vector<RealT> &u_component, int component_id) const override
+  {
     int num_states = solve_->varlist[0][0].size();
-    if(num_states == 1) 
+    if (num_states == 1)
     {
       u.set(u_component);
     }
@@ -178,9 +193,9 @@ public:
       const HDSA_Tpetra_Vector<RealT> u_component_tpetra = dynamic_cast<const HDSA_Tpetra_Vector<RealT> &>(u_component);
       Teuchos::ArrayRCP<const RealT> u_component_view = u_component_tpetra.getVector()->get1dView();
       int local_dim = u_component_tpetra.getVector()->getLocalLength();
-      for(int k = 0; k < local_dim; k++)
+      for (int k = 0; k < local_dim; k++)
       {
-        u_tpetra.getVector()->replaceLocalValue(num_states*k + component_id, 0, u_component_view[k]);
+        u_tpetra.getVector()->replaceLocalValue(num_states * k + component_id, 0, u_component_view[k]);
       }
     }
   }
@@ -247,6 +262,18 @@ public:
         Teuchos::RCP<Tpetra::MultiVector<ScalarT, LO, GO, SolverNode>> z_tpetra = Read_Text_Data(opt_solution_txt_file_z_, false);
         z_opt_hdsa = HDSA::makePtr<HDSA_Tpetra_Vector<RealT>>(z_tpetra, random_number_generator_);
       }
+      else if (params_->have_dynamic_scalar)
+      {
+        std::vector<std::vector<RealT>> z_vec = Read_Text_Data_Dynamic_std(opt_solution_txt_file_z_);
+        std::vector<HDSA::Ptr<HDSA::Vector<RealT>>> trans_vec;
+        int num_time_steps = z_vec.size();
+        trans_vec.resize(num_time_steps);
+        for (int i = 0; i < num_time_steps; i++)
+        {
+          trans_vec[i] = HDSA::makePtr<Std_Vector<RealT>>(z_vec[i], random_number_generator_);
+        }
+        z_opt_hdsa = HDSA::makePtr<Transient_Vector<RealT>>(trans_vec);
+      }
       else
       {
         std::vector<RealT> z_vec = Read_Text_Data_std(opt_solution_txt_file_z_);
@@ -279,6 +306,18 @@ public:
         {
           Teuchos::RCP<Tpetra::MultiVector<ScalarT, LO, GO, SolverNode>> z_tpetra = Read_Text_Data(txt_files_z_[k], false);
           z_hdsa = HDSA::makePtr<HDSA_Tpetra_Vector<RealT>>(z_tpetra, random_number_generator_);
+        }
+        else if (params_->have_dynamic_scalar)
+        {
+          std::vector<std::vector<RealT>> z_vec = Read_Text_Data_Dynamic_std(opt_solution_txt_file_z_);
+          std::vector<HDSA::Ptr<HDSA::Vector<RealT>>> trans_vec;
+          int num_time_steps = z_vec.size();
+          trans_vec.resize(num_time_steps);
+          for (int i = 0; i < num_time_steps; i++)
+          {
+            trans_vec[i] = HDSA::makePtr<Std_Vector<RealT>>(z_vec[i], random_number_generator_);
+          }
+          z_hdsa = HDSA::makePtr<Transient_Vector<RealT>>(trans_vec);
         }
         else
         {
@@ -432,10 +471,10 @@ public:
     }
 
     Teuchos::RCP<Tpetra::MultiVector<ScalarT, LO, GO, SolverNode>> vec_over;
-    if(load_state)
+    if (load_state)
     {
       vec_over = solve_->linalg->getNewOverlappedVector(0);
-    } 
+    }
     else
     {
       vec_over = solve_->linalg->getNewOverlappedParamVector();
@@ -457,7 +496,7 @@ public:
     {
       for (int j = 0; j < nfield_names.size(); j++)
       {
-        auto it = std::find(state_vars.begin(),state_vars.end(),nfield_names[j]);
+        auto it = std::find(state_vars.begin(), state_vars.end(), nfield_names[j]);
         if (it != state_vars.end())
         {
           n_list.push_back(j);
@@ -468,7 +507,7 @@ public:
     {
       for (int j = 0; j < nfield_names.size(); j++)
       {
-        auto it = std::find(opt_vars.begin(),opt_vars.end(),nfield_names[j]);
+        auto it = std::find(opt_vars.begin(), opt_vars.end(), nfield_names[j]);
         if (it != opt_vars.end())
         {
           n_list.push_back(j);
@@ -479,18 +518,18 @@ public:
     int index_normalization = 1;
     if (!load_state)
     {
-      index_normalization = state_vars.size(); 
-      if(opt_vars.size() > 1)
+      index_normalization = state_vars.size();
+      if (opt_vars.size() > 1)
       {
         std::cout << "Data loading with multiple optimization variables defined on the mesh is currently not supported" << std::endl;
       }
     }
 
-    for(int k = 0; k < n_list.size(); k++)
+    for (int k = 0; k < n_list.size(); k++)
     {
       int n = n_list[k];
       int n_var = n;
-      if(!load_state)
+      if (!load_state)
       {
         n_var = 0;
       }
@@ -505,7 +544,7 @@ public:
           {
             for (int i = 0; i < nDOF(n_var); i++)
             {
-              index = LIDs[0](p, offsets(n_var, i))/index_normalization;
+              index = LIDs[0](p, offsets(n_var, i)) / index_normalization;
               dindex = connect[e * num_node_per_el + i] - 1;
               vec_over_kv(index, 0) = nfield_vals[n][dindex];
             }
@@ -517,11 +556,11 @@ public:
     delete[] connect;
 
     Teuchos::RCP<Tpetra::MultiVector<ScalarT, LO, GO, SolverNode>> vec;
-    if(load_state)
+    if (load_state)
     {
       vec = solve_->linalg->getNewVector(0);
       solve_->linalg->exportVectorFromOverlappedReplace(0, vec, vec_over);
-    } 
+    }
     else
     {
       vec = solve_->linalg->getNewParamVector();
@@ -719,6 +758,37 @@ public:
           vec->replaceGlobalValue(j, 0, val);
         }
       }
+    }
+    else
+    {
+      std::cout << "Error loading the data from " << txtfile << std::endl;
+    }
+    return vec;
+  }
+
+  std::vector<std::vector<RealT>> Read_Text_Data_Dynamic_std(std::string txtfile) const
+  {
+    int num_params = params_->getNumParams("active");
+    int num_time_steps = params_->getCurrentVector().dimension() / num_params; // This assumes that all active parameters are dynamic
+    ScalarT val = 0.0;
+    std::ifstream in(txtfile);
+    std::vector<std::vector<ScalarT>> vec;
+    vec.resize(num_time_steps);
+    if (in)
+    {
+      for (int i = 0; i < num_time_steps; i++)
+      {
+        vec[i].resize(num_params);
+        // read the elements in the file into a vector
+        for (int j = 0; j < num_params; j++)
+        {
+          in >> val;
+          vec[i][j] = val;
+        }
+        params_->dynamic_timeindex = i;
+        params_->updateParams(vec[i], "active");
+      }
+      params_->dynamic_timeindex = 0;
     }
     else
     {

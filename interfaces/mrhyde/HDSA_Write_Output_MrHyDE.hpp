@@ -113,6 +113,7 @@ public:
             // z hyperparameters
             outfile << "alpha_z: " << z_hyperparam_interface->Get_alpha_z() << std::endl;
             outfile << "beta_z: " << z_hyperparam_interface->Get_beta_z() << std::endl;
+            outfile << "beta_t: " << z_hyperparam_interface->Get_beta_t() << std::endl;
 
             // Close the file
             outfile.close();

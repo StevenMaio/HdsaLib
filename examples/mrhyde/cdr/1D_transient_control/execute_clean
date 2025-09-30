@@ -1,7 +1,8 @@
 rm ./optimization/output_lofi_opt.exo*
-rm ./fwd_hifi_data_generation/output_lofi_opt.exo*
+rm ./optimization/optimal_z.txt
 rm ./fwd_hifi_data_generation/output_hifi_1.exo*
-rm ./fwd_hifi_data_generation/hifi_z1.exo*
+rm ./fwd_hifi_data_generation/optimal_z.txt
 rm ./hdsa_exo/output_lofi_opt.exo*
 rm ./hdsa_exo/output_hifi_1.exo*
+rm ./hdsa_exo/optimal_z.txt
 rm -r ./hdsa_exo/hdsa_output*

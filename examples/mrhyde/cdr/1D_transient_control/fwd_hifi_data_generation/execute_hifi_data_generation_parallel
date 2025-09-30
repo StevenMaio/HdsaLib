@@ -1,10 +1,7 @@
 # Ensure that the MrHyDE executable has been linked to the current directory under the name "mrhyde"
 
 # Set link to optimization solution
-ln -s ../optimization/output_lofi_opt.exo.2.0 .
-ln -s ../optimization/output_lofi_opt.exo.2.1 .
-
-mpiexec -n 2 python3 generate_hifi_z1.py
+ln -s ../optimization/optimal_z.txt .
 
 # Solve forward problem
 mpiexec -n 2 mrhyde

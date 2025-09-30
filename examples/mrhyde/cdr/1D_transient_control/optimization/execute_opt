@@ -4,7 +4,8 @@
 ./mrhyde 
 
 # Remove unneeded files
-rm output.exo
+rm output.exo ROL_out.txt
 
 # Change file name
 mv output_after_optimization.exo output_lofi_opt.exo
+mv final_params_.dat optimal_z.txt

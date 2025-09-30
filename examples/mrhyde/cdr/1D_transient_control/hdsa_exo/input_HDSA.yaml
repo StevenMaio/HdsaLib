@@ -10,6 +10,7 @@ ANONYMOUS:
         execute_prior_discrepancy_sampling: true
         execute_posterior_discrepancy_sampling: true
         execute_optimal_solution_update: true
+        verbosity: 1
       HyperParameters:
         c:
           alpha_u: 2000.0
@@ -27,12 +28,15 @@ ANONYMOUS:
           prior_num_sing_vals: 40
           prior_oversampling: 0
           prior_num_subspace_iter: 1
-        alpha_z: 0.1
-        beta_z: 0.001
+        z:
+          alpha_z: 0.1
+          beta_t: 0.001
         hessian_num_eig_vals: 3
         hessian_oversampling: 4
       DataLoadParameters:
         OptimalSolutionExoFile: "output_lofi_opt.exo"
+        OptimalSolutionTxtFileZ: "optimal_z.txt"
         NumHifi: 1
         HifiExoFile1: "output_hifi_1.exo"
+        TxtFileZ1: "optimal_z.txt"
 ...

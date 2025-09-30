@@ -15,7 +15,7 @@ ANONYMOUS:
     reaction: '10.0*c*c2'
     reaction2: '10.0*c*c2'
     bubble: '-10.0*(x-0.2)*(x-0.2)'
-    source2: 'source2'
+    source2: 'sval1 * exp(-50.0*(x-0.25)*(x-0.25)) + sval2 * exp(-50.0*(x-0.35)*(x-0.35))'
   Physics:
     modules: 'cdr, cdr2'
     assemble boundary terms: true
@@ -32,8 +32,8 @@ ANONYMOUS:
     workset size: 5
     nonlinear TOL: 1.0e-07
     max nonlinear iters: 10
-    final time: 1.0e-1
-    number of steps: 10
+    final time: 1.0
+    number of steps: 50
     use strong DBCs: true
   Analysis input file: input_HDSA.yaml
   Postprocess:
@@ -47,8 +47,6 @@ ANONYMOUS:
         weight: 1.0
         Regularization functions:
           reg0:
-            type: integrated
-            location: volume
-            function: source2^2
-            weight: 5.0E-6
+            type: l2 norm squared
+            weight: 5.0E-4
  
