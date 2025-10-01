@@ -107,7 +107,7 @@ int main(int argc, char *argv[])
 
   int L = parlist->sublist("Problem").get("Number of Uncertain Basis Functions", 10);
   int theta_dim = (L + 1) * (L + 1);
-  HDSA::Ptr<HDSA::Vector<RealT>> theta = HDSA::makePtr<Std_Vector<RealT>>(theta_dim, comm);
+  HDSA::Ptr<HDSA::Vector<RealT>> theta = HDSA::makePtr<HDSA::Std_Vector<RealT>>(theta_dim, comm);
 
   int myRank = comm->getRank();
   HDSA::Ptr<std::ostream> outStream;

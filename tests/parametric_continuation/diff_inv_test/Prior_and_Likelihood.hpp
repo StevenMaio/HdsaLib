@@ -67,7 +67,7 @@ public:
 
   void Apply_Observation_Operator(std::vector<RealT> &d_out, const HDSA::Vector<RealT> &u_in) const
   {
-    const Std_Vector<RealT> &u_in_std = dynamic_cast<const Std_Vector<RealT> &>(u_in);
+    const HDSA::Std_Vector<RealT> &u_in_std = dynamic_cast<const HDSA::Std_Vector<RealT> &>(u_in);
     for (int k = 0; k < 8; k++)
     {
       d_out[k] = u_in_std(obs_locations_[k]);
@@ -76,7 +76,7 @@ public:
 
   void Apply_Observation_Operator_Transpose(HDSA::Vector<RealT> &u_out, const std::vector<RealT> &d_in) const
   {
-    Std_Vector<RealT> &u_out_std = dynamic_cast<Std_Vector<RealT> &>(u_out);
+    HDSA::Std_Vector<RealT> &u_out_std = dynamic_cast<HDSA::Std_Vector<RealT> &>(u_out);
     for (int k = 0; k < 8; k++)
     {
       u_out_std.Replace_Element(obs_locations_[k], d_in[k]);
@@ -93,8 +93,8 @@ public:
 
   void Apply_Prior_Precision(HDSA::Vector<RealT> &z_out, const HDSA::Vector<RealT> &z_in) const
   {
-    Std_Vector<RealT> &z_out_std = dynamic_cast<Std_Vector<RealT> &>(z_out);
-    const Std_Vector<RealT> &z_in_std = dynamic_cast<const Std_Vector<RealT> &>(z_in);
+    HDSA::Std_Vector<RealT> &z_out_std = dynamic_cast<HDSA::Std_Vector<RealT> &>(z_out);
+    const HDSA::Std_Vector<RealT> &z_in_std = dynamic_cast<const HDSA::Std_Vector<RealT> &>(z_in);
 
     HDSA::Ptr<HDSA::Dense_Matrix<RealT>> z_tmp1 = HDSA::makePtr<HDSA::Dense_Matrix<RealT>>(m_, 1);
     for (int k = 0; k < m_; k++)
@@ -119,8 +119,8 @@ public:
 
   void Apply_Prior_Covariance(HDSA::Vector<RealT> &z_out, const HDSA::Vector<RealT> &z_in) const
   {
-    Std_Vector<RealT> &z_out_std = dynamic_cast<Std_Vector<RealT> &>(z_out);
-    const Std_Vector<RealT> &z_in_std = dynamic_cast<const Std_Vector<RealT> &>(z_in);
+    HDSA::Std_Vector<RealT> &z_out_std = dynamic_cast<HDSA::Std_Vector<RealT> &>(z_out);
+    const HDSA::Std_Vector<RealT> &z_in_std = dynamic_cast<const HDSA::Std_Vector<RealT> &>(z_in);
 
     HDSA::Ptr<HDSA::Dense_Matrix<RealT>> z_tmp1 = HDSA::makePtr<HDSA::Dense_Matrix<RealT>>(m_, 1);
     for (int k = 0; k < m_; k++)
@@ -164,7 +164,7 @@ public:
       R->Multiply(*tmp, *b, true);
       HDSA::Linear_Algebra::Symmetric_Direct_Linear_Solve<RealT>(*L_, *x, *tmp);
 
-      Std_Vector<RealT> &vec_out_std = dynamic_cast<Std_Vector<RealT> &>(*samples[i]);
+      HDSA::Std_Vector<RealT> &vec_out_std = dynamic_cast<HDSA::Std_Vector<RealT> &>(*samples[i]);
       for (int k = 0; k < m_; k++)
       {
         vec_out_std.Replace_Element(k, (*x)(k, 0));

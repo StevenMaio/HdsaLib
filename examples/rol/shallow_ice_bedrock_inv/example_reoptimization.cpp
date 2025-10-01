@@ -109,8 +109,8 @@ int main(int argc, char *argv[])
 
   int L = parlist->sublist("Problem").get("Number of Uncertain Basis Functions", 10);
   int theta_dim = 2 * (L + 1) * (L + 1);
-  HDSA::Ptr<HDSA::Vector<RealT>> theta = HDSA::makePtr<Std_Vector<RealT>>(theta_dim, comm);
-  Std_Vector<RealT> &theta_std = dynamic_cast<Std_Vector<RealT> &>(*theta);
+  HDSA::Ptr<HDSA::Vector<RealT>> theta = HDSA::makePtr<HDSA::Std_Vector<RealT>>(theta_dim, comm);
+  HDSA::Std_Vector<RealT> &theta_std = dynamic_cast<HDSA::Std_Vector<RealT> &>(*theta);
   RealT x = 0.0;
   RealT y = 0.0;
   RealT val = 0.0;

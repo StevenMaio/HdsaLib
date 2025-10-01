@@ -37,9 +37,9 @@ public:
 
   void State_Solve(HDSA::Vector<RealT> &u, const HDSA::Vector<RealT> &z, const HDSA::Vector<RealT> &theta) const
   {
-    Std_Vector<RealT> &u_std = dynamic_cast<Std_Vector<RealT> &>(u);
-    const Std_Vector<RealT> &z_std = dynamic_cast<const Std_Vector<RealT> &>(z);
-    const Std_Vector<RealT> &theta_std = dynamic_cast<const Std_Vector<RealT> &>(theta);
+    HDSA::Std_Vector<RealT> &u_std = dynamic_cast<HDSA::Std_Vector<RealT> &>(u);
+    const HDSA::Std_Vector<RealT> &z_std = dynamic_cast<const HDSA::Std_Vector<RealT> &>(z);
+    const HDSA::Std_Vector<RealT> &theta_std = dynamic_cast<const HDSA::Std_Vector<RealT> &>(theta);
 
     HDSA::Ptr<HDSA::Dense_Matrix<RealT>> D = Diff_Assembly(*z_std.get_std_vec());
     HDSA::Ptr<HDSA::Dense_Matrix<RealT>> V = Velocity_Assembly(*theta_std.get_std_vec());
@@ -65,11 +65,11 @@ public:
 
   void c_u_Transpose_Inverse_Apply(HDSA::Vector<RealT> &u_out, const HDSA::Vector<RealT> &u_in, const HDSA::Vector<RealT> &u, const HDSA::Vector<RealT> &z, const HDSA::Vector<RealT> &theta) const
   {
-    Std_Vector<RealT> &u_out_std = dynamic_cast<Std_Vector<RealT> &>(u_out);
-    const Std_Vector<RealT> &u_in_std = dynamic_cast<const Std_Vector<RealT> &>(u_in);
-    // const Std_Vector<RealT>& u_std = dynamic_cast<const Std_Vector<RealT>&>(u);
-    const Std_Vector<RealT> &z_std = dynamic_cast<const Std_Vector<RealT> &>(z);
-    const Std_Vector<RealT> &theta_std = dynamic_cast<const Std_Vector<RealT> &>(theta);
+    HDSA::Std_Vector<RealT> &u_out_std = dynamic_cast<HDSA::Std_Vector<RealT> &>(u_out);
+    const HDSA::Std_Vector<RealT> &u_in_std = dynamic_cast<const HDSA::Std_Vector<RealT> &>(u_in);
+    // const HDSA::Std_Vector<RealT>& u_std = dynamic_cast<const HDSA::Std_Vector<RealT>&>(u);
+    const HDSA::Std_Vector<RealT> &z_std = dynamic_cast<const HDSA::Std_Vector<RealT> &>(z);
+    const HDSA::Std_Vector<RealT> &theta_std = dynamic_cast<const HDSA::Std_Vector<RealT> &>(theta);
 
     HDSA::Ptr<HDSA::Dense_Matrix<RealT>> D = Diff_Assembly(*z_std.get_std_vec());
     HDSA::Ptr<HDSA::Dense_Matrix<RealT>> V = Velocity_Assembly(*theta_std.get_std_vec());
@@ -100,11 +100,11 @@ public:
 
   void c_u_Inverse_Apply(HDSA::Vector<RealT> &u_out, const HDSA::Vector<RealT> &u_in, const HDSA::Vector<RealT> &u, const HDSA::Vector<RealT> &z, const HDSA::Vector<RealT> &theta) const
   {
-    Std_Vector<RealT> &u_out_std = dynamic_cast<Std_Vector<RealT> &>(u_out);
-    const Std_Vector<RealT> &u_in_std = dynamic_cast<const Std_Vector<RealT> &>(u_in);
-    // const Std_Vector<RealT>& u_std = dynamic_cast<const Std_Vector<RealT>&>(u);
-    const Std_Vector<RealT> &z_std = dynamic_cast<const Std_Vector<RealT> &>(z);
-    const Std_Vector<RealT> &theta_std = dynamic_cast<const Std_Vector<RealT> &>(theta);
+    HDSA::Std_Vector<RealT> &u_out_std = dynamic_cast<HDSA::Std_Vector<RealT> &>(u_out);
+    const HDSA::Std_Vector<RealT> &u_in_std = dynamic_cast<const HDSA::Std_Vector<RealT> &>(u_in);
+    // const HDSA::Std_Vector<RealT>& u_std = dynamic_cast<const HDSA::Std_Vector<RealT>&>(u);
+    const HDSA::Std_Vector<RealT> &z_std = dynamic_cast<const HDSA::Std_Vector<RealT> &>(z);
+    const HDSA::Std_Vector<RealT> &theta_std = dynamic_cast<const HDSA::Std_Vector<RealT> &>(theta);
 
     HDSA::Ptr<HDSA::Dense_Matrix<RealT>> D = Diff_Assembly(*z_std.get_std_vec());
     HDSA::Ptr<HDSA::Dense_Matrix<RealT>> V = Velocity_Assembly(*theta_std.get_std_vec());
@@ -135,11 +135,11 @@ public:
 
   void c_z_Transpose_Apply(HDSA::Vector<RealT> &z_out, const HDSA::Vector<RealT> &u_in, const HDSA::Vector<RealT> &u, const HDSA::Vector<RealT> &z, const HDSA::Vector<RealT> &theta) const
   {
-    Std_Vector<RealT> &z_out_std = dynamic_cast<Std_Vector<RealT> &>(z_out);
-    const Std_Vector<RealT> &u_in_std = dynamic_cast<const Std_Vector<RealT> &>(u_in);
-    const Std_Vector<RealT> &u_std = dynamic_cast<const Std_Vector<RealT> &>(u);
-    // const Std_Vector<RealT>& z_std = dynamic_cast<const Std_Vector<RealT>&>(z);
-    // const Std_Vector<RealT>& theta_std = dynamic_cast<const Std_Vector<RealT>&>(theta);
+    HDSA::Std_Vector<RealT> &z_out_std = dynamic_cast<HDSA::Std_Vector<RealT> &>(z_out);
+    const HDSA::Std_Vector<RealT> &u_in_std = dynamic_cast<const HDSA::Std_Vector<RealT> &>(u_in);
+    const HDSA::Std_Vector<RealT> &u_std = dynamic_cast<const HDSA::Std_Vector<RealT> &>(u);
+    // const HDSA::Std_Vector<RealT>& z_std = dynamic_cast<const HDSA::Std_Vector<RealT>&>(z);
+    // const HDSA::Std_Vector<RealT>& theta_std = dynamic_cast<const HDSA::Std_Vector<RealT>&>(theta);
 
     HDSA::Ptr<HDSA::Dense_Matrix<RealT>> D = Diff_Assembly_z_Jacobian(*u_std.get_std_vec());
 
@@ -159,11 +159,11 @@ public:
 
   void c_z_Apply(HDSA::Vector<RealT> &u_out, const HDSA::Vector<RealT> &z_in, const HDSA::Vector<RealT> &u, const HDSA::Vector<RealT> &z, const HDSA::Vector<RealT> &theta) const
   {
-    Std_Vector<RealT> &u_out_std = dynamic_cast<Std_Vector<RealT> &>(u_out);
-    const Std_Vector<RealT> &z_in_std = dynamic_cast<const Std_Vector<RealT> &>(z_in);
-    const Std_Vector<RealT> &u_std = dynamic_cast<const Std_Vector<RealT> &>(u);
-    // const Std_Vector<RealT>& z_std = dynamic_cast<const Std_Vector<RealT>&>(z);
-    // const Std_Vector<RealT>& theta_std = dynamic_cast<const Std_Vector<RealT>&>(theta);
+    HDSA::Std_Vector<RealT> &u_out_std = dynamic_cast<HDSA::Std_Vector<RealT> &>(u_out);
+    const HDSA::Std_Vector<RealT> &z_in_std = dynamic_cast<const HDSA::Std_Vector<RealT> &>(z_in);
+    const HDSA::Std_Vector<RealT> &u_std = dynamic_cast<const HDSA::Std_Vector<RealT> &>(u);
+    // const HDSA::Std_Vector<RealT>& z_std = dynamic_cast<const HDSA::Std_Vector<RealT>&>(z);
+    // const HDSA::Std_Vector<RealT>& theta_std = dynamic_cast<const HDSA::Std_Vector<RealT>&>(theta);
 
     HDSA::Ptr<HDSA::Dense_Matrix<RealT>> D = Diff_Assembly_z_Jacobian(*u_std.get_std_vec());
 
@@ -188,12 +188,12 @@ public:
 
   void c_uz_Apply(HDSA::Vector<RealT> &u_out, const HDSA::Vector<RealT> &z_in, const HDSA::Vector<RealT> &u, const HDSA::Vector<RealT> &z, const HDSA::Vector<RealT> &lambda, const HDSA::Vector<RealT> &theta) const
   {
-    Std_Vector<RealT> &u_out_std = dynamic_cast<Std_Vector<RealT> &>(u_out);
-    const Std_Vector<RealT> &z_in_std = dynamic_cast<const Std_Vector<RealT> &>(z_in);
-    // const Std_Vector<RealT>& u_std = dynamic_cast<const Std_Vector<RealT>&>(u);
-    // const Std_Vector<RealT>& z_std = dynamic_cast<const Std_Vector<RealT>&>(z);
-    const Std_Vector<RealT> &lambda_std = dynamic_cast<const Std_Vector<RealT> &>(lambda);
-    // const Std_Vector<RealT>& theta_std = dynamic_cast<const Std_Vector<RealT>&>(theta);
+    HDSA::Std_Vector<RealT> &u_out_std = dynamic_cast<HDSA::Std_Vector<RealT> &>(u_out);
+    const HDSA::Std_Vector<RealT> &z_in_std = dynamic_cast<const HDSA::Std_Vector<RealT> &>(z_in);
+    // const HDSA::Std_Vector<RealT>& u_std = dynamic_cast<const HDSA::Std_Vector<RealT>&>(u);
+    // const HDSA::Std_Vector<RealT>& z_std = dynamic_cast<const HDSA::Std_Vector<RealT>&>(z);
+    const HDSA::Std_Vector<RealT> &lambda_std = dynamic_cast<const HDSA::Std_Vector<RealT> &>(lambda);
+    // const HDSA::Std_Vector<RealT>& theta_std = dynamic_cast<const HDSA::Std_Vector<RealT>&>(theta);
 
     HDSA::Ptr<HDSA::Dense_Matrix<RealT>> D = Diff_Assembly_z_Jacobian(*lambda_std.get_std_vec());
 
@@ -213,12 +213,12 @@ public:
 
   void c_zu_Apply(HDSA::Vector<RealT> &z_out, const HDSA::Vector<RealT> &u_in, const HDSA::Vector<RealT> &u, const HDSA::Vector<RealT> &z, const HDSA::Vector<RealT> &lambda, const HDSA::Vector<RealT> &theta) const
   {
-    Std_Vector<RealT> &z_out_std = dynamic_cast<Std_Vector<RealT> &>(z_out);
-    const Std_Vector<RealT> &u_in_std = dynamic_cast<const Std_Vector<RealT> &>(u_in);
-    // const Std_Vector<RealT>& u_std = dynamic_cast<const Std_Vector<RealT>&>(u);
-    // const Std_Vector<RealT>& z_std = dynamic_cast<const Std_Vector<RealT>&>(z);
-    const Std_Vector<RealT> &lambda_std = dynamic_cast<const Std_Vector<RealT> &>(lambda);
-    // const Std_Vector<RealT>& theta_std = dynamic_cast<const Std_Vector<RealT>&>(theta);
+    HDSA::Std_Vector<RealT> &z_out_std = dynamic_cast<HDSA::Std_Vector<RealT> &>(z_out);
+    const HDSA::Std_Vector<RealT> &u_in_std = dynamic_cast<const HDSA::Std_Vector<RealT> &>(u_in);
+    // const HDSA::Std_Vector<RealT>& u_std = dynamic_cast<const HDSA::Std_Vector<RealT>&>(u);
+    // const HDSA::Std_Vector<RealT>& z_std = dynamic_cast<const HDSA::Std_Vector<RealT>&>(z);
+    const HDSA::Std_Vector<RealT> &lambda_std = dynamic_cast<const HDSA::Std_Vector<RealT> &>(lambda);
+    // const HDSA::Std_Vector<RealT>& theta_std = dynamic_cast<const HDSA::Std_Vector<RealT>&>(theta);
 
     HDSA::Ptr<HDSA::Dense_Matrix<RealT>> D = Diff_Assembly_z_Jacobian(*lambda_std.get_std_vec());
 
@@ -243,11 +243,11 @@ public:
 
   void c_theta_Apply(HDSA::Vector<RealT> &u_out, const HDSA::Vector<RealT> &theta_in, const HDSA::Vector<RealT> &u, const HDSA::Vector<RealT> &z, const HDSA::Vector<RealT> &theta) const
   {
-    Std_Vector<RealT> &u_out_std = dynamic_cast<Std_Vector<RealT> &>(u_out);
-    const Std_Vector<RealT> &theta_in_std = dynamic_cast<const Std_Vector<RealT> &>(theta_in);
-    const Std_Vector<RealT> &u_std = dynamic_cast<const Std_Vector<RealT> &>(u);
-    // const Std_Vector<RealT>& z_std = dynamic_cast<const Std_Vector<RealT>&>(z);
-    // const Std_Vector<RealT>& theta_std = dynamic_cast<const Std_Vector<RealT>&>(theta);
+    HDSA::Std_Vector<RealT> &u_out_std = dynamic_cast<HDSA::Std_Vector<RealT> &>(u_out);
+    const HDSA::Std_Vector<RealT> &theta_in_std = dynamic_cast<const HDSA::Std_Vector<RealT> &>(theta_in);
+    const HDSA::Std_Vector<RealT> &u_std = dynamic_cast<const HDSA::Std_Vector<RealT> &>(u);
+    // const HDSA::Std_Vector<RealT>& z_std = dynamic_cast<const HDSA::Std_Vector<RealT>&>(z);
+    // const HDSA::Std_Vector<RealT>& theta_std = dynamic_cast<const HDSA::Std_Vector<RealT>&>(theta);
 
     HDSA::Ptr<HDSA::Dense_Matrix<RealT>> V = Velocity_Assembly_theta_Jacobian(*u_std.get_std_vec());
 
@@ -272,12 +272,12 @@ public:
 
   void c_utheta_Apply(HDSA::Vector<RealT> &u_out, const HDSA::Vector<RealT> &theta_in, const HDSA::Vector<RealT> &u, const HDSA::Vector<RealT> &z, const HDSA::Vector<RealT> &lambda, const HDSA::Vector<RealT> &theta) const
   {
-    Std_Vector<RealT> &u_out_std = dynamic_cast<Std_Vector<RealT> &>(u_out);
-    const Std_Vector<RealT> &theta_in_std = dynamic_cast<const Std_Vector<RealT> &>(theta_in);
-    // const Std_Vector<RealT>& u_std = dynamic_cast<const Std_Vector<RealT>&>(u);
-    // const Std_Vector<RealT>& z_std = dynamic_cast<const Std_Vector<RealT>&>(z);
-    const Std_Vector<RealT> &lambda_std = dynamic_cast<const Std_Vector<RealT> &>(lambda);
-    // const Std_Vector<RealT>& theta_std = dynamic_cast<const Std_Vector<RealT>&>(theta);
+    HDSA::Std_Vector<RealT> &u_out_std = dynamic_cast<HDSA::Std_Vector<RealT> &>(u_out);
+    const HDSA::Std_Vector<RealT> &theta_in_std = dynamic_cast<const HDSA::Std_Vector<RealT> &>(theta_in);
+    // const HDSA::Std_Vector<RealT>& u_std = dynamic_cast<const HDSA::Std_Vector<RealT>&>(u);
+    // const HDSA::Std_Vector<RealT>& z_std = dynamic_cast<const HDSA::Std_Vector<RealT>&>(z);
+    const HDSA::Std_Vector<RealT> &lambda_std = dynamic_cast<const HDSA::Std_Vector<RealT> &>(lambda);
+    // const HDSA::Std_Vector<RealT>& theta_std = dynamic_cast<const HDSA::Std_Vector<RealT>&>(theta);
 
     HDSA::Ptr<HDSA::Dense_Matrix<RealT>> V = Velocity_Assembly_utheta_Hessian(*lambda_std.get_std_vec());
 

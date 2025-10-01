@@ -95,7 +95,7 @@ namespace HDSA
           {
             dk_tmp = dk;
           }
-          Transient_Vector<RealT> *dk_trans = dynamic_cast<Transient_Vector<RealT> *>(&(*dk_tmp));
+          HDSA::Transient_Vector<RealT> *dk_trans = dynamic_cast<HDSA::Transient_Vector<RealT> *>(&(*dk_tmp));
           int n_t = dk_trans->Get_n_t();
           prior_delta_z_opt_time_evol_[k].resize(n_t);
           for (int i = 0; i < n_t; i++)
@@ -125,7 +125,7 @@ namespace HDSA
           D0_tmp = D0;
         }
 
-        Transient_Vector<RealT> *d_trans = dynamic_cast<Transient_Vector<RealT> *>(&(*D0_tmp));
+        HDSA::Transient_Vector<RealT> *d_trans = dynamic_cast<HDSA::Transient_Vector<RealT> *>(&(*D0_tmp));
         for (int i = 0; i < n_t; i++)
         {
           HDSA::Ptr<HDSA::Vector<RealT>> tmp = (*d_trans)[i]->clone();

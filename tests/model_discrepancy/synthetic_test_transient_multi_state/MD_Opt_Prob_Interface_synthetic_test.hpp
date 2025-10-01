@@ -74,15 +74,15 @@ public:
 
   void Apply_Solution_Operator_z_Jacobian_Transpose(HDSA::Vector<RealT> &z_out, const HDSA::Vector<RealT> &u_in, const HDSA::Vector<RealT> &z) const
   {
-    const HDSA_Tpetra_Vector<RealT> z_tpetra = dynamic_cast<const HDSA_Tpetra_Vector<RealT> &>(z);
-    const Transient_Vector<RealT> u_in_trans = dynamic_cast<const Transient_Vector<RealT> &>(u_in);
-    HDSA_Tpetra_Vector<RealT> z_out_tpetra = dynamic_cast<const HDSA_Tpetra_Vector<RealT> &>(z_out);
+    const HDSA::Tpetra_Vector<RealT> z_tpetra = dynamic_cast<const HDSA::Tpetra_Vector<RealT> &>(z);
+    const HDSA::Transient_Vector<RealT> u_in_trans = dynamic_cast<const HDSA::Transient_Vector<RealT> &>(u_in);
+    HDSA::Tpetra_Vector<RealT> z_out_tpetra = dynamic_cast<const HDSA::Tpetra_Vector<RealT> &>(z_out);
     Teuchos::ArrayRCP<const RealT> z_view = z_tpetra.getVector()->get1dView();
     RealT coeff = 1.0;
     for (int j = 0; j < n_t_; j++)
     {
       HDSA::Ptr<HDSA::Vector<RealT>> uj = u_in_trans[j];
-      HDSA_Tpetra_Vector<RealT> uj_tpetra = dynamic_cast<HDSA_Tpetra_Vector<RealT> &>(*uj);
+      HDSA::Tpetra_Vector<RealT> uj_tpetra = dynamic_cast<HDSA::Tpetra_Vector<RealT> &>(*uj);
       Teuchos::ArrayRCP<const RealT> u_in_view = uj_tpetra.getVector()->get1dView();
       for (int k = 0; k < n_y_; k++)
       {
@@ -98,13 +98,13 @@ public:
   // This implementation assumes that it is evaluated at the optimal z so that the adjoint=0, a more general implementation would include a term multiplied by the adjoint variable
   void Apply_RS_Hessian(HDSA::Vector<RealT> &z_out, const HDSA::Vector<RealT> &z_in, const HDSA::Vector<RealT> &z) const
   {
-    const HDSA_Tpetra_Vector<RealT> z_tpetra = dynamic_cast<const HDSA_Tpetra_Vector<RealT> &>(z);
-    const HDSA_Tpetra_Vector<RealT> z_in_tpetra = dynamic_cast<const HDSA_Tpetra_Vector<RealT> &>(z_in);
-    HDSA_Tpetra_Vector<RealT> z_out_tpetra = dynamic_cast<const HDSA_Tpetra_Vector<RealT> &>(z_out);
+    const HDSA::Tpetra_Vector<RealT> z_tpetra = dynamic_cast<const HDSA::Tpetra_Vector<RealT> &>(z);
+    const HDSA::Tpetra_Vector<RealT> z_in_tpetra = dynamic_cast<const HDSA::Tpetra_Vector<RealT> &>(z_in);
+    HDSA::Tpetra_Vector<RealT> z_out_tpetra = dynamic_cast<const HDSA::Tpetra_Vector<RealT> &>(z_out);
     HDSA::Ptr<HDSA::Vector<RealT>> z_tmp1 = z_out.clone();
     HDSA::Ptr<HDSA::Vector<RealT>> z_tmp2 = z_out.clone();
-    HDSA_Tpetra_Vector<RealT> z_tmp1_tpetra = dynamic_cast<const HDSA_Tpetra_Vector<RealT> &>(*z_tmp1);
-    HDSA_Tpetra_Vector<RealT> z_tmp2_tpetra = dynamic_cast<const HDSA_Tpetra_Vector<RealT> &>(*z_tmp2);
+    HDSA::Tpetra_Vector<RealT> z_tmp1_tpetra = dynamic_cast<const HDSA::Tpetra_Vector<RealT> &>(*z_tmp1);
+    HDSA::Tpetra_Vector<RealT> z_tmp2_tpetra = dynamic_cast<const HDSA::Tpetra_Vector<RealT> &>(*z_tmp2);
     Teuchos::ArrayRCP<const RealT> z_view = z_tpetra.getVector()->get1dView();
     Teuchos::ArrayRCP<const RealT> z_in_view = z_in_tpetra.getVector()->get1dView();
     Teuchos::ArrayRCP<const RealT> z_tmp2_view = z_tmp2_tpetra.getVector()->get1dView();
@@ -124,13 +124,13 @@ public:
 
   void Misfit_Gradient(HDSA::Vector<RealT> &u_grad, const HDSA::Vector<RealT> &u, const HDSA::Vector<RealT> &z) const
   {
-    const Transient_Vector<RealT> u_trans = dynamic_cast<const Transient_Vector<RealT> &>(u);
+    const HDSA::Transient_Vector<RealT> u_trans = dynamic_cast<const HDSA::Transient_Vector<RealT> &>(u);
     HDSA::Ptr<const HDSA::Vector<RealT>> uf = data_interface_->Extract_State_Component(*u_trans[n_t_ - 1], 1);
-    const HDSA_Tpetra_Vector<RealT> uf_tpetra = dynamic_cast<const HDSA_Tpetra_Vector<RealT> &>(*uf);
+    const HDSA::Tpetra_Vector<RealT> uf_tpetra = dynamic_cast<const HDSA::Tpetra_Vector<RealT> &>(*uf);
     Teuchos::ArrayRCP<const RealT> uf_view = uf_tpetra.getVector()->get1dView();
 
     HDSA::Ptr<HDSA::Vector<RealT>> u_tmp1 = uf->clone();
-    HDSA_Tpetra_Vector<RealT> u_tmp1_tpetra = dynamic_cast<HDSA_Tpetra_Vector<RealT> &>(*u_tmp1);
+    HDSA::Tpetra_Vector<RealT> u_tmp1_tpetra = dynamic_cast<HDSA::Tpetra_Vector<RealT> &>(*u_tmp1);
     for (int k = 0; k < n_y_; k++)
     {
       RealT val = uf_view[k] - std::pow(c_low_, n_t_) * std::pow((*x_)(k, 0) + 1.0, 3.0);
@@ -138,19 +138,19 @@ public:
     }
     HDSA::Ptr<HDSA::Vector<RealT>> u_tmp2 = uf->clone();
     M_sm_->Apply(*u_tmp2, *u_tmp1);
-    const Transient_Vector<RealT> u_grad_trans = dynamic_cast<const Transient_Vector<RealT> &>(u_grad);
+    const HDSA::Transient_Vector<RealT> u_grad_trans = dynamic_cast<const HDSA::Transient_Vector<RealT> &>(u_grad);
     HDSA::Ptr<HDSA::Vector<RealT>> uf_grad = u_grad_trans[n_t_ - 1];
     data_interface_->Set_State_Component(*uf_grad, *u_tmp2, 1);
   }
 
   void Apply_Misfit_Hessian(HDSA::Vector<RealT> &u_out, const HDSA::Vector<RealT> &u_in, const HDSA::Vector<RealT> &u, const HDSA::Vector<RealT> &z) const
   {
-    const Transient_Vector<RealT> u_in_trans = dynamic_cast<const Transient_Vector<RealT> &>(u_in);
+    const HDSA::Transient_Vector<RealT> u_in_trans = dynamic_cast<const HDSA::Transient_Vector<RealT> &>(u_in);
     HDSA::Ptr<HDSA::Vector<RealT>> uf_in = u_in_trans[n_t_ - 1];
     HDSA::Ptr<const HDSA::Vector<RealT>> u_in2 = data_interface_->Extract_State_Component(*uf_in, 1);
     HDSA::Ptr<HDSA::Vector<RealT>> u_tmp = u_in2->clone();
     M_sm_->Apply(*u_tmp, *u_in2);
-    const Transient_Vector<RealT> u_out_trans = dynamic_cast<const Transient_Vector<RealT> &>(u_out);
+    const HDSA::Transient_Vector<RealT> u_out_trans = dynamic_cast<const HDSA::Transient_Vector<RealT> &>(u_out);
     HDSA::Ptr<HDSA::Vector<RealT>> uf_out = u_out_trans[n_t_ - 1];
     data_interface_->Set_State_Component(*uf_out, *u_tmp, 1);
   }

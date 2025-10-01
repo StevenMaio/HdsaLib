@@ -22,9 +22,9 @@ int main(int argc, char *argv[])
   int d = 3;
   HDSA::Ptr<Rosenbrock<RealT>> rosenbrock = HDSA::makePtr<Rosenbrock<RealT>>(d);
 
-  HDSA::Ptr<HDSA::Vector<RealT>> z_bar = HDSA::makePtr<Std_Vector<RealT>>(d, comm);
+  HDSA::Ptr<HDSA::Vector<RealT>> z_bar = HDSA::makePtr<HDSA::Std_Vector<RealT>>(d, comm);
   z_bar->setScalar(1.0);
-  HDSA::Ptr<HDSA::Vector<RealT>> theta_bar = HDSA::makePtr<Std_Vector<RealT>>(d - 1, comm);
+  HDSA::Ptr<HDSA::Vector<RealT>> theta_bar = HDSA::makePtr<HDSA::Std_Vector<RealT>>(d - 1, comm);
   theta_bar->setScalar(1.0);
 
   HDSA::Ptr<HDSA::PC_Sensitivity_Operator_Interface<RealT>> sen_op = HDSA::makePtr<PC_Sensitivity_Operator_Interface_Rosenbrock<RealT>>(rosenbrock);

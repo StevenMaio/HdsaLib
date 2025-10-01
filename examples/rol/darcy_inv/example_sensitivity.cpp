@@ -63,7 +63,7 @@ template <class RealT>
 void Set_Parameters(HDSA::Ptr<HDSA::Vector<RealT>> &theta, std::string &filename)
 {
   int theta_dim = theta->dimension();
-  Std_Vector<RealT> &theta_std = dynamic_cast<Std_Vector<RealT> &>(*theta);
+  HDSA::Std_Vector<RealT> &theta_std = dynamic_cast<HDSA::Std_Vector<RealT> &>(*theta);
 
   // read in data
   std::ifstream in("Data_Generation/" + filename);
@@ -221,7 +221,7 @@ int main(int argc, char *argv[])
   HDSA::Ptr<ROL::Objective<RealT>> robj = HDSA::makePtr<ROL::LinearCombinationObjective<RealT>>(weights, obj_vec);
 
   int theta_dim = param.size();
-  HDSA::Ptr<HDSA::Vector<RealT>> theta_bar = HDSA::makePtr<Std_Vector<RealT>>(theta_dim, comm);
+  HDSA::Ptr<HDSA::Vector<RealT>> theta_bar = HDSA::makePtr<HDSA::Std_Vector<RealT>>(theta_dim, comm);
   Set_Parameters<RealT>(theta_bar, filename_theta_bar);
 
   Load_Nominal_Solution<RealT>(z_ptr);

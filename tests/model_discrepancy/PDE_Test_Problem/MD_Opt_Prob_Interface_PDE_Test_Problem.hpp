@@ -85,7 +85,7 @@ public:
   void Apply_Solution_Operator_z_Jacobian_Transpose(HDSA::Vector<RealT> &z_out, const HDSA::Vector<RealT> &u_in, const HDSA::Vector<RealT> &z) const
   {
     HDSA::Ptr<HDSA::Dense_Matrix<RealT>> b = HDSA::makePtr<HDSA::Dense_Matrix<RealT>>(m_, 1);
-    const Std_Vector<RealT> &u_in_std = dynamic_cast<const Std_Vector<RealT> &>(u_in);
+    const HDSA::Std_Vector<RealT> &u_in_std = dynamic_cast<const HDSA::Std_Vector<RealT> &>(u_in);
     for (int k = 0; k < m_; k++)
     {
       b->Replace_Element(k, 0, u_in_std(k));
@@ -94,7 +94,7 @@ public:
     HDSA::Ptr<HDSA::Dense_Matrix<RealT>> tmp = HDSA::makePtr<HDSA::Dense_Matrix<RealT>>(m_, 1);
     sol_op_lofi_->Multiply(*tmp, *b, true);
 
-    Std_Vector<RealT> z_out_std = dynamic_cast<const Std_Vector<RealT> &>(z_out);
+    HDSA::Std_Vector<RealT> z_out_std = dynamic_cast<const HDSA::Std_Vector<RealT> &>(z_out);
     for (int k = 0; k < m_; k++)
     {
       z_out_std.Replace_Element(k, (*tmp)(k, 0));
@@ -104,8 +104,8 @@ public:
   void Apply_RS_Hessian(HDSA::Vector<RealT> &z_out, const HDSA::Vector<RealT> &z_in, const HDSA::Vector<RealT> &z) const
   {
     HDSA::Ptr<HDSA::Dense_Matrix<RealT>> b = HDSA::makePtr<HDSA::Dense_Matrix<RealT>>(m_, 1);
-    const Std_Vector<RealT> &z_in_std = dynamic_cast<const Std_Vector<RealT> &>(z_in);
-    Std_Vector<RealT> &z_out_std = dynamic_cast<Std_Vector<RealT> &>(z_out);
+    const HDSA::Std_Vector<RealT> &z_in_std = dynamic_cast<const HDSA::Std_Vector<RealT> &>(z_in);
+    HDSA::Std_Vector<RealT> &z_out_std = dynamic_cast<HDSA::Std_Vector<RealT> &>(z_out);
     for (int k = 0; k < m_; k++)
     {
       b->Replace_Element(k, 0, z_in_std(k));
@@ -130,8 +130,8 @@ public:
   void Misfit_Gradient(HDSA::Vector<RealT> &u_grad, const HDSA::Vector<RealT> &u, const HDSA::Vector<RealT> &z) const
   {
     HDSA::Ptr<HDSA::Dense_Matrix<RealT>> v = HDSA::makePtr<HDSA::Dense_Matrix<RealT>>(m_, 1);
-    const Std_Vector<RealT> u_std = dynamic_cast<const Std_Vector<RealT> &>(u);
-    Std_Vector<RealT> u_grad_std = dynamic_cast<Std_Vector<RealT> &>(u_grad);
+    const HDSA::Std_Vector<RealT> u_std = dynamic_cast<const HDSA::Std_Vector<RealT> &>(u);
+    HDSA::Std_Vector<RealT> u_grad_std = dynamic_cast<HDSA::Std_Vector<RealT> &>(u_grad);
     for (int k = 0; k < m_; k++)
     {
       v->Replace_Element(k, 0, u_std(k) - (*target_)(k, 0));
@@ -147,8 +147,8 @@ public:
   void Apply_Misfit_Hessian(HDSA::Vector<RealT> &u_out, const HDSA::Vector<RealT> &u_in, const HDSA::Vector<RealT> &u, const HDSA::Vector<RealT> &z) const
   {
     HDSA::Ptr<HDSA::Dense_Matrix<RealT>> v = HDSA::makePtr<HDSA::Dense_Matrix<RealT>>(m_, 1);
-    const Std_Vector<RealT> u_in_std = dynamic_cast<const Std_Vector<RealT> &>(u_in);
-    Std_Vector<RealT> u_out_std = dynamic_cast<Std_Vector<RealT> &>(u_out);
+    const HDSA::Std_Vector<RealT> u_in_std = dynamic_cast<const HDSA::Std_Vector<RealT> &>(u_in);
+    HDSA::Std_Vector<RealT> u_out_std = dynamic_cast<HDSA::Std_Vector<RealT> &>(u_out);
     for (int k = 0; k < m_; k++)
     {
       v->Replace_Element(k, 0, u_in_std(k));

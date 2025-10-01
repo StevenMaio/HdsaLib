@@ -55,7 +55,7 @@ public:
     if (val > 0.0)
     {
       const HDSA::ROL_Vector<RealT> &z_rol = dynamic_cast<const HDSA::ROL_Vector<RealT> &>(z);
-      const Std_Vector<RealT> &theta_std = dynamic_cast<const Std_Vector<RealT> &>(theta);
+      const HDSA::Std_Vector<RealT> &theta_std = dynamic_cast<const HDSA::Std_Vector<RealT> &>(theta);
       con_->setParameter(*theta_std.get_std_vec());
       z_current_->set(z);
       theta_current_->set(theta);
@@ -127,8 +127,8 @@ public:
     HDSA::ROL_Vector<RealT> &z_out_rol = dynamic_cast<HDSA::ROL_Vector<RealT> &>(z_out);
     Update(z, theta);
 
-    const Std_Vector<RealT> &theta_std = dynamic_cast<const Std_Vector<RealT> &>(theta);
-    const Std_Vector<RealT> &theta_in_std = dynamic_cast<const Std_Vector<RealT> &>(theta_in);
+    const HDSA::Std_Vector<RealT> &theta_std = dynamic_cast<const HDSA::Std_Vector<RealT> &>(theta);
+    const HDSA::Std_Vector<RealT> &theta_in_std = dynamic_cast<const HDSA::Std_Vector<RealT> &>(theta_in);
     ROL::Ptr<ROL::StdVector<RealT>> theta_rol = ROL::makePtr<ROL::StdVector<RealT>>(theta_std.get_std_vec());
     ROL::Ptr<ROL::StdVector<RealT>> theta_in_rol = ROL::makePtr<ROL::StdVector<RealT>>(theta_in_std.get_std_vec());
 

@@ -23,11 +23,11 @@ int main(int argc, char *argv[])
   HDSA::Ptr<const HDSA::Comm<int>> comm = HDSA::makePtr<HDSA::Comm<int>>();
 
   int m = 100;
-  HDSA::Ptr<HDSA::Vector<RealT>> u = HDSA::makePtr<Std_Vector<RealT>>(m, comm);
-  HDSA::Ptr<HDSA::Vector<RealT>> z_bar = HDSA::makePtr<Std_Vector<RealT>>(m, comm);
-  HDSA::Ptr<HDSA::Vector<RealT>> theta_bar = HDSA::makePtr<Std_Vector<RealT>>(m, comm);
+  HDSA::Ptr<HDSA::Vector<RealT>> u = HDSA::makePtr<HDSA::Std_Vector<RealT>>(m, comm);
+  HDSA::Ptr<HDSA::Vector<RealT>> z_bar = HDSA::makePtr<HDSA::Std_Vector<RealT>>(m, comm);
+  HDSA::Ptr<HDSA::Vector<RealT>> theta_bar = HDSA::makePtr<HDSA::Std_Vector<RealT>>(m, comm);
 
-  Std_Vector<RealT> &z_bar_std = dynamic_cast<Std_Vector<RealT> &>(*z_bar);
+  HDSA::Std_Vector<RealT> &z_bar_std = dynamic_cast<HDSA::Std_Vector<RealT> &>(*z_bar);
   RealT val = 0.0;
   // read in data
   std::ifstream in_z("z_bar.txt");
@@ -46,7 +46,7 @@ int main(int argc, char *argv[])
     std::cout << "Error loading the data from z_bar.txt" << std::endl;
   }
 
-  Std_Vector<RealT> &theta_bar_std = dynamic_cast<Std_Vector<RealT> &>(*theta_bar);
+  HDSA::Std_Vector<RealT> &theta_bar_std = dynamic_cast<HDSA::Std_Vector<RealT> &>(*theta_bar);
   // read in data
   std::ifstream in_theta("theta_bar.txt");
   // read the elements in the file into a vector
@@ -81,7 +81,7 @@ int main(int argc, char *argv[])
   HDSA::Ptr<HDSA::Vector<RealT>> grad_star = z_bar->clone();
   HDSA::Ptr<HDSA::Vector<RealT>> theta_star = theta_bar->clone();
 
-  Std_Vector<RealT> &theta_star_std = dynamic_cast<Std_Vector<RealT> &>(*theta_star);
+  HDSA::Std_Vector<RealT> &theta_star_std = dynamic_cast<HDSA::Std_Vector<RealT> &>(*theta_star);
   // read in data
   std::ifstream in_theta_star("theta_star.txt");
   // read the elements in the file into a vector

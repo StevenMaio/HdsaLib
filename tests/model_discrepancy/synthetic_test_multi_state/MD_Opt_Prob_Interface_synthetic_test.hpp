@@ -73,9 +73,9 @@ public:
 
   void Apply_Solution_Operator_z_Jacobian_Transpose(HDSA::Vector<RealT> &z_out, const HDSA::Vector<RealT> &u_in, const HDSA::Vector<RealT> &z) const
   {
-    const HDSA_Tpetra_Vector<RealT> z_tpetra = dynamic_cast<const HDSA_Tpetra_Vector<RealT> &>(z);
-    const HDSA_Tpetra_Vector<RealT> u_in_tpetra = dynamic_cast<const HDSA_Tpetra_Vector<RealT> &>(u_in);
-    HDSA_Tpetra_Vector<RealT> z_out_tpetra = dynamic_cast<const HDSA_Tpetra_Vector<RealT> &>(z_out);
+    const HDSA::Tpetra_Vector<RealT> z_tpetra = dynamic_cast<const HDSA::Tpetra_Vector<RealT> &>(z);
+    const HDSA::Tpetra_Vector<RealT> u_in_tpetra = dynamic_cast<const HDSA::Tpetra_Vector<RealT> &>(u_in);
+    HDSA::Tpetra_Vector<RealT> z_out_tpetra = dynamic_cast<const HDSA::Tpetra_Vector<RealT> &>(z_out);
     Teuchos::ArrayRCP<const RealT> z_view = z_tpetra.getVector()->get1dView();
     Teuchos::ArrayRCP<const RealT> u_in_view = u_in_tpetra.getVector()->get1dView();
     for (int k = 0; k < m_; k++)
@@ -87,13 +87,13 @@ public:
 
   void Apply_RS_Hessian(HDSA::Vector<RealT> &z_out, const HDSA::Vector<RealT> &z_in, const HDSA::Vector<RealT> &z) const
   {
-    const HDSA_Tpetra_Vector<RealT> z_tpetra = dynamic_cast<const HDSA_Tpetra_Vector<RealT> &>(z);
-    const HDSA_Tpetra_Vector<RealT> z_in_tpetra = dynamic_cast<const HDSA_Tpetra_Vector<RealT> &>(z_in);
-    HDSA_Tpetra_Vector<RealT> z_out_tpetra = dynamic_cast<const HDSA_Tpetra_Vector<RealT> &>(z_out);
+    const HDSA::Tpetra_Vector<RealT> z_tpetra = dynamic_cast<const HDSA::Tpetra_Vector<RealT> &>(z);
+    const HDSA::Tpetra_Vector<RealT> z_in_tpetra = dynamic_cast<const HDSA::Tpetra_Vector<RealT> &>(z_in);
+    HDSA::Tpetra_Vector<RealT> z_out_tpetra = dynamic_cast<const HDSA::Tpetra_Vector<RealT> &>(z_out);
     HDSA::Ptr<HDSA::Vector<RealT>> z_tmp1 = z_out.clone();
     HDSA::Ptr<HDSA::Vector<RealT>> z_tmp2 = z_out.clone();
-    HDSA_Tpetra_Vector<RealT> z_tmp1_tpetra = dynamic_cast<const HDSA_Tpetra_Vector<RealT> &>(*z_tmp1);
-    HDSA_Tpetra_Vector<RealT> z_tmp2_tpetra = dynamic_cast<const HDSA_Tpetra_Vector<RealT> &>(*z_tmp2);
+    HDSA::Tpetra_Vector<RealT> z_tmp1_tpetra = dynamic_cast<const HDSA::Tpetra_Vector<RealT> &>(*z_tmp1);
+    HDSA::Tpetra_Vector<RealT> z_tmp2_tpetra = dynamic_cast<const HDSA::Tpetra_Vector<RealT> &>(*z_tmp2);
     Teuchos::ArrayRCP<const RealT> z_view = z_tpetra.getVector()->get1dView();
     Teuchos::ArrayRCP<const RealT> z_in_view = z_in_tpetra.getVector()->get1dView();
     Teuchos::ArrayRCP<const RealT> z_tmp2_view = z_tmp2_tpetra.getVector()->get1dView();
@@ -114,11 +114,11 @@ public:
   void Misfit_Gradient(HDSA::Vector<RealT> &u_grad, const HDSA::Vector<RealT> &u, const HDSA::Vector<RealT> &z) const
   {
     HDSA::Ptr<const HDSA::Vector<RealT>> u2 = data_interface_->Extract_State_Component(u, 1);
-    const HDSA_Tpetra_Vector<RealT> u2_tpetra = dynamic_cast<const HDSA_Tpetra_Vector<RealT> &>(*u2);
+    const HDSA::Tpetra_Vector<RealT> u2_tpetra = dynamic_cast<const HDSA::Tpetra_Vector<RealT> &>(*u2);
     Teuchos::ArrayRCP<const RealT> u2_view = u2_tpetra.getVector()->get1dView();
 
     HDSA::Ptr<HDSA::Vector<RealT>> u_tmp1 = u2->clone();
-    HDSA_Tpetra_Vector<RealT> u_tmp1_tpetra = dynamic_cast<HDSA_Tpetra_Vector<RealT> &>(*u_tmp1);
+    HDSA::Tpetra_Vector<RealT> u_tmp1_tpetra = dynamic_cast<HDSA::Tpetra_Vector<RealT> &>(*u_tmp1);
     for (int k = 0; k < m_; k++)
     {
       RealT val = u2_view[k] - 1.0 - std::pow((*x_)(k, 0) + 1.0, 3.0);

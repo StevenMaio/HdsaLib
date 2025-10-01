@@ -269,18 +269,18 @@ public:
                     std::vector<HDSA::Ptr<Tpetra::MultiVector<RealT>>> sol;
                     sol.resize(1);
                     RealT current_time = 0.0;
-                    if (Transient_Vector<RealT> *evec = dynamic_cast<Transient_Vector<RealT> *>(&(*vec)))
+                    if (HDSA::Transient_Vector<RealT> *evec = dynamic_cast<HDSA::Transient_Vector<RealT> *>(&(*vec)))
                     {
                         int n_t = evec->Get_n_t();
                         for (int i = 0; i < n_t; i++)
                         {
-                            HDSA_Tpetra_Vector<RealT> &evec_i = dynamic_cast<HDSA_Tpetra_Vector<RealT> &>(*(*evec)[i]);
+                            HDSA::Tpetra_Vector<RealT> &evec_i = dynamic_cast<HDSA::Tpetra_Vector<RealT> &>(*(*evec)[i]);
                             sol[0] = evec_i.getVector();
                             postproc_->writeSolution(sol, current_time);
                             current_time = current_time + solver_->deltat;
                         }
                     }
-                    else if (HDSA_Tpetra_Vector<RealT> *evec = dynamic_cast<HDSA_Tpetra_Vector<RealT> *>(&(*vec)))
+                    else if (HDSA::Tpetra_Vector<RealT> *evec = dynamic_cast<HDSA::Tpetra_Vector<RealT> *>(&(*vec)))
                     {
                         sol[0] = evec->getVector();
                         postproc_->writeSolution(sol, current_time);
@@ -290,13 +290,13 @@ public:
             }
             else
             {
-                if (HDSA_Tpetra_Vector<RealT> *evec = dynamic_cast<HDSA_Tpetra_Vector<RealT> *>(&(*vec)))
+                if (HDSA::Tpetra_Vector<RealT> *evec = dynamic_cast<HDSA::Tpetra_Vector<RealT> *>(&(*vec)))
                 {
                     postproc_->mesh->setupOptimizationExodusFile(name);
                     postproc_->params->updateParams(evec->getVector());
                     postproc_->writeOptimizationSolution(name);
                 }
-                else if (Std_Vector<RealT> *evec = dynamic_cast<Std_Vector<RealT> *>(&(*vec)))
+                else if (HDSA::Std_Vector<RealT> *evec = dynamic_cast<HDSA::Std_Vector<RealT> *>(&(*vec)))
                 {
                     vec->Write_to_File(filename + ".txt");
                 }

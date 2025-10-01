@@ -97,14 +97,14 @@ public:
 
   void Apply_Solution_Operator_z_Jacobian_Transpose(HDSA::Vector<RealT> &z_out, const HDSA::Vector<RealT> &u_in, const HDSA::Vector<RealT> &z) const
   {
-    Transient_Vector<RealT> z_out_trans = dynamic_cast<Transient_Vector<RealT> &>(z_out);
-    const Transient_Vector<RealT> u_in_trans = dynamic_cast<const Transient_Vector<RealT> &>(u_in);
+    HDSA::Transient_Vector<RealT> z_out_trans = dynamic_cast<HDSA::Transient_Vector<RealT> &>(z_out);
+    const HDSA::Transient_Vector<RealT> u_in_trans = dynamic_cast<const HDSA::Transient_Vector<RealT> &>(u_in);
 
     for (int j = 0; j < n_t_; j++)
     {
       HDSA::Ptr<HDSA::Vector<RealT>> uj = u_in_trans[j];
       HDSA::Ptr<HDSA::Vector<RealT>> zj = z_out_trans[j];
-      HDSA_Tpetra_Vector<RealT> uj_tpetra = dynamic_cast<HDSA_Tpetra_Vector<RealT> &>(*uj);
+      HDSA::Tpetra_Vector<RealT> uj_tpetra = dynamic_cast<HDSA::Tpetra_Vector<RealT> &>(*uj);
       Teuchos::ArrayRCP<const RealT> u_in_view = uj_tpetra.getVector()->get1dView();
       RealT val0 = 0.0;
       RealT val1 = 0.0;
@@ -120,8 +120,8 @@ public:
 
   void Apply_RS_Hessian(HDSA::Vector<RealT> &z_out, const HDSA::Vector<RealT> &z_in, const HDSA::Vector<RealT> &z) const
   {
-    Transient_Vector<RealT> z_out_trans = dynamic_cast<Transient_Vector<RealT> &>(z_out);
-    const Transient_Vector<RealT> z_in_trans = dynamic_cast<const Transient_Vector<RealT> &>(z_in);
+    HDSA::Transient_Vector<RealT> z_out_trans = dynamic_cast<HDSA::Transient_Vector<RealT> &>(z_out);
+    const HDSA::Transient_Vector<RealT> z_in_trans = dynamic_cast<const HDSA::Transient_Vector<RealT> &>(z_in);
 
     for (int j = 0; j < n_t_; j++)
     {

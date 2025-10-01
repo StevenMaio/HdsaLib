@@ -60,8 +60,8 @@ public:
   {
     if (solver_->isTransient)
     {
-      const Transient_Vector<RealT> &eu = dynamic_cast<const Transient_Vector<RealT> &>(u);
-      Transient_Vector<RealT> &eu_grad = dynamic_cast<Transient_Vector<RealT> &>(u_grad);
+      const HDSA::Transient_Vector<RealT> &eu = dynamic_cast<const HDSA::Transient_Vector<RealT> &>(u);
+      HDSA::Transient_Vector<RealT> &eu_grad = dynamic_cast<HDSA::Transient_Vector<RealT> &>(u_grad);
       int n_t = solver_->settings->sublist("Solver").get<int>("number of steps", 0) + 1;
 
       if (postproc_->objectives[0].type == "integrated control")
@@ -69,8 +69,8 @@ public:
         eu_grad[0]->zeros();
         for (int i = 0; i < n_t - 1; i++)
         { // exludes initial condition
-          const HDSA_Tpetra_Vector<RealT> &eu_i = dynamic_cast<const HDSA_Tpetra_Vector<RealT> &>(*eu[i + 1]);
-          HDSA_Tpetra_Vector<RealT> &eu_grad_i = dynamic_cast<HDSA_Tpetra_Vector<RealT> &>(*eu_grad[i + 1]);
+          const HDSA::Tpetra_Vector<RealT> &eu_i = dynamic_cast<const HDSA::Tpetra_Vector<RealT> &>(*eu[i + 1]);
+          HDSA::Tpetra_Vector<RealT> &eu_grad_i = dynamic_cast<HDSA::Tpetra_Vector<RealT> &>(*eu_grad[i + 1]);
           RealT currenttime = solver_->initial_time + (double)i * solver_->deltat;
 
           // the gradient should be a non-overlapping vector, but the state should be an overlapping vector
@@ -91,8 +91,8 @@ public:
     }
     else
     {
-      const HDSA_Tpetra_Vector<RealT> &eu = dynamic_cast<const HDSA_Tpetra_Vector<RealT> &>(u);
-      HDSA_Tpetra_Vector<RealT> &eu_grad = dynamic_cast<HDSA_Tpetra_Vector<RealT> &>(u_grad);
+      const HDSA::Tpetra_Vector<RealT> &eu = dynamic_cast<const HDSA::Tpetra_Vector<RealT> &>(u);
+      HDSA::Tpetra_Vector<RealT> &eu_grad = dynamic_cast<HDSA::Tpetra_Vector<RealT> &>(u_grad);
 
       // the gradient should be a non-overlapping vector, but the state should be an overlapping vector
       HDSA::Ptr<Tpetra::MultiVector<RealT>> grad = eu_grad.getVector();
@@ -123,18 +123,18 @@ public:
   {
     if (solver_->isTransient)
     {
-      const Transient_Vector<RealT> &eu = dynamic_cast<const Transient_Vector<RealT> &>(u);
+      const HDSA::Transient_Vector<RealT> &eu = dynamic_cast<const HDSA::Transient_Vector<RealT> &>(u);
       int n_t = solver_->settings->sublist("Solver").get<int>("number of steps", 0) + 1;
       for (int i = 0; i < n_t; i++)
       {
-        const HDSA_Tpetra_Vector<RealT> &eu_i = dynamic_cast<const HDSA_Tpetra_Vector<RealT> &>(*eu[i]);
+        const HDSA::Tpetra_Vector<RealT> &eu_i = dynamic_cast<const HDSA::Tpetra_Vector<RealT> &>(*eu[i]);
         RealT currenttime = solver_->initial_time + (double)i * solver_->deltat;
         postproc_->hdsa_solop_data[0]->store(eu_i.getVector(), currenttime, 0);
       }
     }
     else
     {
-      const HDSA_Tpetra_Vector<RealT> &eu = dynamic_cast<const HDSA_Tpetra_Vector<RealT> &>(u);
+      const HDSA::Tpetra_Vector<RealT> &eu = dynamic_cast<const HDSA::Tpetra_Vector<RealT> &>(u);
       postproc_->hdsa_solop_data[0]->store(eu.getVector(), 0.0, 0);
     }
   }
@@ -147,13 +147,13 @@ public:
     if (new_z)
     {
       ROL::Ptr<MrHyDE_OptVector> z_rol;
-      if (const HDSA_Tpetra_Vector<RealT> *ez = dynamic_cast<const HDSA_Tpetra_Vector<RealT> *>(&z))
+      if (const HDSA::Tpetra_Vector<RealT> *ez = dynamic_cast<const HDSA::Tpetra_Vector<RealT> *>(&z))
       {
         HDSA::Ptr<Tpetra::MultiVector<ScalarT, LO, GO, SolverNode>> fvec = ez->getVector();
         ROL::Ptr<std::vector<ScalarT>> svec = ROL::makePtr<std::vector<RealT>>(0);
         z_rol = ROL::makePtr<MrHyDE_OptVector>(fvec, svec);
       }
-      else if (const Transient_Vector<RealT> *ez = dynamic_cast<const Transient_Vector<RealT> *>(&z))
+      else if (const HDSA::Transient_Vector<RealT> *ez = dynamic_cast<const HDSA::Transient_Vector<RealT> *>(&z))
       {
         std::vector<ROL::Ptr<Tpetra::MultiVector<RealT, LO, GO, SolverNode>>> f_vec;
         std::vector<ROL::Ptr<std::vector<RealT>>> s_vec;
@@ -162,13 +162,13 @@ public:
         for (int k = 0; k < n_t; k++)
         {
           HDSA::Ptr<HDSA::Vector<RealT>> z_k = (*ez)[k];
-          const Std_Vector<RealT> *ez_k = dynamic_cast<const Std_Vector<RealT> *>(&(*z_k));
+          const HDSA::Std_Vector<RealT> *ez_k = dynamic_cast<const HDSA::Std_Vector<RealT> *>(&(*z_k));
           s_vec[k] = ez_k->get_std_vec();
         }
         RealT dt = solver_->deltat; // Assumes that z is discretized on the same time nodes as the state
         z_rol = ROL::makePtr<MrHyDE_OptVector>(f_vec, s_vec, dt);
       }
-      else if (const Std_Vector<RealT> *ez = dynamic_cast<const Std_Vector<RealT> *>(&z))
+      else if (const HDSA::Std_Vector<RealT> *ez = dynamic_cast<const HDSA::Std_Vector<RealT> *>(&z))
       {
         ROL::Ptr<std::vector<ScalarT>> svec = ez->get_std_vec();
         z_rol = ROL::makePtr<MrHyDE_OptVector>(svec);
@@ -185,13 +185,13 @@ public:
     }
 
     ROL::Ptr<MrHyDE_OptVector> grad_z_rol;
-    if (const HDSA_Tpetra_Vector<RealT> *egrad_z = dynamic_cast<const HDSA_Tpetra_Vector<RealT> *>(&grad_z))
+    if (const HDSA::Tpetra_Vector<RealT> *egrad_z = dynamic_cast<const HDSA::Tpetra_Vector<RealT> *>(&grad_z))
     {
       HDSA::Ptr<Tpetra::MultiVector<ScalarT, LO, GO, SolverNode>> fvec = egrad_z->getVector();
       ROL::Ptr<std::vector<ScalarT>> svec = ROL::makePtr<std::vector<RealT>>(0);
       grad_z_rol = ROL::makePtr<MrHyDE_OptVector>(fvec, svec);
     }
-    else if (const Transient_Vector<RealT> *egrad_z = dynamic_cast<const Transient_Vector<RealT> *>(&grad_z))
+    else if (const HDSA::Transient_Vector<RealT> *egrad_z = dynamic_cast<const HDSA::Transient_Vector<RealT> *>(&grad_z))
     {
       std::vector<ROL::Ptr<Tpetra::MultiVector<RealT, LO, GO, SolverNode>>> f_vec;
       std::vector<ROL::Ptr<std::vector<RealT>>> s_vec;
@@ -200,13 +200,13 @@ public:
       for (int k = 0; k < n_t; k++)
       {
         HDSA::Ptr<HDSA::Vector<RealT>> grad_z_k = (*egrad_z)[k];
-        const Std_Vector<RealT> *egrad_z_k = dynamic_cast<const Std_Vector<RealT> *>(&(*grad_z_k));
+        const HDSA::Std_Vector<RealT> *egrad_z_k = dynamic_cast<const HDSA::Std_Vector<RealT> *>(&(*grad_z_k));
         s_vec[k] = egrad_z_k->get_std_vec();
       }
       RealT dt = solver_->deltat; // Assumes that z is discretized on the same time nodes as the state
       grad_z_rol = ROL::makePtr<MrHyDE_OptVector>(f_vec, s_vec, dt);
     }
-    else if (const Std_Vector<RealT> *egrad_z = dynamic_cast<const Std_Vector<RealT> *>(&grad_z))
+    else if (const HDSA::Std_Vector<RealT> *egrad_z = dynamic_cast<const HDSA::Std_Vector<RealT> *>(&grad_z))
     {
       ROL::Ptr<std::vector<ScalarT>> svec = egrad_z->get_std_vec();
       grad_z_rol = ROL::makePtr<MrHyDE_OptVector>(svec);
@@ -222,13 +222,13 @@ public:
     ROL::Ptr<ROL::Vector<RealT>> diff = curr_z.clone();
 
     ROL::Ptr<MrHyDE_OptVector> z_rol;
-    if (const HDSA_Tpetra_Vector<RealT> *ez = dynamic_cast<const HDSA_Tpetra_Vector<RealT> *>(&z))
+    if (const HDSA::Tpetra_Vector<RealT> *ez = dynamic_cast<const HDSA::Tpetra_Vector<RealT> *>(&z))
     {
       HDSA::Ptr<Tpetra::MultiVector<ScalarT, LO, GO, SolverNode>> fvec = ez->getVector();
       ROL::Ptr<std::vector<ScalarT>> svec = ROL::makePtr<std::vector<RealT>>(0);
       z_rol = ROL::makePtr<MrHyDE_OptVector>(fvec, svec);
     }
-    else if (const Transient_Vector<RealT> *ez = dynamic_cast<const Transient_Vector<RealT> *>(&z))
+    else if (const HDSA::Transient_Vector<RealT> *ez = dynamic_cast<const HDSA::Transient_Vector<RealT> *>(&z))
     {
       std::vector<ROL::Ptr<Tpetra::MultiVector<RealT, LO, GO, SolverNode>>> f_vec;
       std::vector<ROL::Ptr<std::vector<RealT>>> s_vec;
@@ -237,13 +237,13 @@ public:
       for (int k = 0; k < n_t; k++)
       {
         HDSA::Ptr<HDSA::Vector<RealT>> z_k = (*ez)[k];
-        const Std_Vector<RealT> *ez_k = dynamic_cast<const Std_Vector<RealT> *>(&(*z_k));
+        const HDSA::Std_Vector<RealT> *ez_k = dynamic_cast<const HDSA::Std_Vector<RealT> *>(&(*z_k));
         s_vec[k] = ez_k->get_std_vec();
       }
       RealT dt = solver_->deltat; // Assumes that z is discretized on the same time nodes as the state
       z_rol = ROL::makePtr<MrHyDE_OptVector>(f_vec, s_vec, dt);
     }
-    else if (const Std_Vector<RealT> *ez = dynamic_cast<const Std_Vector<RealT> *>(&z))
+    else if (const HDSA::Std_Vector<RealT> *ez = dynamic_cast<const HDSA::Std_Vector<RealT> *>(&z))
     {
       ROL::Ptr<std::vector<ScalarT>> svec = ez->get_std_vec();
       z_rol = ROL::makePtr<MrHyDE_OptVector>(svec);

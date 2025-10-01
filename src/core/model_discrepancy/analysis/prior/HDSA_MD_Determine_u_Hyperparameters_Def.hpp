@@ -79,13 +79,13 @@ namespace HDSA
   void MD_Determine_u_Hyperparameters<RealT>::Determine_alpha_t(HDSA::MD_u_Prior_Interface<RealT> *u_prior_interface) const
   {
     HDSA::Ptr<const HDSA::MultiVector<RealT>> D = data_interface_->get_D();
-    Transient_Vector<RealT> tmp = dynamic_cast<Transient_Vector<RealT> &>(*(*D)[0]);
+    HDSA::Transient_Vector<RealT> tmp = dynamic_cast<HDSA::Transient_Vector<RealT> &>(*(*D)[0]);
     int n_t = tmp.Get_n_t();
     int N = D->Number_of_Vectors();
     HDSA::Ptr<HDSA::Dense_Matrix<RealT>> weights = HDSA::makePtr<HDSA::Dense_Matrix<RealT>>(n_t, N);
     for (int j = 0; j < N; j++)
     {
-      Transient_Vector<RealT> d_trans = dynamic_cast<Transient_Vector<RealT> &>(*(*D)[j]);
+      HDSA::Transient_Vector<RealT> d_trans = dynamic_cast<HDSA::Transient_Vector<RealT> &>(*(*D)[j]);
       RealT max_j = 0.0;
       for (int k = 0; k < n_t; k++)
       {

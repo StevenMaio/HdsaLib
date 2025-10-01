@@ -41,13 +41,13 @@ public:
   {
     auto map = Tpetra::createUniformContigMap<Tpetra::Map<>::local_ordinal_type, Tpetra::Map<>::global_ordinal_type>(n_y_, comm_->Get_Teuchos_Communicator());
     HDSA::Ptr<Tpetra::MultiVector<RealT, Tpetra::Map<>::local_ordinal_type, Tpetra::Map<>::global_ordinal_type, Tpetra::Map<>::node_type>> tpetra_vec = Tpetra::createMultiVector<RealT, Tpetra::Map<>::local_ordinal_type, Tpetra::Map<>::global_ordinal_type, Tpetra::Map<>::node_type>(map, 1);
-    HDSA::Ptr<HDSA::Vector<RealT>> spatial_vec = HDSA::makePtr<HDSA_Tpetra_Vector<RealT>>(tpetra_vec, Random_number_generator_);
-    HDSA::Ptr<HDSA::Vector<RealT>> u_opt = HDSA::makePtr<Transient_Vector<RealT>>(n_t_, spatial_vec);
-    Transient_Vector<RealT> u_opt_trans = dynamic_cast<Transient_Vector<RealT> &>(*u_opt);
+    HDSA::Ptr<HDSA::Vector<RealT>> spatial_vec = HDSA::makePtr<HDSA::Tpetra_Vector<RealT>>(tpetra_vec, Random_number_generator_);
+    HDSA::Ptr<HDSA::Vector<RealT>> u_opt = HDSA::makePtr<HDSA::Transient_Vector<RealT>>(n_t_, spatial_vec);
+    HDSA::Transient_Vector<RealT> u_opt_trans = dynamic_cast<HDSA::Transient_Vector<RealT> &>(*u_opt);
     for (int j = 0; j < n_t_; j++)
     {
       HDSA::Ptr<HDSA::Vector<RealT>> uj = u_opt_trans[j];
-      HDSA_Tpetra_Vector<RealT> uj_tpetra = dynamic_cast<HDSA_Tpetra_Vector<RealT> &>(*uj);
+      HDSA::Tpetra_Vector<RealT> uj_tpetra = dynamic_cast<HDSA::Tpetra_Vector<RealT> &>(*uj);
       for (int k = 0; k < n_y_; k++)
       {
         uj_tpetra.getVector()->replaceGlobalValue(k, 0, t_[j] * (1.0 - (*x_)(k, 0)) + 2.0 * t_[j] * (*x_)(k, 0));
@@ -58,9 +58,9 @@ public:
 
   HDSA::Ptr<HDSA::Vector<RealT>> Load_Optimal_z() const
   {
-    HDSA::Ptr<Std_Vector<RealT>> tmp = HDSA::makePtr<Std_Vector<RealT>>(2, Random_number_generator_, comm_);
-    HDSA::Ptr<HDSA::Vector<RealT>> z_opt = HDSA::makePtr<Transient_Vector<RealT>>(n_t_, tmp);
-    Transient_Vector<RealT> z_opt_trans = dynamic_cast<Transient_Vector<RealT> &>(*z_opt);
+    HDSA::Ptr<HDSA::Std_Vector<RealT>> tmp = HDSA::makePtr<HDSA::Std_Vector<RealT>>(2, Random_number_generator_, comm_);
+    HDSA::Ptr<HDSA::Vector<RealT>> z_opt = HDSA::makePtr<HDSA::Transient_Vector<RealT>>(n_t_, tmp);
+    HDSA::Transient_Vector<RealT> z_opt_trans = dynamic_cast<HDSA::Transient_Vector<RealT> &>(*z_opt);
     for (int j = 0; j < n_t_; j++)
     {
       HDSA::Ptr<HDSA::Vector<RealT>> zj = z_opt_trans[j];

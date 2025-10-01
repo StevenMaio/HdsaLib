@@ -83,8 +83,8 @@ public:
   void Apply_M_u(HDSA::Vector<RealT> &u_out, const HDSA::Vector<RealT> &u_in) const
   {
     HDSA::Ptr<HDSA::Dense_Matrix<RealT>> b = HDSA::makePtr<HDSA::Dense_Matrix<RealT>>(m_, 1);
-    const Std_Vector<RealT> &u_in_std = dynamic_cast<const Std_Vector<RealT> &>(u_in);
-    Std_Vector<RealT> &u_out_std = dynamic_cast<Std_Vector<RealT> &>(u_out);
+    const HDSA::Std_Vector<RealT> &u_in_std = dynamic_cast<const HDSA::Std_Vector<RealT> &>(u_in);
+    HDSA::Std_Vector<RealT> &u_out_std = dynamic_cast<HDSA::Std_Vector<RealT> &>(u_out);
     for (int k = 0; k < m_; k++)
     {
       b->Replace_Element(k, 0, u_in_std(k));
@@ -100,8 +100,8 @@ public:
   void Apply_W_u_Plus_scalar_M_u_Inverse(HDSA::Vector<RealT> &u_out, const HDSA::Vector<RealT> &u_in, const RealT &scalar) const
   {
     HDSA::Ptr<HDSA::Dense_Matrix<RealT>> b = HDSA::makePtr<HDSA::Dense_Matrix<RealT>>(m_, 1);
-    const Std_Vector<RealT> &u_in_std = dynamic_cast<const Std_Vector<RealT> &>(u_in);
-    Std_Vector<RealT> &u_out_std = dynamic_cast<Std_Vector<RealT> &>(u_out);
+    const HDSA::Std_Vector<RealT> &u_in_std = dynamic_cast<const HDSA::Std_Vector<RealT> &>(u_in);
+    HDSA::Std_Vector<RealT> &u_out_std = dynamic_cast<HDSA::Std_Vector<RealT> &>(u_out);
     for (int k = 0; k < m_; k++)
     {
       b->Replace_Element(k, 0, u_in_std(k));
@@ -126,8 +126,8 @@ public:
   void Apply_W_u_Inverse(HDSA::Vector<RealT> &u_out, const HDSA::Vector<RealT> &u_in) const
   {
     HDSA::Ptr<HDSA::Dense_Matrix<RealT>> b = HDSA::makePtr<HDSA::Dense_Matrix<RealT>>(m_, 1);
-    const Std_Vector<RealT> &u_in_std = dynamic_cast<const Std_Vector<RealT> &>(u_in);
-    Std_Vector<RealT> &u_out_std = dynamic_cast<Std_Vector<RealT> &>(u_out);
+    const HDSA::Std_Vector<RealT> &u_in_std = dynamic_cast<const HDSA::Std_Vector<RealT> &>(u_in);
+    HDSA::Std_Vector<RealT> &u_out_std = dynamic_cast<HDSA::Std_Vector<RealT> &>(u_out);
     for (int k = 0; k < m_; k++)
     {
       b->Replace_Element(k, 0, u_in_std(k));
@@ -156,7 +156,7 @@ public:
       }
       HDSA::Ptr<HDSA::Dense_Matrix<RealT>> x = HDSA::makePtr<HDSA::Dense_Matrix<RealT>>(m_, 1);
       HDSA::Linear_Algebra::Upper_Tri_Solve<RealT>(*x, *b, *R);
-      Std_Vector<RealT> &vec_out_std = dynamic_cast<Std_Vector<RealT> &>(*samples[i]);
+      HDSA::Std_Vector<RealT> &vec_out_std = dynamic_cast<HDSA::Std_Vector<RealT> &>(*samples[i]);
       for (int k = 0; k < m_; k++)
       {
         vec_out_std.Replace_Element(k, (*x)(k, 0));
@@ -190,7 +190,7 @@ public:
       }
       HDSA::Ptr<HDSA::Dense_Matrix<RealT>> x = HDSA::makePtr<HDSA::Dense_Matrix<RealT>>(m_, 1);
       HDSA::Linear_Algebra::Upper_Tri_Solve<RealT>(*x, *b, *R);
-      Std_Vector<RealT> &vec_out_std = dynamic_cast<Std_Vector<RealT> &>(*samples[i]);
+      HDSA::Std_Vector<RealT> &vec_out_std = dynamic_cast<HDSA::Std_Vector<RealT> &>(*samples[i]);
       for (int k = 0; k < m_; k++)
       {
         vec_out_std.Replace_Element(k, (*x)(k, 0));

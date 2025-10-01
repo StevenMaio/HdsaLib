@@ -34,12 +34,12 @@ namespace HDSA
       HDSA::Ptr<HDSA::Dense_Matrix<RealT>> b = HDSA::makePtr<HDSA::Dense_Matrix<RealT>>(n_t_, num_controls_);
       HDSA::Ptr<HDSA::Dense_Matrix<RealT>> x = HDSA::makePtr<HDSA::Dense_Matrix<RealT>>(n_t_, num_controls_);
 
-      const Transient_Vector<RealT> z_in_trans = dynamic_cast<const Transient_Vector<RealT> &>(z_in);
-      Transient_Vector<RealT> z_out_trans = dynamic_cast<Transient_Vector<RealT> &>(z_out);
+      const HDSA::Transient_Vector<RealT> z_in_trans = dynamic_cast<const HDSA::Transient_Vector<RealT> &>(z_in);
+      HDSA::Transient_Vector<RealT> z_out_trans = dynamic_cast<HDSA::Transient_Vector<RealT> &>(z_out);
 
       for (int i = 0; i < n_t_; i++)
       {
-        const Std_Vector<RealT> z_in_i_std = dynamic_cast<const Std_Vector<RealT> &>(*z_in_trans[i]);
+        const HDSA::Std_Vector<RealT> z_in_i_std = dynamic_cast<const HDSA::Std_Vector<RealT> &>(*z_in_trans[i]);
         for (int j = 0; j < num_controls_; j++)
         {
           b->Replace_Element(i, j, z_in_i_std(j));
@@ -61,7 +61,7 @@ namespace HDSA
 
       for (int i = 0; i < n_t_; i++)
       {
-        Std_Vector<RealT> z_out_i_std = dynamic_cast<Std_Vector<RealT> &>(*z_out_trans[i]);
+        HDSA::Std_Vector<RealT> z_out_i_std = dynamic_cast<HDSA::Std_Vector<RealT> &>(*z_out_trans[i]);
         for (int j = 0; j < num_controls_; j++)
         {
           z_out_i_std.Replace_Element(j, (*x)(i, j));
@@ -79,12 +79,12 @@ namespace HDSA
       HDSA::Ptr<HDSA::Dense_Matrix<RealT>> b = HDSA::makePtr<HDSA::Dense_Matrix<RealT>>(n_t_, num_controls_);
       HDSA::Ptr<HDSA::Dense_Matrix<RealT>> x = HDSA::makePtr<HDSA::Dense_Matrix<RealT>>(n_t_, num_controls_);
 
-      const Transient_Vector<RealT> z_in_trans = dynamic_cast<const Transient_Vector<RealT> &>(z_in);
-      Transient_Vector<RealT> z_out_trans = dynamic_cast<Transient_Vector<RealT> &>(z_out);
+      const HDSA::Transient_Vector<RealT> z_in_trans = dynamic_cast<const HDSA::Transient_Vector<RealT> &>(z_in);
+      HDSA::Transient_Vector<RealT> z_out_trans = dynamic_cast<HDSA::Transient_Vector<RealT> &>(z_out);
 
       for (int i = 0; i < n_t_; i++)
       {
-        const Std_Vector<RealT> z_in_i_std = dynamic_cast<const Std_Vector<RealT> &>(*z_in_trans[i]);
+        const HDSA::Std_Vector<RealT> z_in_i_std = dynamic_cast<const HDSA::Std_Vector<RealT> &>(*z_in_trans[i]);
         for (int j = 0; j < num_controls_; j++)
         {
           b->Replace_Element(i, j, z_in_i_std(j));
@@ -95,7 +95,7 @@ namespace HDSA
 
       for (int i = 0; i < n_t_; i++)
       {
-        Std_Vector<RealT> z_out_i_std = dynamic_cast<Std_Vector<RealT> &>(*z_out_trans[i]);
+        HDSA::Std_Vector<RealT> z_out_i_std = dynamic_cast<HDSA::Std_Vector<RealT> &>(*z_out_trans[i]);
         for (int j = 0; j < num_controls_; j++)
         {
           z_out_i_std.Replace_Element(j, (*x)(i, j));
@@ -115,12 +115,12 @@ namespace HDSA
         HDSA::Ptr<HDSA::Dense_Matrix<RealT>> b = HDSA::makePtr<HDSA::Dense_Matrix<RealT>>(n_t_, num_controls_);
         HDSA::Ptr<HDSA::Dense_Matrix<RealT>> x = HDSA::makePtr<HDSA::Dense_Matrix<RealT>>(n_t_, num_controls_);
 
-        Transient_Vector<RealT> omega_trans = dynamic_cast<Transient_Vector<RealT> &>(*omega);
-        Transient_Vector<RealT> vec_trans = dynamic_cast<Transient_Vector<RealT> &>(*vec);
+        HDSA::Transient_Vector<RealT> omega_trans = dynamic_cast<HDSA::Transient_Vector<RealT> &>(*omega);
+        HDSA::Transient_Vector<RealT> vec_trans = dynamic_cast<HDSA::Transient_Vector<RealT> &>(*vec);
 
         for (int i = 0; i < n_t_; i++)
         {
-          Std_Vector<RealT> omega_i_std = dynamic_cast<Std_Vector<RealT> &>(*omega_trans[i]);
+          HDSA::Std_Vector<RealT> omega_i_std = dynamic_cast<HDSA::Std_Vector<RealT> &>(*omega_trans[i]);
           for (int j = 0; j < num_controls_; j++)
           {
             b->Replace_Element(i, j, std::sqrt((*Lambda_)(i, 0)) * omega_i_std(j));
@@ -131,7 +131,7 @@ namespace HDSA
 
         for (int i = 0; i < n_t_; i++)
         {
-          Std_Vector<RealT> vec_i_std = dynamic_cast<Std_Vector<RealT> &>(*vec_trans[i]);
+          HDSA::Std_Vector<RealT> vec_i_std = dynamic_cast<HDSA::Std_Vector<RealT> &>(*vec_trans[i]);
           for (int j = 0; j < num_controls_; j++)
           {
             vec_i_std.Replace_Element(j, (*x)(i, j));
@@ -145,12 +145,12 @@ namespace HDSA
       HDSA::Ptr<HDSA::Dense_Matrix<RealT>> b = HDSA::makePtr<HDSA::Dense_Matrix<RealT>>(n_t_, num_controls_);
       HDSA::Ptr<HDSA::Dense_Matrix<RealT>> x = HDSA::makePtr<HDSA::Dense_Matrix<RealT>>(n_t_, num_controls_);
 
-      const Transient_Vector<RealT> z_in_trans = dynamic_cast<const Transient_Vector<RealT> &>(z_in);
-      Transient_Vector<RealT> z_out_trans = dynamic_cast<Transient_Vector<RealT> &>(z_out);
+      const HDSA::Transient_Vector<RealT> z_in_trans = dynamic_cast<const HDSA::Transient_Vector<RealT> &>(z_in);
+      HDSA::Transient_Vector<RealT> z_out_trans = dynamic_cast<HDSA::Transient_Vector<RealT> &>(z_out);
 
       for (int i = 0; i < n_t_; i++)
       {
-        const Std_Vector<RealT> z_in_i_std = dynamic_cast<const Std_Vector<RealT> &>(*z_in_trans[i]);
+        const HDSA::Std_Vector<RealT> z_in_i_std = dynamic_cast<const HDSA::Std_Vector<RealT> &>(*z_in_trans[i]);
         for (int j = 0; j < num_controls_; j++)
         {
           b->Replace_Element(i, j, z_in_i_std(j));
@@ -172,7 +172,7 @@ namespace HDSA
 
       for (int i = 0; i < n_t_; i++)
       {
-        Std_Vector<RealT> z_out_i_std = dynamic_cast<Std_Vector<RealT> &>(*z_out_trans[i]);
+        HDSA::Std_Vector<RealT> z_out_i_std = dynamic_cast<HDSA::Std_Vector<RealT> &>(*z_out_trans[i]);
         for (int j = 0; j < num_controls_; j++)
         {
           z_out_i_std.Replace_Element(j, (*x)(i, j));
@@ -190,12 +190,12 @@ namespace HDSA
       HDSA::Ptr<HDSA::Dense_Matrix<RealT>> b = HDSA::makePtr<HDSA::Dense_Matrix<RealT>>(n_t_, num_controls_);
       HDSA::Ptr<HDSA::Dense_Matrix<RealT>> x = HDSA::makePtr<HDSA::Dense_Matrix<RealT>>(n_t_, num_controls_);
 
-      const Transient_Vector<RealT> z_in_trans = dynamic_cast<const Transient_Vector<RealT> &>(z_in);
-      Transient_Vector<RealT> z_out_trans = dynamic_cast<Transient_Vector<RealT> &>(z_out);
+      const HDSA::Transient_Vector<RealT> z_in_trans = dynamic_cast<const HDSA::Transient_Vector<RealT> &>(z_in);
+      HDSA::Transient_Vector<RealT> z_out_trans = dynamic_cast<HDSA::Transient_Vector<RealT> &>(z_out);
 
       for (int i = 0; i < n_t_; i++)
       {
-        const Std_Vector<RealT> z_in_i_std = dynamic_cast<const Std_Vector<RealT> &>(*z_in_trans[i]);
+        const HDSA::Std_Vector<RealT> z_in_i_std = dynamic_cast<const HDSA::Std_Vector<RealT> &>(*z_in_trans[i]);
         for (int j = 0; j < num_controls_; j++)
         {
           b->Replace_Element(i, j, z_in_i_std(j));
@@ -207,7 +207,7 @@ namespace HDSA
 
       for (int i = 0; i < n_t_; i++)
       {
-        Std_Vector<RealT> z_out_i_std = dynamic_cast<Std_Vector<RealT> &>(*z_out_trans[i]);
+        HDSA::Std_Vector<RealT> z_out_i_std = dynamic_cast<HDSA::Std_Vector<RealT> &>(*z_out_trans[i]);
         for (int j = 0; j < num_controls_; j++)
         {
           z_out_i_std.Replace_Element(j, (*x)(i, j));

@@ -28,7 +28,7 @@ namespace HDSA
                                 RealT tol, std::string solver = "CG", bool verbose = false)
     {
       // Build the problem matrix
-      HDSA::Ptr<HDSA_Belos_Operator<RealT>> A_Belos = HDSA::makePtr<HDSA_Belos_Operator<RealT>>(&A);
+      HDSA::Ptr<HDSA::Belos_Operator<RealT>> A_Belos = HDSA::makePtr<HDSA::Belos_Operator<RealT>>(&A);
 
       int frequency = 1; // how often residuals are printed by solver
       int blocksize = 1;
@@ -56,8 +56,8 @@ namespace HDSA
       else
         belosList.set("Verbosity", Belos::Errors + Belos::Warnings);
 
-      HDSA::Ptr<HDSA_Belos_Vector<RealT>> soln = HDSA::makePtr<HDSA_Belos_Vector<RealT>>(b, numrhs);
-      HDSA::Ptr<HDSA_Belos_Vector<RealT>> rhs = HDSA::makePtr<HDSA_Belos_Vector<RealT>>(b, numrhs);
+      HDSA::Ptr<HDSA::Belos_Vector<RealT>> soln = HDSA::makePtr<HDSA::Belos_Vector<RealT>>(b, numrhs);
+      HDSA::Ptr<HDSA::Belos_Vector<RealT>> rhs = HDSA::makePtr<HDSA::Belos_Vector<RealT>>(b, numrhs);
       rhs->vec[0]->set(b);
 
       RealT rhs_norm = b.norm();
@@ -267,46 +267,46 @@ namespace HDSA
       }
     }
 
-        // Compute eigenvalue decomposition A=M*V*S*V^T*M for a symmetric matrix A and symmetric positive definite matrix M, store eigenvalues in a size nx1 matrix S
-        template <class RealT>
-        void Symmetric_Gen_Eig_Decomposition(const HDSA::Dense_Matrix<RealT> &A, const HDSA::Dense_Matrix<RealT> &M, HDSA::Dense_Matrix<RealT> &V, HDSA::Dense_Matrix<RealT> &S)
+    // Compute eigenvalue decomposition A=M*V*S*V^T*M for a symmetric matrix A and symmetric positive definite matrix M, store eigenvalues in a size nx1 matrix S
+    template <class RealT>
+    void Symmetric_Gen_Eig_Decomposition(const HDSA::Dense_Matrix<RealT> &A, const HDSA::Dense_Matrix<RealT> &M, HDSA::Dense_Matrix<RealT> &V, HDSA::Dense_Matrix<RealT> &S)
+    {
+      int n = A.numRows();
+      HDSA::Ptr<Teuchos::SerialDenseMatrix<int, RealT>> B = HDSA::makePtr<Teuchos::SerialDenseMatrix<int, RealT>>(n, n);
+      HDSA::Ptr<Teuchos::SerialDenseMatrix<int, RealT>> C = HDSA::makePtr<Teuchos::SerialDenseMatrix<int, RealT>>(n, n);
+      for (int i = 0; i < n; i++)
+      {
+        for (int j = 0; j < n; j++)
         {
-          int n = A.numRows();
-          HDSA::Ptr<Teuchos::SerialDenseMatrix<int, RealT>> B = HDSA::makePtr<Teuchos::SerialDenseMatrix<int, RealT>>(n, n);
-          HDSA::Ptr<Teuchos::SerialDenseMatrix<int, RealT>> C = HDSA::makePtr<Teuchos::SerialDenseMatrix<int, RealT>>(n, n);
-          for (int i = 0; i < n; i++)
-          {
-            for (int j = 0; j < n; j++)
-            {
-              (*B)(i, j) = A(i, j);
-              (*C)(i, j) = M(i, j);
-            }
-          }
-          HDSA::Ptr<Teuchos::SerialDenseVector<int, RealT>> S_rev = HDSA::makePtr<Teuchos::SerialDenseVector<int, RealT>>(n); // SYGV outputs eigenvalues if reverse order
-          Teuchos::LAPACK<int, RealT> lapack;
-          int itype = 1;
-          char JOBZ = 'V';
-          char UPLO = 'U';
-          HDSA::Ptr<Teuchos::SerialDenseMatrix<int, RealT>> WORK = HDSA::makePtr<Teuchos::SerialDenseMatrix<int, RealT>>(3 * n, 3 * n);
-          int lwork = (*WORK).stride();
-          int info;
-          //lapack.SYEV(JOBZ, UPLO, n, (*B).values(), n, (*S_rev).values(), (*WORK).values(), lwork, &info);
-          lapack.SYGV(itype, JOBZ, UPLO, n, (*B).values(), n, (*C).values(), n, (*S_rev).values(), (*WORK).values(), lwork, &info);
-
-          for (int j = 0; j < n; j++)
-          {
-            S.Replace_Element(j, 0, (*S_rev)(n - 1 - j));
-            RealT sign = 1.0;
-            if ((*B)(0, n - 1 - j) < 0.0)
-            {
-              sign = -1.0;
-            }
-            for (int i = 0; i < n; i++)
-            {
-              V.Replace_Element(i, j, sign * (*B)(i, n - 1 - j));
-            }
-          }
+          (*B)(i, j) = A(i, j);
+          (*C)(i, j) = M(i, j);
         }
+      }
+      HDSA::Ptr<Teuchos::SerialDenseVector<int, RealT>> S_rev = HDSA::makePtr<Teuchos::SerialDenseVector<int, RealT>>(n); // SYGV outputs eigenvalues if reverse order
+      Teuchos::LAPACK<int, RealT> lapack;
+      int itype = 1;
+      char JOBZ = 'V';
+      char UPLO = 'U';
+      HDSA::Ptr<Teuchos::SerialDenseMatrix<int, RealT>> WORK = HDSA::makePtr<Teuchos::SerialDenseMatrix<int, RealT>>(3 * n, 3 * n);
+      int lwork = (*WORK).stride();
+      int info;
+      // lapack.SYEV(JOBZ, UPLO, n, (*B).values(), n, (*S_rev).values(), (*WORK).values(), lwork, &info);
+      lapack.SYGV(itype, JOBZ, UPLO, n, (*B).values(), n, (*C).values(), n, (*S_rev).values(), (*WORK).values(), lwork, &info);
+
+      for (int j = 0; j < n; j++)
+      {
+        S.Replace_Element(j, 0, (*S_rev)(n - 1 - j));
+        RealT sign = 1.0;
+        if ((*B)(0, n - 1 - j) < 0.0)
+        {
+          sign = -1.0;
+        }
+        for (int i = 0; i < n; i++)
+        {
+          V.Replace_Element(i, j, sign * (*B)(i, n - 1 - j));
+        }
+      }
+    }
 
   }
 

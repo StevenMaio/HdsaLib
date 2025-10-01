@@ -25,7 +25,7 @@ public:
     {
       vec[i].resize(2);
       HDSA::Ptr<HDSA::Vector<RealT>> veci_hdsa = (*spatial_coords)[i];
-      HDSA_Tpetra_Vector<RealT> eveci = dynamic_cast<HDSA_Tpetra_Vector<RealT> &>(*veci_hdsa);
+      HDSA::Tpetra_Vector<RealT> eveci = dynamic_cast<HDSA::Tpetra_Vector<RealT> &>(*veci_hdsa);
       HDSA::Ptr<Tpetra::MultiVector<RealT>> tpetra_vec = eveci.getVector();
 
       // Compute the minimum and maximum

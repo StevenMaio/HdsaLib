@@ -32,10 +32,10 @@ public:
 
   HDSA::Ptr<HDSA::Vector<RealT>> Load_Optimal_us(int s) const
   {
-    HDSA::Ptr<Std_Vector<RealT>> u_opt = HDSA::makePtr<Std_Vector<RealT>>(m_, random_number_generator_, comm_);
+    HDSA::Ptr<HDSA::Std_Vector<RealT>> u_opt = HDSA::makePtr<HDSA::Std_Vector<RealT>>(m_, random_number_generator_, comm_);
 
     HDSA::Ptr<HDSA::Vector<RealT>> z_opt = Load_Optimal_z();
-    Std_Vector<RealT> z_opt_std = dynamic_cast<Std_Vector<RealT> &>(*z_opt);
+    HDSA::Std_Vector<RealT> z_opt_std = dynamic_cast<HDSA::Std_Vector<RealT> &>(*z_opt);
 
     for (int k = 0; k < m_; k++)
     {
@@ -47,7 +47,7 @@ public:
 
   HDSA::Ptr<HDSA::Vector<RealT>> Load_Optimal_z() const
   {
-    HDSA::Ptr<Std_Vector<RealT>> z_opt = HDSA::makePtr<Std_Vector<RealT>>(m_, random_number_generator_, comm_);
+    HDSA::Ptr<HDSA::Std_Vector<RealT>> z_opt = HDSA::makePtr<HDSA::Std_Vector<RealT>>(m_, random_number_generator_, comm_);
 
     RealT val = 0.0;
     // read in data
@@ -71,13 +71,13 @@ public:
 
   HDSA::Ptr<HDSA::MultiVector<RealT>> Load_Z_Data() const
   {
-    HDSA::Ptr<Std_Vector<RealT>> z = HDSA::makePtr<Std_Vector<RealT>>(m_, random_number_generator_, comm_);
+    HDSA::Ptr<HDSA::Std_Vector<RealT>> z = HDSA::makePtr<HDSA::Std_Vector<RealT>>(m_, random_number_generator_, comm_);
     HDSA::Ptr<HDSA::MultiVector<RealT>> Z = HDSA::makePtr<HDSA::MultiVector<RealT>>(2, *z);
 
     HDSA::Ptr<HDSA::Vector<RealT>> z0 = (*Z)[0];
     HDSA::Ptr<HDSA::Vector<RealT>> z1 = (*Z)[1];
-    Std_Vector<RealT> z0_std = dynamic_cast<Std_Vector<RealT> &>(*z0);
-    Std_Vector<RealT> z1_std = dynamic_cast<Std_Vector<RealT> &>(*z1);
+    HDSA::Std_Vector<RealT> z0_std = dynamic_cast<HDSA::Std_Vector<RealT> &>(*z0);
+    HDSA::Std_Vector<RealT> z1_std = dynamic_cast<HDSA::Std_Vector<RealT> &>(*z1);
 
     // read in data
     std::ifstream in_Z("Z.txt");
@@ -105,17 +105,17 @@ public:
 
   HDSA::Ptr<HDSA::MultiVector<RealT>> Load_Ds_Data(int s) const
   {
-    HDSA::Ptr<Std_Vector<RealT>> d = HDSA::makePtr<Std_Vector<RealT>>(m_, random_number_generator_, comm_);
+    HDSA::Ptr<HDSA::Std_Vector<RealT>> d = HDSA::makePtr<HDSA::Std_Vector<RealT>>(m_, random_number_generator_, comm_);
     HDSA::Ptr<HDSA::MultiVector<RealT>> D = HDSA::makePtr<HDSA::MultiVector<RealT>>(2, *d);
 
     HDSA::Ptr<HDSA::Vector<RealT>> d0 = (*D)[0];
     HDSA::Ptr<HDSA::Vector<RealT>> d1 = (*D)[1];
-    Std_Vector<RealT> d0_std = dynamic_cast<Std_Vector<RealT> &>(*d0);
-    Std_Vector<RealT> d1_std = dynamic_cast<Std_Vector<RealT> &>(*d1);
+    HDSA::Std_Vector<RealT> d0_std = dynamic_cast<HDSA::Std_Vector<RealT> &>(*d0);
+    HDSA::Std_Vector<RealT> d1_std = dynamic_cast<HDSA::Std_Vector<RealT> &>(*d1);
 
     HDSA::Ptr<HDSA::MultiVector<RealT>> Z = Load_Z_Data();
-    Std_Vector<RealT> z0_std = dynamic_cast<Std_Vector<RealT> &>(*(*Z)[0]);
-    Std_Vector<RealT> z1_std = dynamic_cast<Std_Vector<RealT> &>(*(*Z)[1]);
+    HDSA::Std_Vector<RealT> z0_std = dynamic_cast<HDSA::Std_Vector<RealT> &>(*(*Z)[0]);
+    HDSA::Std_Vector<RealT> z1_std = dynamic_cast<HDSA::Std_Vector<RealT> &>(*(*Z)[1]);
 
     for (int k = 0; k < m_; k++)
     {

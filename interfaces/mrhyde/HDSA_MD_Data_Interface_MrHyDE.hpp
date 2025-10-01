@@ -95,13 +95,13 @@ public:
   {
 
     ROL::Ptr<MrHyDE_OptVector> z_rol;
-    if (const HDSA_Tpetra_Vector<RealT> *ez = dynamic_cast<const HDSA_Tpetra_Vector<RealT> *>(&z))
+    if (const HDSA::Tpetra_Vector<RealT> *ez = dynamic_cast<const HDSA::Tpetra_Vector<RealT> *>(&z))
     {
       HDSA::Ptr<Tpetra::MultiVector<ScalarT, LO, GO, SolverNode>> fvec = ez->getVector();
       ROL::Ptr<std::vector<ScalarT>> svec = ROL::makePtr<std::vector<RealT>>(0);
       z_rol = ROL::makePtr<MrHyDE_OptVector>(fvec, svec);
     }
-    else if (const Transient_Vector<RealT> *ez = dynamic_cast<const Transient_Vector<RealT> *>(&z))
+    else if (const HDSA::Transient_Vector<RealT> *ez = dynamic_cast<const HDSA::Transient_Vector<RealT> *>(&z))
     {
       std::vector<ROL::Ptr<Tpetra::MultiVector<RealT, LO, GO, SolverNode>>> f_vec;
       std::vector<ROL::Ptr<std::vector<RealT>>> s_vec;
@@ -110,13 +110,13 @@ public:
       for (int k = 0; k < n_t; k++)
       {
         HDSA::Ptr<HDSA::Vector<RealT>> z_k = (*ez)[k];
-        const Std_Vector<RealT> *ez_k = dynamic_cast<const Std_Vector<RealT> *>(&(*z_k));
+        const HDSA::Std_Vector<RealT> *ez_k = dynamic_cast<const HDSA::Std_Vector<RealT> *>(&(*z_k));
         s_vec[k] = ez_k->get_std_vec();
       }
       RealT dt = solve_->deltat; // Assumes that z is discretized on the same time nodes as the state
       z_rol = ROL::makePtr<MrHyDE_OptVector>(f_vec, s_vec, dt);
     }
-    else if (const Std_Vector<RealT> *ez = dynamic_cast<const Std_Vector<RealT> *>(&z))
+    else if (const HDSA::Std_Vector<RealT> *ez = dynamic_cast<const HDSA::Std_Vector<RealT> *>(&z))
     {
       ROL::Ptr<std::vector<ScalarT>> svec = ez->get_std_vec();
       z_rol = ROL::makePtr<MrHyDE_OptVector>(svec);
@@ -128,13 +128,13 @@ public:
 
     if (solve_->isTransient)
     {
-      Transient_Vector<RealT> &u_trans = dynamic_cast<Transient_Vector<RealT> &>(u);
+      HDSA::Transient_Vector<RealT> &u_trans = dynamic_cast<HDSA::Transient_Vector<RealT> &>(u);
       int n_t = solve_->settings->sublist("Solver").get<int>("number of steps", 0) + 1;
       for (int i = 0; i < n_t; i++)
       {
         HDSA::Ptr<Tpetra::MultiVector<ScalarT, LO, GO, SolverNode>> u_vec;
         solve_->postproc->soln[0]->extract(u_vec, i);
-        HDSA_Tpetra_Vector<RealT> &eu_i = dynamic_cast<HDSA_Tpetra_Vector<RealT> &>(*u_trans[i]);
+        HDSA::Tpetra_Vector<RealT> &eu_i = dynamic_cast<HDSA::Tpetra_Vector<RealT> &>(*u_trans[i]);
         eu_i.getVector()->update(1.0, *u_vec, 0.0);
       }
     }
@@ -142,7 +142,7 @@ public:
     {
       HDSA::Ptr<Tpetra::MultiVector<ScalarT, LO, GO, SolverNode>> u_vec;
       solve_->postproc->soln[0]->extract(u_vec, 0);
-      HDSA_Tpetra_Vector<RealT> &eu = dynamic_cast<HDSA_Tpetra_Vector<RealT> &>(u);
+      HDSA::Tpetra_Vector<RealT> &eu = dynamic_cast<HDSA::Tpetra_Vector<RealT> &>(u);
       eu.getVector()->update(1.0, *u_vec, 0.0);
     }
   }
@@ -158,7 +158,7 @@ public:
     }
     else
     {
-      const HDSA_Tpetra_Vector<RealT> &eu = dynamic_cast<const HDSA_Tpetra_Vector<RealT> &>(u);
+      const HDSA::Tpetra_Vector<RealT> &eu = dynamic_cast<const HDSA::Tpetra_Vector<RealT> &>(u);
       HDSA::Ptr<Tpetra::MultiVector<RealT>> eu_tpetra = eu.getVector();
       Teuchos::ArrayRCP<const RealT> u_view = eu_tpetra->get1dView();
       Teuchos::RCP<const Tpetra::Map<LO, GO>> map = eu_tpetra->getMap();
@@ -178,7 +178,7 @@ public:
       {
         tpetra_vec->replaceLocalValue(k, 0, u_view[num_states * k + component_id]);
       }
-      u_component = HDSA::makePtr<HDSA_Tpetra_Vector<RealT>>(tpetra_vec, random_number_generator_);
+      u_component = HDSA::makePtr<HDSA::Tpetra_Vector<RealT>>(tpetra_vec, random_number_generator_);
     }
     return u_component;
   }
@@ -192,8 +192,8 @@ public:
     }
     else
     {
-      const HDSA_Tpetra_Vector<RealT> u_tpetra = dynamic_cast<const HDSA_Tpetra_Vector<RealT> &>(u);
-      const HDSA_Tpetra_Vector<RealT> u_component_tpetra = dynamic_cast<const HDSA_Tpetra_Vector<RealT> &>(u_component);
+      const HDSA::Tpetra_Vector<RealT> u_tpetra = dynamic_cast<const HDSA::Tpetra_Vector<RealT> &>(u);
+      const HDSA::Tpetra_Vector<RealT> u_component_tpetra = dynamic_cast<const HDSA::Tpetra_Vector<RealT> &>(u_component);
       Teuchos::ArrayRCP<const RealT> u_component_view = u_component_tpetra.getVector()->get1dView();
       int local_dim = u_component_tpetra.getVector()->getLocalLength();
       for (int k = 0; k < local_dim; k++)
@@ -229,9 +229,9 @@ public:
         {
           std::cout << "no valid input file given for Load_Optimal_u" << std::endl;
         }
-        u_hdsa[i] = HDSA::makePtr<HDSA_Tpetra_Vector<RealT>>(u_tpetra[i], random_number_generator_);
+        u_hdsa[i] = HDSA::makePtr<HDSA::Tpetra_Vector<RealT>>(u_tpetra[i], random_number_generator_);
       }
-      u_opt = HDSA::makePtr<Transient_Vector<ScalarT>>(u_hdsa);
+      u_opt = HDSA::makePtr<HDSA::Transient_Vector<ScalarT>>(u_hdsa);
     }
     else
     {
@@ -249,7 +249,7 @@ public:
         std::cout << "no valid input file given for Load_Optimal_u" << std::endl;
       }
 
-      u_opt = HDSA::makePtr<HDSA_Tpetra_Vector<RealT>>(u_tpetra, random_number_generator_);
+      u_opt = HDSA::makePtr<HDSA::Tpetra_Vector<RealT>>(u_tpetra, random_number_generator_);
     }
     return u_opt;
   }
@@ -263,7 +263,7 @@ public:
       if (params_->getNumParams("discretized") > 0)
       {
         Teuchos::RCP<Tpetra::MultiVector<ScalarT, LO, GO, SolverNode>> z_tpetra = Read_Text_Data(opt_solution_txt_file_z_, false);
-        z_opt_hdsa = HDSA::makePtr<HDSA_Tpetra_Vector<RealT>>(z_tpetra, random_number_generator_);
+        z_opt_hdsa = HDSA::makePtr<HDSA::Tpetra_Vector<RealT>>(z_tpetra, random_number_generator_);
       }
       else if (params_->have_dynamic_scalar)
       {
@@ -273,20 +273,20 @@ public:
         trans_vec.resize(num_time_steps);
         for (int i = 0; i < num_time_steps; i++)
         {
-          trans_vec[i] = HDSA::makePtr<Std_Vector<RealT>>(z_vec[i], random_number_generator_, hdsa_comm_);
+          trans_vec[i] = HDSA::makePtr<HDSA::Std_Vector<RealT>>(z_vec[i], random_number_generator_, hdsa_comm_);
         }
-        z_opt_hdsa = HDSA::makePtr<Transient_Vector<RealT>>(trans_vec);
+        z_opt_hdsa = HDSA::makePtr<HDSA::Transient_Vector<RealT>>(trans_vec);
       }
       else
       {
         std::vector<RealT> z_vec = Read_Text_Data_std(opt_solution_txt_file_z_);
-        z_opt_hdsa = HDSA::makePtr<Std_Vector<RealT>>(z_vec, random_number_generator_, hdsa_comm_);
+        z_opt_hdsa = HDSA::makePtr<HDSA::Std_Vector<RealT>>(z_vec, random_number_generator_, hdsa_comm_);
       }
     }
     else if (opt_solution_exo_file_ != "error")
     {
       Teuchos::RCP<Tpetra::MultiVector<ScalarT, LO, GO, SolverNode>> z_tpetra = Read_Exodus_Data(opt_solution_exo_file_, false);
-      z_opt_hdsa = HDSA::makePtr<HDSA_Tpetra_Vector<RealT>>(z_tpetra, random_number_generator_);
+      z_opt_hdsa = HDSA::makePtr<HDSA::Tpetra_Vector<RealT>>(z_tpetra, random_number_generator_);
     }
     else
     {
@@ -308,7 +308,7 @@ public:
         if (params_->getNumParams("discretized") > 0)
         {
           Teuchos::RCP<Tpetra::MultiVector<ScalarT, LO, GO, SolverNode>> z_tpetra = Read_Text_Data(txt_files_z_[k], false);
-          z_hdsa = HDSA::makePtr<HDSA_Tpetra_Vector<RealT>>(z_tpetra, random_number_generator_);
+          z_hdsa = HDSA::makePtr<HDSA::Tpetra_Vector<RealT>>(z_tpetra, random_number_generator_);
         }
         else if (params_->have_dynamic_scalar)
         {
@@ -318,20 +318,20 @@ public:
           trans_vec.resize(num_time_steps);
           for (int i = 0; i < num_time_steps; i++)
           {
-            trans_vec[i] = HDSA::makePtr<Std_Vector<RealT>>(z_vec[i], random_number_generator_, hdsa_comm_);
+            trans_vec[i] = HDSA::makePtr<HDSA::Std_Vector<RealT>>(z_vec[i], random_number_generator_, hdsa_comm_);
           }
-          z_hdsa = HDSA::makePtr<Transient_Vector<RealT>>(trans_vec);
+          z_hdsa = HDSA::makePtr<HDSA::Transient_Vector<RealT>>(trans_vec);
         }
         else
         {
           std::vector<RealT> z_vec = Read_Text_Data_std(txt_files_z_[k]);
-          z_hdsa = HDSA::makePtr<Std_Vector<RealT>>(z_vec, random_number_generator_, hdsa_comm_);
+          z_hdsa = HDSA::makePtr<HDSA::Std_Vector<RealT>>(z_vec, random_number_generator_, hdsa_comm_);
         }
       }
       else if (hifi_exo_files_[k] != "error")
       {
         Teuchos::RCP<Tpetra::MultiVector<ScalarT, LO, GO, SolverNode>> z_tpetra = Read_Exodus_Data(hifi_exo_files_[k], false);
-        z_hdsa = HDSA::makePtr<HDSA_Tpetra_Vector<RealT>>(z_tpetra, random_number_generator_);
+        z_hdsa = HDSA::makePtr<HDSA::Tpetra_Vector<RealT>>(z_tpetra, random_number_generator_);
       }
       else
       {
@@ -373,9 +373,9 @@ public:
           {
             std::cout << "no valid input file given for Load_Optimal_D" << std::endl;
           }
-          u_hdsa_hifi[i] = HDSA::makePtr<HDSA_Tpetra_Vector<RealT>>(u_tpetra_hifi[i], random_number_generator_);
+          u_hdsa_hifi[i] = HDSA::makePtr<HDSA::Tpetra_Vector<RealT>>(u_tpetra_hifi[i], random_number_generator_);
         }
-        HDSA::Ptr<HDSA::Vector<RealT>> u_k_hifi = HDSA::makePtr<Transient_Vector<ScalarT>>(u_hdsa_hifi);
+        HDSA::Ptr<HDSA::Vector<RealT>> u_k_hifi = HDSA::makePtr<HDSA::Transient_Vector<ScalarT>>(u_hdsa_hifi);
         u_k_hifi->axpy(-1.0, *u_k_lofi);
         u_vecs.push_back(u_k_hifi);
       }
@@ -394,7 +394,7 @@ public:
         {
           std::cout << "no valid input file given for Load_Optimal_D" << std::endl;
         }
-        HDSA::Ptr<HDSA::Vector<RealT>> u_k = HDSA::makePtr<HDSA_Tpetra_Vector<RealT>>(u_tpetra_hifi, random_number_generator_);
+        HDSA::Ptr<HDSA::Vector<RealT>> u_k = HDSA::makePtr<HDSA::Tpetra_Vector<RealT>>(u_tpetra_hifi, random_number_generator_);
         u_k->axpy(-1.0, *u_k_lofi);
         u_vecs.push_back(u_k);
       }
@@ -599,7 +599,7 @@ public:
       }
       std::vector<HDSA::Ptr<HDSA::Vector<RealT>>> coord_vecs;
       coord_vecs.resize(1);
-      coord_vecs[0] = HDSA::makePtr<HDSA_Tpetra_Vector<RealT>>(vec, random_number_generator_);
+      coord_vecs[0] = HDSA::makePtr<HDSA::Tpetra_Vector<RealT>>(vec, random_number_generator_);
       spatial_nodes = HDSA::makePtr<HDSA::MultiVector<RealT>>(coord_vecs);
     }
     return spatial_nodes;
@@ -714,7 +714,7 @@ public:
       }
       Teuchos::RCP<Tpetra::MultiVector<ScalarT, LO, GO, SolverNode>> vec = solve_->linalg->getNewVector(0);
       solve_->linalg->exportVectorFromOverlappedReplace(0, vec, vec_over);
-      coord_vecs[spatial_id] = HDSA::makePtr<HDSA_Tpetra_Vector<RealT>>(vec, random_number_generator_);
+      coord_vecs[spatial_id] = HDSA::makePtr<HDSA::Tpetra_Vector<RealT>>(vec, random_number_generator_);
     }
 
     delete[] connect;

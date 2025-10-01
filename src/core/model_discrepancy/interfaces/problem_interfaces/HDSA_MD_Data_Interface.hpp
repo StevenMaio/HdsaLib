@@ -96,7 +96,7 @@ namespace HDSA
       HDSA::Ptr<const HDSA::Vector<RealT>> u_component;
       if (check_transient)
       {
-        if (const Transient_Vector<RealT> *u_trans = dynamic_cast<const Transient_Vector<RealT> *>(&(u)))
+        if (const HDSA::Transient_Vector<RealT> *u_trans = dynamic_cast<const HDSA::Transient_Vector<RealT> *>(&(u)))
         {
           int n_t = u_trans->Get_n_t();
           std::vector<HDSA::Ptr<const HDSA::Vector<RealT>>> u_component_trans;
@@ -105,7 +105,7 @@ namespace HDSA
           {
             u_component_trans[k] = Extract_State_Component(*(*u_trans)[k], component_id);
           }
-          u_component = HDSA::makePtr<Transient_Vector_Const<RealT>>(u_component_trans);
+          u_component = HDSA::makePtr<HDSA::Transient_Vector_Const<RealT>>(u_component_trans);
         }
         else
         {
@@ -123,9 +123,9 @@ namespace HDSA
     {
       if (check_transient)
       {
-        if (Transient_Vector<RealT> *u_trans = dynamic_cast<Transient_Vector<RealT> *>(&(u)))
+        if (HDSA::Transient_Vector<RealT> *u_trans = dynamic_cast<HDSA::Transient_Vector<RealT> *>(&(u)))
         {
-          const Transient_Vector<RealT> *u_component_trans = dynamic_cast<const Transient_Vector<RealT> *>(&(u_component));
+          const HDSA::Transient_Vector<RealT> *u_component_trans = dynamic_cast<const HDSA::Transient_Vector<RealT> *>(&(u_component));
           int n_t = u_trans->Get_n_t();
           for (int k = 0; k < n_t; k++)
           {

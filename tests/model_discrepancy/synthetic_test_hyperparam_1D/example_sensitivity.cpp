@@ -88,7 +88,7 @@ int main(int argc, char *argv[])
   z_test[1] = prior_z_pert[0]->clone();
   z_test[1]->set(*(*data_interface->get_Z())[1]);
   z_test[2] = prior_z_pert[0]->clone();
-  HDSA_Tpetra_Vector<RealT> ztest2_tpetra = dynamic_cast<HDSA_Tpetra_Vector<RealT> &>(*z_test[2]);
+  HDSA::Tpetra_Vector<RealT> ztest2_tpetra = dynamic_cast<HDSA::Tpetra_Vector<RealT> &>(*z_test[2]);
   int m = prior_z_pert[0]->dimension();
   for (int k = 0; k < m; k++)
   {

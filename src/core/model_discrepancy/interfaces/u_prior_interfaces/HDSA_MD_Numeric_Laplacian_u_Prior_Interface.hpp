@@ -73,7 +73,7 @@ namespace HDSA
       }
       HDSA::Ptr<const HDSA::Vector<RealT>> u_opt = data_interface_->get_u_opt();
       HDSA::Ptr<const HDSA::Vector<RealT>> u_vec;
-      if (const Transient_Vector<RealT> *u_trans = dynamic_cast<const Transient_Vector<RealT> *>(&(*u_opt)))
+      if (const HDSA::Transient_Vector<RealT> *u_trans = dynamic_cast<const HDSA::Transient_Vector<RealT> *>(&(*u_opt)))
       {
         u_vec = data_interface_->Extract_State_Component(*(*u_trans)[0], u_hyperparam_interface_->Get_Component_ID());
       }

@@ -26,7 +26,7 @@ public:
 
   HDSA::Ptr<HDSA::Vector<RealT>> Load_Optimal_u() const
   {
-    HDSA::Ptr<Std_Vector<RealT>> u_opt = HDSA::makePtr<Std_Vector<RealT>>(m_, random_number_generator_, comm_);
+    HDSA::Ptr<HDSA::Std_Vector<RealT>> u_opt = HDSA::makePtr<HDSA::Std_Vector<RealT>>(m_, random_number_generator_, comm_);
 
     RealT val = 0.0;
     // read in data
@@ -50,7 +50,7 @@ public:
 
   HDSA::Ptr<HDSA::Vector<RealT>> Load_Optimal_z() const
   {
-    HDSA::Ptr<Std_Vector<RealT>> z_opt = HDSA::makePtr<Std_Vector<RealT>>(m_, random_number_generator_, comm_);
+    HDSA::Ptr<HDSA::Std_Vector<RealT>> z_opt = HDSA::makePtr<HDSA::Std_Vector<RealT>>(m_, random_number_generator_, comm_);
 
     RealT val = 0.0;
     // read in data
@@ -74,13 +74,13 @@ public:
 
   HDSA::Ptr<HDSA::MultiVector<RealT>> Load_Z_Data() const
   {
-    HDSA::Ptr<Std_Vector<RealT>> z = HDSA::makePtr<Std_Vector<RealT>>(m_, random_number_generator_, comm_);
+    HDSA::Ptr<HDSA::Std_Vector<RealT>> z = HDSA::makePtr<HDSA::Std_Vector<RealT>>(m_, random_number_generator_, comm_);
     HDSA::Ptr<HDSA::MultiVector<RealT>> Z = HDSA::makePtr<HDSA::MultiVector<RealT>>(2, *z);
 
     HDSA::Ptr<HDSA::Vector<RealT>> z0 = (*Z)[0];
     HDSA::Ptr<HDSA::Vector<RealT>> z1 = (*Z)[1];
-    Std_Vector<RealT> z0_std = dynamic_cast<Std_Vector<RealT> &>(*z0);
-    Std_Vector<RealT> z1_std = dynamic_cast<Std_Vector<RealT> &>(*z1);
+    HDSA::Std_Vector<RealT> z0_std = dynamic_cast<HDSA::Std_Vector<RealT> &>(*z0);
+    HDSA::Std_Vector<RealT> z1_std = dynamic_cast<HDSA::Std_Vector<RealT> &>(*z1);
 
     // read in data
     std::ifstream in_Z("Z.txt");
@@ -108,13 +108,13 @@ public:
 
   HDSA::Ptr<HDSA::MultiVector<RealT>> Load_D_Data() const
   {
-    HDSA::Ptr<Std_Vector<RealT>> d = HDSA::makePtr<Std_Vector<RealT>>(m_, random_number_generator_, comm_);
+    HDSA::Ptr<HDSA::Std_Vector<RealT>> d = HDSA::makePtr<HDSA::Std_Vector<RealT>>(m_, random_number_generator_, comm_);
     HDSA::Ptr<HDSA::MultiVector<RealT>> D = HDSA::makePtr<HDSA::MultiVector<RealT>>(2, *d);
 
     HDSA::Ptr<HDSA::Vector<RealT>> d0 = (*D)[0];
     HDSA::Ptr<HDSA::Vector<RealT>> d1 = (*D)[1];
-    Std_Vector<RealT> d0_std = dynamic_cast<Std_Vector<RealT> &>(*d0);
-    Std_Vector<RealT> d1_std = dynamic_cast<Std_Vector<RealT> &>(*d1);
+    HDSA::Std_Vector<RealT> d0_std = dynamic_cast<HDSA::Std_Vector<RealT> &>(*d0);
+    HDSA::Std_Vector<RealT> d1_std = dynamic_cast<HDSA::Std_Vector<RealT> &>(*d1);
 
     // read in data
     std::ifstream in_D("D.txt");

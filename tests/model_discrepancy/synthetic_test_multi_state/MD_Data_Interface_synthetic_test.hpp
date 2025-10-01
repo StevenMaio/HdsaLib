@@ -31,7 +31,7 @@ public:
 
   HDSA::Ptr<const HDSA::Vector<RealT>> Extract_State_Component(const HDSA::Vector<RealT> &u, int component_id) const override
   {
-    const HDSA_Tpetra_Vector<RealT> u_tpetra = dynamic_cast<const HDSA_Tpetra_Vector<RealT> &>(u);
+    const HDSA::Tpetra_Vector<RealT> u_tpetra = dynamic_cast<const HDSA::Tpetra_Vector<RealT> &>(u);
     Teuchos::ArrayRCP<const RealT> u_view = u_tpetra.getVector()->get1dView();
     auto map = Tpetra::createUniformContigMap<Tpetra::Map<>::local_ordinal_type, Tpetra::Map<>::global_ordinal_type>(m_, comm_->Get_Teuchos_Communicator());
     HDSA::Ptr<Tpetra::MultiVector<RealT, Tpetra::Map<>::local_ordinal_type, Tpetra::Map<>::global_ordinal_type, Tpetra::Map<>::node_type>> tpetra_vec = HDSA::makePtr<Tpetra::MultiVector<RealT, Tpetra::Map<>::local_ordinal_type, Tpetra::Map<>::global_ordinal_type, Tpetra::Map<>::node_type>>(map, 1);
@@ -39,14 +39,14 @@ public:
     {
       tpetra_vec->replaceGlobalValue(k, 0, u_view[component_id * m_ + k]);
     }
-    HDSA::Ptr<HDSA::Vector<RealT>> u_component = HDSA::makePtr<HDSA_Tpetra_Vector<RealT>>(tpetra_vec, random_number_generator_);
+    HDSA::Ptr<HDSA::Vector<RealT>> u_component = HDSA::makePtr<HDSA::Tpetra_Vector<RealT>>(tpetra_vec, random_number_generator_);
     return u_component;
   }
 
   void Set_State_Component(HDSA::Vector<RealT> &u, const HDSA::Vector<RealT> &u_component, int component_id) const override
   {
-    const HDSA_Tpetra_Vector<RealT> u_tpetra = dynamic_cast<const HDSA_Tpetra_Vector<RealT> &>(u);
-    const HDSA_Tpetra_Vector<RealT> u_component_tpetra = dynamic_cast<const HDSA_Tpetra_Vector<RealT> &>(u_component);
+    const HDSA::Tpetra_Vector<RealT> u_tpetra = dynamic_cast<const HDSA::Tpetra_Vector<RealT> &>(u);
+    const HDSA::Tpetra_Vector<RealT> u_component_tpetra = dynamic_cast<const HDSA::Tpetra_Vector<RealT> &>(u_component);
     Teuchos::ArrayRCP<const RealT> u_component_view = u_component_tpetra.getVector()->get1dView();
     for (int k = 0; k < m_; k++)
     {
@@ -63,7 +63,7 @@ public:
       tpetra_vec->replaceGlobalValue(k, 0, std::pow((*x_)(k, 0) + 1.0, 3.0));
       tpetra_vec->replaceGlobalValue(m_ + k, 0, 1.0 + std::pow((*x_)(k, 0) + 1.0, 3.0));
     }
-    HDSA::Ptr<HDSA::Vector<RealT>> u_opt = HDSA::makePtr<HDSA_Tpetra_Vector<RealT>>(tpetra_vec, random_number_generator_);
+    HDSA::Ptr<HDSA::Vector<RealT>> u_opt = HDSA::makePtr<HDSA::Tpetra_Vector<RealT>>(tpetra_vec, random_number_generator_);
     return u_opt;
   }
 
@@ -75,7 +75,7 @@ public:
     {
       tpetra_vec->replaceGlobalValue(k, 0, (*x_)(k, 0) + 1.0);
     }
-    HDSA::Ptr<HDSA::Vector<RealT>> z_opt = HDSA::makePtr<HDSA_Tpetra_Vector<RealT>>(tpetra_vec, random_number_generator_);
+    HDSA::Ptr<HDSA::Vector<RealT>> z_opt = HDSA::makePtr<HDSA::Tpetra_Vector<RealT>>(tpetra_vec, random_number_generator_);
     return z_opt;
   }
 
@@ -83,13 +83,13 @@ public:
   {
     auto map = Tpetra::createUniformContigMap<Tpetra::Map<>::local_ordinal_type, Tpetra::Map<>::global_ordinal_type>(m_, comm_->Get_Teuchos_Communicator());
     HDSA::Ptr<Tpetra::MultiVector<RealT, Tpetra::Map<>::local_ordinal_type, Tpetra::Map<>::global_ordinal_type, Tpetra::Map<>::node_type>> tpetra_vec = Tpetra::createMultiVector<RealT, Tpetra::Map<>::local_ordinal_type, Tpetra::Map<>::global_ordinal_type, Tpetra::Map<>::node_type>(map, 1);
-    HDSA::Ptr<HDSA::Vector<RealT>> z = HDSA::makePtr<HDSA_Tpetra_Vector<RealT>>(tpetra_vec, random_number_generator_);
+    HDSA::Ptr<HDSA::Vector<RealT>> z = HDSA::makePtr<HDSA::Tpetra_Vector<RealT>>(tpetra_vec, random_number_generator_);
     HDSA::Ptr<HDSA::MultiVector<RealT>> Z = HDSA::makePtr<HDSA::MultiVector<RealT>>(2, *z);
 
     HDSA::Ptr<HDSA::Vector<RealT>> z0 = (*Z)[0];
     HDSA::Ptr<HDSA::Vector<RealT>> z1 = (*Z)[1];
-    HDSA_Tpetra_Vector<RealT> z0_tpetra = dynamic_cast<HDSA_Tpetra_Vector<RealT> &>(*z0);
-    HDSA_Tpetra_Vector<RealT> z1_tpetra = dynamic_cast<HDSA_Tpetra_Vector<RealT> &>(*z1);
+    HDSA::Tpetra_Vector<RealT> z0_tpetra = dynamic_cast<HDSA::Tpetra_Vector<RealT> &>(*z0);
+    HDSA::Tpetra_Vector<RealT> z1_tpetra = dynamic_cast<HDSA::Tpetra_Vector<RealT> &>(*z1);
 
     for (int k = 0; k < m_; k++)
     {
@@ -103,13 +103,13 @@ public:
   {
     auto map = Tpetra::createUniformContigMap<Tpetra::Map<>::local_ordinal_type, Tpetra::Map<>::global_ordinal_type>(2 * m_, comm_->Get_Teuchos_Communicator());
     HDSA::Ptr<Tpetra::MultiVector<RealT, Tpetra::Map<>::local_ordinal_type, Tpetra::Map<>::global_ordinal_type, Tpetra::Map<>::node_type>> tpetra_vec = Tpetra::createMultiVector<RealT, Tpetra::Map<>::local_ordinal_type, Tpetra::Map<>::global_ordinal_type, Tpetra::Map<>::node_type>(map, 1);
-    HDSA::Ptr<HDSA::Vector<RealT>> d = HDSA::makePtr<HDSA_Tpetra_Vector<RealT>>(tpetra_vec, random_number_generator_);
+    HDSA::Ptr<HDSA::Vector<RealT>> d = HDSA::makePtr<HDSA::Tpetra_Vector<RealT>>(tpetra_vec, random_number_generator_);
     HDSA::Ptr<HDSA::MultiVector<RealT>> D = HDSA::makePtr<HDSA::MultiVector<RealT>>(2, *d);
 
     HDSA::Ptr<HDSA::Vector<RealT>> d0 = (*D)[0];
     HDSA::Ptr<HDSA::Vector<RealT>> d1 = (*D)[1];
-    HDSA_Tpetra_Vector<RealT> d0_tpetra = dynamic_cast<HDSA_Tpetra_Vector<RealT> &>(*d0);
-    HDSA_Tpetra_Vector<RealT> d1_tpetra = dynamic_cast<HDSA_Tpetra_Vector<RealT> &>(*d1);
+    HDSA::Tpetra_Vector<RealT> d0_tpetra = dynamic_cast<HDSA::Tpetra_Vector<RealT> &>(*d0);
+    HDSA::Tpetra_Vector<RealT> d1_tpetra = dynamic_cast<HDSA::Tpetra_Vector<RealT> &>(*d1);
 
     for (int k = 0; k < m_; k++)
     {

@@ -18,11 +18,11 @@ int main(int argc, char *argv[])
 
   int m = 100;
   HDSA::Ptr<HDSA::Operator_Sqrt<RealT>> mat_sqrt = HDSA::makePtr<Operator_Sqrt_test<RealT>>(m);
-  HDSA::Ptr<HDSA::Vector<RealT>> vec_in = HDSA::makePtr<Std_Vector<RealT>>(m, comm);
+  HDSA::Ptr<HDSA::Vector<RealT>> vec_in = HDSA::makePtr<HDSA::Std_Vector<RealT>>(m, comm);
   vec_in->randomize_standard_normal();
-  HDSA::Ptr<HDSA::Vector<RealT>> vec_out_1 = HDSA::makePtr<Std_Vector<RealT>>(m, comm);
-  HDSA::Ptr<HDSA::Vector<RealT>> vec_out_2 = HDSA::makePtr<Std_Vector<RealT>>(m, comm);
-  HDSA::Ptr<HDSA::Vector<RealT>> vec_out_3 = HDSA::makePtr<Std_Vector<RealT>>(m, comm);
+  HDSA::Ptr<HDSA::Vector<RealT>> vec_out_1 = HDSA::makePtr<HDSA::Std_Vector<RealT>>(m, comm);
+  HDSA::Ptr<HDSA::Vector<RealT>> vec_out_2 = HDSA::makePtr<HDSA::Std_Vector<RealT>>(m, comm);
+  HDSA::Ptr<HDSA::Vector<RealT>> vec_out_3 = HDSA::makePtr<HDSA::Std_Vector<RealT>>(m, comm);
 
   mat_sqrt->Apply_Operator_Sqrt(*vec_out_1, *vec_in);
   mat_sqrt->Apply_Operator_Sqrt(*vec_out_2, *vec_out_1);

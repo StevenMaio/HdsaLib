@@ -21,9 +21,9 @@ public:
 
   void Gradient(HDSA::Vector<RealT> &grad, const HDSA::Vector<RealT> &z, const HDSA::Vector<RealT> &theta) const
   {
-    const Std_Vector<RealT> &z_std = dynamic_cast<const Std_Vector<RealT> &>(z);
-    const Std_Vector<RealT> &theta_std = dynamic_cast<const Std_Vector<RealT> &>(theta);
-    Std_Vector<RealT> &grad_std = dynamic_cast<Std_Vector<RealT> &>(grad);
+    const HDSA::Std_Vector<RealT> &z_std = dynamic_cast<const HDSA::Std_Vector<RealT> &>(z);
+    const HDSA::Std_Vector<RealT> &theta_std = dynamic_cast<const HDSA::Std_Vector<RealT> &>(theta);
+    HDSA::Std_Vector<RealT> &grad_std = dynamic_cast<HDSA::Std_Vector<RealT> &>(grad);
 
     int d = grad.dimension();
     RealT val = 0.0;
@@ -44,10 +44,10 @@ public:
 
   void Apply_Hessian(HDSA::Vector<RealT> &z_out, const HDSA::Vector<RealT> &z_in, const HDSA::Vector<RealT> &z, const HDSA::Vector<RealT> &theta) const
   {
-    const Std_Vector<RealT> &z_std = dynamic_cast<const Std_Vector<RealT> &>(z);
-    const Std_Vector<RealT> &theta_std = dynamic_cast<const Std_Vector<RealT> &>(theta);
-    const Std_Vector<RealT> &z_in_std = dynamic_cast<const Std_Vector<RealT> &>(z_in);
-    Std_Vector<RealT> &z_out_std = dynamic_cast<Std_Vector<RealT> &>(z_out);
+    const HDSA::Std_Vector<RealT> &z_std = dynamic_cast<const HDSA::Std_Vector<RealT> &>(z);
+    const HDSA::Std_Vector<RealT> &theta_std = dynamic_cast<const HDSA::Std_Vector<RealT> &>(theta);
+    const HDSA::Std_Vector<RealT> &z_in_std = dynamic_cast<const HDSA::Std_Vector<RealT> &>(z_in);
+    HDSA::Std_Vector<RealT> &z_out_std = dynamic_cast<HDSA::Std_Vector<RealT> &>(z_out);
 
     int d = z_in.dimension();
     RealT val = 0.0;
@@ -73,8 +73,8 @@ public:
 
   void Apply_B(HDSA::Vector<RealT> &z_out, const HDSA::Vector<RealT> &theta_in, const HDSA::Vector<RealT> &z, const HDSA::Vector<RealT> &theta) const
   {
-    const Std_Vector<RealT> &theta_in_std = dynamic_cast<const Std_Vector<RealT> &>(theta_in);
-    Std_Vector<RealT> &z_out_std = dynamic_cast<Std_Vector<RealT> &>(z_out);
+    const HDSA::Std_Vector<RealT> &theta_in_std = dynamic_cast<const HDSA::Std_Vector<RealT> &>(theta_in);
+    HDSA::Std_Vector<RealT> &z_out_std = dynamic_cast<HDSA::Std_Vector<RealT> &>(z_out);
 
     std::vector<std::vector<RealT>> B = rosenbrock_->Compute_B();
 

@@ -50,8 +50,8 @@ namespace HDSA
 
         void Apply(HDSA::Vector<RealT> &x_out, const HDSA::Vector<RealT> &x_in) const
         {
-            const HDSA_Tpetra_Vector<RealT> &ex_in = dynamic_cast<const HDSA_Tpetra_Vector<RealT> &>(x_in);
-            HDSA_Tpetra_Vector<RealT> &ex_out = dynamic_cast<HDSA_Tpetra_Vector<RealT> &>(x_out);
+            const HDSA::Tpetra_Vector<RealT> &ex_in = dynamic_cast<const HDSA::Tpetra_Vector<RealT> &>(x_in);
+            HDSA::Tpetra_Vector<RealT> &ex_out = dynamic_cast<HDSA::Tpetra_Vector<RealT> &>(x_out);
             A_->apply(*ex_in.getVector(), *ex_out.getVector());
         }
 

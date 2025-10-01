@@ -13,60 +13,59 @@ namespace HDSA
   class Comm
   {
   private:
-    HDSA::Ptr<const Teuchos::Comm<int> > comm_;
-    
+    HDSA::Ptr<const Teuchos::Comm<int>> comm_;
+
   public:
-    
-    Comm( )
-    { 
+    Comm()
+    {
       comm_ = Tpetra::getDefaultComm();
     }
 
-    Comm(HDSA::Ptr<Teuchos::Comm<int> > & comm): comm_(comm)
-    { }
+    Comm(HDSA::Ptr<Teuchos::Comm<int>> &comm) : comm_(comm)
+    {
+    }
 
-    Comm(HDSA::Ptr<Teuchos::MpiComm<int> > & comm): comm_(comm)
-    { }
+    Comm(HDSA::Ptr<Teuchos::MpiComm<int>> &comm) : comm_(comm)
+    {
+    }
 
-    int getRank() const 
+    int getRank() const
     {
       return comm_->getRank();
     }
 
-    int getSize() const 
+    int getSize() const
     {
       return comm_->getSize();
     }
 
-    void barrier() const 
+    void barrier() const
     {
       comm_->barrier();
     }
 
     void broadcast(const int rootRank, const Ordinal bytes, char buffer[]) const
     {
-      comm_->broadcast(rootRank,bytes,buffer);
+      comm_->broadcast(rootRank, bytes, buffer);
     }
 
-    HDSA::Ptr<HDSA::Comm<int> > createSubcommunicator (const std::vector<int> & ranks) const 
+    HDSA::Ptr<HDSA::Comm<int>> createSubcommunicator(const std::vector<int> &ranks) const
     {
       Teuchos::Array<int> r;
-      for(unsigned int k = 0; k < ranks.size(); k++)
-	{
-	  r.push_back(ranks[k]);
-	}
-      HDSA::Ptr<Teuchos::Comm<int> > subcomm_teuchos = comm_->createSubcommunicator(r);
-      HDSA::Ptr<HDSA::Comm<Ordinal> > subcomm = HDSA::makePtr<HDSA::Comm<Ordinal> >(subcomm_teuchos);
+      for (unsigned int k = 0; k < ranks.size(); k++)
+      {
+        r.push_back(ranks[k]);
+      }
+      HDSA::Ptr<Teuchos::Comm<int>> subcomm_teuchos = comm_->createSubcommunicator(r);
+      HDSA::Ptr<HDSA::Comm<Ordinal>> subcomm = HDSA::makePtr<HDSA::Comm<Ordinal>>(subcomm_teuchos);
       return subcomm;
     }
 
-    HDSA::Ptr<const Teuchos::Comm<int> > Get_Teuchos_Communicator() const
+    HDSA::Ptr<const Teuchos::Comm<int>> Get_Teuchos_Communicator() const
     {
       return comm_;
     }
-
   };
-
 
 }
 

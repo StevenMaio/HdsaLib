@@ -35,7 +35,7 @@ public:
     RealT val = z_tmp->norm() + theta_tmp->norm();
     if (val > 0.0)
     {
-      const Std_Vector<RealT> &theta_std = dynamic_cast<const Std_Vector<RealT> &>(theta);
+      const HDSA::Std_Vector<RealT> &theta_std = dynamic_cast<const HDSA::Std_Vector<RealT> &>(theta);
       robj_->setParameter(*theta_std.get_std_vec());
       z_current_->set(z);
       theta_current_->set(theta);

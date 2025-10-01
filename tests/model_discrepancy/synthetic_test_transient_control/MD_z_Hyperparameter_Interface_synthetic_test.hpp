@@ -14,15 +14,15 @@ private:
 public:
   void State_Solve(HDSA::Vector<RealT> &u, const HDSA::Vector<RealT> &z) const override
   {
-    Transient_Vector<RealT> u_trans = dynamic_cast<Transient_Vector<RealT> &>(u);
-    const Transient_Vector<RealT> z_trans = dynamic_cast<const Transient_Vector<RealT> &>(z);
+    HDSA::Transient_Vector<RealT> u_trans = dynamic_cast<HDSA::Transient_Vector<RealT> &>(u);
+    const HDSA::Transient_Vector<RealT> z_trans = dynamic_cast<const HDSA::Transient_Vector<RealT> &>(z);
     int n_t = u_trans.Get_n_t();
     for (int j = 0; j < n_t; j++)
     {
       HDSA::Ptr<HDSA::Vector<RealT>> uj = u_trans[j];
       HDSA::Ptr<HDSA::Vector<RealT>> zj = z_trans[j];
-      HDSA_Tpetra_Vector<RealT> uj_tpetra = dynamic_cast<HDSA_Tpetra_Vector<RealT> &>(*uj);
-      Std_Vector<RealT> zj_std = dynamic_cast<Std_Vector<RealT> &>(*zj);
+      HDSA::Tpetra_Vector<RealT> uj_tpetra = dynamic_cast<HDSA::Tpetra_Vector<RealT> &>(*uj);
+      HDSA::Std_Vector<RealT> zj_std = dynamic_cast<HDSA::Std_Vector<RealT> &>(*zj);
       for (int k = 0; k < n_y_; k++)
       {
         RealT val = zj_std.Get_Entry(0) * (1.0 - (*x_)(k, 0)) + zj_std.Get_Entry(1) * (*x_)(k, 0);

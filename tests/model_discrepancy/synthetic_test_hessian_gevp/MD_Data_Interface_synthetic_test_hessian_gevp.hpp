@@ -31,7 +31,7 @@ public:
 
   HDSA::Ptr<HDSA::Vector<RealT>> Load_Optimal_u() const
   {
-    HDSA::Ptr<Std_Vector<RealT>> u_opt = HDSA::makePtr<Std_Vector<RealT>>(m_, random_number_generator_, comm_);
+    HDSA::Ptr<HDSA::Std_Vector<RealT>> u_opt = HDSA::makePtr<HDSA::Std_Vector<RealT>>(m_, random_number_generator_, comm_);
     for (int k = 0; k < m_; k++)
     {
       u_opt->Replace_Element(k, std::pow((*x_)(k, 0) + 1.0, 3.0));
@@ -41,7 +41,7 @@ public:
 
   HDSA::Ptr<HDSA::Vector<RealT>> Load_Optimal_z() const
   {
-    HDSA::Ptr<Std_Vector<RealT>> z_opt = HDSA::makePtr<Std_Vector<RealT>>(m_, random_number_generator_, comm_);
+    HDSA::Ptr<HDSA::Std_Vector<RealT>> z_opt = HDSA::makePtr<HDSA::Std_Vector<RealT>>(m_, random_number_generator_, comm_);
     for (int k = 0; k < m_; k++)
     {
       z_opt->Replace_Element(k, (*x_)(k, 0) + 1.0);
@@ -51,13 +51,13 @@ public:
 
   HDSA::Ptr<HDSA::MultiVector<RealT>> Load_Z_Data() const
   {
-    HDSA::Ptr<Std_Vector<RealT>> z = HDSA::makePtr<Std_Vector<RealT>>(m_, random_number_generator_, comm_);
+    HDSA::Ptr<HDSA::Std_Vector<RealT>> z = HDSA::makePtr<HDSA::Std_Vector<RealT>>(m_, random_number_generator_, comm_);
     HDSA::Ptr<HDSA::MultiVector<RealT>> Z = HDSA::makePtr<HDSA::MultiVector<RealT>>(2, *z);
 
     HDSA::Ptr<HDSA::Vector<RealT>> z0 = (*Z)[0];
     HDSA::Ptr<HDSA::Vector<RealT>> z1 = (*Z)[1];
-    Std_Vector<RealT> z0_std = dynamic_cast<Std_Vector<RealT> &>(*z0);
-    Std_Vector<RealT> z1_std = dynamic_cast<Std_Vector<RealT> &>(*z1);
+    HDSA::Std_Vector<RealT> z0_std = dynamic_cast<HDSA::Std_Vector<RealT> &>(*z0);
+    HDSA::Std_Vector<RealT> z1_std = dynamic_cast<HDSA::Std_Vector<RealT> &>(*z1);
 
     for (int k = 0; k < m_; k++)
     {
@@ -70,13 +70,13 @@ public:
 
   HDSA::Ptr<HDSA::MultiVector<RealT>> Load_D_Data() const
   {
-    HDSA::Ptr<Std_Vector<RealT>> d = HDSA::makePtr<Std_Vector<RealT>>(m_, random_number_generator_, comm_);
+    HDSA::Ptr<HDSA::Std_Vector<RealT>> d = HDSA::makePtr<HDSA::Std_Vector<RealT>>(m_, random_number_generator_, comm_);
     HDSA::Ptr<HDSA::MultiVector<RealT>> D = HDSA::makePtr<HDSA::MultiVector<RealT>>(2, *d);
 
     HDSA::Ptr<HDSA::Vector<RealT>> d0 = (*D)[0];
     HDSA::Ptr<HDSA::Vector<RealT>> d1 = (*D)[1];
-    Std_Vector<RealT> d0_std = dynamic_cast<Std_Vector<RealT> &>(*d0);
-    Std_Vector<RealT> d1_std = dynamic_cast<Std_Vector<RealT> &>(*d1);
+    HDSA::Std_Vector<RealT> d0_std = dynamic_cast<HDSA::Std_Vector<RealT> &>(*d0);
+    HDSA::Std_Vector<RealT> d1_std = dynamic_cast<HDSA::Std_Vector<RealT> &>(*d1);
 
     for (int k = 0; k < m_; k++)
     {

@@ -25,15 +25,15 @@ public:
 
   void State_Solve(HDSA::Vector<RealT> &u, const HDSA::Vector<RealT> &z) const
   {
-    Transient_Vector<RealT> u_trans = dynamic_cast<Transient_Vector<RealT> &>(u);
-    const HDSA_Tpetra_Vector<RealT> z_tpetra = dynamic_cast<const HDSA_Tpetra_Vector<RealT> &>(z);
+    HDSA::Transient_Vector<RealT> u_trans = dynamic_cast<HDSA::Transient_Vector<RealT> &>(u);
+    const HDSA::Tpetra_Vector<RealT> z_tpetra = dynamic_cast<const HDSA::Tpetra_Vector<RealT> &>(z);
     Teuchos::ArrayRCP<const RealT> z_view = z_tpetra.getVector()->get1dView();
 
     RealT coeff_low = 1.0;
     for (int j = 0; j < n_t_; j++)
     {
       HDSA::Ptr<HDSA::Vector<RealT>> u_j = u_trans[j];
-      HDSA_Tpetra_Vector<RealT> u_tpetra = dynamic_cast<HDSA_Tpetra_Vector<RealT> &>(*u_j);
+      HDSA::Tpetra_Vector<RealT> u_tpetra = dynamic_cast<HDSA::Tpetra_Vector<RealT> &>(*u_j);
       for (int k = 0; k < n_y_; k++)
       {
         RealT zk = std::pow(z_view[k], 3.0);

@@ -69,8 +69,8 @@ public:
   void Apply_E_z_Inverse(HDSA::Vector<RealT> &z_out, const HDSA::Vector<RealT> &z_in) const
   {
     HDSA::Ptr<HDSA::Dense_Matrix<RealT>> b = HDSA::makePtr<HDSA::Dense_Matrix<RealT>>(m_, 1);
-    const Std_Vector<RealT> &z_in_std = dynamic_cast<const Std_Vector<RealT> &>(z_in);
-    Std_Vector<RealT> &z_out_std = dynamic_cast<Std_Vector<RealT> &>(z_out);
+    const HDSA::Std_Vector<RealT> &z_in_std = dynamic_cast<const HDSA::Std_Vector<RealT> &>(z_in);
+    HDSA::Std_Vector<RealT> &z_out_std = dynamic_cast<HDSA::Std_Vector<RealT> &>(z_out);
     for (int k = 0; k < m_; k++)
     {
       b->Replace_Element(k, 0, z_in_std(k));
@@ -110,7 +110,7 @@ public:
       R->Multiply(*tmp, *b, true);
       HDSA::Linear_Algebra::Symmetric_Direct_Linear_Solve<RealT>(*E_z_, *x, *tmp);
 
-      Std_Vector<RealT> &vec_out_std = dynamic_cast<Std_Vector<RealT> &>(*samples[i]);
+      HDSA::Std_Vector<RealT> &vec_out_std = dynamic_cast<HDSA::Std_Vector<RealT> &>(*samples[i]);
       for (int k = 0; k < m_; k++)
       {
         vec_out_std.Replace_Element(k, (*x)(k, 0));
@@ -121,8 +121,8 @@ public:
   void Apply_M_z(HDSA::Vector<RealT> &z_out, const HDSA::Vector<RealT> &z_in) const
   {
     HDSA::Ptr<HDSA::Dense_Matrix<RealT>> b = HDSA::makePtr<HDSA::Dense_Matrix<RealT>>(m_, 1);
-    const Std_Vector<RealT> &z_in_std = dynamic_cast<const Std_Vector<RealT> &>(z_in);
-    Std_Vector<RealT> &z_out_std = dynamic_cast<Std_Vector<RealT> &>(z_out);
+    const HDSA::Std_Vector<RealT> &z_in_std = dynamic_cast<const HDSA::Std_Vector<RealT> &>(z_in);
+    HDSA::Std_Vector<RealT> &z_out_std = dynamic_cast<HDSA::Std_Vector<RealT> &>(z_out);
     for (int k = 0; k < m_; k++)
     {
       b->Replace_Element(k, 0, z_in_std(k));

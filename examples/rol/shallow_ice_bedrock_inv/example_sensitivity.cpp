@@ -115,7 +115,7 @@ int main(int argc, char *argv[])
 
   int L = parlist->sublist("Problem").get("Number of Uncertain Basis Functions", 10);
   int theta_dim = 2 * (L + 1) * (L + 1);
-  HDSA::Ptr<HDSA::Vector<RealT>> theta = HDSA::makePtr<Std_Vector<RealT>>(theta_dim, comm);
+  HDSA::Ptr<HDSA::Vector<RealT>> theta = HDSA::makePtr<HDSA::Std_Vector<RealT>>(theta_dim, comm);
 
   int myRank = comm->getRank();
   HDSA::Ptr<std::ostream> outStream;
@@ -270,7 +270,7 @@ int main(int argc, char *argv[])
   HDSA::Ptr<ROL::Objective_SimOpt<RealT>> obj_reg = HDSA::makePtr<ROL::LinearCombinationObjective_SimOpt<RealT>>(weights_reg, reg_obj);
   HDSA::Ptr<ROL::Objective<RealT>> robj_reg = HDSA::makePtr<Reduced_Objective_Regularization<RealT>>(obj_reg, u0);
 
-  HDSA::Ptr<HDSA::Vector<RealT>> theta_bar = HDSA::makePtr<Std_Vector<RealT>>(theta_dim, comm);
+  HDSA::Ptr<HDSA::Vector<RealT>> theta_bar = HDSA::makePtr<HDSA::Std_Vector<RealT>>(theta_dim, comm);
   Load_Nominal_Solution<RealT>(z_ptr, parlist);
   HDSA::Ptr<HDSA::Vector<RealT>> z_bar = HDSA::makePtr<HDSA::ROL_Vector<RealT>>(z);
 
@@ -312,7 +312,7 @@ int main(int argc, char *argv[])
 
   HDSA::Ptr<HDSA::Vector<RealT>> grad_star = z_bar->clone();
   HDSA::Ptr<HDSA::Vector<RealT>> theta_star = theta_bar->clone();
-  Std_Vector<RealT> &theta_star_std = dynamic_cast<Std_Vector<RealT> &>(*theta_star);
+  HDSA::Std_Vector<RealT> &theta_star_std = dynamic_cast<HDSA::Std_Vector<RealT> &>(*theta_star);
 
   RealT x = 0.0;
   RealT y = 0.0;

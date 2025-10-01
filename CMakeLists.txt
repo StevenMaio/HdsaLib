@@ -96,7 +96,9 @@ target_include_directories(HdsaLib INTERFACE
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/core/model_discrepancy/analysis/auxillary>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/core/parametric_continuation/interfaces>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/core/parametric_continuation/analysis>
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/core/base>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/core/base/auxillary>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/core/base/linear_algebra>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/core/base/vectors>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/trilinos_adapter/adapters>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/trilinos_adapter/core>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/interfaces/rol>

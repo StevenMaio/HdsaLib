@@ -8,4 +8,3 @@
   TEUCHOS_TEST_FOR_EXCEPTION(throw_exception_test, Exception, msg)
 
 #endif
-

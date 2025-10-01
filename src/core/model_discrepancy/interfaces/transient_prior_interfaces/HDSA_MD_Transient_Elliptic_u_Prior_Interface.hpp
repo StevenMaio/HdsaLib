@@ -20,11 +20,11 @@ namespace HDSA
   public:
     void Apply_M_u(HDSA::Vector<RealT> &u_out, const HDSA::Vector<RealT> &u_in) const
     {
-      if (const Transient_Vector<RealT> *u_in_trans = dynamic_cast<const Transient_Vector<RealT> *>(&u_in))
+      if (const HDSA::Transient_Vector<RealT> *u_in_trans = dynamic_cast<const HDSA::Transient_Vector<RealT> *>(&u_in))
       {
-        Transient_Vector<RealT> *u_out_trans = dynamic_cast<Transient_Vector<RealT> *>(&u_out);
+        HDSA::Transient_Vector<RealT> *u_out_trans = dynamic_cast<HDSA::Transient_Vector<RealT> *>(&u_out);
         HDSA::Ptr<HDSA::Vector<RealT>> u_tmp = u_out.clone();
-        Transient_Vector<RealT> *u_tmp_trans = dynamic_cast<Transient_Vector<RealT> *>(&(*u_tmp));
+        HDSA::Transient_Vector<RealT> *u_tmp_trans = dynamic_cast<HDSA::Transient_Vector<RealT> *>(&(*u_tmp));
         for (int j = 0; j < n_t_; j++)
         {
           spatial_prior_cov_->Apply_M_u(*(*u_tmp_trans)[j], *u_in_trans->Get_Vector_Const(j));
@@ -47,8 +47,8 @@ namespace HDSA
     void Apply_W_u_Acute_Plus_scalar_M_u_Inverse(HDSA::Vector<RealT> &u_out, const HDSA::Vector<RealT> &u_in, const RealT &scalar) const
     {
       const MD_Elliptic_u_Prior_Interface<RealT> *spatial_prior_cov_cast = dynamic_cast<const MD_Elliptic_u_Prior_Interface<RealT> *>(&(*spatial_prior_cov_));
-      const Transient_Vector<RealT> *u_in_trans = dynamic_cast<const Transient_Vector<RealT> *>(&u_in);
-      Transient_Vector<RealT> *u_out_trans = dynamic_cast<Transient_Vector<RealT> *>(&u_out);
+      const HDSA::Transient_Vector<RealT> *u_in_trans = dynamic_cast<const HDSA::Transient_Vector<RealT> *>(&u_in);
+      HDSA::Transient_Vector<RealT> *u_out_trans = dynamic_cast<HDSA::Transient_Vector<RealT> *>(&u_out);
 
       HDSA::Ptr<HDSA::MultiVector<RealT>> spatial_sing_vecs = spatial_prior_cov_cast->Get_Sing_Vecs_Output();
       int spatial_rank = spatial_sing_vecs->Number_of_Vectors();
@@ -92,10 +92,10 @@ namespace HDSA
     void Apply_W_u_Acute_Inverse(HDSA::Vector<RealT> &u_out, const HDSA::Vector<RealT> &u_in) const
     {
       const MD_Scaled_u_Prior_Interface<RealT> *spatial_prior_cov_cast = dynamic_cast<const MD_Scaled_u_Prior_Interface<RealT> *>(&(*spatial_prior_cov_));
-      const Transient_Vector<RealT> *u_in_trans = dynamic_cast<const Transient_Vector<RealT> *>(&u_in);
-      Transient_Vector<RealT> *u_out_trans = dynamic_cast<Transient_Vector<RealT> *>(&u_out);
+      const HDSA::Transient_Vector<RealT> *u_in_trans = dynamic_cast<const HDSA::Transient_Vector<RealT> *>(&u_in);
+      HDSA::Transient_Vector<RealT> *u_out_trans = dynamic_cast<HDSA::Transient_Vector<RealT> *>(&u_out);
       HDSA::Ptr<HDSA::Vector<RealT>> u_tmp = u_out.clone();
-      Transient_Vector<RealT> *u_tmp_trans = dynamic_cast<Transient_Vector<RealT> *>(&(*u_tmp));
+      HDSA::Transient_Vector<RealT> *u_tmp_trans = dynamic_cast<HDSA::Transient_Vector<RealT> *>(&(*u_tmp));
       for (int j = 0; j < n_t_; j++)
       {
         spatial_prior_cov_cast->Apply_W_u_Acute_Inverse(*(*u_tmp_trans)[j], *u_in_trans->Get_Vector_Const(j));
@@ -123,7 +123,7 @@ namespace HDSA
       for (int k = 0; k < num_samples; k++)
       {
         HDSA::Ptr<HDSA::Vector<RealT>> sk = samples[k];
-        Transient_Vector<RealT> *sk_trans = dynamic_cast<Transient_Vector<RealT> *>(&(*sk));
+        HDSA::Transient_Vector<RealT> *sk_trans = dynamic_cast<HDSA::Transient_Vector<RealT> *>(&(*sk));
 
         HDSA::Ptr<HDSA::Dense_Matrix<RealT>> tmp1 = HDSA::makePtr<HDSA::Dense_Matrix<RealT>>(spatial_rank, n_t_);
         for (int j = 0; j < n_t_; j++)
@@ -161,7 +161,7 @@ namespace HDSA
       for (int k = 0; k < num_samples; k++)
       {
         HDSA::Ptr<HDSA::Vector<RealT>> sk = samples[k];
-        Transient_Vector<RealT> *sk_trans = dynamic_cast<Transient_Vector<RealT> *>(&(*sk));
+        HDSA::Transient_Vector<RealT> *sk_trans = dynamic_cast<HDSA::Transient_Vector<RealT> *>(&(*sk));
 
         HDSA::Ptr<HDSA::Dense_Matrix<RealT>> tmp1 = HDSA::makePtr<HDSA::Dense_Matrix<RealT>>(spatial_rank, n_t_);
         for (int j = 0; j < n_t_; j++)
