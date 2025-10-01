@@ -74,7 +74,7 @@ public:
 
       Teuchos::RCP<MrHyDE::PostprocessManager<SolverNode>>
           postproc = Teuchos::rcp(new MrHyDE::PostprocessManager<SolverNode>(comm, settings, mesh,
-                                                                             disc, physics, 
+                                                                             disc, physics,
                                                                              multiscale_manager,
                                                                              assembler, params));
 

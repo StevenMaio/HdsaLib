@@ -55,7 +55,7 @@ int main(int argc, char *argv[])
 
   HDSA::Ptr<HDSA::MD_u_Prior_Interface<RealT>> spatial_u_prior_interface = HDSA::makePtr<HDSA::MD_Numeric_Laplacian_u_Prior_Interface<RealT>>(S, M, data_interface, u_hyperparam_interface, random_number_generator);
   HDSA::Ptr<HDSA::MD_Transient_Prior_Covariance<RealT>> transient_prior_cov = HDSA::makePtr<HDSA::MD_Transient_Prior_Covariance<RealT>>(data_interface, u_hyperparam_interface, T, n_t, n_y);
-  HDSA::Ptr<HDSA::MD_u_Prior_Interface<RealT>> u_prior_interface = HDSA::makePtr<HDSA::MD_Transient_Elliptic_u_Prior_Interface<RealT>>(spatial_u_prior_interface,transient_prior_cov);
+  HDSA::Ptr<HDSA::MD_u_Prior_Interface<RealT>> u_prior_interface = HDSA::makePtr<HDSA::MD_Transient_Elliptic_u_Prior_Interface<RealT>>(spatial_u_prior_interface, transient_prior_cov);
 
   HDSA::Ptr<HDSA::MD_z_Prior_Interface<RealT>> z_prior_interface = HDSA::makePtr<HDSA::MD_Transient_Vector_z_Prior_Interface<RealT>>(data_interface, z_hyperparam_interface, u_prior_interface, n_t, T, num_controls);
 

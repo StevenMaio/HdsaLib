@@ -27,7 +27,7 @@ public:
       x_->Replace_Element(k, 0, static_cast<RealT>(k) / static_cast<RealT>(n_y_ - 1));
     }
     t_ = std::vector<RealT>(n_t_);
-    for(int k = 0; k < n_t_; k++)
+    for (int k = 0; k < n_t_; k++)
     {
       t_[k] = static_cast<RealT>(k) / static_cast<RealT>(n_t_ - 1);
     }
@@ -46,11 +46,11 @@ public:
     Transient_Vector<RealT> u_opt_trans = dynamic_cast<Transient_Vector<RealT> &>(*u_opt);
     for (int j = 0; j < n_t_; j++)
     {
-      HDSA::Ptr<HDSA::Vector<RealT> > uj = u_opt_trans[j];
+      HDSA::Ptr<HDSA::Vector<RealT>> uj = u_opt_trans[j];
       HDSA_Tpetra_Vector<RealT> uj_tpetra = dynamic_cast<HDSA_Tpetra_Vector<RealT> &>(*uj);
       for (int k = 0; k < n_y_; k++)
       {
-        uj_tpetra.getVector()->replaceGlobalValue(k, 0, t_[j] * ( 1.0 - (*x_)(k, 0) ) + 2.0 * t_[j] * (*x_)(k, 0));
+        uj_tpetra.getVector()->replaceGlobalValue(k, 0, t_[j] * (1.0 - (*x_)(k, 0)) + 2.0 * t_[j] * (*x_)(k, 0));
       }
     }
     return u_opt;
@@ -58,14 +58,14 @@ public:
 
   HDSA::Ptr<HDSA::Vector<RealT>> Load_Optimal_z() const
   {
-    HDSA::Ptr<Std_Vector<RealT> > tmp = HDSA::makePtr<Std_Vector<RealT> >(2,Random_number_generator_,comm_);
+    HDSA::Ptr<Std_Vector<RealT>> tmp = HDSA::makePtr<Std_Vector<RealT>>(2, Random_number_generator_, comm_);
     HDSA::Ptr<HDSA::Vector<RealT>> z_opt = HDSA::makePtr<Transient_Vector<RealT>>(n_t_, tmp);
     Transient_Vector<RealT> z_opt_trans = dynamic_cast<Transient_Vector<RealT> &>(*z_opt);
     for (int j = 0; j < n_t_; j++)
     {
-      HDSA::Ptr<HDSA::Vector<RealT> > zj = z_opt_trans[j];
-      zj->Set_Entry(0,t_[j]);
-      zj->Set_Entry(1,2*t_[j]);
+      HDSA::Ptr<HDSA::Vector<RealT>> zj = z_opt_trans[j];
+      zj->Set_Entry(0, t_[j]);
+      zj->Set_Entry(1, 2 * t_[j]);
     }
     return z_opt;
   }
@@ -84,7 +84,7 @@ public:
     std::vector<HDSA::Ptr<HDSA::Vector<RealT>>> u;
     u.resize(1);
     u[0] = Load_Optimal_u()->clone(); // This leverages Load_Optimal_u to instantiate the vector
-    u[0]->setScalar(1.0); // We overload the values to set them to one
+    u[0]->setScalar(1.0);             // We overload the values to set them to one
     HDSA::Ptr<HDSA::MultiVector<RealT>> D = HDSA::makePtr<HDSA::MultiVector<RealT>>(u);
     return D;
   }

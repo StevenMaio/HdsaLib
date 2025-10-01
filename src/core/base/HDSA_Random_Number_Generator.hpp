@@ -30,7 +30,7 @@ namespace HDSA
       distribution_ = std::normal_distribution<RealT>(0.0, 1.0);
     }
 
-    Random_Number_Generator(HDSA::Ptr<HDSA::Comm<int>> & comm)
+    Random_Number_Generator(HDSA::Ptr<HDSA::Comm<int>> &comm)
     {
       use_numbers_from_file_ = false;
       seed_ = time(NULL) + comm->getRank();

@@ -9,24 +9,25 @@
 
 typedef double RealT;
 
-int main(int argc, char *argv[]) {
+int main(int argc, char *argv[])
+{
 
   HDSA::nullstream bhs;
-  Teuchos::GlobalMPISession mpiSession (&argc, &argv, &bhs);
-  HDSA::Ptr<const HDSA::Comm<int> > comm = HDSA::makePtr<HDSA::Comm<int> >();
+  Teuchos::GlobalMPISession mpiSession(&argc, &argv, &bhs);
+  HDSA::Ptr<const HDSA::Comm<int>> comm = HDSA::makePtr<HDSA::Comm<int>>();
 
   int m = 100;
-  HDSA::Ptr<HDSA::Operator_Sqrt<RealT> > mat_sqrt = HDSA::makePtr<Operator_Sqrt_test<RealT> >(m);
-  HDSA::Ptr<HDSA::Vector<RealT> > vec_in = HDSA::makePtr<Std_Vector<RealT> >(m, comm);
+  HDSA::Ptr<HDSA::Operator_Sqrt<RealT>> mat_sqrt = HDSA::makePtr<Operator_Sqrt_test<RealT>>(m);
+  HDSA::Ptr<HDSA::Vector<RealT>> vec_in = HDSA::makePtr<Std_Vector<RealT>>(m, comm);
   vec_in->randomize_standard_normal();
-  HDSA::Ptr<HDSA::Vector<RealT> > vec_out_1 = HDSA::makePtr<Std_Vector<RealT> >(m, comm);
-  HDSA::Ptr<HDSA::Vector<RealT> > vec_out_2 = HDSA::makePtr<Std_Vector<RealT> >(m, comm);
-  HDSA::Ptr<HDSA::Vector<RealT> > vec_out_3 = HDSA::makePtr<Std_Vector<RealT> >(m, comm);
+  HDSA::Ptr<HDSA::Vector<RealT>> vec_out_1 = HDSA::makePtr<Std_Vector<RealT>>(m, comm);
+  HDSA::Ptr<HDSA::Vector<RealT>> vec_out_2 = HDSA::makePtr<Std_Vector<RealT>>(m, comm);
+  HDSA::Ptr<HDSA::Vector<RealT>> vec_out_3 = HDSA::makePtr<Std_Vector<RealT>>(m, comm);
 
-  mat_sqrt->Apply_Operator_Sqrt(*vec_out_1,*vec_in);
-  mat_sqrt->Apply_Operator_Sqrt(*vec_out_2,*vec_out_1);
-  mat_sqrt->Apply_Operator(*vec_out_3,*vec_in);
-  vec_out_2->axpy(-1.0,*vec_out_3);
+  mat_sqrt->Apply_Operator_Sqrt(*vec_out_1, *vec_in);
+  mat_sqrt->Apply_Operator_Sqrt(*vec_out_2, *vec_out_1);
+  mat_sqrt->Apply_Operator(*vec_out_3, *vec_in);
+  vec_out_2->axpy(-1.0, *vec_out_3);
   std::cout << "Error in Operator squart root = " << vec_out_2->norm() << std::endl;
 
   return 0;

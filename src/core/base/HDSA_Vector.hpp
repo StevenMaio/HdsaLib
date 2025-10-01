@@ -57,7 +57,7 @@ namespace HDSA
       return val;
     }
 
-    virtual void Set_Entry(int k, RealT val) 
+    virtual void Set_Entry(int k, RealT val)
     {
       std::cout << "Set_Entry has not been implemented for this vector type" << std::endl;
     }

@@ -55,7 +55,7 @@ public:
 
   void Apply_Hessian(HDSA::Vector<RealT> &z_out, const HDSA::Vector<RealT> &z_in, const HDSA::Vector<RealT> &z, const HDSA::Vector<RealT> &theta) const
   {
-    //auto start = std::chrono::high_resolution_clock::now();
+    // auto start = std::chrono::high_resolution_clock::now();
 
     RealT tol = 1.e-8;
     const HDSA::ROL_Vector<RealT> &z_rol = dynamic_cast<const HDSA::ROL_Vector<RealT> &>(z);
@@ -65,14 +65,14 @@ public:
     Update(z, theta);
     robj_->hessVec(*z_out_rol.rol_vec, *z_in_rol.rol_vec, *z_rol.rol_vec, tol);
 
-    //auto end = std::chrono::high_resolution_clock::now();
-    //auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
-    //std::cout << "Time taken by Apply_Hessian: " << duration.count() / 1000.0 << " seconds" << std::endl;
+    // auto end = std::chrono::high_resolution_clock::now();
+    // auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
+    // std::cout << "Time taken by Apply_Hessian: " << duration.count() / 1000.0 << " seconds" << std::endl;
   }
 
   void Apply_B(HDSA::Vector<RealT> &z_out, const HDSA::Vector<RealT> &theta_in, const HDSA::Vector<RealT> &z, const HDSA::Vector<RealT> &theta) const
   {
-    //auto start = std::chrono::high_resolution_clock::now();
+    // auto start = std::chrono::high_resolution_clock::now();
 
     RealT tol = 1.e-8;
     const HDSA::ROL_Vector<RealT> &z_rol = dynamic_cast<const HDSA::ROL_Vector<RealT> &>(z);
@@ -94,9 +94,9 @@ public:
     z_out.axpy(-1.0, *grad_nom);
     z_out.scale(1.0 / h);
 
-    //auto end = std::chrono::high_resolution_clock::now();
-    //auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
-    //std::cout << "Time taken by Apply_B: " << duration.count() / 1000.0 << " seconds" << std::endl;
+    // auto end = std::chrono::high_resolution_clock::now();
+    // auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
+    // std::cout << "Time taken by Apply_B: " << duration.count() / 1000.0 << " seconds" << std::endl;
   }
 };
 

@@ -19,7 +19,6 @@ namespace HDSA
     RealT beta_t_;
 
   public:
-
     virtual std::vector<std::vector<RealT>> Spatial_Domain_Bounds(void) const
     {
       std::cout << "Spatial_Domain_Bounds is required for hyperparameter algorithm-based initialization" << std::endl;

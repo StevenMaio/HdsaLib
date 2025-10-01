@@ -9,8 +9,8 @@ class MD_Data_Interface_synthetic_test : public HDSA::MD_Data_Interface<RealT>
 {
 
 private:
-  int n_y_;                                // Mesh resolution
-  int n_t_;                                // Number of time steps
+  int n_y_; // Mesh resolution
+  int n_t_; // Number of time steps
   RealT c_low_;
   RealT c_high_;
   HDSA::Ptr<HDSA::Dense_Matrix<RealT>> x_; // Mesh nodes on [0,1]
@@ -45,7 +45,7 @@ public:
     RealT coeff = 1.0;
     for (int j = 0; j < n_t_; j++)
     {
-      HDSA::Ptr<HDSA::Vector<RealT> > uj = u_opt_trans[j];
+      HDSA::Ptr<HDSA::Vector<RealT>> uj = u_opt_trans[j];
       HDSA_Tpetra_Vector<RealT> uj_tpetra = dynamic_cast<HDSA_Tpetra_Vector<RealT> &>(*uj);
       for (int k = 0; k < n_y_; k++)
       {
@@ -105,14 +105,14 @@ public:
     RealT coeff_low = 1.0;
     for (int j = 0; j < n_t_; j++)
     {
-      HDSA::Ptr<HDSA::Vector<RealT> > d0_j = d0_trans[j];
+      HDSA::Ptr<HDSA::Vector<RealT>> d0_j = d0_trans[j];
       HDSA_Tpetra_Vector<RealT> d0_tpetra = dynamic_cast<HDSA_Tpetra_Vector<RealT> &>(*d0_j);
-      HDSA::Ptr<HDSA::Vector<RealT> > d1_j = d1_trans[j];
+      HDSA::Ptr<HDSA::Vector<RealT>> d1_j = d1_trans[j];
       HDSA_Tpetra_Vector<RealT> d1_tpetra = dynamic_cast<HDSA_Tpetra_Vector<RealT> &>(*d1_j);
       for (int k = 0; k < n_y_; k++)
       {
         d0_tpetra.getVector()->replaceGlobalValue(k, 0, (coeff_high - coeff_low) * std::pow((*x_)(k, 0) + 1.0, 3.0));
-        d1_tpetra.getVector()->replaceGlobalValue(k, 0, (coeff_high - coeff_low) * std::pow((*x_)(k, 0) + std::pow((*x_)(k, 0), 2.0) , 3.0));
+        d1_tpetra.getVector()->replaceGlobalValue(k, 0, (coeff_high - coeff_low) * std::pow((*x_)(k, 0) + std::pow((*x_)(k, 0), 2.0), 3.0));
       }
       coeff_high = c_high_ * coeff_high;
       coeff_low = c_low_ * coeff_low;

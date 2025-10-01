@@ -5,31 +5,30 @@ namespace HDSA
 {
 
   template <class RealT>
-  class MD_Opt_Prob_Interface {
+  class MD_Opt_Prob_Interface
+  {
 
   private:
-
   public:
     MD_Opt_Prob_Interface()
-    { }
+    {
+    }
 
     virtual ~MD_Opt_Prob_Interface()
-    { }
+    {
+    }
 
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////                                                                                                           
-                                                                                                                                                                                                                                 
-    // Pure virtual functions                                                                                                                                                                                                    
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // Pure virtual functions
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////                                                                                                       
-                        
-    virtual void Apply_Solution_Operator_z_Jacobian_Transpose(HDSA::Vector<RealT> & z_out, const HDSA::Vector<RealT> & u_in, const HDSA::Vector<RealT> & z) const = 0;
+    virtual void Apply_Solution_Operator_z_Jacobian_Transpose(HDSA::Vector<RealT> &z_out, const HDSA::Vector<RealT> &u_in, const HDSA::Vector<RealT> &z) const = 0;
 
-    virtual void Apply_RS_Hessian(HDSA::Vector<RealT> & z_out, const HDSA::Vector<RealT> & z_in, const HDSA::Vector<RealT> & z) const = 0;
+    virtual void Apply_RS_Hessian(HDSA::Vector<RealT> &z_out, const HDSA::Vector<RealT> &z_in, const HDSA::Vector<RealT> &z) const = 0;
 
-    virtual void Misfit_Gradient(HDSA::Vector<RealT> & u_grad, const HDSA::Vector<RealT> & u, const HDSA::Vector<RealT> & z) const = 0;
+    virtual void Misfit_Gradient(HDSA::Vector<RealT> &u_grad, const HDSA::Vector<RealT> &u, const HDSA::Vector<RealT> &z) const = 0;
 
-    virtual void Apply_Misfit_Hessian(HDSA::Vector<RealT> & u_out, const HDSA::Vector<RealT> & u_in, const HDSA::Vector<RealT> & u, const HDSA::Vector<RealT> & z) const = 0;
-                                                                                                                                                                                                        
+    virtual void Apply_Misfit_Hessian(HDSA::Vector<RealT> &u_out, const HDSA::Vector<RealT> &u_in, const HDSA::Vector<RealT> &u, const HDSA::Vector<RealT> &z) const = 0;
   };
 
 }

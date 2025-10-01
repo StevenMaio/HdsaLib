@@ -52,7 +52,7 @@ public:
     Std_Vector<RealT> z_out_std = dynamic_cast<const Std_Vector<RealT> &>(z_out);
     for (int k = 0; k < m_; k++)
     {
-      z_out_std.Replace_Element(k, (*Xi_)(0,s) * 3.0 * std::pow(z_std(k), 2.0) * u_in_std(k));
+      z_out_std.Replace_Element(k, (*Xi_)(0, s) * 3.0 * std::pow(z_std(k), 2.0) * u_in_std(k));
     }
   }
 
@@ -65,13 +65,13 @@ public:
     HDSA::Ptr<HDSA::Dense_Matrix<RealT>> v = HDSA::makePtr<HDSA::Dense_Matrix<RealT>>(m_, 1);
     for (int k = 0; k < m_; k++)
     {
-      v->Replace_Element(k, 0, (*Xi_)(0,s) * 9.0 * (z_in_std(k) * std::pow(z_std(k), 2.0)));
+      v->Replace_Element(k, 0, (*Xi_)(0, s) * 9.0 * (z_in_std(k) * std::pow(z_std(k), 2.0)));
     }
     HDSA::Ptr<HDSA::Dense_Matrix<RealT>> M_v = HDSA::makePtr<HDSA::Dense_Matrix<RealT>>(m_, 1);
     M_->Multiply(*M_v, *v);
     for (int k = 0; k < m_; k++)
     {
-      z_out_std.Replace_Element(k, (*Xi_)(0,s) * (*M_v)(k, 0) * std::pow(z_std(k), 2.0));
+      z_out_std.Replace_Element(k, (*Xi_)(0, s) * (*M_v)(k, 0) * std::pow(z_std(k), 2.0));
     }
   }
 

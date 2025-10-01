@@ -15,7 +15,7 @@ namespace HDSA
     int ens_size_;
 
   public:
-    MD_OUU_Opt_Prob_Interface(std::vector<RealT> & ens_weights)
+    MD_OUU_Opt_Prob_Interface(std::vector<RealT> &ens_weights)
     {
       ens_weights_ = ens_weights;
       ens_size_ = ens_weights.size();
@@ -23,7 +23,7 @@ namespace HDSA
 
     MD_OUU_Opt_Prob_Interface(int ens_size)
     {
-      ens_weights_ = std::vector<RealT>(ens_size,1.0/static_cast<RealT>(ens_size));
+      ens_weights_ = std::vector<RealT>(ens_size, 1.0 / static_cast<RealT>(ens_size));
       ens_size_ = ens_size;
     }
 
@@ -78,9 +78,9 @@ namespace HDSA
     {
       const HDSA::Ensemble_Vector<RealT> u_ens = dynamic_cast<const HDSA::Ensemble_Vector<RealT> &>(u);
       HDSA::Ensemble_Vector<RealT> u_grad_ens = dynamic_cast<HDSA::Ensemble_Vector<RealT> &>(u_grad);
-      for(int s = 0; s < ens_size_; s++)
+      for (int s = 0; s < ens_size_; s++)
       {
-        Misfit_Gradient_Per_Sample(*u_grad_ens[s],*u_ens[s],z,s);
+        Misfit_Gradient_Per_Sample(*u_grad_ens[s], *u_ens[s], z, s);
         u_grad_ens[s]->scale(ens_weights_[s]);
       }
     }
@@ -90,9 +90,9 @@ namespace HDSA
       const HDSA::Ensemble_Vector<RealT> u_ens = dynamic_cast<const HDSA::Ensemble_Vector<RealT> &>(u);
       const HDSA::Ensemble_Vector<RealT> u_in_ens = dynamic_cast<const HDSA::Ensemble_Vector<RealT> &>(u_in);
       HDSA::Ensemble_Vector<RealT> u_out_ens = dynamic_cast<HDSA::Ensemble_Vector<RealT> &>(u_out);
-      for(int s = 0; s < ens_size_; s++)
+      for (int s = 0; s < ens_size_; s++)
       {
-        Apply_Misfit_Hessian_Per_Sample(*u_out_ens[s],*u_in_ens[s],*u_ens[s],z,s);
+        Apply_Misfit_Hessian_Per_Sample(*u_out_ens[s], *u_in_ens[s], *u_ens[s], z, s);
         u_out_ens[s]->scale(ens_weights_[s]);
       }
     }

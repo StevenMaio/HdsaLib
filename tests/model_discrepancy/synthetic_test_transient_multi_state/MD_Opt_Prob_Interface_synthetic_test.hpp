@@ -140,7 +140,7 @@ public:
     M_sm_->Apply(*u_tmp2, *u_tmp1);
     const Transient_Vector<RealT> u_grad_trans = dynamic_cast<const Transient_Vector<RealT> &>(u_grad);
     HDSA::Ptr<HDSA::Vector<RealT>> uf_grad = u_grad_trans[n_t_ - 1];
-    data_interface_->Set_State_Component(*uf_grad,*u_tmp2,1);
+    data_interface_->Set_State_Component(*uf_grad, *u_tmp2, 1);
   }
 
   void Apply_Misfit_Hessian(HDSA::Vector<RealT> &u_out, const HDSA::Vector<RealT> &u_in, const HDSA::Vector<RealT> &u, const HDSA::Vector<RealT> &z) const
@@ -152,7 +152,7 @@ public:
     M_sm_->Apply(*u_tmp, *u_in2);
     const Transient_Vector<RealT> u_out_trans = dynamic_cast<const Transient_Vector<RealT> &>(u_out);
     HDSA::Ptr<HDSA::Vector<RealT>> uf_out = u_out_trans[n_t_ - 1];
-    data_interface_->Set_State_Component(*uf_out,*u_tmp,1);
+    data_interface_->Set_State_Component(*uf_out, *u_tmp, 1);
   }
 
   HDSA::Ptr<HDSA::Sparse_Matrix<RealT>> Get_Mass_Matrix(void) const

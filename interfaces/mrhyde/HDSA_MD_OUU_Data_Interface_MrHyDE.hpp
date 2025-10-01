@@ -58,6 +58,5 @@ public:
   {
     return data_interface_mrhyde_;
   }
-  
 };
 #endif

@@ -317,22 +317,22 @@ int main(int argc, char *argv[])
   RealT x = 0.0;
   RealT y = 0.0;
   RealT val = 0.0;
-  for(int k = 0; k < (L+1)*(L+1); k++)
+  for (int k = 0; k < (L + 1) * (L + 1); k++)
   {
-    x = (550.0/double(L))*double((k%(L+1)));
-    y = (450.0/double(L))*double(std::floor(k/(L+1)));
+    x = (550.0 / double(L)) * double((k % (L + 1)));
+    y = (450.0 / double(L)) * double(std::floor(k / (L + 1)));
 
-    //std::cout << "k = " << k << " and x = " << x << " and y = " << y << std::endl;
+    // std::cout << "k = " << k << " and x = " << x << " and y = " << y << std::endl;
 
-    val = std::sin(2.0*M_PI*x/550.0) * std::sin(2.0*M_PI*y/450.0);
+    val = std::sin(2.0 * M_PI * x / 550.0) * std::sin(2.0 * M_PI * y / 450.0);
     theta_star_std.Replace_Element(k, val);
 
-    //std::cout << "Entry " << k << " is set to " << val << std::endl;
+    // std::cout << "Entry " << k << " is set to " << val << std::endl;
 
-    val = std::cos(2.0*M_PI*x/550.0) * std::cos(2.0*M_PI*y/450.0);
-    theta_star_std.Replace_Element((L+1)*(L+1) + k, val);
+    val = std::cos(2.0 * M_PI * x / 550.0) * std::cos(2.0 * M_PI * y / 450.0);
+    theta_star_std.Replace_Element((L + 1) * (L + 1) + k, val);
 
-    //std::cout << "Entry " << (L+1)*(L+1) + k << " is set to " << val << std::endl;
+    // std::cout << "Entry " << (L+1)*(L+1) + k << " is set to " << val << std::endl;
   }
 
   std::cout << "z_bar->norm() = " << z_bar->norm() << std::endl;

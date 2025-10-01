@@ -90,7 +90,6 @@ namespace HDSA
       return M_t_;
     }
 
-
     HDSA::Ptr<HDSA::Dense_Matrix<RealT>> Get_W_t_Inverse(void) const
     {
       return W_t_inv_;
@@ -165,9 +164,9 @@ namespace HDSA
           RealT val = 0.0;
           for (int k = 0; k < n_t_; k++)
           {
-            val += (*evecs_)(i,k) * (*evecs_)(j,k) * (*evals_)(k,0);
+            val += (*evecs_)(i, k) * (*evecs_)(j, k) * (*evals_)(k, 0);
           }
-          W_t_inv_->Replace_Element(i,j,val);
+          W_t_inv_->Replace_Element(i, j, val);
         }
       }
     }

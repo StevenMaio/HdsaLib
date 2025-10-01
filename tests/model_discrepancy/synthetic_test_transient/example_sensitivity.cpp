@@ -56,7 +56,7 @@ int main(int argc, char *argv[])
 
   HDSA::Ptr<HDSA::MD_u_Prior_Interface<RealT>> spatial_u_prior_interface = HDSA::makePtr<HDSA::MD_Numeric_Laplacian_u_Prior_Interface<RealT>>(S, M, data_interface, u_hyperparam_interface, random_number_generator);
   HDSA::Ptr<HDSA::MD_Transient_Prior_Covariance<RealT>> transient_prior_cov = HDSA::makePtr<HDSA::MD_Transient_Prior_Covariance<RealT>>(data_interface, u_hyperparam_interface, T, n_t, n_y);
-  HDSA::Ptr<HDSA::MD_u_Prior_Interface<RealT>> u_prior_interface = HDSA::makePtr<HDSA::MD_Transient_Elliptic_u_Prior_Interface<RealT>>(spatial_u_prior_interface,transient_prior_cov);
+  HDSA::Ptr<HDSA::MD_u_Prior_Interface<RealT>> u_prior_interface = HDSA::makePtr<HDSA::MD_Transient_Elliptic_u_Prior_Interface<RealT>>(spatial_u_prior_interface, transient_prior_cov);
 
   HDSA::Ptr<HDSA::MD_z_Prior_Interface<RealT>> z_prior_interface = HDSA::makePtr<HDSA::MD_Numeric_Laplacian_z_Prior_Interface<RealT>>(S, M, data_interface, z_hyperparam_interface, u_prior_interface);
 
@@ -85,9 +85,9 @@ int main(int argc, char *argv[])
   RealT pi = 3.14159265358979323846;
   for (int k = 0; k < m; k++)
   {
-    z0_tpetra.getVector()->replaceGlobalValue(k,0,(*x)(k, 0));
-    z1_tpetra.getVector()->replaceGlobalValue(k,0,1.0 + std::pow((*x)(k, 0), 2.0));
-    z2_tpetra.getVector()->replaceGlobalValue(k,0,std::sin(2 * pi * (*x)(k, 0)));
+    z0_tpetra.getVector()->replaceGlobalValue(k, 0, (*x)(k, 0));
+    z1_tpetra.getVector()->replaceGlobalValue(k, 0, 1.0 + std::pow((*x)(k, 0), 2.0));
+    z2_tpetra.getVector()->replaceGlobalValue(k, 0, std::sin(2 * pi * (*x)(k, 0)));
   }
 
   std::vector<HDSA::Ptr<HDSA::MultiVector<RealT>>> prior_samples = prior_sampling->Prior_Discrepancy_Samples(*z, num_prior_samples);
@@ -114,7 +114,7 @@ int main(int argc, char *argv[])
   HDSA_Tpetra_Vector<RealT> ztest2_tpetra = dynamic_cast<HDSA_Tpetra_Vector<RealT> &>(*z_test[2]);
   for (int k = 0; k < m; k++)
   {
-    ztest2_tpetra.getVector()->replaceGlobalValue(k,0,1.5);
+    ztest2_tpetra.getVector()->replaceGlobalValue(k, 0, 1.5);
   }
 
   std::vector<HDSA::Ptr<HDSA::MD_Posterior_Vectors<RealT>>> post_discrepancy_samples = post_sampling->Posterior_Discrepancy_Samples(z_test);

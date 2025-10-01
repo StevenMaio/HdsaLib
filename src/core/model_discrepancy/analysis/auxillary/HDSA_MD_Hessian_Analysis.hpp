@@ -33,7 +33,7 @@ namespace HDSA
     {
     }
 
-    HDSA::Ptr<HDSA::Dense_Matrix<RealT>> Get_Evals(void) const 
+    HDSA::Ptr<HDSA::Dense_Matrix<RealT>> Get_Evals(void) const
     {
       return evals_;
     }

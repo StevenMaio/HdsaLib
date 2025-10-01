@@ -58,17 +58,17 @@ namespace HDSA
       {
         HDSA::Ptr<const HDSA::Vector<RealT>> u_nom = data_interface_->get_u_opt();
         HDSA::Ptr<HDSA::MultiVector<RealT>> z_samples = HDSA::makePtr<HDSA::MultiVector<RealT>>(num_state_solves, *data_interface_->get_z_opt());
-        if(z_hyperparam_interface_->Get_z_type() == "spatial field")
+        if (z_hyperparam_interface_->Get_z_type() == "spatial field")
         {
           MD_Numeric_Laplacian_z_Prior_Interface<RealT> z_elliptic = dynamic_cast<MD_Numeric_Laplacian_z_Prior_Interface<RealT> &>(*z_prior_interface);
           z_elliptic.Sample_with_Covariance_W_z_Acute_Inverse(*z_samples);
         }
-        else if(z_hyperparam_interface_->Get_z_type() == "transient vector")
+        else if (z_hyperparam_interface_->Get_z_type() == "transient vector")
         {
           MD_Transient_Vector_z_Prior_Interface<RealT> z_trans_prior = dynamic_cast<MD_Transient_Vector_z_Prior_Interface<RealT> &>(*z_prior_interface);
           z_trans_prior.Sample_with_Covariance_W_z_Acute_Inverse(*z_samples);
         }
-        else if(z_hyperparam_interface_->Get_z_type() == "vector")
+        else if (z_hyperparam_interface_->Get_z_type() == "vector")
         {
           MD_Vector_z_Prior_Interface<RealT> z_vec_prior = dynamic_cast<MD_Vector_z_Prior_Interface<RealT> &>(*z_prior_interface);
           z_vec_prior.Sample_with_Covariance_W_z_Acute_Inverse(*z_samples);
@@ -212,22 +212,22 @@ namespace HDSA
       }
       std::sort(evals.begin(), evals.end(), std::greater<RealT>());
     }
-    else if(z_hyperparam_interface_->Get_z_type() == "transient vector")
+    else if (z_hyperparam_interface_->Get_z_type() == "transient vector")
     {
       HDSA::MD_Transient_Vector_z_Prior_Interface<RealT> z_trans_prior = dynamic_cast<HDSA::MD_Transient_Vector_z_Prior_Interface<RealT> &>(*z_prior_interface);
       int n_t = z_trans_prior.Get_n_t();
       RealT T = z_trans_prior.Get_T();
       evals.resize(n_t);
-      for(int k = 0; k < n_t; k++)
+      for (int k = 0; k < n_t; k++)
       {
-        RealT valk = 1.0 + z_hyperparam_interface_->Get_beta_t() * std::pow(M_PI/T,2.0) * std::pow(static_cast<RealT>(k),2.0);
-        evals[k] = std::sqrt(1.0/valk);
+        RealT valk = 1.0 + z_hyperparam_interface_->Get_beta_t() * std::pow(M_PI / T, 2.0) * std::pow(static_cast<RealT>(k), 2.0);
+        evals[k] = std::sqrt(1.0 / valk);
       }
       std::sort(evals.begin(), evals.end(), std::greater<RealT>());
     }
-    else if(z_hyperparam_interface_->Get_z_type() == "vector")
+    else if (z_hyperparam_interface_->Get_z_type() == "vector")
     {
-      evals = std::vector<RealT>(data_interface_->get_z_opt()->dimension(),1.0);
+      evals = std::vector<RealT>(data_interface_->get_z_opt()->dimension(), 1.0);
     }
     return evals;
   }

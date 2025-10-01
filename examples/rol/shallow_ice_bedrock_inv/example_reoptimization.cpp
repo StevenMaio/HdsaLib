@@ -251,10 +251,10 @@ int main(int argc, char *argv[])
   // Misfit and regularization objectives for LIS codes
 
   // Need to defined reg_obj to lack the code, it is not actually used
-  std::vector<HDSA::Ptr<ROL::Objective_SimOpt<RealT> > > reg_obj(1);  
-  bool construct_matrices = parlist->sublist("Problem").get("Construct Matrices",false);
-  reg_obj[0] = HDSA::makePtr<Elliptic_Prior_Regularization_Objective_SimOpt<RealT> >(comm->Get_Teuchos_Communicator(), parlist, outStream, construct_matrices);
-  
+  std::vector<HDSA::Ptr<ROL::Objective_SimOpt<RealT>>> reg_obj(1);
+  bool construct_matrices = parlist->sublist("Problem").get("Construct Matrices", false);
+  reg_obj[0] = HDSA::makePtr<Elliptic_Prior_Regularization_Objective_SimOpt<RealT>>(comm->Get_Teuchos_Communicator(), parlist, outStream, construct_matrices);
+
   // Misfit
   HDSA::Ptr<Objective_SimOpt_TS<RealT>> misfit_obj = HDSA::makePtr<State_Cost_shallow_ice<RealT>>(timeStamp, data, data_weight, data_weight_id, u0);
   std::vector<RealT> weights_misfit = std::vector<RealT>(2);

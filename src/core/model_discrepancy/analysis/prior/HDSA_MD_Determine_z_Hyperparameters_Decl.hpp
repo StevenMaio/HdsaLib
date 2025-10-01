@@ -26,7 +26,6 @@ namespace HDSA
     void Determine_alpha_z(HDSA::MD_z_Prior_Interface<RealT> *z_prior_interface) const;
 
     std::vector<RealT> Compute_Eigenvalues(HDSA::MD_z_Prior_Interface<RealT> *z_prior_interface) const;
-
   };
 
 }

@@ -59,7 +59,7 @@ namespace HDSA
     {
       std::vector<HDSA::Ptr<HDSA::MultiVector<RealT>>> ens_D;
       ens_D.resize(ens_size_);
-      for(int s = 0; s < ens_size_; s++)
+      for (int s = 0; s < ens_size_; s++)
       {
         ens_D[s] = Load_Ds_Data(s);
       }
@@ -67,11 +67,11 @@ namespace HDSA
       int N = ens_D[0]->Number_of_Vectors();
       std::vector<HDSA::Ptr<HDSA::Vector<RealT>>> vecs;
       vecs.resize(N);
-      for(int ell = 0; ell < N; ell++)
+      for (int ell = 0; ell < N; ell++)
       {
         std::vector<HDSA::Ptr<HDSA::Vector<RealT>>> vec_ell;
         vec_ell.resize(ens_size_);
-        for(int s = 0; s < ens_size_; s++)
+        for (int s = 0; s < ens_size_; s++)
         {
           vec_ell[s] = (*ens_D[s])[ell];
         }

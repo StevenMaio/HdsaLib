@@ -32,7 +32,6 @@ namespace HDSA
     bool is_multistate_interface_;
 
   public:
-
     MD_u_Hyperparameter_Interface(const bool &is_transient, const bool &center_data = false, const bool &adapt_time_variance = false, const int &component_id = 1) : is_transient_(is_transient), center_data_(center_data), adapt_time_variance_(adapt_time_variance), component_id_(component_id)
     {
       is_multistate_interface_ = false;
@@ -76,7 +75,7 @@ namespace HDSA
       return component_id_;
     }
 
-    bool Is_Multi_State_Interface(void) const 
+    bool Is_Multi_State_Interface(void) const
     {
       return is_multistate_interface_;
     }
@@ -163,7 +162,6 @@ namespace HDSA
     {
       return gsvd_num_subspace_iter_;
     }
-
   };
 
 }

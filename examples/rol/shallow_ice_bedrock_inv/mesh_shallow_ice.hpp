@@ -1,16 +1,15 @@
 #include "../../../../Trilinos/packages/rol/example/PDE-OPT/TOOLS/meshmanager.hpp"
 
 template <class Real>
-class MeshManager_shallow_ice : public MeshManager_Rectangle<Real> {
+class MeshManager_shallow_ice : public MeshManager_Rectangle<Real>
+{
 
 private:
-
   int nx_;
   int ny_;
-  ROL::Ptr<std::vector<std::vector<std::vector<int> > > >  meshSideSets_;
+  ROL::Ptr<std::vector<std::vector<std::vector<int>>>> meshSideSets_;
 
-public: 
-
+public:
   MeshManager_shallow_ice(Teuchos::ParameterList &parlist) : MeshManager_Rectangle<Real>(parlist)
   {
     nx_ = parlist.sublist("Geometry").get("NX", 3);
@@ -18,11 +17,11 @@ public:
     computeSideSets();
   }
 
-
-  void computeSideSets() {
+  void computeSideSets()
+  {
 
     int numSideSets = 2;
-    meshSideSets_ = ROL::makePtr<std::vector<std::vector<std::vector<int> > >>(numSideSets);
+    meshSideSets_ = ROL::makePtr<std::vector<std::vector<std::vector<int>>>>(numSideSets);
 
     // Dirichlet
     (*meshSideSets_)[0].resize(4);
@@ -36,30 +35,36 @@ public:
     (*meshSideSets_)[1][1].resize(ny_);
     (*meshSideSets_)[1][2].resize(nx_);
     (*meshSideSets_)[1][3].resize(0);
-    
-    for (int i=0; i<nx_; ++i) {
+
+    for (int i = 0; i < nx_; ++i)
+    {
       (*meshSideSets_)[1][0][i] = i;
     }
-    for (int i=0; i<ny_; ++i) {
-      (*meshSideSets_)[1][1][i] = (i+1)*nx_-1;
+    for (int i = 0; i < ny_; ++i)
+    {
+      (*meshSideSets_)[1][1][i] = (i + 1) * nx_ - 1;
     }
-    for (int i=0; i<nx_; ++i) {
-      (*meshSideSets_)[1][2][i] = i + nx_*(ny_-1);
+    for (int i = 0; i < nx_; ++i)
+    {
+      (*meshSideSets_)[1][2][i] = i + nx_ * (ny_ - 1);
     }
-    for (int i=0; i<ny_; ++i) {
-      (*meshSideSets_)[0][3][i] = i*nx_;
+    for (int i = 0; i < ny_; ++i)
+    {
+      (*meshSideSets_)[0][3][i] = i * nx_;
     }
 
   } // computeSideSets
 
-  ROL::Ptr<std::vector<std::vector<std::vector<int> > > > getSideSets(
-              const bool verbose = false,
-              std::ostream & outStream = std::cout) const { 
-    if (verbose) {
+  ROL::Ptr<std::vector<std::vector<std::vector<int>>>> getSideSets(
+      const bool verbose = false,
+      std::ostream &outStream = std::cout) const
+  {
+    if (verbose)
+    {
       outStream << "Mesh_shallow_ice: getSideSets called" << std::endl;
-      outStream << "Mesh_shallow_ice: numSideSets = "     << meshSideSets_->size() << std::endl;
+      outStream << "Mesh_shallow_ice: numSideSets = " << meshSideSets_->size() << std::endl;
     }
     return meshSideSets_;
   }
-  
+
 }; // MeshManager_shallow_ice

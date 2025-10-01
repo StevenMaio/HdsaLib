@@ -64,7 +64,7 @@ namespace HDSA
       return sing_vals_;
     }
 
-    const HDSA::Ptr<HDSA::Random_Number_Generator<RealT>> Get_Random_Number_Generator(void) const 
+    const HDSA::Ptr<HDSA::Random_Number_Generator<RealT>> Get_Random_Number_Generator(void) const
     {
       return random_number_generator_;
     }

@@ -52,7 +52,7 @@ namespace HDSA
 				dz_k->set(*z[k]);
 				dz_k->axpy(-1.0, *data_interface_->get_z_opt());
 				HDSA::Ptr<HDSA::Vector<RealT>> M_z_dz_k = z[k]->clone();
-				z_prior_interface_->Apply_M_z(*M_z_dz_k,*dz_k);
+				z_prior_interface_->Apply_M_z(*M_z_dz_k, *dz_k);
 
 				for (int ell = 0; ell < post_data->N; ell++)
 				{

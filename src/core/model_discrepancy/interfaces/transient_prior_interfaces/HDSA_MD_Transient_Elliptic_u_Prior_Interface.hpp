@@ -162,7 +162,7 @@ namespace HDSA
       {
         HDSA::Ptr<HDSA::Vector<RealT>> sk = samples[k];
         Transient_Vector<RealT> *sk_trans = dynamic_cast<Transient_Vector<RealT> *>(&(*sk));
-        
+
         HDSA::Ptr<HDSA::Dense_Matrix<RealT>> tmp1 = HDSA::makePtr<HDSA::Dense_Matrix<RealT>>(spatial_rank, n_t_);
         for (int j = 0; j < n_t_; j++)
         {

@@ -48,7 +48,7 @@ public:
     const HDSA_Tpetra_Vector<RealT> u_tpetra = dynamic_cast<const HDSA_Tpetra_Vector<RealT> &>(u);
     const HDSA_Tpetra_Vector<RealT> u_component_tpetra = dynamic_cast<const HDSA_Tpetra_Vector<RealT> &>(u_component);
     Teuchos::ArrayRCP<const RealT> u_component_view = u_component_tpetra.getVector()->get1dView();
-    for(int k = 0; k < m_; k++)
+    for (int k = 0; k < m_; k++)
     {
       u_tpetra.getVector()->replaceGlobalValue(component_id * m_ + k, 0, u_component_view[k]);
     }

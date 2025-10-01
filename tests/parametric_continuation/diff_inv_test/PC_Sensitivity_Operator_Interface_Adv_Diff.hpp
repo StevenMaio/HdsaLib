@@ -4,36 +4,35 @@
 #include "HDSA_PC_Sensitivity_Operator_Interface.hpp"
 
 template <class RealT>
-class PC_Sensitivity_Operator_Interface_Adv_Diff : public HDSA::PC_Sensitivity_Operator_Interface<RealT> {
-
+class PC_Sensitivity_Operator_Interface_Adv_Diff : public HDSA::PC_Sensitivity_Operator_Interface<RealT>
+{
 
 private:
-  HDSA::Ptr<Reduced_Space_Objective<RealT> > obj_;
+  HDSA::Ptr<Reduced_Space_Objective<RealT>> obj_;
 
 public:
-  PC_Sensitivity_Operator_Interface_Adv_Diff(HDSA::Ptr<Reduced_Space_Objective<RealT> > & obj): obj_(obj)
-  { }
-  
+  PC_Sensitivity_Operator_Interface_Adv_Diff(HDSA::Ptr<Reduced_Space_Objective<RealT>> &obj) : obj_(obj)
+  {
+  }
+
   virtual ~PC_Sensitivity_Operator_Interface_Adv_Diff()
-  { }
-  
-                         
-  void Gradient(HDSA::Vector<RealT> & grad, const HDSA::Vector<RealT> & z, const HDSA::Vector<RealT> & theta) const
   {
-    obj_->Gradient(grad,z,theta);
   }
 
-  void Apply_Hessian(HDSA::Vector<RealT> & z_out, const HDSA::Vector<RealT> & z_in, const HDSA::Vector<RealT> & z, const HDSA::Vector<RealT> & theta) const
+  void Gradient(HDSA::Vector<RealT> &grad, const HDSA::Vector<RealT> &z, const HDSA::Vector<RealT> &theta) const
   {
-    obj_->Apply_Hessian(z_out,z_in,z,theta);
+    obj_->Gradient(grad, z, theta);
   }
 
-  void Apply_B(HDSA::Vector<RealT> & z_out, const HDSA::Vector<RealT> & theta_in, const HDSA::Vector<RealT> & z, const HDSA::Vector<RealT> & theta) const
+  void Apply_Hessian(HDSA::Vector<RealT> &z_out, const HDSA::Vector<RealT> &z_in, const HDSA::Vector<RealT> &z, const HDSA::Vector<RealT> &theta) const
   {
-    obj_->Apply_B(z_out,theta_in,z,theta);
+    obj_->Apply_Hessian(z_out, z_in, z, theta);
   }
-                                                                                                                                                                                                        
-  };
 
+  void Apply_B(HDSA::Vector<RealT> &z_out, const HDSA::Vector<RealT> &theta_in, const HDSA::Vector<RealT> &z, const HDSA::Vector<RealT> &theta) const
+  {
+    obj_->Apply_B(z_out, theta_in, z, theta);
+  }
+};
 
 #endif

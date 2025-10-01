@@ -11,12 +11,12 @@ private:
   int m_;                                  // Mesh resolution
   HDSA::Ptr<HDSA::Dense_Matrix<RealT>> x_; // Mesh nodes on [0,1]
   HDSA::Ptr<HDSA::Dense_Matrix<RealT>> M_; // Mass matrix
-  HDSA::Ptr<HDSA::Sparse_Matrix<RealT> > M_sm_;
-  HDSA::Ptr<HDSA::Sparse_Matrix<RealT> > S_sm_;
+  HDSA::Ptr<HDSA::Sparse_Matrix<RealT>> M_sm_;
+  HDSA::Ptr<HDSA::Sparse_Matrix<RealT>> S_sm_;
   HDSA::Ptr<HDSA::MD_Data_Interface<RealT>> data_interface_;
 
 public:
-  MD_Opt_Prob_Interface_synthetic_test(HDSA::Ptr<const HDSA::Comm<int> > & comm, HDSA::Ptr<HDSA::MD_Data_Interface<RealT>> & data_interface): data_interface_(data_interface)
+  MD_Opt_Prob_Interface_synthetic_test(HDSA::Ptr<const HDSA::Comm<int>> &comm, HDSA::Ptr<HDSA::MD_Data_Interface<RealT>> &data_interface) : data_interface_(data_interface)
   {
     m_ = 51;
     RealT h = 1.0 / static_cast<RealT>(m_ - 1);
@@ -40,31 +40,31 @@ public:
 
     const int m = m_;
     auto map = Tpetra::createUniformContigMap<Tpetra::Map<>::local_ordinal_type, Tpetra::Map<>::global_ordinal_type>(m, comm->Get_Teuchos_Communicator());
-    HDSA::Ptr<Tpetra::CrsMatrix<RealT,Tpetra::Map<>::local_ordinal_type,Tpetra::Map<>::global_ordinal_type> > M = HDSA::makePtr<Tpetra::CrsMatrix<RealT,Tpetra::Map<>::local_ordinal_type,Tpetra::Map<>::global_ordinal_type> >(map, 3); // 3 is the maximum number of non-zero entries per row
-    HDSA::Ptr<Tpetra::CrsMatrix<RealT,Tpetra::Map<>::local_ordinal_type,Tpetra::Map<>::global_ordinal_type> > S = HDSA::makePtr<Tpetra::CrsMatrix<RealT,Tpetra::Map<>::local_ordinal_type,Tpetra::Map<>::global_ordinal_type> >(map, 3); // 3 is the maximum number of non-zero entries per row
+    HDSA::Ptr<Tpetra::CrsMatrix<RealT, Tpetra::Map<>::local_ordinal_type, Tpetra::Map<>::global_ordinal_type>> M = HDSA::makePtr<Tpetra::CrsMatrix<RealT, Tpetra::Map<>::local_ordinal_type, Tpetra::Map<>::global_ordinal_type>>(map, 3); // 3 is the maximum number of non-zero entries per row
+    HDSA::Ptr<Tpetra::CrsMatrix<RealT, Tpetra::Map<>::local_ordinal_type, Tpetra::Map<>::global_ordinal_type>> S = HDSA::makePtr<Tpetra::CrsMatrix<RealT, Tpetra::Map<>::local_ordinal_type, Tpetra::Map<>::global_ordinal_type>>(map, 3); // 3 is the maximum number of non-zero entries per row
     Teuchos::Array<Tpetra::Map<>::global_ordinal_type> cols0 = {0, 1};
     Teuchos::Array<RealT> vals0_M = {h / 3.0, h / 6.0};
     M->insertGlobalValues(0, cols0(), vals0_M());
-    Teuchos::Array<RealT> vals0_S = {1.0/h,-1.0/h};
+    Teuchos::Array<RealT> vals0_S = {1.0 / h, -1.0 / h};
     S->insertGlobalValues(0, cols0(), vals0_S());
     for (int i = 1; i < m - 1; ++i)
     {
       Teuchos::Array<Tpetra::Map<>::global_ordinal_type> cols = {i - 1, i, i + 1};
       Teuchos::Array<RealT> vals_M = {h / 6.0, 2.0 * h / 3.0, h / 6.0};
       M->insertGlobalValues(i, cols(), vals_M());
-      Teuchos::Array<RealT> vals_S = {-1.0/h, 2.0/h, -1.0/h};
+      Teuchos::Array<RealT> vals_S = {-1.0 / h, 2.0 / h, -1.0 / h};
       S->insertGlobalValues(i, cols(), vals_S());
     }
     Teuchos::Array<Tpetra::Map<>::global_ordinal_type> colsm = {m - 2, m - 1};
     Teuchos::Array<RealT> valsm_M = {h / 6.0, h / 3.0};
     M->insertGlobalValues(m - 1, colsm(), valsm_M());
-    Teuchos::Array<RealT> valsm_S = {-1.0/h, 1.0/h};
+    Teuchos::Array<RealT> valsm_S = {-1.0 / h, 1.0 / h};
     S->insertGlobalValues(m - 1, colsm(), valsm_S());
     M->fillComplete();
     S->fillComplete();
 
-    M_sm_ = HDSA::makePtr<HDSA::Sparse_Matrix<RealT> >(M);
-    S_sm_ = HDSA::makePtr<HDSA::Sparse_Matrix<RealT> >(S);
+    M_sm_ = HDSA::makePtr<HDSA::Sparse_Matrix<RealT>>(M);
+    S_sm_ = HDSA::makePtr<HDSA::Sparse_Matrix<RealT>>(S);
   }
 
   virtual ~MD_Opt_Prob_Interface_synthetic_test()
@@ -80,8 +80,8 @@ public:
     Teuchos::ArrayRCP<const RealT> u_in_view = u_in_tpetra.getVector()->get1dView();
     for (int k = 0; k < m_; k++)
     {
-      RealT val = 3.0 * std::pow(z_view[k],2.0) * (u_in_view[k] + u_in_view[m_ + k]);
-      z_out_tpetra.getVector()->replaceGlobalValue(k,0,val);
+      RealT val = 3.0 * std::pow(z_view[k], 2.0) * (u_in_view[k] + u_in_view[m_ + k]);
+      z_out_tpetra.getVector()->replaceGlobalValue(k, 0, val);
     }
   }
 
@@ -90,8 +90,8 @@ public:
     const HDSA_Tpetra_Vector<RealT> z_tpetra = dynamic_cast<const HDSA_Tpetra_Vector<RealT> &>(z);
     const HDSA_Tpetra_Vector<RealT> z_in_tpetra = dynamic_cast<const HDSA_Tpetra_Vector<RealT> &>(z_in);
     HDSA_Tpetra_Vector<RealT> z_out_tpetra = dynamic_cast<const HDSA_Tpetra_Vector<RealT> &>(z_out);
-    HDSA::Ptr<HDSA::Vector<RealT> > z_tmp1 = z_out.clone();
-    HDSA::Ptr<HDSA::Vector<RealT> > z_tmp2 = z_out.clone();
+    HDSA::Ptr<HDSA::Vector<RealT>> z_tmp1 = z_out.clone();
+    HDSA::Ptr<HDSA::Vector<RealT>> z_tmp2 = z_out.clone();
     HDSA_Tpetra_Vector<RealT> z_tmp1_tpetra = dynamic_cast<const HDSA_Tpetra_Vector<RealT> &>(*z_tmp1);
     HDSA_Tpetra_Vector<RealT> z_tmp2_tpetra = dynamic_cast<const HDSA_Tpetra_Vector<RealT> &>(*z_tmp2);
     Teuchos::ArrayRCP<const RealT> z_view = z_tpetra.getVector()->get1dView();
@@ -101,13 +101,13 @@ public:
     for (int k = 0; k < m_; k++)
     {
       RealT val = 9.0 * (z_in_view[k] * std::pow(z_view[k], 2.0));
-      z_tmp1_tpetra.getVector()->replaceGlobalValue(k,0,val);
+      z_tmp1_tpetra.getVector()->replaceGlobalValue(k, 0, val);
     }
-    M_sm_->Apply(*z_tmp2,*z_tmp1);
+    M_sm_->Apply(*z_tmp2, *z_tmp1);
     for (int k = 0; k < m_; k++)
     {
-      RealT val = z_tmp2_view[k] * std::pow(z_view[k],2.0);
-      z_out_tpetra.getVector()->replaceGlobalValue(k,0,val);
+      RealT val = z_tmp2_view[k] * std::pow(z_view[k], 2.0);
+      z_out_tpetra.getVector()->replaceGlobalValue(k, 0, val);
     }
   }
 
@@ -122,28 +122,28 @@ public:
     for (int k = 0; k < m_; k++)
     {
       RealT val = u2_view[k] - 1.0 - std::pow((*x_)(k, 0) + 1.0, 3.0);
-      u_tmp1_tpetra.getVector()->replaceGlobalValue(k,0,val);
+      u_tmp1_tpetra.getVector()->replaceGlobalValue(k, 0, val);
     }
-    
+
     HDSA::Ptr<HDSA::Vector<RealT>> u_tmp2 = u2->clone();
-    M_sm_->Apply(*u_tmp2,*u_tmp1);
-    data_interface_->Set_State_Component(u_grad,*u_tmp2,1);
+    M_sm_->Apply(*u_tmp2, *u_tmp1);
+    data_interface_->Set_State_Component(u_grad, *u_tmp2, 1);
   }
 
   void Apply_Misfit_Hessian(HDSA::Vector<RealT> &u_out, const HDSA::Vector<RealT> &u_in, const HDSA::Vector<RealT> &u, const HDSA::Vector<RealT> &z) const
   {
     HDSA::Ptr<const HDSA::Vector<RealT>> u_in2 = data_interface_->Extract_State_Component(u_in, 1);
     HDSA::Ptr<HDSA::Vector<RealT>> u_tmp = u_in2->clone();
-    M_sm_->Apply(*u_tmp,*u_in2);
-    data_interface_->Set_State_Component(u_out,*u_tmp,1);
+    M_sm_->Apply(*u_tmp, *u_in2);
+    data_interface_->Set_State_Component(u_out, *u_tmp, 1);
   }
 
-  HDSA::Ptr<HDSA::Sparse_Matrix<RealT> > Get_Mass_Matrix(void) const
+  HDSA::Ptr<HDSA::Sparse_Matrix<RealT>> Get_Mass_Matrix(void) const
   {
     return M_sm_;
   }
 
-  HDSA::Ptr<HDSA::Sparse_Matrix<RealT> > Get_Stiffness_Matrix(void) const
+  HDSA::Ptr<HDSA::Sparse_Matrix<RealT>> Get_Stiffness_Matrix(void) const
   {
     return S_sm_;
   }

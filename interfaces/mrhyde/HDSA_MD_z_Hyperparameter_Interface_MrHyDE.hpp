@@ -19,7 +19,7 @@ public:
     HDSA::Ptr<HDSA::MultiVector<ScalarT>> spatial_coords = data_interface_->Read_Spatial_Node_Data();
     int dim = spatial_coords->Number_of_Vectors();
 
-    std::vector<std::vector<RealT>> vec; 
+    std::vector<std::vector<RealT>> vec;
     vec.resize(dim);
     for (int i = 0; i < dim; i++)
     {
@@ -59,7 +59,7 @@ public:
     {
       data_interface_myhyde->State_Solve(u, z);
     }
-    else if(const MD_OUU_Data_Interface_MrHyDE<RealT> *ouu_data_interface_myhyde = dynamic_cast<const MD_OUU_Data_Interface_MrHyDE<RealT> *>(&(*data_interface_)))
+    else if (const MD_OUU_Data_Interface_MrHyDE<RealT> *ouu_data_interface_myhyde = dynamic_cast<const MD_OUU_Data_Interface_MrHyDE<RealT> *>(&(*data_interface_)))
     {
       std::vector<HDSA::Ptr<MD_Data_Interface_MrHyDE<RealT>>> data_interface_myhyde_std = ouu_data_interface_myhyde->Get_Data_Interface_MrHyDE();
       data_interface_myhyde_std[0]->State_Solve(u, z);
@@ -70,19 +70,19 @@ public:
     }
   }
 
-  MD_z_Hyperparameter_Interface_MrHyDE(const Teuchos::RCP<Teuchos::MpiComm<int>> & comm, const HDSA::Ptr<HDSA::MD_Data_Interface<RealT>> data_interface, const std::string &z_type, const int &num_state_solves = 0) : HDSA::MD_z_Hyperparameter_Interface<RealT>(z_type, num_state_solves)
+  MD_z_Hyperparameter_Interface_MrHyDE(const Teuchos::RCP<Teuchos::MpiComm<int>> &comm, const HDSA::Ptr<HDSA::MD_Data_Interface<RealT>> data_interface, const std::string &z_type, const int &num_state_solves = 0) : HDSA::MD_z_Hyperparameter_Interface<RealT>(z_type, num_state_solves)
   {
     comm_ = comm;
     data_interface_ = data_interface;
   }
 
-  MD_z_Hyperparameter_Interface_MrHyDE(const Teuchos::RCP<Teuchos::MpiComm<int>> & comm, const HDSA::Ptr<HDSA::MD_Data_Interface<RealT>> data_interface, int seed, const std::string &z_type, const int &num_state_solves = 0) : HDSA::MD_z_Hyperparameter_Interface<RealT>(seed, z_type, num_state_solves)
+  MD_z_Hyperparameter_Interface_MrHyDE(const Teuchos::RCP<Teuchos::MpiComm<int>> &comm, const HDSA::Ptr<HDSA::MD_Data_Interface<RealT>> data_interface, int seed, const std::string &z_type, const int &num_state_solves = 0) : HDSA::MD_z_Hyperparameter_Interface<RealT>(seed, z_type, num_state_solves)
   {
     comm_ = comm;
     data_interface_ = data_interface;
   }
 
-  MD_z_Hyperparameter_Interface_MrHyDE(const Teuchos::RCP<Teuchos::MpiComm<int>> & comm, const HDSA::Ptr<HDSA::MD_Data_Interface<RealT>> data_interface, const HDSA::Ptr<HDSA::Random_Number_Generator<RealT>> &random_number_generator, const std::string &z_type, const int &num_state_solves = 0) : HDSA::MD_z_Hyperparameter_Interface<RealT>(random_number_generator, z_type, num_state_solves)
+  MD_z_Hyperparameter_Interface_MrHyDE(const Teuchos::RCP<Teuchos::MpiComm<int>> &comm, const HDSA::Ptr<HDSA::MD_Data_Interface<RealT>> data_interface, const HDSA::Ptr<HDSA::Random_Number_Generator<RealT>> &random_number_generator, const std::string &z_type, const int &num_state_solves = 0) : HDSA::MD_z_Hyperparameter_Interface<RealT>(random_number_generator, z_type, num_state_solves)
   {
     comm_ = comm;
     data_interface_ = data_interface;

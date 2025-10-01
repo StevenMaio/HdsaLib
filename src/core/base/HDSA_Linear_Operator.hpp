@@ -4,23 +4,22 @@
 namespace HDSA
 {
 
-template <class RealT>
-class Linear_Operator {
+  template <class RealT>
+  class Linear_Operator
+  {
 
-public:
+  public:
+    Linear_Operator()
+    {
+    }
 
-  Linear_Operator() 
-  { }
+    virtual ~Linear_Operator()
+    {
+    }
 
-  virtual ~Linear_Operator()
-  { }
-
-  // evaluate matvec y=A*x
-  virtual void matvec(HDSA::Vector<RealT> & y, const HDSA::Vector<RealT> & x) const = 0;
-
-
- 
-};
+    // evaluate matvec y=A*x
+    virtual void matvec(HDSA::Vector<RealT> &y, const HDSA::Vector<RealT> &x) const = 0;
+  };
 
 }
 

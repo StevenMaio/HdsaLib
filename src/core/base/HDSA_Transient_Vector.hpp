@@ -33,7 +33,7 @@ public:
             vec_[k] = trans_vec[k];
         }
     }
-  
+
     ~Transient_Vector()
     {
     }

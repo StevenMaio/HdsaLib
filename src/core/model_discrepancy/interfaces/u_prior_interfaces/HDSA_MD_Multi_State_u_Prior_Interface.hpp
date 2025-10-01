@@ -62,7 +62,7 @@ namespace HDSA
       for (int k = 0; k < num_components_; k++)
       {
         HDSA::Ptr<const HDSA::Vector<RealT>> vec = data_interface_->Extract_State_Component(*(samples[0]), k, true);
-        HDSA::Ptr<HDSA::MultiVector<RealT>> samples_k = HDSA::makePtr<HDSA::MultiVector<RealT>>(num_vecs,*vec);
+        HDSA::Ptr<HDSA::MultiVector<RealT>> samples_k = HDSA::makePtr<HDSA::MultiVector<RealT>>(num_vecs, *vec);
         u_prior_interface_std_[k]->Sample_with_Covariance_W_u_Inverse(*samples_k);
         for (int j = 0; j < num_vecs; j++)
         {
@@ -77,7 +77,7 @@ namespace HDSA
       for (int k = 0; k < num_components_; k++)
       {
         HDSA::Ptr<const HDSA::Vector<RealT>> vec = data_interface_->Extract_State_Component(*(samples[0]), k, true);
-        HDSA::Ptr<HDSA::MultiVector<RealT>> samples_k = HDSA::makePtr<HDSA::MultiVector<RealT>>(num_vecs,*vec);
+        HDSA::Ptr<HDSA::MultiVector<RealT>> samples_k = HDSA::makePtr<HDSA::MultiVector<RealT>>(num_vecs, *vec);
         u_prior_interface_std_[k]->Sample_with_Covariance_W_u_Plus_scalar_M_u_Inverse(*samples_k, scalar);
         for (int j = 0; j < num_vecs; j++)
         {

@@ -8,7 +8,6 @@ class MD_u_Hyperparameter_Interface_synthetic_test : public HDSA::MD_u_Hyperpara
 {
 
 public:
-
   MD_u_Hyperparameter_Interface_synthetic_test(int component_id) : HDSA::MD_u_Hyperparameter_Interface<RealT>(true, false, true, component_id)
   {
   }

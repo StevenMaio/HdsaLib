@@ -19,7 +19,7 @@ private:
   std::vector<std::vector<RealT>> H_;
 
 public:
-  MD_Opt_Prob_Interface_synthetic_test(HDSA::Ptr<const HDSA::Comm<int>> &comm, HDSA::Ptr<HDSA::MD_Data_Interface<RealT>> &data_interface, int n_y, int n_t): data_interface_(data_interface)
+  MD_Opt_Prob_Interface_synthetic_test(HDSA::Ptr<const HDSA::Comm<int>> &comm, HDSA::Ptr<HDSA::MD_Data_Interface<RealT>> &data_interface, int n_y, int n_t) : data_interface_(data_interface)
   {
     n_y_ = n_y;
     n_t_ = n_t;
@@ -30,7 +30,7 @@ public:
       x_->Replace_Element(k, 0, static_cast<RealT>(k) / static_cast<RealT>(n_y_ - 1));
     }
     t_ = std::vector<RealT>(n_t_);
-    for(int k = 0; k < n_t_; k++)
+    for (int k = 0; k < n_t_; k++)
     {
       t_[k] = static_cast<RealT>(k) / static_cast<RealT>(n_t_ - 1);
     }
@@ -40,10 +40,10 @@ public:
     H_[1].resize(2);
     RealT val1 = 0.0;
     RealT val2 = 0.0;
-    for(int k = 0; k < n_y_; k++)
+    for (int k = 0; k < n_y_; k++)
     {
-      val1 += (*x_)(k,0) * (*x_)(k,0);
-      val2 += (*x_)(k,0) * (*x_)(n_y_-k-1,0);
+      val1 += (*x_)(k, 0) * (*x_)(k, 0);
+      val2 += (*x_)(k, 0) * (*x_)(n_y_ - k - 1, 0);
     }
     H_[0][0] = val1;
     H_[1][1] = val1;
@@ -110,34 +110,34 @@ public:
       RealT val1 = 0.0;
       for (int k = 0; k < n_y_; k++)
       {
-        val0 += u_in_view[k] * ( 1.0 - (*x_)(k,0) );
-        val1 += u_in_view[k] * (*x_)(k,0);
+        val0 += u_in_view[k] * (1.0 - (*x_)(k, 0));
+        val1 += u_in_view[k] * (*x_)(k, 0);
       }
       zj->Set_Entry(0, val0);
       zj->Set_Entry(1, val1);
     }
   }
 
- void Apply_RS_Hessian(HDSA::Vector<RealT> &z_out, const HDSA::Vector<RealT> &z_in, const HDSA::Vector<RealT> &z) const
+  void Apply_RS_Hessian(HDSA::Vector<RealT> &z_out, const HDSA::Vector<RealT> &z_in, const HDSA::Vector<RealT> &z) const
   {
     Transient_Vector<RealT> z_out_trans = dynamic_cast<Transient_Vector<RealT> &>(z_out);
     const Transient_Vector<RealT> z_in_trans = dynamic_cast<const Transient_Vector<RealT> &>(z_in);
 
-    for(int j = 0; j < n_t_; j++)
+    for (int j = 0; j < n_t_; j++)
     {
       HDSA::Ptr<HDSA::Vector<RealT>> z_outj = z_out_trans[j];
       HDSA::Ptr<HDSA::Vector<RealT>> z_inj = z_in_trans[j];
       RealT val0 = H_[0][0] * z_inj->Get_Entry(0) + H_[0][1] * z_inj->Get_Entry(1);
       RealT val1 = H_[1][0] * z_inj->Get_Entry(0) + H_[1][1] * z_inj->Get_Entry(1);
-      z_outj->Set_Entry(0,val0);
-      z_outj->Set_Entry(1,val1);
+      z_outj->Set_Entry(0, val0);
+      z_outj->Set_Entry(1, val1);
     }
   }
 
   void Misfit_Gradient(HDSA::Vector<RealT> &u_grad, const HDSA::Vector<RealT> &u, const HDSA::Vector<RealT> &z) const
   {
     u_grad.set(u);
-    u_grad.axpy(-1.0,*data_interface_->get_u_opt());
+    u_grad.axpy(-1.0, *data_interface_->get_u_opt());
   }
 
   void Apply_Misfit_Hessian(HDSA::Vector<RealT> &u_out, const HDSA::Vector<RealT> &u_in, const HDSA::Vector<RealT> &u, const HDSA::Vector<RealT> &z) const
