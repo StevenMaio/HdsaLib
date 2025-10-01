@@ -103,14 +103,14 @@ namespace HDSA
 					RealT val = vali;
 					val -= zj->dot(*M_z_W_z_inv_M_z_z_opt);
 					val += zj->dot(*gzi);
-					G->Replace_Element(i, j, val);
+					G->Set_Entry(i, j, val);
 				}
 			}
 			for (int i = 0; i < N; i++)
 			{
 				for (int j = i + 1; j < N; j++)
 				{
-					G->Replace_Element(i, j, (*G)(j, i));
+					G->Set_Entry(i, j, (*G)(j, i));
 				}
 			}
 
@@ -158,7 +158,7 @@ namespace HDSA
 			{
 				HDSA::Ptr<HDSA::Vector<RealT>> zl = (*data_interface.get_Z())[ell];
 				RealT val_a = 1.0 - zl->dot(*M_z_W_z_inv_M_z_z_opt) + z_opt_M_z_W_z_inv_M_z_z_opt;
-				a_ell->Replace_Element(ell, 0, val_a);
+				a_ell->Set_Entry(ell, 0, val_a);
 				for (int i = 0; i < N; i++)
 				{
 					RealT val_b = 0.0;
@@ -167,7 +167,7 @@ namespace HDSA
 						HDSA::Ptr<HDSA::Vector<RealT>> gzk = (*M_z_W_z_inv_M_z_Z)[k];
 						val_b += (*g_vecs)(k, i) * (zl->dot(*gzk) - gzk->dot(*data_interface.get_z_opt()) + (*a_ell)(ell, 0));
 					}
-					b_i_ell->Replace_Element(i, ell, val_b);
+					b_i_ell->Set_Entry(i, ell, val_b);
 				}
 			}
 

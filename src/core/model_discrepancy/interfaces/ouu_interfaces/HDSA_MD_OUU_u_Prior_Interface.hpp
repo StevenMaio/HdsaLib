@@ -46,7 +46,7 @@ namespace HDSA
           {
             val = -2.0 * (*K)(i, j);
           }
-          C_->Replace_Element(i, j, val);
+          C_->Set_Entry(i, j, val);
         }
       }
 
@@ -58,11 +58,11 @@ namespace HDSA
       {
         HDSA::Ptr<HDSA::Dense_Matrix<RealT>> x = HDSA::makePtr<HDSA::Dense_Matrix<RealT>>(ens_size_, 1);
         HDSA::Ptr<HDSA::Dense_Matrix<RealT>> b = HDSA::makePtr<HDSA::Dense_Matrix<RealT>>(ens_size_, 1);
-        b->Replace_Element(j, 0, 1.0);
+        b->Set_Entry(j, 0, 1.0);
         HDSA::Linear_Algebra::Upper_Tri_Solve<RealT>(*x, *b, *R_);
         for (int i = 0; i < ens_size_; i++)
         {
-          Rinv_->Replace_Element(i, j, (*x)(i, 0));
+          Rinv_->Set_Entry(i, j, (*x)(i, 0));
         }
       }
 
@@ -81,13 +81,13 @@ namespace HDSA
         for (int j = 0; j < ens_size_; j++)
         {
           RealT val = (1.0 / scaling_) * (*C_)(i, j);
-          C_->Replace_Element(i, j, val);
+          C_->Set_Entry(i, j, val);
           val = scaling_ * (*Cinv_)(i, j);
-          Cinv_->Replace_Element(i, j, val);
+          Cinv_->Set_Entry(i, j, val);
           val = (1.0 / std::sqrt(scaling_)) * (*R_)(i, j);
-          R_->Replace_Element(i, j, val);
+          R_->Set_Entry(i, j, val);
           val = std::sqrt(scaling_) * (*Rinv_)(i, j);
-          Rinv_->Replace_Element(i, j, val);
+          Rinv_->Set_Entry(i, j, val);
         }
       }
     }

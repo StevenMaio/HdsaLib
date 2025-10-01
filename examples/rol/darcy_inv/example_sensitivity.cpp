@@ -75,7 +75,7 @@ void Set_Parameters(HDSA::Ptr<HDSA::Vector<RealT>> &theta, std::string &filename
     for (int j = 0; j < theta_dim; j++)
     {
       in >> val;
-      theta_std.Replace_Element(j, val);
+      theta_std.Set_Entry(j, val);
     }
   }
   else

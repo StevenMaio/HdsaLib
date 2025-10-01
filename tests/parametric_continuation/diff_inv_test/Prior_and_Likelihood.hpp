@@ -30,7 +30,7 @@ public:
       for (int j = 0; j < m_; j++)
       {
         RealT val = (1.0 / 0.75) * ((1.e-3) * (*con_->S_)(i, j) + (*con_->M_)(i, j));
-        L_->Replace_Element(i, j, val);
+        L_->Set_Entry(i, j, val);
       }
     }
 
@@ -79,7 +79,7 @@ public:
     HDSA::Std_Vector<RealT> &u_out_std = dynamic_cast<HDSA::Std_Vector<RealT> &>(u_out);
     for (int k = 0; k < 8; k++)
     {
-      u_out_std.Replace_Element(obs_locations_[k], d_in[k]);
+      u_out_std.Set_Entry(obs_locations_[k], d_in[k]);
     }
   }
 
@@ -99,7 +99,7 @@ public:
     HDSA::Ptr<HDSA::Dense_Matrix<RealT>> z_tmp1 = HDSA::makePtr<HDSA::Dense_Matrix<RealT>>(m_, 1);
     for (int k = 0; k < m_; k++)
     {
-      z_tmp1->Replace_Element(k, 0, z_in_std(k));
+      z_tmp1->Set_Entry(k, 0, z_in_std(k));
     }
 
     HDSA::Ptr<HDSA::Dense_Matrix<RealT>> z_tmp2 = HDSA::makePtr<HDSA::Dense_Matrix<RealT>>(m_, 1);
@@ -113,7 +113,7 @@ public:
 
     for (int k = 0; k < m_; k++)
     {
-      z_out_std.Replace_Element(k, (*z_tmp4)(k, 0));
+      z_out_std.Set_Entry(k, (*z_tmp4)(k, 0));
     }
   }
 
@@ -125,7 +125,7 @@ public:
     HDSA::Ptr<HDSA::Dense_Matrix<RealT>> z_tmp1 = HDSA::makePtr<HDSA::Dense_Matrix<RealT>>(m_, 1);
     for (int k = 0; k < m_; k++)
     {
-      z_tmp1->Replace_Element(k, 0, z_in_std(k));
+      z_tmp1->Set_Entry(k, 0, z_in_std(k));
     }
 
     HDSA::Ptr<HDSA::Dense_Matrix<RealT>> z_tmp2 = HDSA::makePtr<HDSA::Dense_Matrix<RealT>>(m_, 1);
@@ -139,7 +139,7 @@ public:
 
     for (int k = 0; k < m_; k++)
     {
-      z_out_std.Replace_Element(k, (*z_tmp4)(k, 0));
+      z_out_std.Set_Entry(k, (*z_tmp4)(k, 0));
     }
   }
 
@@ -155,7 +155,7 @@ public:
       HDSA::Ptr<HDSA::Dense_Matrix<RealT>> b = HDSA::makePtr<HDSA::Dense_Matrix<RealT>>(m_, 1);
       for (int k = 0; k < m_; k++)
       {
-        b->Replace_Element(k, 0, rand_num_gen_->Generate_Standard_Normal_Sample());
+        b->Set_Entry(k, 0, rand_num_gen_->Generate_Standard_Normal_Sample());
       }
       HDSA::Ptr<HDSA::Dense_Matrix<RealT>> x = HDSA::makePtr<HDSA::Dense_Matrix<RealT>>(m_, 1);
 
@@ -167,7 +167,7 @@ public:
       HDSA::Std_Vector<RealT> &vec_out_std = dynamic_cast<HDSA::Std_Vector<RealT> &>(*samples[i]);
       for (int k = 0; k < m_; k++)
       {
-        vec_out_std.Replace_Element(k, (*x)(k, 0));
+        vec_out_std.Set_Entry(k, (*x)(k, 0));
       }
     }
   }

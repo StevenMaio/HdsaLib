@@ -36,27 +36,27 @@ namespace HDSA
       M_t_ = HDSA::makePtr<HDSA::Dense_Matrix<RealT>>(n_t_, n_t_);
       E_t_ = HDSA::makePtr<HDSA::Dense_Matrix<RealT>>(n_t_, n_t_);
 
-      S_t_->Replace_Element(0, 0, 1.0 / h);
-      S_t_->Replace_Element(0, 1, -1.0 / h);
+      S_t_->Set_Entry(0, 0, 1.0 / h);
+      S_t_->Set_Entry(0, 1, -1.0 / h);
       for (int i = 1; i < n_t_ - 1; i++)
       {
-        S_t_->Replace_Element(i, i, 2.0 / h);
-        S_t_->Replace_Element(i, i - 1, -1.0 / h);
-        S_t_->Replace_Element(i, i + 1, -1.0 / h);
+        S_t_->Set_Entry(i, i, 2.0 / h);
+        S_t_->Set_Entry(i, i - 1, -1.0 / h);
+        S_t_->Set_Entry(i, i + 1, -1.0 / h);
       }
-      S_t_->Replace_Element(n_t_ - 1, n_t_ - 2, -1.0 / h);
-      S_t_->Replace_Element(n_t_ - 1, n_t_ - 1, 1.0 / h);
+      S_t_->Set_Entry(n_t_ - 1, n_t_ - 2, -1.0 / h);
+      S_t_->Set_Entry(n_t_ - 1, n_t_ - 1, 1.0 / h);
 
-      M_t_->Replace_Element(0, 0, (1.0 / 3.0) * h);
-      M_t_->Replace_Element(0, 1, (1.0 / 6.0) * h);
+      M_t_->Set_Entry(0, 0, (1.0 / 3.0) * h);
+      M_t_->Set_Entry(0, 1, (1.0 / 6.0) * h);
       for (int i = 1; i < n_t_ - 1; i++)
       {
-        M_t_->Replace_Element(i, i, (2.0 / 3.0) * h);
-        M_t_->Replace_Element(i, i - 1, (1.0 / 6.0) * h);
-        M_t_->Replace_Element(i, i + 1, (1.0 / 6.0) * h);
+        M_t_->Set_Entry(i, i, (2.0 / 3.0) * h);
+        M_t_->Set_Entry(i, i - 1, (1.0 / 6.0) * h);
+        M_t_->Set_Entry(i, i + 1, (1.0 / 6.0) * h);
       }
-      M_t_->Replace_Element(n_t_ - 1, n_t_ - 2, (1.0 / 6.0) * h);
-      M_t_->Replace_Element(n_t_ - 1, n_t_ - 1, (1.0 / 3.0) * h);
+      M_t_->Set_Entry(n_t_ - 1, n_t_ - 2, (1.0 / 6.0) * h);
+      M_t_->Set_Entry(n_t_ - 1, n_t_ - 1, (1.0 / 3.0) * h);
 
       determine_u_hyperparams_ = HDSA::makePtr<HDSA::MD_Determine_u_Hyperparameters<RealT>>(data_interface_, u_hyperparam_interface_);
       if (u_hyperparam_interface_->Get_beta_t() == 0.0)
@@ -119,7 +119,7 @@ namespace HDSA
         for (int j = 0; j < n_t_; j++)
         {
           RealT val = beta_t_ * (*S_t_)(i, j) + (*M_t_)(i, j);
-          E_t_->Replace_Element(i, j, val);
+          E_t_->Set_Entry(i, j, val);
         }
       }
     }
@@ -139,7 +139,7 @@ namespace HDSA
           for (int j = 0; j < n_t_; j++)
           {
             RealT val = (*E_t_)(i, j) / std::sqrt(alpha_t_[i] * alpha_t_[j]);
-            A->Replace_Element(i, j, val);
+            A->Set_Entry(i, j, val);
           }
         }
       }
@@ -150,10 +150,10 @@ namespace HDSA
       evals_ = HDSA::makePtr<HDSA::Dense_Matrix<RealT>>(n_t_, 1);
       for (int j = 0; j < n_t_; j++)
       {
-        evals_->Replace_Element(j, 0, 1.0 / (*S)(n_t_ - 1 - j, 0));
+        evals_->Set_Entry(j, 0, 1.0 / (*S)(n_t_ - 1 - j, 0));
         for (int i = 0; i < n_t_; i++)
         {
-          evecs_->Replace_Element(i, j, (*V)(i, n_t_ - 1 - j));
+          evecs_->Set_Entry(i, j, (*V)(i, n_t_ - 1 - j));
         }
       }
       W_t_inv_ = HDSA::makePtr<HDSA::Dense_Matrix<RealT>>(n_t_, n_t_);
@@ -166,7 +166,7 @@ namespace HDSA
           {
             val += (*evecs_)(i, k) * (*evecs_)(j, k) * (*evals_)(k, 0);
           }
-          W_t_inv_->Replace_Element(i, j, val);
+          W_t_inv_->Set_Entry(i, j, val);
         }
       }
     }

@@ -134,7 +134,7 @@ namespace HDSA
       // Yields the decomposition A = U*diag(S)*VT, note VT is the transpose of V
       for (int k = 0; k < n; k++)
       {
-        S.Replace_Element(k, 0, (*S_vec)(k));
+        S.Set_Entry(k, 0, (*S_vec)(k));
       }
     }
 
@@ -153,7 +153,7 @@ namespace HDSA
             val -= x(j, c) * R(k, j);
           }
           val = val / R(k, k);
-          x.Replace_Element(k, c, val);
+          x.Set_Entry(k, c, val);
         }
       }
     }
@@ -179,7 +179,7 @@ namespace HDSA
       {
         for (int j = i; j < n; j++)
         {
-          R.Replace_Element(i, j, (*Rc)(i, j));
+          R.Set_Entry(i, j, (*Rc)(i, j));
         }
       }
       return info;
@@ -203,7 +203,7 @@ namespace HDSA
             val -= (*y)(j, c) * (*R)(j, i);
           }
           val = val / (*R)(i, i);
-          y->Replace_Element(i, c, val);
+          y->Set_Entry(i, c, val);
         }
       }
       HDSA::Linear_Algebra::Upper_Tri_Solve<RealT>(x, *y, *R);
@@ -225,7 +225,7 @@ namespace HDSA
             val -= (*y)(j, c) * R(j, i);
           }
           val = val / R(i, i);
-          y->Replace_Element(i, c, val);
+          y->Set_Entry(i, c, val);
         }
       }
       HDSA::Linear_Algebra::Upper_Tri_Solve<RealT>(x, *y, R);
@@ -254,7 +254,7 @@ namespace HDSA
       lapack.SYEV(JOBZ, UPLO, n, (*B).values(), n, (*S_rev).values(), (*WORK).values(), lwork, &info);
       for (int j = 0; j < n; j++)
       {
-        S.Replace_Element(j, 0, (*S_rev)(n - 1 - j));
+        S.Set_Entry(j, 0, (*S_rev)(n - 1 - j));
         RealT sign = 1.0;
         if ((*B)(0, n - 1 - j) < 0.0)
         {
@@ -262,7 +262,7 @@ namespace HDSA
         }
         for (int i = 0; i < n; i++)
         {
-          V.Replace_Element(i, j, sign * (*B)(i, n - 1 - j));
+          V.Set_Entry(i, j, sign * (*B)(i, n - 1 - j));
         }
       }
     }
@@ -295,7 +295,7 @@ namespace HDSA
 
       for (int j = 0; j < n; j++)
       {
-        S.Replace_Element(j, 0, (*S_rev)(n - 1 - j));
+        S.Set_Entry(j, 0, (*S_rev)(n - 1 - j));
         RealT sign = 1.0;
         if ((*B)(0, n - 1 - j) < 0.0)
         {
@@ -303,7 +303,7 @@ namespace HDSA
         }
         for (int i = 0; i < n; i++)
         {
-          V.Replace_Element(i, j, sign * (*B)(i, n - 1 - j));
+          V.Set_Entry(i, j, sign * (*B)(i, n - 1 - j));
         }
       }
     }

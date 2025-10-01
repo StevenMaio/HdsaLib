@@ -24,7 +24,7 @@ public:
     x_ = HDSA::makePtr<HDSA::Dense_Matrix<RealT>>(n_y_, 1);
     for (int k = 0; k < n_y_; k++)
     {
-      x_->Replace_Element(k, 0, static_cast<RealT>(k) / static_cast<RealT>(n_y_ - 1));
+      x_->Set_Entry(k, 0, static_cast<RealT>(k) / static_cast<RealT>(n_y_ - 1));
     }
     t_ = std::vector<RealT>(n_t_);
     for (int k = 0; k < n_t_; k++)

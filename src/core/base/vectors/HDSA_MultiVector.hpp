@@ -61,7 +61,7 @@ namespace HDSA
       HDSA::Ptr<HDSA::Dense_Matrix<RealT>> Ax = HDSA::makePtr<HDSA::Dense_Matrix<RealT>>(num_vecs_, 1);
       for (int k = 0; k < num_vecs_; k++)
       {
-        Ax->Replace_Element(k, 0, vecs_[k]->dot(x));
+        Ax->Set_Entry(k, 0, vecs_[k]->dot(x));
       }
       return Ax;
     }
@@ -73,7 +73,7 @@ namespace HDSA
       {
         for (int j = 0; j < num_vecs_; j++)
         {
-          C->Replace_Element(i, j, x[i]->dot(*vecs_[j]));
+          C->Set_Entry(i, j, x[i]->dot(*vecs_[j]));
         }
       }
       return C;

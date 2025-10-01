@@ -21,7 +21,7 @@ public:
     x_ = HDSA::makePtr<HDSA::Dense_Matrix<RealT>>(m_, 1);
     for (int k = 0; k < m_; k++)
     {
-      x_->Replace_Element(k, 0, static_cast<RealT>(k) / static_cast<RealT>(m_ - 1));
+      x_->Set_Entry(k, 0, static_cast<RealT>(k) / static_cast<RealT>(m_ - 1));
     }
   }
 
@@ -34,7 +34,7 @@ public:
     HDSA::Ptr<HDSA::Std_Vector<RealT>> u_opt = HDSA::makePtr<HDSA::Std_Vector<RealT>>(m_, random_number_generator_, comm_);
     for (int k = 0; k < m_; k++)
     {
-      u_opt->Replace_Element(k, std::pow((*x_)(k, 0) + 1.0, 3.0));
+      u_opt->Set_Entry(k, std::pow((*x_)(k, 0) + 1.0, 3.0));
     }
     return u_opt;
   }
@@ -44,7 +44,7 @@ public:
     HDSA::Ptr<HDSA::Std_Vector<RealT>> z_opt = HDSA::makePtr<HDSA::Std_Vector<RealT>>(m_, random_number_generator_, comm_);
     for (int k = 0; k < m_; k++)
     {
-      z_opt->Replace_Element(k, (*x_)(k, 0) + 1.0);
+      z_opt->Set_Entry(k, (*x_)(k, 0) + 1.0);
     }
     return z_opt;
   }
@@ -61,8 +61,8 @@ public:
 
     for (int k = 0; k < m_; k++)
     {
-      z0_std.Replace_Element(k, (*x_)(k, 0) + 1.0);
-      z1_std.Replace_Element(k, (*x_)(k, 0) + std::pow((*x_)(k, 0), 2.0));
+      z0_std.Set_Entry(k, (*x_)(k, 0) + 1.0);
+      z1_std.Set_Entry(k, (*x_)(k, 0) + std::pow((*x_)(k, 0), 2.0));
     }
 
     return Z;
@@ -80,8 +80,8 @@ public:
 
     for (int k = 0; k < m_; k++)
     {
-      d0_std.Replace_Element(k, 0.2 * std::pow((*x_)(k, 0) + 1.0, 3.0));
-      d1_std.Replace_Element(k, 0.2 * std::pow((*x_)(k, 0) + std::pow((*x_)(k, 0), 2.0), 3.0));
+      d0_std.Set_Entry(k, 0.2 * std::pow((*x_)(k, 0) + 1.0, 3.0));
+      d1_std.Set_Entry(k, 0.2 * std::pow((*x_)(k, 0) + std::pow((*x_)(k, 0), 2.0), 3.0));
     }
     return D;
   }

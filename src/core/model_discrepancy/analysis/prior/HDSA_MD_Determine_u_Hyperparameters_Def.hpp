@@ -94,13 +94,13 @@ namespace HDSA
         u_prior_interface->Apply_M_u(*vec, *d);
         RealT val = vec->dot(*d);
         max_j = std::max(max_j, val);
-        weights->Replace_Element(k, j, val);
+        weights->Set_Entry(k, j, val);
       }
       for (int k = 0; k < n_t; k++)
       {
         RealT val = (*weights)(k, j) / max_j;
         val = (val + u_hyperparam_interface_->Get_Time_Variance_Inflation()) / (1.0 + u_hyperparam_interface_->Get_Time_Variance_Inflation());
-        weights->Replace_Element(k, j, val);
+        weights->Set_Entry(k, j, val);
       }
     }
     std::vector<RealT> alpha_t_new = std::vector<RealT>(n_t, 0.0);

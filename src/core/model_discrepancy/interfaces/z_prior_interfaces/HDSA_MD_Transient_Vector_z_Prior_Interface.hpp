@@ -42,7 +42,7 @@ namespace HDSA
         const HDSA::Std_Vector<RealT> z_in_i_std = dynamic_cast<const HDSA::Std_Vector<RealT> &>(*z_in_trans[i]);
         for (int j = 0; j < num_controls_; j++)
         {
-          b->Replace_Element(i, j, z_in_i_std(j));
+          b->Set_Entry(i, j, z_in_i_std(j));
         }
       }
 
@@ -53,7 +53,7 @@ namespace HDSA
         for (int j = 0; j < num_controls_; j++)
         {
           RealT val = (*tmp)(i, j) / std::sqrt((*Lambda_)(i, 0));
-          tmp->Replace_Element(i, j, val);
+          tmp->Set_Entry(i, j, val);
         }
       }
 
@@ -64,7 +64,7 @@ namespace HDSA
         HDSA::Std_Vector<RealT> z_out_i_std = dynamic_cast<HDSA::Std_Vector<RealT> &>(*z_out_trans[i]);
         for (int j = 0; j < num_controls_; j++)
         {
-          z_out_i_std.Replace_Element(j, (*x)(i, j));
+          z_out_i_std.Set_Entry(j, (*x)(i, j));
         }
       }
     }
@@ -87,7 +87,7 @@ namespace HDSA
         const HDSA::Std_Vector<RealT> z_in_i_std = dynamic_cast<const HDSA::Std_Vector<RealT> &>(*z_in_trans[i]);
         for (int j = 0; j < num_controls_; j++)
         {
-          b->Replace_Element(i, j, z_in_i_std(j));
+          b->Set_Entry(i, j, z_in_i_std(j));
         }
       }
 
@@ -98,7 +98,7 @@ namespace HDSA
         HDSA::Std_Vector<RealT> z_out_i_std = dynamic_cast<HDSA::Std_Vector<RealT> &>(*z_out_trans[i]);
         for (int j = 0; j < num_controls_; j++)
         {
-          z_out_i_std.Replace_Element(j, (*x)(i, j));
+          z_out_i_std.Set_Entry(j, (*x)(i, j));
         }
       }
     }
@@ -123,7 +123,7 @@ namespace HDSA
           HDSA::Std_Vector<RealT> omega_i_std = dynamic_cast<HDSA::Std_Vector<RealT> &>(*omega_trans[i]);
           for (int j = 0; j < num_controls_; j++)
           {
-            b->Replace_Element(i, j, std::sqrt((*Lambda_)(i, 0)) * omega_i_std(j));
+            b->Set_Entry(i, j, std::sqrt((*Lambda_)(i, 0)) * omega_i_std(j));
           }
         }
 
@@ -134,7 +134,7 @@ namespace HDSA
           HDSA::Std_Vector<RealT> vec_i_std = dynamic_cast<HDSA::Std_Vector<RealT> &>(*vec_trans[i]);
           for (int j = 0; j < num_controls_; j++)
           {
-            vec_i_std.Replace_Element(j, (*x)(i, j));
+            vec_i_std.Set_Entry(j, (*x)(i, j));
           }
         }
       }
@@ -153,7 +153,7 @@ namespace HDSA
         const HDSA::Std_Vector<RealT> z_in_i_std = dynamic_cast<const HDSA::Std_Vector<RealT> &>(*z_in_trans[i]);
         for (int j = 0; j < num_controls_; j++)
         {
-          b->Replace_Element(i, j, z_in_i_std(j));
+          b->Set_Entry(i, j, z_in_i_std(j));
         }
       }
 
@@ -164,7 +164,7 @@ namespace HDSA
         for (int j = 0; j < num_controls_; j++)
         {
           RealT val = (*tmp)(i, j) * std::sqrt((*Lambda_)(i, 0));
-          tmp->Replace_Element(i, j, val);
+          tmp->Set_Entry(i, j, val);
         }
       }
 
@@ -175,7 +175,7 @@ namespace HDSA
         HDSA::Std_Vector<RealT> z_out_i_std = dynamic_cast<HDSA::Std_Vector<RealT> &>(*z_out_trans[i]);
         for (int j = 0; j < num_controls_; j++)
         {
-          z_out_i_std.Replace_Element(j, (*x)(i, j));
+          z_out_i_std.Set_Entry(j, (*x)(i, j));
         }
       }
     }
@@ -198,7 +198,7 @@ namespace HDSA
         const HDSA::Std_Vector<RealT> z_in_i_std = dynamic_cast<const HDSA::Std_Vector<RealT> &>(*z_in_trans[i]);
         for (int j = 0; j < num_controls_; j++)
         {
-          b->Replace_Element(i, j, z_in_i_std(j));
+          b->Set_Entry(i, j, z_in_i_std(j));
         }
       }
 
@@ -210,7 +210,7 @@ namespace HDSA
         HDSA::Std_Vector<RealT> z_out_i_std = dynamic_cast<HDSA::Std_Vector<RealT> &>(*z_out_trans[i]);
         for (int j = 0; j < num_controls_; j++)
         {
-          z_out_i_std.Replace_Element(j, (*x)(i, j));
+          z_out_i_std.Set_Entry(j, (*x)(i, j));
         }
       }
     }
@@ -222,27 +222,27 @@ namespace HDSA
       M_t_ = HDSA::makePtr<HDSA::Dense_Matrix<RealT>>(n_t_, n_t_);
       E_t_ = HDSA::makePtr<HDSA::Dense_Matrix<RealT>>(n_t_, n_t_);
 
-      S_t_->Replace_Element(0, 0, 1.0 / h);
-      S_t_->Replace_Element(0, 1, -1.0 / h);
+      S_t_->Set_Entry(0, 0, 1.0 / h);
+      S_t_->Set_Entry(0, 1, -1.0 / h);
       for (int i = 1; i < n_t_ - 1; i++)
       {
-        S_t_->Replace_Element(i, i, 2.0 / h);
-        S_t_->Replace_Element(i, i - 1, -1.0 / h);
-        S_t_->Replace_Element(i, i + 1, -1.0 / h);
+        S_t_->Set_Entry(i, i, 2.0 / h);
+        S_t_->Set_Entry(i, i - 1, -1.0 / h);
+        S_t_->Set_Entry(i, i + 1, -1.0 / h);
       }
-      S_t_->Replace_Element(n_t_ - 1, n_t_ - 2, -1.0 / h);
-      S_t_->Replace_Element(n_t_ - 1, n_t_ - 1, 1.0 / h);
+      S_t_->Set_Entry(n_t_ - 1, n_t_ - 2, -1.0 / h);
+      S_t_->Set_Entry(n_t_ - 1, n_t_ - 1, 1.0 / h);
 
-      M_t_->Replace_Element(0, 0, (1.0 / 3.0) * h);
-      M_t_->Replace_Element(0, 1, (1.0 / 6.0) * h);
+      M_t_->Set_Entry(0, 0, (1.0 / 3.0) * h);
+      M_t_->Set_Entry(0, 1, (1.0 / 6.0) * h);
       for (int i = 1; i < n_t_ - 1; i++)
       {
-        M_t_->Replace_Element(i, i, (2.0 / 3.0) * h);
-        M_t_->Replace_Element(i, i - 1, (1.0 / 6.0) * h);
-        M_t_->Replace_Element(i, i + 1, (1.0 / 6.0) * h);
+        M_t_->Set_Entry(i, i, (2.0 / 3.0) * h);
+        M_t_->Set_Entry(i, i - 1, (1.0 / 6.0) * h);
+        M_t_->Set_Entry(i, i + 1, (1.0 / 6.0) * h);
       }
-      M_t_->Replace_Element(n_t_ - 1, n_t_ - 2, (1.0 / 6.0) * h);
-      M_t_->Replace_Element(n_t_ - 1, n_t_ - 1, (1.0 / 3.0) * h);
+      M_t_->Set_Entry(n_t_ - 1, n_t_ - 2, (1.0 / 6.0) * h);
+      M_t_->Set_Entry(n_t_ - 1, n_t_ - 1, (1.0 / 3.0) * h);
 
       determine_z_hyperparams_ = HDSA::makePtr<HDSA::MD_Determine_z_Hyperparameters<RealT>>(data_interface_, z_hyperparam_interface_, u_prior_interface_);
 
@@ -271,7 +271,7 @@ namespace HDSA
         for (int j = 0; j < n_t_; j++)
         {
           RealT val = beta_t_ * (*S_t_)(i, j) + (*M_t_)(i, j);
-          E_t_->Replace_Element(i, j, val);
+          E_t_->Set_Entry(i, j, val);
         }
       }
 

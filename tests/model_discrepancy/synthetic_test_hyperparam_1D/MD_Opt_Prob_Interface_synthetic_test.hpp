@@ -22,20 +22,20 @@ public:
     x_ = HDSA::makePtr<HDSA::Dense_Matrix<RealT>>(m_, 1);
     for (int k = 0; k < m_; k++)
     {
-      x_->Replace_Element(k, 0, static_cast<RealT>(k) / static_cast<RealT>(m_ - 1));
+      x_->Set_Entry(k, 0, static_cast<RealT>(k) / static_cast<RealT>(m_ - 1));
     }
 
     M_ = HDSA::makePtr<HDSA::Dense_Matrix<RealT>>(m_, m_);
-    M_->Replace_Element(0, 0, (1.0 / 3.0) * h);
-    M_->Replace_Element(0, 1, (1.0 / 6.0) * h);
+    M_->Set_Entry(0, 0, (1.0 / 3.0) * h);
+    M_->Set_Entry(0, 1, (1.0 / 6.0) * h);
     for (int i = 1; i < m_ - 1; i++)
     {
-      M_->Replace_Element(i, i, (2.0 / 3.0) * h);
-      M_->Replace_Element(i, i - 1, (1.0 / 6.0) * h);
-      M_->Replace_Element(i, i + 1, (1.0 / 6.0) * h);
+      M_->Set_Entry(i, i, (2.0 / 3.0) * h);
+      M_->Set_Entry(i, i - 1, (1.0 / 6.0) * h);
+      M_->Set_Entry(i, i + 1, (1.0 / 6.0) * h);
     }
-    M_->Replace_Element(m_ - 1, m_ - 2, (1.0 / 6.0) * h);
-    M_->Replace_Element(m_ - 1, m_ - 1, (1.0 / 3.0) * h);
+    M_->Set_Entry(m_ - 1, m_ - 2, (1.0 / 6.0) * h);
+    M_->Set_Entry(m_ - 1, m_ - 1, (1.0 / 3.0) * h);
 
     const int m = m_;
     auto map = Tpetra::createUniformContigMap<Tpetra::Map<>::local_ordinal_type, Tpetra::Map<>::global_ordinal_type>(m, comm->Get_Teuchos_Communicator());

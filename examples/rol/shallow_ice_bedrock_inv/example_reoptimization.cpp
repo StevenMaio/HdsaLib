@@ -119,9 +119,9 @@ int main(int argc, char *argv[])
     x = (550.0 / double(L)) * double((k % (L + 1)));
     y = (450.0 / double(L)) * double(std::floor(k / (L + 1)));
     val = std::sin(2.0 * M_PI * x / 550.0) * std::sin(2.0 * M_PI * y / 450.0);
-    theta_std.Replace_Element(k, val);
+    theta_std.Set_Entry(k, val);
     val = std::cos(2.0 * M_PI * x / 550.0) * std::cos(2.0 * M_PI * y / 450.0);
-    theta_std.Replace_Element((L + 1) * (L + 1) + k, val);
+    theta_std.Set_Entry((L + 1) * (L + 1) + k, val);
   }
 
   int myRank = comm->getRank();

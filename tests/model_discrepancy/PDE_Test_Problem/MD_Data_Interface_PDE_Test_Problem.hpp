@@ -38,7 +38,7 @@ public:
       for (int i = 0; i < m_; i++)
       {
         in >> val;
-        u_opt->Replace_Element(i, val);
+        u_opt->Set_Entry(i, val);
       }
     }
     else
@@ -62,7 +62,7 @@ public:
       for (int i = 0; i < m_; i++)
       {
         in >> val;
-        z_opt->Replace_Element(i, val);
+        z_opt->Set_Entry(i, val);
       }
     }
     else
@@ -92,10 +92,10 @@ public:
       for (int i = 0; i < m_; i++)
       {
         in_Z >> val;
-        z0_std.Replace_Element(i, val);
+        z0_std.Set_Entry(i, val);
 
         in_Z >> val;
-        z1_std.Replace_Element(i, val);
+        z1_std.Set_Entry(i, val);
       }
     }
     else
@@ -126,10 +126,10 @@ public:
       for (int i = 0; i < m_; i++)
       {
         in_D >> val;
-        d0_std.Replace_Element(i, val);
+        d0_std.Set_Entry(i, val);
 
         in_D >> val;
-        d1_std.Replace_Element(i, val);
+        d1_std.Set_Entry(i, val);
       }
     }
     else

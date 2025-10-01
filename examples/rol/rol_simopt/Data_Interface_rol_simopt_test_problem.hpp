@@ -19,7 +19,7 @@ public:
     x_ = HDSA::makePtr<HDSA::Dense_Matrix<RealT>>(m_, 1);
     for (int k = 0; k < m_; k++)
     {
-      x_->Replace_Element(k, 0, static_cast<RealT>(k) / static_cast<RealT>(m_ - 1));
+      x_->Set_Entry(k, 0, static_cast<RealT>(k) / static_cast<RealT>(m_ - 1));
     }
   }
 

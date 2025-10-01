@@ -77,16 +77,16 @@ namespace HDSA
         val = v_j->norm();
         v_j->scale(1.0 / val);
 
-        T->Replace_Element(j, j, alpha);
-        T->Replace_Element(j, j + 1, beta);
-        T->Replace_Element(j + 1, j, beta);
+        T->Set_Entry(j, j, alpha);
+        T->Set_Entry(j, j + 1, beta);
+        T->Set_Entry(j + 1, j, beta);
 
         HDSA::Ptr<HDSA::Dense_Matrix<RealT>> Tk = HDSA::makePtr<HDSA::Dense_Matrix<RealT>>(j + 1, j + 1);
         for (int i = 0; i < j + 1; i++)
         {
           for (int k = 0; k < j + 1; k++)
           {
-            Tk->Replace_Element(i, k, (*T)(i, k));
+            Tk->Set_Entry(i, k, (*T)(i, k));
           }
         }
 
@@ -94,7 +94,7 @@ namespace HDSA
         HDSA::Ptr<HDSA::Dense_Matrix<RealT>> S = HDSA::makePtr<HDSA::Dense_Matrix<RealT>>(j + 1, 1);
         HDSA::Linear_Algebra::Symmetric_Eig_Decomposition<RealT>(*Tk, *V, *S);
         HDSA::Ptr<HDSA::Dense_Matrix<RealT>> e = HDSA::makePtr<HDSA::Dense_Matrix<RealT>>(j + 1, 1);
-        e->Replace_Element(0, 0, norm_in);
+        e->Set_Entry(0, 0, norm_in);
         HDSA::Ptr<HDSA::Dense_Matrix<RealT>> Ve = HDSA::makePtr<HDSA::Dense_Matrix<RealT>>(j + 1, 1);
         V->Multiply(*Ve, *e, true, false);
         yk.clear();

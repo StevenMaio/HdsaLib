@@ -65,7 +65,7 @@ namespace HDSA
 				for (int j = 0; j < kpp; j++)
 				{
 					RealT val = 0.5 * ((*T_tmp)(i, j) + (*T_tmp)(j, i));
-					T->Replace_Element(i, j, val);
+					T->Set_Entry(i, j, val);
 				}
 			}
 
@@ -78,7 +78,7 @@ namespace HDSA
 				HDSA::Ptr<HDSA::Dense_Matrix<RealT>> I = HDSA::makePtr<HDSA::Dense_Matrix<RealT>>(kpp, kpp);
 				for (int k = 0; k < kpp; k++)
 				{
-					I->Replace_Element(k, k, 1.0);
+					I->Set_Entry(k, k, 1.0);
 				}
 				HDSA::Ptr<HDSA::Dense_Matrix<RealT>> R_T_inv = HDSA::makePtr<HDSA::Dense_Matrix<RealT>>(kpp, kpp);
 				HDSA::Linear_Algebra::Upper_Tri_Solve<RealT>(*R_T_inv, *I, *R_T);
@@ -104,7 +104,7 @@ namespace HDSA
 				evecs.zeros();
 				for (int k = 0; k < num_evals; k++)
 				{
-					evals.Replace_Element(k, 0, std::pow((*S)(k, 0), 2.0));
+					evals.Set_Entry(k, 0, std::pow((*S)(k, 0), 2.0));
 					for (int i = 0; i < kpp; i++)
 					{
 						evecs[k]->axpy((*U)(i, k), *(*WQ)[i]);
@@ -124,7 +124,7 @@ namespace HDSA
 				evecs.zeros();
 				for (int k = 0; k < num_evals; k++)
 				{
-					evals.Replace_Element(k, 0, (*Lambda)(k, 0));
+					evals.Set_Entry(k, 0, (*Lambda)(k, 0));
 					for (int i = 0; i < kpp; i++)
 					{
 						evecs[k]->axpy((*S)(i, k), *(*Q)[i]);
@@ -148,7 +148,7 @@ namespace HDSA
 			HDSA::Ptr<HDSA::Dense_Matrix<RealT>> I = HDSA::makePtr<HDSA::Dense_Matrix<RealT>>(n, n);
 			for (int k = 0; k < n; k++)
 			{
-				I->Replace_Element(k, k, 1.0);
+				I->Set_Entry(k, k, 1.0);
 			}
 			HDSA::Ptr<HDSA::Dense_Matrix<RealT>> R_Z_inv = HDSA::makePtr<HDSA::Dense_Matrix<RealT>>(n, n);
 			HDSA::Linear_Algebra::Upper_Tri_Solve<RealT>(*R_Z_inv, *I, *R_Z);

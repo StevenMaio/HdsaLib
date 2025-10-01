@@ -18,16 +18,16 @@ public:
     RealT h = 1.0 / static_cast<RealT>(m_ - 1);
 
     M_ = HDSA::makePtr<HDSA::Dense_Matrix<RealT>>(m_, m_);
-    M_->Replace_Element(0, 0, (1.0 / 3.0) * h);
-    M_->Replace_Element(0, 1, (1.0 / 6.0) * h);
+    M_->Set_Entry(0, 0, (1.0 / 3.0) * h);
+    M_->Set_Entry(0, 1, (1.0 / 6.0) * h);
     for (int i = 1; i < m_ - 1; i++)
     {
-      M_->Replace_Element(i, i, (2.0 / 3.0) * h);
-      M_->Replace_Element(i, i - 1, (1.0 / 6.0) * h);
-      M_->Replace_Element(i, i + 1, (1.0 / 6.0) * h);
+      M_->Set_Entry(i, i, (2.0 / 3.0) * h);
+      M_->Set_Entry(i, i - 1, (1.0 / 6.0) * h);
+      M_->Set_Entry(i, i + 1, (1.0 / 6.0) * h);
     }
-    M_->Replace_Element(m_ - 1, m_ - 2, (1.0 / 6.0) * h);
-    M_->Replace_Element(m_ - 1, m_ - 1, (1.0 / 3.0) * h);
+    M_->Set_Entry(m_ - 1, m_ - 2, (1.0 / 6.0) * h);
+    M_->Set_Entry(m_ - 1, m_ - 1, (1.0 / 3.0) * h);
   }
 
   void Apply_Operator(HDSA::Vector<RealT> &vec_out, const HDSA::Vector<RealT> &vec_in) const
@@ -37,13 +37,13 @@ public:
     HDSA::Std_Vector<RealT> &vec_out_std = dynamic_cast<HDSA::Std_Vector<RealT> &>(vec_out);
     for (int k = 0; k < m_; k++)
     {
-      b->Replace_Element(k, 0, vec_in_std(k));
+      b->Set_Entry(k, 0, vec_in_std(k));
     }
     HDSA::Ptr<HDSA::Dense_Matrix<RealT>> x = HDSA::makePtr<HDSA::Dense_Matrix<RealT>>(m_, 1);
     M_->Multiply(*x, *b);
     for (int k = 0; k < m_; k++)
     {
-      vec_out_std.Replace_Element(k, (*x)(k, 0));
+      vec_out_std.Set_Entry(k, (*x)(k, 0));
     }
   }
 };

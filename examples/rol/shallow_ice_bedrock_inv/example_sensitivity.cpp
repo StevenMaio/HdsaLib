@@ -325,12 +325,12 @@ int main(int argc, char *argv[])
     // std::cout << "k = " << k << " and x = " << x << " and y = " << y << std::endl;
 
     val = std::sin(2.0 * M_PI * x / 550.0) * std::sin(2.0 * M_PI * y / 450.0);
-    theta_star_std.Replace_Element(k, val);
+    theta_star_std.Set_Entry(k, val);
 
     // std::cout << "Entry " << k << " is set to " << val << std::endl;
 
     val = std::cos(2.0 * M_PI * x / 550.0) * std::cos(2.0 * M_PI * y / 450.0);
-    theta_star_std.Replace_Element((L + 1) * (L + 1) + k, val);
+    theta_star_std.Set_Entry((L + 1) * (L + 1) + k, val);
 
     // std::cout << "Entry " << (L+1)*(L+1) + k << " is set to " << val << std::endl;
   }

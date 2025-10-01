@@ -89,7 +89,7 @@ namespace HDSA
       HDSA::Ptr<HDSA::Dense_Matrix<RealT>> I = HDSA::makePtr<HDSA::Dense_Matrix<RealT>>(kpp, kpp);
       for (int k = 0; k < kpp; k++)
       {
-        I->Replace_Element(k, k, 1.0);
+        I->Set_Entry(k, k, 1.0);
       }
       HDSA::Ptr<HDSA::Dense_Matrix<RealT>> R_B_inv = HDSA::makePtr<HDSA::Dense_Matrix<RealT>>(kpp, kpp);
       HDSA::Linear_Algebra::Upper_Tri_Solve<RealT>(*R_B_inv, *I, *R_B);
@@ -115,7 +115,7 @@ namespace HDSA
         {
           sing_vecs_input[k]->axpy((*V)(i, k), *(*Q_B)[i]);
           sing_vecs_output[k]->axpy((*UT)(k, i), *(*Q)[i]);
-          sing_vals.Replace_Element(k, 0, (*S)(k, 0));
+          sing_vals.Set_Entry(k, 0, (*S)(k, 0));
         }
 
         if ((*V)(0, k) < 0.0)
@@ -137,7 +137,7 @@ namespace HDSA
       HDSA::Ptr<HDSA::Dense_Matrix<RealT>> I = HDSA::makePtr<HDSA::Dense_Matrix<RealT>>(n, n);
       for (int k = 0; k < n; k++)
       {
-        I->Replace_Element(k, k, 1.0);
+        I->Set_Entry(k, k, 1.0);
       }
       HDSA::Ptr<HDSA::Dense_Matrix<RealT>> R_Z_inv = HDSA::makePtr<HDSA::Dense_Matrix<RealT>>(n, n);
       HDSA::Linear_Algebra::Upper_Tri_Solve<RealT>(*R_Z_inv, *I, *R_Z);

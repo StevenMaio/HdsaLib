@@ -23,40 +23,40 @@ public:
     x_ = HDSA::makePtr<HDSA::Dense_Matrix<RealT>>(m_, 1);
     for (int k = 0; k < m_; k++)
     {
-      x_->Replace_Element(k, 0, static_cast<RealT>(k) / static_cast<RealT>(m_ - 1));
+      x_->Set_Entry(k, 0, static_cast<RealT>(k) / static_cast<RealT>(m_ - 1));
     }
 
     S_ = HDSA::makePtr<HDSA::Dense_Matrix<RealT>>(m_, m_);
     M_ = HDSA::makePtr<HDSA::Dense_Matrix<RealT>>(m_, m_);
 
-    S_->Replace_Element(0, 0, 1.0 / h);
-    S_->Replace_Element(0, 1, -1.0 / h);
+    S_->Set_Entry(0, 0, 1.0 / h);
+    S_->Set_Entry(0, 1, -1.0 / h);
     for (int i = 1; i < m_ - 1; i++)
     {
-      S_->Replace_Element(i, i, 2.0 / h);
-      S_->Replace_Element(i, i - 1, -1.0 / h);
-      S_->Replace_Element(i, i + 1, -1.0 / h);
+      S_->Set_Entry(i, i, 2.0 / h);
+      S_->Set_Entry(i, i - 1, -1.0 / h);
+      S_->Set_Entry(i, i + 1, -1.0 / h);
     }
-    S_->Replace_Element(m_ - 1, m_ - 2, -1.0 / h);
-    S_->Replace_Element(m_ - 1, m_ - 1, 1.0 / h);
+    S_->Set_Entry(m_ - 1, m_ - 2, -1.0 / h);
+    S_->Set_Entry(m_ - 1, m_ - 1, 1.0 / h);
 
-    M_->Replace_Element(0, 0, (1.0 / 3.0) * h);
-    M_->Replace_Element(0, 1, (1.0 / 6.0) * h);
+    M_->Set_Entry(0, 0, (1.0 / 3.0) * h);
+    M_->Set_Entry(0, 1, (1.0 / 6.0) * h);
     for (int i = 1; i < m_ - 1; i++)
     {
-      M_->Replace_Element(i, i, (2.0 / 3.0) * h);
-      M_->Replace_Element(i, i - 1, (1.0 / 6.0) * h);
-      M_->Replace_Element(i, i + 1, (1.0 / 6.0) * h);
+      M_->Set_Entry(i, i, (2.0 / 3.0) * h);
+      M_->Set_Entry(i, i - 1, (1.0 / 6.0) * h);
+      M_->Set_Entry(i, i + 1, (1.0 / 6.0) * h);
     }
-    M_->Replace_Element(m_ - 1, m_ - 2, (1.0 / 6.0) * h);
-    M_->Replace_Element(m_ - 1, m_ - 1, (1.0 / 3.0) * h);
+    M_->Set_Entry(m_ - 1, m_ - 2, (1.0 / 6.0) * h);
+    M_->Set_Entry(m_ - 1, m_ - 1, (1.0 / 3.0) * h);
 
     W_z_ = HDSA::makePtr<HDSA::Dense_Matrix<RealT>>(m_, m_);
 
     HDSA::Ptr<HDSA::Dense_Matrix<RealT>> I = HDSA::makePtr<HDSA::Dense_Matrix<RealT>>(m_, m_);
     for (int k = 0; k < m_; k++)
     {
-      I->Replace_Element(k, k, 1.0);
+      I->Set_Entry(k, k, 1.0);
     }
     HDSA::Ptr<HDSA::Dense_Matrix<RealT>> Minv = HDSA::makePtr<HDSA::Dense_Matrix<RealT>>(m_, m_);
     HDSA::Linear_Algebra::Symmetric_Direct_Linear_Solve<RealT>(*M_, *Minv, *I);
@@ -67,7 +67,7 @@ public:
       for (int j = 0; j < m_; j++)
       {
         RealT val = (2.0) * ((1.e-2) * (*S_)(i, j) + (*M_)(i, j));
-        E_z->Replace_Element(i, j, val);
+        E_z->Set_Entry(i, j, val);
       }
     }
 
@@ -87,14 +87,14 @@ public:
     HDSA::Std_Vector<RealT> &z_out_std = dynamic_cast<HDSA::Std_Vector<RealT> &>(z_out);
     for (int k = 0; k < m_; k++)
     {
-      b->Replace_Element(k, 0, z_in_std(k));
+      b->Set_Entry(k, 0, z_in_std(k));
     }
     HDSA::Ptr<HDSA::Dense_Matrix<RealT>> x = HDSA::makePtr<HDSA::Dense_Matrix<RealT>>(m_, 1);
 
     M_->Multiply(*x, *b);
     for (int k = 0; k < m_; k++)
     {
-      z_out_std.Replace_Element(k, (*x)(k, 0));
+      z_out_std.Set_Entry(k, (*x)(k, 0));
     }
   }
 
@@ -105,13 +105,13 @@ public:
     HDSA::Std_Vector<RealT> &z_out_std = dynamic_cast<HDSA::Std_Vector<RealT> &>(z_out);
     for (int k = 0; k < m_; k++)
     {
-      b->Replace_Element(k, 0, z_in_std(k));
+      b->Set_Entry(k, 0, z_in_std(k));
     }
     HDSA::Ptr<HDSA::Dense_Matrix<RealT>> x = HDSA::makePtr<HDSA::Dense_Matrix<RealT>>(m_, 1);
     HDSA::Linear_Algebra::Symmetric_Direct_Linear_Solve<RealT>(*W_z_, *x, *b);
     for (int k = 0; k < m_; k++)
     {
-      z_out_std.Replace_Element(k, (*x)(k, 0));
+      z_out_std.Set_Entry(k, (*x)(k, 0));
     }
   }
 
@@ -127,14 +127,14 @@ public:
       HDSA::Ptr<HDSA::Dense_Matrix<RealT>> b = HDSA::makePtr<HDSA::Dense_Matrix<RealT>>(m_, 1);
       for (int k = 0; k < m_; k++)
       {
-        b->Replace_Element(k, 0, random_number_generator_->Generate_Standard_Normal_Sample());
+        b->Set_Entry(k, 0, random_number_generator_->Generate_Standard_Normal_Sample());
       }
       HDSA::Ptr<HDSA::Dense_Matrix<RealT>> x = HDSA::makePtr<HDSA::Dense_Matrix<RealT>>(m_, 1);
       HDSA::Linear_Algebra::Upper_Tri_Solve<RealT>(*x, *b, *R);
       HDSA::Std_Vector<RealT> &vec_out_std = dynamic_cast<HDSA::Std_Vector<RealT> &>(*samples[i]);
       for (int k = 0; k < m_; k++)
       {
-        vec_out_std.Replace_Element(k, (*x)(k, 0));
+        vec_out_std.Set_Entry(k, (*x)(k, 0));
       }
     }
   }
@@ -146,14 +146,14 @@ public:
     HDSA::Std_Vector<RealT> &z_out_std = dynamic_cast<HDSA::Std_Vector<RealT> &>(z_out);
     for (int k = 0; k < m_; k++)
     {
-      b->Replace_Element(k, 0, z_in_std(k));
+      b->Set_Entry(k, 0, z_in_std(k));
     }
     HDSA::Ptr<HDSA::Dense_Matrix<RealT>> x = HDSA::makePtr<HDSA::Dense_Matrix<RealT>>(m_, 1);
 
     W_z_->Multiply(*x, *b);
     for (int k = 0; k < m_; k++)
     {
-      z_out_std.Replace_Element(k, (*x)(k, 0));
+      z_out_std.Set_Entry(k, (*x)(k, 0));
     }
   }
 };

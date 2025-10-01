@@ -58,7 +58,7 @@ namespace HDSA
         for (int j = 0; j < n_t_; j++)
         {
           RealT val = (*spatial_sing_vecs)[i]->dot(*u_in_trans->Get_Vector_Const(j));
-          tmp1->Replace_Element(i, j, val);
+          tmp1->Set_Entry(i, j, val);
         }
       }
       HDSA::Ptr<HDSA::Dense_Matrix<RealT>> tmp2 = HDSA::makePtr<HDSA::Dense_Matrix<RealT>>(spatial_rank, n_t_);
@@ -73,7 +73,7 @@ namespace HDSA
           RealT val1 = std::pow((*spatial_sing_vals)(i, 0), 2.0) * (*time_sing_vals)(j, 0);
           RealT val2 = val1 / (1.0 + scalar * val1);
           RealT val3 = (*tmp2)(i, j) * val2;
-          tmp2->Replace_Element(i, j, val3);
+          tmp2->Set_Entry(i, j, val3);
         }
       }
 
@@ -132,7 +132,7 @@ namespace HDSA
           {
             RealT omega = random_number_generator->Generate_Standard_Normal_Sample();
             RealT val = (*spatial_sing_vals)(i, 0) * omega * std::sqrt((*time_evals)(j, 0));
-            tmp1->Replace_Element(i, j, val);
+            tmp1->Set_Entry(i, j, val);
           }
         }
         HDSA::Ptr<HDSA::Dense_Matrix<RealT>> tmp2 = HDSA::makePtr<HDSA::Dense_Matrix<RealT>>(spatial_rank, n_t_);
@@ -172,7 +172,7 @@ namespace HDSA
             RealT val1 = std::pow((*spatial_sing_vals)(i, 0), 2.0) * (*time_evals)(j, 0);
             RealT val2 = val1 / (1.0 + scalar * val1);
             RealT val = std::sqrt(val2) * omega;
-            tmp1->Replace_Element(i, j, val);
+            tmp1->Set_Entry(i, j, val);
           }
         }
         HDSA::Ptr<HDSA::Dense_Matrix<RealT>> tmp2 = HDSA::makePtr<HDSA::Dense_Matrix<RealT>>(spatial_rank, n_t_);

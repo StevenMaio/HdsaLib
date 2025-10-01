@@ -38,7 +38,7 @@ public:
 
     for (int i = 0; i < d; i++)
     {
-      grad_std.Replace_Element(i, grad_tmp[i]);
+      grad_std.Set_Entry(i, grad_tmp[i]);
     }
   }
 
@@ -67,7 +67,7 @@ public:
       {
         tmp += hess_tmp[i][j] * z_in_std(j);
       }
-      z_out_std.Replace_Element(i, tmp);
+      z_out_std.Set_Entry(i, tmp);
     }
   }
 
@@ -86,7 +86,7 @@ public:
       {
         tmp += B[i][j] * theta_in_std(j);
       }
-      z_out_std.Replace_Element(i, tmp);
+      z_out_std.Set_Entry(i, tmp);
     }
   }
 };

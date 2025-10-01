@@ -139,17 +139,11 @@ namespace HDSA
       return vec_;
     }
 
-    // Access the (i,j) element
     RealT operator()(int k) const
     {
       return (*vec_)[k];
     }
 
-    // Replace the kth element of the vector by val
-    void Replace_Element(int k, RealT val)
-    {
-      (*vec_)[k] = val;
-    }
   };
 
 }

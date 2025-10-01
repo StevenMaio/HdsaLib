@@ -47,7 +47,7 @@ namespace HDSA
     }
 
     // Overwrite the (i,j) element
-    void Replace_Element(int i, int j, RealT val)
+    void Set_Entry(int i, int j, RealT val)
     {
       (*A_)(i, j) = val;
     }

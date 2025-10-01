@@ -37,9 +37,9 @@ int main(int argc, char *argv[])
   for (int s = 0; s < ens_size; s++)
   {
     RealT val = static_cast<RealT>(s) / static_cast<RealT>(ens_size - 1);
-    Xi->Replace_Element(0, s, val);
-    Xi->Replace_Element(1, s, val);
-    Xi->Replace_Element(2, s, val);
+    Xi->Set_Entry(0, s, val);
+    Xi->Set_Entry(1, s, val);
+    Xi->Set_Entry(2, s, val);
   }
 
   HDSA::Ptr<HDSA::MD_Data_Interface<RealT>> data_interface = HDSA::makePtr<MD_Data_Interface_synthetic_test_OUU<RealT>>(random_number_generator, comm, ens_size, Xi);
@@ -56,7 +56,7 @@ int main(int argc, char *argv[])
         dist += std::pow((*Xi)(k, i) - (*Xi)(k, j), 2.0);
       }
       RealT val = std::exp(-0.5 * dist);
-      K->Replace_Element(i, j, val);
+      K->Set_Entry(i, j, val);
     }
   }
   HDSA::Ptr<HDSA::MD_u_Prior_Interface<RealT>> u_prior_interface = HDSA::makePtr<HDSA::MD_OUU_u_Prior_Interface<RealT>>(us_prior_interface, K);
@@ -80,14 +80,14 @@ int main(int argc, char *argv[])
   HDSA::Ptr<HDSA::Dense_Matrix<RealT>> x = HDSA::makePtr<HDSA::Dense_Matrix<RealT>>(m, 1);
   for (int k = 0; k < m; k++)
   {
-    x->Replace_Element(k, 0, static_cast<RealT>(k) / static_cast<RealT>(m - 1));
+    x->Set_Entry(k, 0, static_cast<RealT>(k) / static_cast<RealT>(m - 1));
   }
   RealT pi = 3.14159265358979323846;
   for (int k = 0; k < m; k++)
   {
-    z0_std.Replace_Element(k, (*x)(k, 0));
-    z1_std.Replace_Element(k, 1.0 + std::pow((*x)(k, 0), 2.0));
-    z2_std.Replace_Element(k, std::sin(2 * pi * (*x)(k, 0)));
+    z0_std.Set_Entry(k, (*x)(k, 0));
+    z1_std.Set_Entry(k, 1.0 + std::pow((*x)(k, 0), 2.0));
+    z2_std.Set_Entry(k, std::sin(2 * pi * (*x)(k, 0)));
   }
 
   std::vector<HDSA::Ptr<HDSA::MultiVector<RealT>>> prior_samples = prior_sampling->Prior_Discrepancy_Samples(*z, num_prior_samples);
@@ -115,7 +115,7 @@ int main(int argc, char *argv[])
   HDSA::Std_Vector<RealT> ztest2_std = dynamic_cast<HDSA::Std_Vector<RealT> &>(*z_test[2]);
   for (int k = 0; k < m; k++)
   {
-    ztest2_std.Replace_Element(k, 1.5);
+    ztest2_std.Set_Entry(k, 1.5);
   }
 
   std::vector<HDSA::Ptr<HDSA::MD_Posterior_Vectors<RealT>>> post_discrepancy_samples = post_sampling->Posterior_Discrepancy_Samples(z_test);

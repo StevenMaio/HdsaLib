@@ -38,7 +38,7 @@ int main(int argc, char *argv[])
     for (int i = 0; i < m; i++)
     {
       in_z >> val;
-      z_bar_std.Replace_Element(i, val);
+      z_bar_std.Set_Entry(i, val);
     }
   }
   else
@@ -56,7 +56,7 @@ int main(int argc, char *argv[])
     for (int i = 0; i < m; i++)
     {
       in_theta >> val;
-      theta_bar_std.Replace_Element(i, val);
+      theta_bar_std.Set_Entry(i, val);
     }
   }
   else
@@ -91,7 +91,7 @@ int main(int argc, char *argv[])
     for (int i = 0; i < m; i++)
     {
       in_theta_star >> val;
-      theta_star_std.Replace_Element(i, val);
+      theta_star_std.Set_Entry(i, val);
     }
   }
   else

@@ -102,7 +102,7 @@ int main(int argc, char *argv[])
   HDSA::Ptr<HDSA::Dense_Matrix<RealT>> x = HDSA::makePtr<HDSA::Dense_Matrix<RealT>>(m, 1);
   for (int k = 0; k < m; k++)
   {
-    x->Replace_Element(k, 0, static_cast<RealT>(k) / static_cast<RealT>(m - 1));
+    x->Set_Entry(k, 0, static_cast<RealT>(k) / static_cast<RealT>(m - 1));
   }
   RealT pi = 3.14159265358979323846;
   for (int k = 0; k < m; k++)

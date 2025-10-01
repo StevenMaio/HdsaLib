@@ -30,7 +30,7 @@ public:
     for (int k = 0; k < m_; k++)
     {
       RealT val = (*tmp)(k, 0) / (*S)(k, 0);
-      tmp->Replace_Element(k, 0, val);
+      tmp->Set_Entry(k, 0, val);
     }
     VT->Multiply(x, *tmp, true, false);
   }
@@ -50,7 +50,7 @@ public:
       for (int j = 0; j < m_; j++)
       {
         RealT val = (*D)(i, j) + (*V)(i, j) + alpha_ * (*robin_bc_)(i, j);
-        A->Replace_Element(i, j, val);
+        A->Set_Entry(i, j, val);
       }
     }
 
@@ -59,7 +59,7 @@ public:
 
     for (int k = 0; k < m_; k++)
     {
-      u_std.Replace_Element(k, (*u_tmp)(k, 0));
+      u_std.Set_Entry(k, (*u_tmp)(k, 0));
     }
   }
 
@@ -80,21 +80,21 @@ public:
       for (int j = 0; j < m_; j++)
       {
         RealT val = (*D)(i, j) + (*V)(i, j) + alpha_ * (*robin_bc_)(i, j);
-        c_u_trans->Replace_Element(j, i, val);
+        c_u_trans->Set_Entry(j, i, val);
       }
     }
 
     HDSA::Ptr<HDSA::Dense_Matrix<RealT>> u_tmp1 = HDSA::makePtr<HDSA::Dense_Matrix<RealT>>(m_, 1);
     for (int k = 0; k < m_; k++)
     {
-      u_tmp1->Replace_Element(k, 0, u_in_std(k));
+      u_tmp1->Set_Entry(k, 0, u_in_std(k));
     }
     HDSA::Ptr<HDSA::Dense_Matrix<RealT>> u_tmp2 = HDSA::makePtr<HDSA::Dense_Matrix<RealT>>(m_, 1);
     Dense_Linear_Solve(*c_u_trans, *u_tmp2, *u_tmp1);
 
     for (int k = 0; k < m_; k++)
     {
-      u_out_std.Replace_Element(k, (*u_tmp2)(k, 0));
+      u_out_std.Set_Entry(k, (*u_tmp2)(k, 0));
     }
   }
 
@@ -115,21 +115,21 @@ public:
       for (int j = 0; j < m_; j++)
       {
         RealT val = (*D)(i, j) + (*V)(i, j) + alpha_ * (*robin_bc_)(i, j);
-        c_u->Replace_Element(i, j, val);
+        c_u->Set_Entry(i, j, val);
       }
     }
 
     HDSA::Ptr<HDSA::Dense_Matrix<RealT>> u_tmp1 = HDSA::makePtr<HDSA::Dense_Matrix<RealT>>(m_, 1);
     for (int k = 0; k < m_; k++)
     {
-      u_tmp1->Replace_Element(k, 0, u_in_std(k));
+      u_tmp1->Set_Entry(k, 0, u_in_std(k));
     }
     HDSA::Ptr<HDSA::Dense_Matrix<RealT>> u_tmp2 = HDSA::makePtr<HDSA::Dense_Matrix<RealT>>(m_, 1);
     Dense_Linear_Solve(*c_u, *u_tmp2, *u_tmp1);
 
     for (int k = 0; k < m_; k++)
     {
-      u_out_std.Replace_Element(k, (*u_tmp2)(k, 0));
+      u_out_std.Set_Entry(k, (*u_tmp2)(k, 0));
     }
   }
 
@@ -146,14 +146,14 @@ public:
     HDSA::Ptr<HDSA::Dense_Matrix<RealT>> u_tmp = HDSA::makePtr<HDSA::Dense_Matrix<RealT>>(m_, 1);
     for (int k = 0; k < m_; k++)
     {
-      u_tmp->Replace_Element(k, 0, u_in_std(k));
+      u_tmp->Set_Entry(k, 0, u_in_std(k));
     }
     HDSA::Ptr<HDSA::Dense_Matrix<RealT>> z_tmp = HDSA::makePtr<HDSA::Dense_Matrix<RealT>>(m_, 1);
     D->Multiply(*z_tmp, *u_tmp, true);
 
     for (int k = 0; k < m_; k++)
     {
-      z_out_std.Replace_Element(k, (*z_tmp)(k, 0));
+      z_out_std.Set_Entry(k, (*z_tmp)(k, 0));
     }
   }
 
@@ -170,14 +170,14 @@ public:
     HDSA::Ptr<HDSA::Dense_Matrix<RealT>> z_tmp = HDSA::makePtr<HDSA::Dense_Matrix<RealT>>(m_, 1);
     for (int k = 0; k < m_; k++)
     {
-      z_tmp->Replace_Element(k, 0, z_in_std(k));
+      z_tmp->Set_Entry(k, 0, z_in_std(k));
     }
     HDSA::Ptr<HDSA::Dense_Matrix<RealT>> u_tmp = HDSA::makePtr<HDSA::Dense_Matrix<RealT>>(m_, 1);
     D->Multiply(*u_tmp, *z_tmp);
 
     for (int k = 0; k < m_; k++)
     {
-      u_out_std.Replace_Element(k, (*u_tmp)(k, 0));
+      u_out_std.Set_Entry(k, (*u_tmp)(k, 0));
     }
   }
 
@@ -200,14 +200,14 @@ public:
     HDSA::Ptr<HDSA::Dense_Matrix<RealT>> z_tmp = HDSA::makePtr<HDSA::Dense_Matrix<RealT>>(m_, 1);
     for (int k = 0; k < m_; k++)
     {
-      z_tmp->Replace_Element(k, 0, z_in_std(k));
+      z_tmp->Set_Entry(k, 0, z_in_std(k));
     }
     HDSA::Ptr<HDSA::Dense_Matrix<RealT>> u_tmp = HDSA::makePtr<HDSA::Dense_Matrix<RealT>>(m_, 1);
     D->Multiply(*u_tmp, *z_tmp);
 
     for (int k = 0; k < m_; k++)
     {
-      u_out_std.Replace_Element(k, (*u_tmp)(k, 0));
+      u_out_std.Set_Entry(k, (*u_tmp)(k, 0));
     }
   }
 
@@ -225,14 +225,14 @@ public:
     HDSA::Ptr<HDSA::Dense_Matrix<RealT>> u_tmp = HDSA::makePtr<HDSA::Dense_Matrix<RealT>>(m_, 1);
     for (int k = 0; k < m_; k++)
     {
-      u_tmp->Replace_Element(k, 0, u_in_std(k));
+      u_tmp->Set_Entry(k, 0, u_in_std(k));
     }
     HDSA::Ptr<HDSA::Dense_Matrix<RealT>> z_tmp = HDSA::makePtr<HDSA::Dense_Matrix<RealT>>(m_, 1);
     D->Multiply(*z_tmp, *u_tmp, true);
 
     for (int k = 0; k < m_; k++)
     {
-      z_out_std.Replace_Element(k, (*z_tmp)(k, 0));
+      z_out_std.Set_Entry(k, (*z_tmp)(k, 0));
     }
   }
 
@@ -254,14 +254,14 @@ public:
     HDSA::Ptr<HDSA::Dense_Matrix<RealT>> theta_tmp = HDSA::makePtr<HDSA::Dense_Matrix<RealT>>(m_, 1);
     for (int k = 0; k < m_; k++)
     {
-      theta_tmp->Replace_Element(k, 0, theta_in_std(k));
+      theta_tmp->Set_Entry(k, 0, theta_in_std(k));
     }
     HDSA::Ptr<HDSA::Dense_Matrix<RealT>> u_tmp = HDSA::makePtr<HDSA::Dense_Matrix<RealT>>(m_, 1);
     V->Multiply(*u_tmp, *theta_tmp);
 
     for (int k = 0; k < m_; k++)
     {
-      u_out_std.Replace_Element(k, (*u_tmp)(k, 0));
+      u_out_std.Set_Entry(k, (*u_tmp)(k, 0));
     }
   }
 
@@ -284,14 +284,14 @@ public:
     HDSA::Ptr<HDSA::Dense_Matrix<RealT>> theta_tmp = HDSA::makePtr<HDSA::Dense_Matrix<RealT>>(m_, 1);
     for (int k = 0; k < m_; k++)
     {
-      theta_tmp->Replace_Element(k, 0, theta_in_std(k));
+      theta_tmp->Set_Entry(k, 0, theta_in_std(k));
     }
     HDSA::Ptr<HDSA::Dense_Matrix<RealT>> u_tmp = HDSA::makePtr<HDSA::Dense_Matrix<RealT>>(m_, 1);
     V->Multiply(*u_tmp, *theta_tmp);
 
     for (int k = 0; k < m_; k++)
     {
-      u_out_std.Replace_Element(k, (*u_tmp)(k, 0));
+      u_out_std.Set_Entry(k, (*u_tmp)(k, 0));
     }
   }
 
@@ -311,9 +311,9 @@ public:
         RealT x2 = (i - 2) * h + (h / 2) * (1.0 / std::sqrt(3.0) + 1.0);
         std::vector<RealT> perm = {Diffusion_Coeff(x1, z), Diffusion_Coeff(x2, z)};
         val = (h / 2) * (phi_up_dot[0] * phi_down_dot[0] * perm[0] + phi_up_dot[1] * phi_down_dot[1] * perm[1]);
-        D->Replace_Element(i - 2, i - 1, val);
+        D->Set_Entry(i - 2, i - 1, val);
         val = (h / 2) * (phi_up_dot[0] * phi_up_dot[0] * perm[0] + phi_up_dot[1] * phi_up_dot[1] * perm[1]);
-        D->Replace_Element(i - 1, i - 1, val);
+        D->Set_Entry(i - 1, i - 1, val);
       }
       if (i < m_)
       {
@@ -321,9 +321,9 @@ public:
         RealT x2 = (i - 1) * h + (h / 2) * (1.0 / std::sqrt(3.0) + 1.0);
         std::vector<RealT> perm = {Diffusion_Coeff(x1, z), Diffusion_Coeff(x2, z)};
         val = (*D)(i - 1, i - 1) + (h / 2) * (phi_down_dot[0] * phi_down_dot[0] * perm[0] + phi_down_dot[1] * phi_down_dot[1] * perm[1]);
-        D->Replace_Element(i - 1, i - 1, val);
+        D->Set_Entry(i - 1, i - 1, val);
         val = (h / 2) * (phi_up_dot[0] * phi_down_dot[0] * perm[0] + phi_up_dot[1] * phi_down_dot[1] * perm[1]);
-        D->Replace_Element(i, i - 1, val);
+        D->Set_Entry(i, i - 1, val);
       }
     }
     return D;
@@ -348,18 +348,18 @@ public:
         std::vector<RealT> u_prime = {u[i - 1] * phi_down_dot[0] + u[i] * phi_up_dot[0],
                                       u[i - 1] * phi_down_dot[1] + u[i] * phi_up_dot[1]};
         val = (h / 2) * (phi_up[0] * phi_down_dot[0] * u_prime[0] + phi_up[1] * phi_down_dot[1] * u_prime[1]);
-        D_diff->Replace_Element(i - 1, i, val);
+        D_diff->Set_Entry(i - 1, i, val);
         val = (h / 2) * (phi_up[0] * phi_up_dot[0] * u_prime[0] + phi_up[1] * phi_up_dot[1] * u_prime[1]);
-        D_diff->Replace_Element(i, i, val);
+        D_diff->Set_Entry(i, i, val);
       }
       if (i < m_ - 1)
       {
         std::vector<RealT> u_prime = {u[i] * phi_down_dot[0] + u[i + 1] * phi_up_dot[0],
                                       u[i] * phi_down_dot[1] + u[i + 1] * phi_up_dot[1]};
         val = (*D_diff)(i, i) + (h / 2) * (phi_down[0] * phi_down_dot[0] * u_prime[0] + phi_down[1] * phi_down_dot[1] * u_prime[1]);
-        D_diff->Replace_Element(i, i, val);
+        D_diff->Set_Entry(i, i, val);
         val = (h / 2) * (phi_down[0] * phi_up_dot[0] * u_prime[0] + phi_down[1] * phi_up_dot[1] * u_prime[1]);
-        D_diff->Replace_Element(i + 1, i, val);
+        D_diff->Set_Entry(i + 1, i, val);
       }
     }
 
@@ -386,9 +386,9 @@ public:
         x2 = (i - 2) * h + (h / 2) * (1.0 / std::sqrt(3) + 1);
         std::vector<RealT> vel = {Velocity_Coeff(x1, theta), Velocity_Coeff(x2, theta)};
         val = (*V)(i - 1, i - 1) + (h / 2.0) * (phi_up_dot[0] * phi_down[0] * vel[0] + phi_up_dot[1] * phi_down[1] * vel[1]);
-        V->Replace_Element(i - 2, i - 1, val);
+        V->Set_Entry(i - 2, i - 1, val);
         val = (*V)(i - 1, i - 1) + (h / 2.0) * (phi_up_dot[0] * phi_up[0] * vel[0] + phi_up_dot[1] * phi_up[1] * vel[1]);
-        V->Replace_Element(i - 1, i - 1, val);
+        V->Set_Entry(i - 1, i - 1, val);
       }
       if (i < m_)
       {
@@ -396,9 +396,9 @@ public:
         x2 = (i - 1) * h + (h / 2) * (1.0 / std::sqrt(3) + 1);
         std::vector<RealT> vel = {Velocity_Coeff(x1, theta), Velocity_Coeff(x2, theta)};
         val = (*V)(i - 1, i - 1) + (h / 2.0) * (phi_down_dot[0] * phi_down[0] * vel[0] + phi_down_dot[1] * phi_down[1] * vel[1]);
-        V->Replace_Element(i - 1, i - 1, val);
+        V->Set_Entry(i - 1, i - 1, val);
         val = (h / 2.0) * (phi_down_dot[0] * phi_up[0] * vel[0] + phi_down_dot[1] * phi_up[1] * vel[1]);
-        V->Replace_Element(i, i - 1, val);
+        V->Set_Entry(i, i - 1, val);
       }
     }
 
@@ -424,18 +424,18 @@ public:
         std::vector<RealT> u_prime = {u[i - 1] * phi_down_dot[0] + u[i] * phi_up_dot[0],
                                       u[i - 1] * phi_down_dot[1] + u[i] * phi_up_dot[1]};
         val = (h / 2) * (phi_up[0] * phi_down[0] * u_prime[0] + phi_up[1] * phi_down[1] * u_prime[1]);
-        V_diff->Replace_Element(i - 1, i, val);
+        V_diff->Set_Entry(i - 1, i, val);
         val = (h / 2) * (phi_up[0] * phi_up[0] * u_prime[0] + phi_up[1] * phi_up[1] * u_prime[1]);
-        V_diff->Replace_Element(i, i, val);
+        V_diff->Set_Entry(i, i, val);
       }
       if (i < m_ - 1)
       {
         std::vector<RealT> u_prime = {u[i] * phi_down_dot[0] + u[i + 1] * phi_up_dot[0],
                                       u[i] * phi_down_dot[1] + u[i + 1] * phi_up_dot[1]};
         val = (*V_diff)(i, i) + (h / 2) * (phi_down[0] * phi_down[0] * u_prime[0] + phi_down[1] * phi_down[1] * u_prime[1]);
-        V_diff->Replace_Element(i, i, val);
+        V_diff->Set_Entry(i, i, val);
         val = (h / 2) * (phi_down[0] * phi_up[0] * u_prime[0] + phi_down[1] * phi_up[1] * u_prime[1]);
-        V_diff->Replace_Element(i + 1, i, val);
+        V_diff->Set_Entry(i + 1, i, val);
       }
     }
 
@@ -461,18 +461,18 @@ public:
         std::vector<RealT> lam = {lambda[i - 1] * phi_down[0] + lambda[i] * phi_up[0],
                                   lambda[i - 1] * phi_down[1] + lambda[i] * phi_up[1]};
         val = (h / 2) * (phi_up[0] * phi_down_dot[0] * lam[0] + phi_up[1] * phi_down_dot[1] * lam[1]);
-        V_hess->Replace_Element(i - 1, i, val);
+        V_hess->Set_Entry(i - 1, i, val);
         val = (h / 2) * (phi_up[0] * phi_up_dot[0] * lam[0] + phi_up[1] * phi_up_dot[1] * lam[1]);
-        V_hess->Replace_Element(i, i, val);
+        V_hess->Set_Entry(i, i, val);
       }
       if (i < m_ - 1)
       {
         std::vector<RealT> lam = {lambda[i] * phi_down[0] + lambda[i + 1] * phi_up[0],
                                   lambda[i] * phi_down[1] + lambda[i + 1] * phi_up[1]};
         val = (*V_hess)(i, i) + (h / 2) * (phi_down[0] * phi_down_dot[0] * lam[0] + phi_down[1] * phi_down_dot[1] * lam[1]);
-        V_hess->Replace_Element(i, i, val);
+        V_hess->Set_Entry(i, i, val);
         val = (h / 2) * (phi_down[0] * phi_up_dot[0] * lam[0] + phi_down[1] * phi_up_dot[1] * lam[1]);
-        V_hess->Replace_Element(i + 1, i, val);
+        V_hess->Set_Entry(i + 1, i, val);
       }
     }
 
@@ -517,37 +517,37 @@ public:
     x_ = HDSA::makePtr<HDSA::Dense_Matrix<RealT>>(m_, 1);
     for (int k = 0; k < m_; k++)
     {
-      x_->Replace_Element(k, 0, static_cast<RealT>(k) / static_cast<RealT>(m_ - 1));
+      x_->Set_Entry(k, 0, static_cast<RealT>(k) / static_cast<RealT>(m_ - 1));
     }
 
     S_ = HDSA::makePtr<HDSA::Dense_Matrix<RealT>>(m_, m_);
     M_ = HDSA::makePtr<HDSA::Dense_Matrix<RealT>>(m_, m_);
     robin_bc_ = HDSA::makePtr<HDSA::Dense_Matrix<RealT>>(m_, m_);
 
-    S_->Replace_Element(0, 0, 1.0 / h);
-    S_->Replace_Element(0, 1, -1.0 / h);
+    S_->Set_Entry(0, 0, 1.0 / h);
+    S_->Set_Entry(0, 1, -1.0 / h);
     for (int i = 1; i < m_ - 1; i++)
     {
-      S_->Replace_Element(i, i, 2.0 / h);
-      S_->Replace_Element(i, i - 1, -1.0 / h);
-      S_->Replace_Element(i, i + 1, -1.0 / h);
+      S_->Set_Entry(i, i, 2.0 / h);
+      S_->Set_Entry(i, i - 1, -1.0 / h);
+      S_->Set_Entry(i, i + 1, -1.0 / h);
     }
-    S_->Replace_Element(m_ - 1, m_ - 2, -1.0 / h);
-    S_->Replace_Element(m_ - 1, m_ - 1, 1.0 / h);
+    S_->Set_Entry(m_ - 1, m_ - 2, -1.0 / h);
+    S_->Set_Entry(m_ - 1, m_ - 1, 1.0 / h);
 
-    M_->Replace_Element(0, 0, (1.0 / 3.0) * h);
-    M_->Replace_Element(0, 1, (1.0 / 6.0) * h);
+    M_->Set_Entry(0, 0, (1.0 / 3.0) * h);
+    M_->Set_Entry(0, 1, (1.0 / 6.0) * h);
     for (int i = 1; i < m_ - 1; i++)
     {
-      M_->Replace_Element(i, i, (2.0 / 3.0) * h);
-      M_->Replace_Element(i, i - 1, (1.0 / 6.0) * h);
-      M_->Replace_Element(i, i + 1, (1.0 / 6.0) * h);
+      M_->Set_Entry(i, i, (2.0 / 3.0) * h);
+      M_->Set_Entry(i, i - 1, (1.0 / 6.0) * h);
+      M_->Set_Entry(i, i + 1, (1.0 / 6.0) * h);
     }
-    M_->Replace_Element(m_ - 1, m_ - 2, (1.0 / 6.0) * h);
-    M_->Replace_Element(m_ - 1, m_ - 1, (1.0 / 3.0) * h);
+    M_->Set_Entry(m_ - 1, m_ - 2, (1.0 / 6.0) * h);
+    M_->Set_Entry(m_ - 1, m_ - 1, (1.0 / 3.0) * h);
 
-    robin_bc_->Replace_Element(0, 0, 1.0);
-    robin_bc_->Replace_Element(m_ - 1, m_ - 1, 1.0);
+    robin_bc_->Set_Entry(0, 0, 1.0);
+    robin_bc_->Set_Entry(m_ - 1, m_ - 1, 1.0);
 
     alpha_ = 1.0;
 
@@ -556,7 +556,7 @@ public:
     for (int k = 0; k < m_; k++)
     {
       RealT val = std::exp(-50.0 * std::pow((*x_)(k, 0) - 0.5, 2.0));
-      tmp->Replace_Element(k, 0, val);
+      tmp->Set_Entry(k, 0, val);
     }
     M_->Multiply(*forcing_, *tmp);
   }
