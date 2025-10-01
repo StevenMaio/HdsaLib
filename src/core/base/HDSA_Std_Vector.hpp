@@ -12,28 +12,28 @@ private:
   int dim_;
   const HDSA::Ptr<HDSA::Random_Number_Generator<RealT>> random_number_generator_;
   HDSA::Ptr<std::vector<RealT>> vec_;
+  const HDSA::Ptr<const HDSA::Comm<int>> comm_;
 
 public:
-  Std_Vector(int dim) : dim_(dim), random_number_generator_(HDSA::makePtr<HDSA::Random_Number_Generator<RealT>>())
+  Std_Vector(int dim, const HDSA::Ptr<const HDSA::Comm<int>> &comm) : dim_(dim), random_number_generator_(HDSA::makePtr<HDSA::Random_Number_Generator<RealT>>()), comm_(comm)
   {
     vec_ = HDSA::makePtr<std::vector<RealT>>(dim, 0.0);
   }
 
-  Std_Vector(int dim, int seed) : dim_(dim), random_number_generator_(HDSA::Random_Number_Generator<RealT>(seed))
+  Std_Vector(int dim, int seed, const HDSA::Ptr<const HDSA::Comm<int>> &comm) : dim_(dim), random_number_generator_(HDSA::Random_Number_Generator<RealT>(seed)), comm_(comm)
   {
     vec_ = HDSA::makePtr<std::vector<RealT>>(dim, 0.0);
   }
 
-  Std_Vector(int dim, const HDSA::Ptr<HDSA::Random_Number_Generator<RealT>> &random_number_generator)
-      : dim_(dim), random_number_generator_(random_number_generator)
+  Std_Vector(int dim, const HDSA::Ptr<HDSA::Random_Number_Generator<RealT>> &random_number_generator, const HDSA::Ptr<const HDSA::Comm<int>> &comm) : dim_(dim), random_number_generator_(random_number_generator), comm_(comm)
   {
     vec_ = HDSA::makePtr<std::vector<RealT>>(dim, 0.0);
   }
 
-  Std_Vector(std::vector<RealT> &vec_in, const HDSA::Ptr<HDSA::Random_Number_Generator<RealT>> &random_number_generator): dim_(vec_in.size()), random_number_generator_(random_number_generator)
+  Std_Vector(std::vector<RealT> &vec_in, const HDSA::Ptr<HDSA::Random_Number_Generator<RealT>> &random_number_generator, const HDSA::Ptr<const HDSA::Comm<int>> &comm) : dim_(vec_in.size()), random_number_generator_(random_number_generator), comm_(comm)
   {
     vec_ = HDSA::makePtr<std::vector<RealT>>(vec_in.size());
-    for(int k = 0; k < vec_in.size(); k++)
+    for (int k = 0; k < vec_in.size(); k++)
     {
       (*vec_)[k] = vec_in[k];
     }
@@ -49,7 +49,7 @@ public:
 
   HDSA::Ptr<HDSA::Vector<RealT>> clone() const override
   {
-    HDSA::Ptr<HDSA::Vector<RealT>> vec = HDSA::makePtr<Std_Vector<RealT>>(dim_, random_number_generator_);
+    HDSA::Ptr<HDSA::Vector<RealT>> vec = HDSA::makePtr<Std_Vector<RealT>>(dim_, random_number_generator_, comm_);
     return vec;
   }
 
@@ -95,6 +95,12 @@ public:
     for (int k = 0; k < dim_; k++)
     {
       (*vec_)[k] = random_number_generator_->Generate_Standard_Normal_Sample();
+    }
+    if (comm_->getSize() > 1)
+    {
+      comm_->barrier();
+      char *buff = (char *)(&(*vec_)[0]);
+      comm_->broadcast(0, 8 * dim_, buff);
     }
   }
 

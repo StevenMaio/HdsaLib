@@ -220,7 +220,7 @@ int main(int argc, char *argv[]) {
   HDSA::Ptr<ROL::Objective<RealT> > robj = HDSA::makePtr<ROL::LinearCombinationObjective<RealT> >(weights,obj_vec);
 
   int theta_dim = param.size();
-  HDSA::Ptr<HDSA::Vector<RealT> > theta_bar = HDSA::makePtr<Std_Vector<RealT> >(theta_dim);
+  HDSA::Ptr<HDSA::Vector<RealT> > theta_bar = HDSA::makePtr<Std_Vector<RealT> >(theta_dim, comm);
   Set_Parameters<RealT>(theta_bar,filename_theta_bar);
   
   Load_Nominal_Solution<RealT>(z_ptr);  

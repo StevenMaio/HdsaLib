@@ -15,6 +15,7 @@ class MD_Data_Interface_MrHyDE : public HDSA::MD_Data_Interface<RealT>
 
 private:
   Teuchos::RCP<Teuchos::MpiComm<int>> comm_;
+  HDSA::Ptr<HDSA::Comm<int>> hdsa_comm_;
   Teuchos::RCP<MrHyDE::SolverManager<SolverNode>> solve_;
   HDSA::Ptr<MrHyDE::ParameterManager<SolverNode>> params_;
   const HDSA::Ptr<HDSA::Random_Number_Generator<RealT>> random_number_generator_;
@@ -32,6 +33,8 @@ private:
 public:
   MD_Data_Interface_MrHyDE(Teuchos::RCP<Teuchos::MpiComm<int>> &comm, Teuchos::RCP<MrHyDE::SolverManager<SolverNode>> &solve, HDSA::Ptr<MrHyDE::ParameterManager<SolverNode>> &params, const HDSA::Ptr<HDSA::Random_Number_Generator<RealT>> &random_number_generator, Teuchos::ParameterList &data_load_list) : comm_(comm), solve_(solve), params_(params), random_number_generator_(random_number_generator), data_load_list_(data_load_list)
   {
+    hdsa_comm_ = HDSA::makePtr<HDSA::Comm<int>>(comm_);
+
     num_hifi_ = data_load_list_.get<int>("NumHifi", 1);
     opt_solution_exo_file_ = data_load_list_.get<std::string>("OptimalSolutionExoFile", "error");
 
@@ -270,14 +273,14 @@ public:
         trans_vec.resize(num_time_steps);
         for (int i = 0; i < num_time_steps; i++)
         {
-          trans_vec[i] = HDSA::makePtr<Std_Vector<RealT>>(z_vec[i], random_number_generator_);
+          trans_vec[i] = HDSA::makePtr<Std_Vector<RealT>>(z_vec[i], random_number_generator_, hdsa_comm_);
         }
         z_opt_hdsa = HDSA::makePtr<Transient_Vector<RealT>>(trans_vec);
       }
       else
       {
         std::vector<RealT> z_vec = Read_Text_Data_std(opt_solution_txt_file_z_);
-        z_opt_hdsa = HDSA::makePtr<Std_Vector<RealT>>(z_vec, random_number_generator_);
+        z_opt_hdsa = HDSA::makePtr<Std_Vector<RealT>>(z_vec, random_number_generator_, hdsa_comm_);
       }
     }
     else if (opt_solution_exo_file_ != "error")
@@ -315,14 +318,14 @@ public:
           trans_vec.resize(num_time_steps);
           for (int i = 0; i < num_time_steps; i++)
           {
-            trans_vec[i] = HDSA::makePtr<Std_Vector<RealT>>(z_vec[i], random_number_generator_);
+            trans_vec[i] = HDSA::makePtr<Std_Vector<RealT>>(z_vec[i], random_number_generator_, hdsa_comm_);
           }
           z_hdsa = HDSA::makePtr<Transient_Vector<RealT>>(trans_vec);
         }
         else
         {
           std::vector<RealT> z_vec = Read_Text_Data_std(txt_files_z_[k]);
-          z_hdsa = HDSA::makePtr<Std_Vector<RealT>>(z_vec, random_number_generator_);
+          z_hdsa = HDSA::makePtr<Std_Vector<RealT>>(z_vec, random_number_generator_, hdsa_comm_);
         }
       }
       else if (hifi_exo_files_[k] != "error")

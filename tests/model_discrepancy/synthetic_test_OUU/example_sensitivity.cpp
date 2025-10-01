@@ -42,7 +42,7 @@ int main(int argc, char *argv[])
     Xi->Replace_Element(2, s, val);
   }
 
-  HDSA::Ptr<HDSA::MD_Data_Interface<RealT>> data_interface = HDSA::makePtr<MD_Data_Interface_synthetic_test_OUU<RealT>>(random_number_generator, ens_size, Xi);
+  HDSA::Ptr<HDSA::MD_Data_Interface<RealT>> data_interface = HDSA::makePtr<MD_Data_Interface_synthetic_test_OUU<RealT>>(random_number_generator, comm, ens_size, Xi);
   HDSA::Ptr<HDSA::MD_Opt_Prob_Interface<RealT>> opt_prob_interface = HDSA::makePtr<MD_Opt_Prob_Interface_synthetic_test_OUU<RealT>>(ens_size, Xi);
   HDSA::Ptr<HDSA::MD_u_Prior_Interface<RealT>> us_prior_interface = HDSA::makePtr<MD_u_Prior_Interface_synthetic_test_OUU<RealT>>(random_number_generator);
   HDSA::Ptr<HDSA::Dense_Matrix<RealT>> K = HDSA::makePtr<HDSA::Dense_Matrix<RealT>>(ens_size, ens_size);

@@ -30,7 +30,7 @@ int main(int argc, char *argv[]) {
   std::string random_number_file = "random_numbers.txt";
   HDSA::Ptr<HDSA::Random_Number_Generator<RealT> > random_number_generator = HDSA::makePtr<HDSA::Random_Number_Generator<RealT> >(num_random_numbers,random_number_file);
   
-  HDSA::Ptr<HDSA::MD_Data_Interface<RealT> > data_interface = HDSA::makePtr<MD_Data_Interface_PDE_Test_Problem<RealT> >(random_number_generator);
+  HDSA::Ptr<HDSA::MD_Data_Interface<RealT> > data_interface = HDSA::makePtr<MD_Data_Interface_PDE_Test_Problem<RealT> >(random_number_generator, comm);
   HDSA::Ptr<HDSA::MD_Opt_Prob_Interface<RealT> > opt_prob_interface = HDSA::makePtr<MD_Opt_Prob_Interface_PDE_Test_Problem<RealT> >();
   RealT alpha_u = 1.0/std::pow(2.0,2.0);
   RealT alpha_z = 1.0/std::pow(3.0,2.0);

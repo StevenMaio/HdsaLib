@@ -14,10 +14,10 @@ private:
   HDSA::Ptr<HDSA::Dense_Matrix<RealT>> x_; // Mesh nodes on [0,1]
   std::vector<RealT> t_;
   const HDSA::Ptr<HDSA::Random_Number_Generator<RealT>> Random_number_generator_;
-  HDSA::Ptr<const HDSA::Comm<int>> comm_;
+  const HDSA::Ptr<const HDSA::Comm<int>> comm_;
 
 public:
-  MD_Data_Interface_synthetic_test(const HDSA::Ptr<HDSA::Random_Number_Generator<RealT>> &Random_number_generator, HDSA::Ptr<const HDSA::Comm<int>> &comm, int n_y, int n_t) : Random_number_generator_(Random_number_generator), comm_(comm)
+  MD_Data_Interface_synthetic_test(const HDSA::Ptr<HDSA::Random_Number_Generator<RealT>> &Random_number_generator, const HDSA::Ptr<const HDSA::Comm<int>> &comm, int n_y, int n_t) : Random_number_generator_(Random_number_generator), comm_(comm)
   {
     n_y_ = n_y;
     n_t_ = n_t;
@@ -58,7 +58,7 @@ public:
 
   HDSA::Ptr<HDSA::Vector<RealT>> Load_Optimal_z() const
   {
-    HDSA::Ptr<Std_Vector<RealT> > tmp = HDSA::makePtr<Std_Vector<RealT> >(2,Random_number_generator_);
+    HDSA::Ptr<Std_Vector<RealT> > tmp = HDSA::makePtr<Std_Vector<RealT> >(2,Random_number_generator_,comm_);
     HDSA::Ptr<HDSA::Vector<RealT>> z_opt = HDSA::makePtr<Transient_Vector<RealT>>(n_t_, tmp);
     Transient_Vector<RealT> z_opt_trans = dynamic_cast<Transient_Vector<RealT> &>(*z_opt);
     for (int j = 0; j < n_t_; j++)
