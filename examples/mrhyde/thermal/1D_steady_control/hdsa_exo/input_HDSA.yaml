@@ -10,6 +10,7 @@ ANONYMOUS:
         execute_prior_discrepancy_sampling: true
         execute_posterior_discrepancy_sampling: true
         execute_optimal_solution_update: true
+        verbosity: 1
       HyperParameters:
         T:
           alpha_u: 0.25

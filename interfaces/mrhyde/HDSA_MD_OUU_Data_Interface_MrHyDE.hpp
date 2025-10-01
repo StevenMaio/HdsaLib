@@ -14,7 +14,7 @@ private:
   int ens_size_;
 
 public:
-  MD_OUU_Data_Interface_MrHyDE(std::vector<HDSA::Ptr<MD_Data_Interface_MrHyDE<ScalarT>>> & data_interface_mrhyde, HDSA::Ptr<ROL::SampleGenerator<RealT>> & sampler, int ens_size) : HDSA::MD_OUU_Data_Interface<RealT>(ens_size), data_interface_mrhyde_(data_interface_mrhyde), sampler_(sampler), ens_size_(ens_size)
+  MD_OUU_Data_Interface_MrHyDE(std::vector<HDSA::Ptr<MD_Data_Interface_MrHyDE<ScalarT>>> &data_interface_mrhyde, HDSA::Ptr<ROL::SampleGenerator<RealT>> &sampler, int ens_size) : HDSA::MD_OUU_Data_Interface<RealT>(ens_size), data_interface_mrhyde_(data_interface_mrhyde), sampler_(sampler), ens_size_(ens_size)
   {
   }
 
@@ -47,5 +47,17 @@ public:
     HDSA::Ptr<HDSA::MultiVector<RealT>> Ds = data_interface_mrhyde_[s]->Load_D_Data();
     return Ds;
   }
+
+  HDSA::Ptr<HDSA::MultiVector<RealT>> Read_Spatial_Node_Data() const
+  {
+    HDSA::Ptr<HDSA::MultiVector<RealT>> spatial_nodes = data_interface_mrhyde_[0]->Read_Spatial_Node_Data();
+    return spatial_nodes;
+  }
+
+  std::vector<HDSA::Ptr<MD_Data_Interface_MrHyDE<RealT>>> Get_Data_Interface_MrHyDE(void) const
+  {
+    return data_interface_mrhyde_;
+  }
+  
 };
 #endif

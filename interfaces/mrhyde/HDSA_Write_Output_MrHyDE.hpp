@@ -13,19 +13,16 @@ class Write_Output_MrHyDE
 {
 
 private:
-    bool write_exo_;
-    std::string output_dir_name_;
     HDSA::Ptr<MrHyDE::PostprocessManager<SolverNode>> postproc_;
     HDSA::Ptr<MrHyDE::SolverManager<SolverNode>> solver_;
+    bool write_exo_;
+    std::string output_dir_name_;
 
 public:
-    Write_Output_MrHyDE(const HDSA::Ptr<MD_Data_Interface_MrHyDE<RealT>> &data_interface, const HDSA::Ptr<MrHyDE::PostprocessManager<SolverNode>> &postproc, const HDSA::Ptr<MrHyDE::SolverManager<SolverNode>> &solver) : postproc_(postproc), solver_(solver)
+    Write_Output_MrHyDE(const HDSA::Ptr<MrHyDE::PostprocessManager<SolverNode>> &postproc, const HDSA::Ptr<MrHyDE::SolverManager<SolverNode>> &solver, bool write_exo) : postproc_(postproc), solver_(solver), write_exo_(write_exo)
     {
-        std::string opt_solution_exo_file = data_interface->Get_Opt_Solution_Exo_File();
-        write_exo_ = false;
-        if (opt_solution_exo_file != "error")
+        if (write_exo_)
         {
-            write_exo_ = true;
             postproc_->write_optimization_solution = false;
         }
 
@@ -53,11 +50,11 @@ public:
         if (outfile.is_open())
         {
             // u hyperparameters
-            if(u_hyperparam_interface->Is_Multi_State_Interface())
+            if (u_hyperparam_interface->Is_Multi_State_Interface())
             {
                 HDSA::MD_Multi_State_u_Hyperparameter_Interface<RealT> *u_hyperparam_interface_multistate = dynamic_cast<HDSA::MD_Multi_State_u_Hyperparameter_Interface<RealT> *>(&(*u_hyperparam_interface));
                 int num_states = u_hyperparam_interface_multistate->Get_Number_of_States();
-                for(int k = 0; k < num_states; k++)
+                for (int k = 0; k < num_states; k++)
                 {
                     outfile << "Component " << k << std::endl;
                     outfile << "alpha_u: " << u_hyperparam_interface_multistate->Get_Hyperparameter_Interface_k(k)->Get_alpha_u() << std::endl;
@@ -144,7 +141,7 @@ public:
         }
     }
 
-    void Write_Prior_Discrepancy_Time_Evolution(std::vector<std::vector<std::vector<RealT>>> &prior_delta_z_opt_time_evol, std::vector<std::vector<RealT>> &prior_discrep_data_time_evol) const 
+    void Write_Prior_Discrepancy_Time_Evolution(std::vector<std::vector<std::vector<RealT>>> &prior_delta_z_opt_time_evol, std::vector<std::vector<RealT>> &prior_discrep_data_time_evol) const
     {
         std::string name = output_dir_name_ + "/prior/summary_statistics";
         std::filesystem::create_directory(name);
@@ -153,14 +150,14 @@ public:
         int num_time = prior_delta_z_opt_time_evol[0].size();
         int num_states = prior_delta_z_opt_time_evol[0][0].size();
 
-        for(int j = 0; j < num_states; j++)
+        for (int j = 0; j < num_states; j++)
         {
-            std::string name_j = name + "/prior_delta_z_opt_time_evol_" + std::to_string(j+1) + ".txt";
+            std::string name_j = name + "/prior_delta_z_opt_time_evol_" + std::to_string(j + 1) + ".txt";
             std::ofstream fout;
             fout.open(name_j);
             for (int i = 0; i < num_samps; i++)
             {
-                for(int k = 0; k < num_time; k++)
+                for (int k = 0; k < num_time; k++)
                 {
                     fout << std::setprecision(8) << prior_delta_z_opt_time_evol[i][k][j] << "  ";
                 }
@@ -169,12 +166,12 @@ public:
             fout.close();
         }
 
-        for(int j = 0; j < num_states; j++)
+        for (int j = 0; j < num_states; j++)
         {
-            std::string name_j = name + "/prior_discrep_data_time_evol_" + std::to_string(j+1) + ".txt";
+            std::string name_j = name + "/prior_discrep_data_time_evol_" + std::to_string(j + 1) + ".txt";
             std::ofstream fout;
             fout.open(name_j);
-            for(int k = 0; k < num_time; k++)
+            for (int k = 0; k < num_time; k++)
             {
                 fout << std::setprecision(8) << prior_discrep_data_time_evol[k][j] << "  ";
             }

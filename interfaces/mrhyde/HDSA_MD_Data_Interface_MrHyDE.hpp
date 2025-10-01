@@ -578,7 +578,7 @@ public:
     return vec;
   }
 
-  HDSA::Ptr<HDSA::MultiVector<RealT>> Read_Spatial_Node_Data() const
+  HDSA::Ptr<HDSA::MultiVector<RealT>> Read_Spatial_Node_Data() const override
   {
     HDSA::Ptr<HDSA::MultiVector<RealT>> spatial_nodes;
     if (opt_solution_exo_file_ != "error")

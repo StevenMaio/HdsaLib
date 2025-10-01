@@ -68,6 +68,13 @@ namespace HDSA
     // virtual functions
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////// 
 
+    virtual HDSA::Ptr<HDSA::MultiVector<RealT>> Read_Spatial_Node_Data() const 
+    {
+      HDSA::Ptr<HDSA::MultiVector<RealT>> spatial_nodes;
+      std::cout << "Error: HDSA::MD_Data_Interface::Read_Spatial_Node_Data is a virtual function that was called but never implemented" << std::endl;
+      return spatial_nodes;
+    }
+
     virtual HDSA::Ptr<const HDSA::Vector<RealT>> Extract_State_Component(const HDSA::Vector<RealT> & u, int component_id) const 
     { 
       HDSA::Ptr<const HDSA::Vector<RealT>> u_component = HDSA::makePtrFromRef(u);
