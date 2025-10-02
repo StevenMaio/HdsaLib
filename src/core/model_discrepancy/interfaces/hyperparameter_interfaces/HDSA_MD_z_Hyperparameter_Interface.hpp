@@ -23,7 +23,7 @@ namespace HDSA
     {
       HDSA_TEST_FOR_EXCEPTION(true, std::logic_error,
                               "Error in HDSA::MD_z_Hyperparameter_Interface::Spatial_Domain_Bounds must be implemented for hyperparameter algorithm-based initialization" << std::endl);
-      std::vector<std::vector<RealT>> vec; // vec.size() = spatial dimension, e.g. 1,2, or 3, [ vec[i][0],vec[i][1] ] is an interval bounding the ith spatial coordinate
+      std::vector<std::vector<RealT>> vec; // vec.size() = spatial Dimension, e.g. 1,2, or 3, [ vec[i][0],vec[i][1] ] is an interval bounding the ith spatial coordinate
       return vec;
     }
 

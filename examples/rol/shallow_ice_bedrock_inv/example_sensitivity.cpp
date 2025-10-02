@@ -45,7 +45,7 @@
 typedef double RealT;
 
 template <class RealT>
-void Set_Initial_Condition(HDSA::Ptr<Tpetra::MultiVector<>> &u_ptr, const HDSA::Ptr<HDSA::ParameterList> &parlist)
+void set_Initial_Condition(HDSA::Ptr<Tpetra::MultiVector<>> &u_ptr, const HDSA::Ptr<HDSA::ParameterList> &parlist)
 {
   int num_coeff_load = parlist->sublist("Problem").get("Number of Coefficients in Loaded Fields", 10);
 
@@ -163,7 +163,7 @@ int main(int argc, char *argv[])
   ck = HDSA::makePtr<PDE_DualSimVector<RealT>>(ck_ptr, pde, *dyn_con->getAssembler());
   z = HDSA::makePtr<PDE_PrimalOptVector<RealT>>(z_ptr, pde, *dyn_con->getAssembler());
   u0->zero();
-  Set_Initial_Condition<RealT>(u0_ptr, parlist);
+  set_Initial_Condition<RealT>(u0_ptr, parlist);
 
   dyn_con->setSolveParameters(*parlist);
 
@@ -184,8 +184,8 @@ int main(int argc, char *argv[])
   /*************************************************************************/
   int nx = parlist->sublist("Geometry").get("NX", 70);
   int ny = parlist->sublist("Geometry").get("NY", 70);
-  int nsx = parlist->sublist("Geometry").get("Sensors Per x-Dimension", 10);
-  int nsy = parlist->sublist("Geometry").get("Sensors Per y-Dimension", 10);
+  int nsx = parlist->sublist("Geometry").get("Sensors Per x-dimension", 10);
+  int nsy = parlist->sublist("Geometry").get("Sensors Per y-dimension", 10);
 
   /*** Check sensors and mesh nodes coorespond ***/
   if (nx % (nsx - 1) != 0 || ny % (nsy - 1) != 0)
@@ -193,7 +193,7 @@ int main(int argc, char *argv[])
     std::cout << "Error: NX and NY must be divisible by the number of sensors in their respective dimensions \n";
   }
 
-  /*** Set sensor locations ***/
+  /*** set sensor locations ***/
   std::vector<int> data_weight_id = std::vector<int>(2 * nsx * nsy);
   int count = 0;
   for (int i = 0; i < nsy; i++)
@@ -310,8 +310,8 @@ int main(int argc, char *argv[])
   z_star_rol = HDSA::makePtr<PDE_PrimalOptVector<RealT>>(z_star_ptr, pde, *dyn_con->getAssembler());
   HDSA::Ptr<HDSA::Vector<RealT>> z_star = HDSA::makePtr<HDSA::ROL_Vector<RealT>>(z_star_rol);
 
-  HDSA::Ptr<HDSA::Vector<RealT>> grad_star = z_bar->clone();
-  HDSA::Ptr<HDSA::Vector<RealT>> theta_star = theta_bar->clone();
+  HDSA::Ptr<HDSA::Vector<RealT>> grad_star = z_bar->Clone();
+  HDSA::Ptr<HDSA::Vector<RealT>> theta_star = theta_bar->Clone();
   HDSA::Std_Vector<RealT> &theta_star_std = dynamic_cast<HDSA::Std_Vector<RealT> &>(*theta_star);
 
   RealT x = 0.0;
@@ -335,7 +335,7 @@ int main(int argc, char *argv[])
     // std::cout << "Entry " << (L+1)*(L+1) + k << " is set to " << val << std::endl;
   }
 
-  std::cout << "z_bar->norm() = " << z_bar->norm() << std::endl;
+  std::cout << "z_bar->Norm() = " << z_bar->Norm() << std::endl;
 
   if (N_fe > 0)
   {

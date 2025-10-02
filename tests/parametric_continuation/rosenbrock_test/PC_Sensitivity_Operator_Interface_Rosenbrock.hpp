@@ -25,7 +25,7 @@ public:
     const HDSA::Std_Vector<RealT> &theta_std = dynamic_cast<const HDSA::Std_Vector<RealT> &>(theta);
     HDSA::Std_Vector<RealT> &grad_std = dynamic_cast<HDSA::Std_Vector<RealT> &>(grad);
 
-    int d = grad.dimension();
+    int d = grad.Dimension();
     RealT val = 0.0;
     std::vector<RealT> grad_tmp = std::vector<RealT>(d);
     std::vector<std::vector<RealT>> hess_tmp;
@@ -49,7 +49,7 @@ public:
     const HDSA::Std_Vector<RealT> &z_in_std = dynamic_cast<const HDSA::Std_Vector<RealT> &>(z_in);
     HDSA::Std_Vector<RealT> &z_out_std = dynamic_cast<HDSA::Std_Vector<RealT> &>(z_out);
 
-    int d = z_in.dimension();
+    int d = z_in.Dimension();
     RealT val = 0.0;
     std::vector<RealT> grad_tmp = std::vector<RealT>(d);
     std::vector<std::vector<RealT>> hess_tmp;
@@ -78,7 +78,7 @@ public:
 
     std::vector<std::vector<RealT>> B = rosenbrock_->Compute_B();
 
-    int d = z_out.dimension();
+    int d = z_out.Dimension();
     for (int i = 0; i < d; i++)
     {
       RealT tmp = 0.0;

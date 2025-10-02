@@ -24,9 +24,9 @@ namespace HDSA
   void MD_Determine_z_Hyperparameters<RealT>::Determine_alpha_z(HDSA::MD_z_Prior_Interface<RealT> *z_prior_interface) const
   {
     HDSA::Ptr<const HDSA::Vector<RealT>> z_opt = data_interface_->get_z_opt();
-    HDSA::Ptr<HDSA::Vector<RealT>> tmp = z_opt->clone();
+    HDSA::Ptr<HDSA::Vector<RealT>> tmp = z_opt->Clone();
     z_prior_interface->Apply_M_z(*tmp, *z_opt);
-    RealT z_opt_norm = std::sqrt(tmp->dot(*z_opt));
+    RealT z_opt_Norm = std::sqrt(tmp->Dot(*z_opt));
 
     std::vector<RealT> evals = Compute_Eigenvalues(z_prior_interface);
     std::vector<RealT> truncated_evals;
@@ -73,13 +73,13 @@ namespace HDSA
           MD_Vector_z_Prior_Interface<RealT> z_vec_prior = dynamic_cast<MD_Vector_z_Prior_Interface<RealT> &>(*z_prior_interface);
           z_vec_prior.Sample_with_Covariance_W_z_Acute_Inverse(*z_samples);
         }
-        HDSA::Ptr<HDSA::Vector<RealT>> z_tmp = data_interface_->get_z_opt()->clone();
+        HDSA::Ptr<HDSA::Vector<RealT>> z_tmp = data_interface_->get_z_opt()->Clone();
         for (int k = 0; k < num_state_solves; k++)
         {
           z_prior_interface->Apply_M_z(*z_tmp, *(*z_samples)[k]);
-          RealT val = std::sqrt(z_tmp->dot(*(*z_samples)[k]));
-          (*z_samples)[k]->scale(z_opt_norm / val);
-          (*z_samples)[k]->plus(*data_interface_->get_z_opt());
+          RealT val = std::sqrt(z_tmp->Dot(*(*z_samples)[k]));
+          (*z_samples)[k]->Scale(z_opt_Norm / val);
+          (*z_samples)[k]->Plus(*data_interface_->get_z_opt());
         }
         HDSA::Ptr<HDSA::MultiVector<RealT>> u_samples = HDSA::makePtr<HDSA::MultiVector<RealT>>(num_state_solves, *data_interface_->get_u_opt());
         for (int k = 0; k < num_state_solves; k++)
@@ -87,17 +87,17 @@ namespace HDSA
           z_hyperparam_interface_->State_Solve(*(*u_samples)[k], *(*z_samples)[k]);
           (*u_samples)[k]->axpy(-1.0, *data_interface_->get_u_opt());
         }
-        std::vector<RealT> e_norm_sq = std::vector<RealT>(num_state_solves, 0.0);
+        std::vector<RealT> e_Norm_sq = std::vector<RealT>(num_state_solves, 0.0);
         RealT val = 0.0;
-        HDSA::Ptr<HDSA::Vector<RealT>> u_tmp = data_interface_->get_u_opt()->clone();
+        HDSA::Ptr<HDSA::Vector<RealT>> u_tmp = data_interface_->get_u_opt()->Clone();
         HDSA::Ptr<const HDSA::Vector<RealT>> d1 = (*data_interface_->get_D())[0];
         u_prior_interface_->Apply_M_u(*u_tmp, *d1);
-        RealT d1_norm_sq = u_tmp->dot(*d1);
+        RealT d1_Norm_sq = u_tmp->Dot(*d1);
         for (int k = 0; k < num_state_solves; k++)
         {
-          u_tmp->zeros();
+          u_tmp->Zeros();
           u_prior_interface_->Apply_M_u(*u_tmp, *(*u_samples)[k]);
-          val += (u_tmp->dot(*(*u_samples)[k])) / d1_norm_sq;
+          val += (u_tmp->Dot(*(*u_samples)[k])) / d1_Norm_sq;
         }
         val = val / static_cast<RealT>(num_state_solves);
         val = std::sqrt(val);
@@ -109,36 +109,36 @@ namespace HDSA
         if (N > 1)
         {
           HDSA::Ptr<const HDSA::Vector<RealT>> z1 = (*data_interface_->get_Z())[0];
-          HDSA::Ptr<HDSA::Vector<RealT>> z_tmp = z1->clone();
+          HDSA::Ptr<HDSA::Vector<RealT>> z_tmp = z1->Clone();
           z_prior_interface->Apply_M_z(*z_tmp, *z1);
-          RealT z1_norm_sq = z_tmp->dot(*z1);
-          std::vector<RealT> z_pert_norm_sq = std::vector<RealT>(N - 1, 0.0);
+          RealT z1_Norm_sq = z_tmp->Dot(*z1);
+          std::vector<RealT> z_pert_Norm_sq = std::vector<RealT>(N - 1, 0.0);
           for (int k = 0; k < N - 1; k++)
           {
-            HDSA::Ptr<HDSA::Vector<RealT>> zk = z1->clone();
-            zk->set(*(*data_interface_->get_Z())[k + 1]);
+            HDSA::Ptr<HDSA::Vector<RealT>> zk = z1->Clone();
+            zk->Set(*(*data_interface_->get_Z())[k + 1]);
             zk->axpy(-1.0, *z1);
             z_prior_interface->Apply_M_z(*z_tmp, *zk);
-            z_pert_norm_sq[k] = z_tmp->dot(*zk);
+            z_pert_Norm_sq[k] = z_tmp->Dot(*zk);
           }
 
           HDSA::Ptr<const HDSA::Vector<RealT>> d1 = (*data_interface_->get_D())[0];
-          HDSA::Ptr<HDSA::Vector<RealT>> d_tmp = d1->clone();
+          HDSA::Ptr<HDSA::Vector<RealT>> d_tmp = d1->Clone();
           u_prior_interface_->Apply_M_u(*d_tmp, *d1);
-          RealT d1_norm_sq = d_tmp->dot(*d1);
-          std::vector<RealT> d_pert_norm_sq = std::vector<RealT>(N - 1, 0.0);
+          RealT d1_Norm_sq = d_tmp->Dot(*d1);
+          std::vector<RealT> d_pert_Norm_sq = std::vector<RealT>(N - 1, 0.0);
           for (int k = 0; k < N - 1; k++)
           {
-            HDSA::Ptr<HDSA::Vector<RealT>> dk = d1->clone();
-            dk->set(*(*data_interface_->get_D())[k + 1]);
+            HDSA::Ptr<HDSA::Vector<RealT>> dk = d1->Clone();
+            dk->Set(*(*data_interface_->get_D())[k + 1]);
             dk->axpy(-1.0, *d1);
             u_prior_interface_->Apply_M_u(*d_tmp, *dk);
-            d_pert_norm_sq[k] = d_tmp->dot(*dk);
+            d_pert_Norm_sq[k] = d_tmp->Dot(*dk);
           }
           RealT val = 0.0;
           for (int k = 0; k < N - 1; k++)
           {
-            RealT valk = (d_pert_norm_sq[k] / d1_norm_sq) / (z_pert_norm_sq[k] / z1_norm_sq);
+            RealT valk = (d_pert_Norm_sq[k] / d1_Norm_sq) / (z_pert_Norm_sq[k] / z1_Norm_sq);
             val += std::sqrt(valk);
           }
           val = val / static_cast<RealT>(N - 1);
@@ -146,7 +146,7 @@ namespace HDSA
         }
       }
 
-      RealT alpha_z_new = std::pow(z_hyperparam_interface_->Get_Discrepancy_Percent_z_Variation(), 2.0) / (MC_est * std::pow(z_opt_norm, 2.0));
+      RealT alpha_z_new = std::pow(z_hyperparam_interface_->Get_Discrepancy_Percent_z_Variation(), 2.0) / (MC_est * std::pow(z_opt_Norm, 2.0));
       z_hyperparam_interface_->Set_alpha_z(alpha_z_new);
     }
   }
@@ -159,7 +159,7 @@ namespace HDSA
     {
       std::vector<std::vector<RealT>> spatial_bounds = z_hyperparam_interface_->Spatial_Domain_Bounds();
       int d = spatial_bounds.size();
-      int n_z = data_interface_->get_z_opt()->dimension();
+      int n_z = data_interface_->get_z_opt()->Dimension();
       if (d == 1)
       {
         RealT Lx = spatial_bounds[0][1] - spatial_bounds[0][0];
@@ -209,7 +209,7 @@ namespace HDSA
       else
       {
         HDSA_TEST_FOR_EXCEPTION(true, std::logic_error,
-                                "Error in HDSA::MD_Determine_z_Hyperparameters_Def: The code only supports spatial dimensions s=1,2,3" << std::endl);
+                                "Error in HDSA::MD_Determine_z_Hyperparameters_Def: The code only supports spatial Dimensions s=1,2,3" << std::endl);
       }
       std::sort(evals.begin(), evals.end(), std::greater<RealT>());
     }
@@ -228,7 +228,7 @@ namespace HDSA
     }
     else if (z_hyperparam_interface_->Get_z_type() == "vector")
     {
-      evals = std::vector<RealT>(data_interface_->get_z_opt()->dimension(), 1.0);
+      evals = std::vector<RealT>(data_interface_->get_z_opt()->Dimension(), 1.0);
     }
     return evals;
   }

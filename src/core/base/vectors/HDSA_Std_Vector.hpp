@@ -50,14 +50,14 @@ namespace HDSA
     // Overloading pure virtual functions in HDSA::Vector base class
     //////////////////////////////////////////////////////////////////////////////////
 
-    HDSA::Ptr<HDSA::Vector<RealT>> clone() const override
+    HDSA::Ptr<HDSA::Vector<RealT>> Clone() const override
     {
       HDSA::Ptr<HDSA::Vector<RealT>> vec = HDSA::makePtr<Std_Vector<RealT>>(dim_, random_number_generator_, comm_);
       return vec;
     }
 
-    // compute the dot product of this and x
-    RealT dot(const HDSA::Vector<RealT> &x) const override
+    // compute the Dot product of this and x
+    RealT Dot(const HDSA::Vector<RealT> &x) const override
     {
       RealT val = 0.0;
       const Std_Vector<RealT> x_std = dynamic_cast<const Std_Vector<RealT> &>(x);
@@ -78,14 +78,14 @@ namespace HDSA
       }
     }
 
-    // return vector dimension
-    int dimension() const override
+    // return vector Dimension
+    int Dimension() const override
     {
       return dim_;
     }
 
-    // set this=val elementwise
-    void setScalar(const RealT val) override
+    // Set this=val elementwise
+    void Set_Scalar(const RealT val) override
     {
       for (int k = 0; k < dim_; k++)
       {
@@ -93,7 +93,7 @@ namespace HDSA
       }
     }
 
-    void randomize_standard_normal() override
+    void Randomize_Standard_Normal() override
     {
       for (int k = 0; k < dim_; k++)
       {

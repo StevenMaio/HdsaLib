@@ -55,7 +55,7 @@ void Load_Nominal_Solution(HDSA::Ptr<Tpetra::MultiVector<>> &z_ptr)
 }
 
 template <class RealT>
-void Set_Parameters(std::vector<RealT> &param)
+void set_Parameters(std::vector<RealT> &param)
 {
   int theta_dim = param.size();
 
@@ -108,9 +108,9 @@ int main(int argc, char *argv[])
   HDSA::Ptr<PDE_Constraint<RealT>> pdecon = HDSA::dynamicPtrCast<PDE_Constraint<RealT>>(con);
   HDSA::Ptr<Assembler<RealT>> assembler = pdecon->getAssembler();
 
-  int theta_modes = parlist->sublist("Problem").get("Uncertain Modes per Dimension", 1);
+  int theta_modes = parlist->sublist("Problem").get("Uncertain Modes per dimension", 1);
   std::vector<RealT> param = std::vector<RealT>(std::pow(theta_modes, 2), 0.0);
-  Set_Parameters<RealT>(param);
+  set_Parameters<RealT>(param);
   pdecon->setParameter(param);
   con->setSolveParameters(*parlist);
 
@@ -270,7 +270,7 @@ int main(int argc, char *argv[])
     robj->checkHessVec(*zp, *dzp, true, *outStream);
   }
 
-  // Set initial vector
+  // set initial vector
   Load_Nominal_Solution<RealT>(z_ptr);
 
   // Build optimization problem and check derivatives

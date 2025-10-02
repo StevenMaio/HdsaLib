@@ -90,8 +90,8 @@ public:
     const HDSA::Tpetra_Vector<RealT> z_tpetra = dynamic_cast<const HDSA::Tpetra_Vector<RealT> &>(z);
     const HDSA::Tpetra_Vector<RealT> z_in_tpetra = dynamic_cast<const HDSA::Tpetra_Vector<RealT> &>(z_in);
     HDSA::Tpetra_Vector<RealT> z_out_tpetra = dynamic_cast<const HDSA::Tpetra_Vector<RealT> &>(z_out);
-    HDSA::Ptr<HDSA::Vector<RealT>> z_tmp1 = z_out.clone();
-    HDSA::Ptr<HDSA::Vector<RealT>> z_tmp2 = z_out.clone();
+    HDSA::Ptr<HDSA::Vector<RealT>> z_tmp1 = z_out.Clone();
+    HDSA::Ptr<HDSA::Vector<RealT>> z_tmp2 = z_out.Clone();
     HDSA::Tpetra_Vector<RealT> z_tmp1_tpetra = dynamic_cast<const HDSA::Tpetra_Vector<RealT> &>(*z_tmp1);
     HDSA::Tpetra_Vector<RealT> z_tmp2_tpetra = dynamic_cast<const HDSA::Tpetra_Vector<RealT> &>(*z_tmp2);
     Teuchos::ArrayRCP<const RealT> z_view = z_tpetra.getVector()->get1dView();
@@ -117,7 +117,7 @@ public:
     const HDSA::Tpetra_Vector<RealT> u2_tpetra = dynamic_cast<const HDSA::Tpetra_Vector<RealT> &>(*u2);
     Teuchos::ArrayRCP<const RealT> u2_view = u2_tpetra.getVector()->get1dView();
 
-    HDSA::Ptr<HDSA::Vector<RealT>> u_tmp1 = u2->clone();
+    HDSA::Ptr<HDSA::Vector<RealT>> u_tmp1 = u2->Clone();
     HDSA::Tpetra_Vector<RealT> u_tmp1_tpetra = dynamic_cast<HDSA::Tpetra_Vector<RealT> &>(*u_tmp1);
     for (int k = 0; k < m_; k++)
     {
@@ -125,7 +125,7 @@ public:
       u_tmp1_tpetra.getVector()->replaceGlobalValue(k, 0, val);
     }
 
-    HDSA::Ptr<HDSA::Vector<RealT>> u_tmp2 = u2->clone();
+    HDSA::Ptr<HDSA::Vector<RealT>> u_tmp2 = u2->Clone();
     M_sm_->Apply(*u_tmp2, *u_tmp1);
     data_interface_->Set_State_Component(u_grad, *u_tmp2, 1);
   }
@@ -133,7 +133,7 @@ public:
   void Apply_Misfit_Hessian(HDSA::Vector<RealT> &u_out, const HDSA::Vector<RealT> &u_in, const HDSA::Vector<RealT> &u, const HDSA::Vector<RealT> &z) const
   {
     HDSA::Ptr<const HDSA::Vector<RealT>> u_in2 = data_interface_->Extract_State_Component(u_in, 1);
-    HDSA::Ptr<HDSA::Vector<RealT>> u_tmp = u_in2->clone();
+    HDSA::Ptr<HDSA::Vector<RealT>> u_tmp = u_in2->Clone();
     M_sm_->Apply(*u_tmp, *u_in2);
     data_interface_->Set_State_Component(u_out, *u_tmp, 1);
   }

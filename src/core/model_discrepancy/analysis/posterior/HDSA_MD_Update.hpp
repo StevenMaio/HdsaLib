@@ -24,11 +24,11 @@ namespace HDSA
               const HDSA::Ptr<HDSA::MD_Posterior_Sampling<RealT>> &post_sampling, const HDSA::Ptr<HDSA::MD_Hessian_Analysis<RealT>> &hessian_analysis) : data_interface_(data_interface), u_prior_interface_(u_prior_interface), z_prior_interface_(z_prior_interface), opt_prob_interface_(opt_prob_interface),
                                                                                                                                                          post_sampling_(post_sampling), hessian_analysis_(hessian_analysis)
     {
-      state_grad_ = data_interface_->get_u_opt()->clone();
+      state_grad_ = data_interface_->get_u_opt()->Clone();
       opt_prob_interface_->Misfit_Gradient(*state_grad_, *data_interface_->get_u_opt(), *data_interface_->get_z_opt());
-      HDSA::Ptr<HDSA::Vector<RealT>> u_tmp = state_grad_->clone();
+      HDSA::Ptr<HDSA::Vector<RealT>> u_tmp = state_grad_->Clone();
       u_prior_interface_->Apply_W_u_Inverse(*u_tmp, *state_grad_);
-      state_grad_W_u_inv_state_grad_ = u_tmp->dot(*state_grad_);
+      state_grad_W_u_inv_state_grad_ = u_tmp->Dot(*state_grad_);
     }
 
     ~MD_Update(void)
@@ -39,7 +39,7 @@ namespace HDSA
     {
       HDSA::Ptr<HDSA::MD_Posterior_Vectors<RealT>> posterior_samples = HDSA::makePtr<HDSA::MD_Posterior_Vectors<RealT>>(post_sampling_->post_data->num_samples, *data_interface_->get_z_opt());
       HDSA::Ptr<HDSA::Vector<RealT>> z_update_mean = Posterior_Update_Mean();
-      posterior_samples->mean->set(*z_update_mean);
+      posterior_samples->mean->Set(*z_update_mean);
 
       //////////////////// B_theta_hat
       HDSA::Ptr<HDSA::MultiVector<RealT>> u_tmp1 = HDSA::makePtr<HDSA::MultiVector<RealT>>(post_sampling_->post_data->num_samples, *data_interface_->get_u_opt());
@@ -52,7 +52,7 @@ namespace HDSA
         HDSA::Ptr<HDSA::Dense_Matrix<RealT>> coeff2 = post_sampling_->post_data->u_i_hat[i]->MatVec(*state_grad_);
 
         // Compute M_z_W_z_inv_M_z_yi
-        HDSA::Ptr<HDSA::Vector<RealT>> M_z_W_z_inv_M_z_yi = data_interface_->get_z_opt()->clone();
+        HDSA::Ptr<HDSA::Vector<RealT>> M_z_W_z_inv_M_z_yi = data_interface_->get_z_opt()->Clone();
         M_z_W_z_inv_M_z_yi->axpy(-post_sampling_->post_data->sum_g_vecs[i], *post_sampling_->post_data->M_z_W_z_inv_M_z_z_opt);
         for (int j = 0; j < post_sampling_->post_data->N; j++)
         {
@@ -68,16 +68,16 @@ namespace HDSA
 
       for (int k = 0; k < post_sampling_->post_data->num_samples; k++)
       {
-        HDSA::Ptr<HDSA::Vector<RealT>> u_tmp2 = data_interface_->get_u_opt()->clone();
+        HDSA::Ptr<HDSA::Vector<RealT>> u_tmp2 = data_interface_->get_u_opt()->Clone();
         opt_prob_interface_->Apply_Misfit_Hessian(*u_tmp2, *(*u_tmp1)[k], *data_interface_->get_u_opt(), *data_interface_->get_z_opt());
 
-        HDSA::Ptr<HDSA::Vector<RealT>> z_tmp1 = data_interface_->get_z_opt()->clone();
+        HDSA::Ptr<HDSA::Vector<RealT>> z_tmp1 = data_interface_->get_z_opt()->Clone();
         opt_prob_interface_->Apply_Solution_Operator_z_Jacobian_Transpose(*z_tmp1, *u_tmp2, *data_interface_->get_z_opt());
 
-        (*B_theta_hat)[k]->plus(*z_tmp1);
+        (*B_theta_hat)[k]->Plus(*z_tmp1);
       }
 
-      B_theta_hat->scale(std::sqrt(post_sampling_->post_data->alpha_d));
+      B_theta_hat->Scale(std::sqrt(post_sampling_->post_data->alpha_d));
 
       //////////////// B_theta_breve
       HDSA::Ptr<HDSA::MultiVector<RealT>> B_theta_breve = HDSA::makePtr<HDSA::MultiVector<RealT>>(post_sampling_->post_data->num_samples, *data_interface_->get_z_opt());
@@ -99,17 +99,17 @@ namespace HDSA
       }
 
       B_theta_breve->axpy(1.0, *post_sampling_->post_data->M_z_z_breve);
-      B_theta_breve->scale(std::sqrt(state_grad_W_u_inv_state_grad_));
+      B_theta_breve->Scale(std::sqrt(state_grad_W_u_inv_state_grad_));
 
       HDSA::Ptr<HDSA::MultiVector<RealT>> z_update_samples = posterior_samples->samples;
       for (int k = 0; k < post_sampling_->post_data->num_samples; k++)
       {
-        HDSA::Ptr<HDSA::Vector<RealT>> z_tmp2 = data_interface_->get_z_opt()->clone();
-        z_tmp2->set(*(*B_theta_hat)[k]);
-        z_tmp2->plus(*(*B_theta_breve)[k]);
+        HDSA::Ptr<HDSA::Vector<RealT>> z_tmp2 = data_interface_->get_z_opt()->Clone();
+        z_tmp2->Set(*(*B_theta_hat)[k]);
+        z_tmp2->Plus(*(*B_theta_breve)[k]);
         hessian_analysis_->Apply_RS_Hessian_Inverse(*(*z_update_samples)[k], *z_tmp2, *data_interface_->get_z_opt());
-        (*z_update_samples)[k]->scale(-1.0);
-        (*z_update_samples)[k]->plus(*z_update_mean);
+        (*z_update_samples)[k]->Scale(-1.0);
+        (*z_update_samples)[k]->Plus(*z_update_mean);
       }
 
       return posterior_samples;
@@ -117,12 +117,12 @@ namespace HDSA
 
     HDSA::Ptr<HDSA::Vector<RealT>> Posterior_Update_Mean(void) const
     {
-      HDSA::Ptr<HDSA::Vector<RealT>> z_update_mean = data_interface_->get_z_opt()->clone();
+      HDSA::Ptr<HDSA::Vector<RealT>> z_update_mean = data_interface_->get_z_opt()->Clone();
 
-      HDSA::Ptr<HDSA::Vector<RealT>> u_tmp1 = state_grad_->clone();
+      HDSA::Ptr<HDSA::Vector<RealT>> u_tmp1 = state_grad_->Clone();
       for (int ell = 0; ell < post_sampling_->post_data->N; ell++)
       {
-        u_tmp1->plus(*(*post_sampling_->post_data->u_ell)[ell]);
+        u_tmp1->Plus(*(*post_sampling_->post_data->u_ell)[ell]);
         for (int i = 0; i < post_sampling_->post_data->N; i++)
         {
           RealT coeff = post_sampling_->post_data->sum_g_vecs[i] * (*post_sampling_->post_data->b_i_ell)(i, ell);
@@ -130,20 +130,20 @@ namespace HDSA
         }
       }
       u_tmp1->axpy(post_sampling_->post_data->alpha_d, *data_interface_->get_data_shift());
-      HDSA::Ptr<HDSA::Vector<RealT>> u_tmp2 = u_tmp1->clone();
+      HDSA::Ptr<HDSA::Vector<RealT>> u_tmp2 = u_tmp1->Clone();
       opt_prob_interface_->Apply_Misfit_Hessian(*u_tmp2, *u_tmp1, *data_interface_->get_u_opt(), *data_interface_->get_z_opt());
 
-      HDSA::Ptr<HDSA::Vector<RealT>> z_tmp1 = z_update_mean->clone();
+      HDSA::Ptr<HDSA::Vector<RealT>> z_tmp1 = z_update_mean->Clone();
       opt_prob_interface_->Apply_Solution_Operator_z_Jacobian_Transpose(*z_tmp1, *u_tmp2, *data_interface_->get_z_opt());
 
       for (int ell = 0; ell < post_sampling_->post_data->N; ell++)
       {
-        RealT coeff1 = state_grad_->dot(*(*post_sampling_->post_data->u_ell)[ell]);
+        RealT coeff1 = state_grad_->Dot(*(*post_sampling_->post_data->u_ell)[ell]);
         z_tmp1->axpy(coeff1, *(*post_sampling_->post_data->M_z_W_z_inv_M_z_Z)[ell]);
         z_tmp1->axpy(-coeff1, *post_sampling_->post_data->M_z_W_z_inv_M_z_z_opt);
         for (int i = 0; i < post_sampling_->post_data->N; i++)
         {
-          RealT coeff2 = state_grad_->dot(*(*post_sampling_->post_data->u_i_ell[i])[ell]);
+          RealT coeff2 = state_grad_->Dot(*(*post_sampling_->post_data->u_i_ell[i])[ell]);
           coeff2 *= (*post_sampling_->post_data->b_i_ell)(i, ell);
 
           z_tmp1->axpy(coeff2 * post_sampling_->post_data->sum_g_vecs[i], *post_sampling_->post_data->M_z_W_z_inv_M_z_z_opt);
@@ -154,9 +154,9 @@ namespace HDSA
         }
       }
 
-      z_tmp1->scale(-1.0 / post_sampling_->post_data->alpha_d);
+      z_tmp1->Scale(-1.0 / post_sampling_->post_data->alpha_d);
       hessian_analysis_->Apply_RS_Hessian_Inverse(*z_update_mean, *z_tmp1, *data_interface_->get_z_opt());
-      z_update_mean->plus(*data_interface_->get_z_opt());
+      z_update_mean->Plus(*data_interface_->get_z_opt());
 
       return z_update_mean;
     }

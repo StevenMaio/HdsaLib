@@ -83,8 +83,8 @@ public:
   {
     std::vector<HDSA::Ptr<HDSA::Vector<RealT>>> u;
     u.resize(1);
-    u[0] = Load_Optimal_u()->clone(); // This leverages Load_Optimal_u to instantiate the vector
-    u[0]->setScalar(1.0);             // We overload the values to set them to one
+    u[0] = Load_Optimal_u()->Clone(); // This leverages Load_Optimal_u to instantiate the vector
+    u[0]->Set_Scalar(1.0);             // We overload the values to Set them to one
     HDSA::Ptr<HDSA::MultiVector<RealT>> D = HDSA::makePtr<HDSA::MultiVector<RealT>>(u);
     return D;
   }

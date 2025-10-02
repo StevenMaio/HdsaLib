@@ -110,7 +110,7 @@ public:
       {
         vec_out_std.Set_Entry(k, (*x)(k, 0));
       }
-      vec_out_std.scale(std::sqrt(alpha_z_));
+      vec_out_std.Scale(std::sqrt(alpha_z_));
     }
   }
 

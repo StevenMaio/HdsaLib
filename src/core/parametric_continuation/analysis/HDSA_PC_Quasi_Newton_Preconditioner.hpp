@@ -33,7 +33,7 @@ namespace HDSA
     // Overload this function if a better initialization is available
     virtual void Apply_Initial_Inverse_Hessian_Approximation(HDSA::Vector<RealT> &z_out, const HDSA::Vector<RealT> &z_in) const
     {
-      z_out.set(z_in);
+      z_out.Set(z_in);
     }
 
   public:
@@ -81,11 +81,11 @@ namespace HDSA
 
     void Add_Parametric_Quasi_Newton_Data(const HDSA::Vector<RealT> &s_k, const HDSA::Vector<RealT> &y_k)
     {
-      s_[param_current_data_step_] = s_k.clone();
-      s_[param_current_data_step_]->set(s_k);
-      y_[param_current_data_step_] = y_k.clone();
-      y_[param_current_data_step_]->set(y_k);
-      rho_[param_current_data_step_] = 1.0 / (s_k.dot(y_k));
+      s_[param_current_data_step_] = s_k.Clone();
+      s_[param_current_data_step_]->Set(s_k);
+      y_[param_current_data_step_] = y_k.Clone();
+      y_[param_current_data_step_]->Set(y_k);
+      rho_[param_current_data_step_] = 1.0 / (s_k.Dot(y_k));
       if (rho_[param_current_data_step_] < 0.0)
       {
         HDSA_TEST_FOR_EXCEPTION(true, std::logic_error,
@@ -104,15 +104,15 @@ namespace HDSA
         HDSA::Ptr<HDSA::MultiVector<RealT>> Wtmp_ = HDSA::makePtr<HDSA::MultiVector<RealT>>(num_vecs, *w);
         for (int k = 0; k < num_vecs - 1; k++)
         {
-          (*Ptmp_)[k]->set(*(*Pr_[block_current_data_step_])[k]);
-          (*Wtmp_)[k]->set(*(*Wr_[block_current_data_step_])[k]);
+          (*Ptmp_)[k]->Set(*(*Pr_[block_current_data_step_])[k]);
+          (*Wtmp_)[k]->Set(*(*Wr_[block_current_data_step_])[k]);
         }
 
-        RealT normalization = p->dot(*p);
-        (*Ptmp_)[num_vecs - 1]->set(*p);
-        (*Ptmp_)[num_vecs - 1]->scale(1.0 / std::sqrt(normalization));
-        (*Wtmp_)[num_vecs - 1]->set(*w);
-        (*Wtmp_)[num_vecs - 1]->scale(1.0 / std::sqrt(normalization));
+        RealT Normalization = p->Dot(*p);
+        (*Ptmp_)[num_vecs - 1]->Set(*p);
+        (*Ptmp_)[num_vecs - 1]->Scale(1.0 / std::sqrt(Normalization));
+        (*Wtmp_)[num_vecs - 1]->Set(*w);
+        (*Wtmp_)[num_vecs - 1]->Scale(1.0 / std::sqrt(Normalization));
 
         HDSA::Ptr<HDSA::Dense_Matrix<RealT>> D = Ptmp_->MatMat(*Wtmp_);
         HDSA::Ptr<HDSA::Dense_Matrix<RealT>> V = HDSA::makePtr<HDSA::Dense_Matrix<RealT>>(num_vecs, num_vecs);
@@ -132,8 +132,8 @@ namespace HDSA
         Wr_[block_current_data_step_]->Clear();
         for (int k = 0; k < modes_to_retain; k++)
         {
-          HDSA::Ptr<HDSA::Vector<RealT>> p_tmp = p->clone();
-          HDSA::Ptr<HDSA::Vector<RealT>> w_tmp = w->clone();
+          HDSA::Ptr<HDSA::Vector<RealT>> p_tmp = p->Clone();
+          HDSA::Ptr<HDSA::Vector<RealT>> w_tmp = w->Clone();
           for (int j = 0; j < num_vecs; j++)
           {
             p_tmp->axpy((*V)(j, k), *(*Ptmp_)[j]);
@@ -171,14 +171,14 @@ namespace HDSA
       }
       else if (param_counter == block_counter)
       {
-        RealT alpha = s_[param_counter - 1]->dot(z_in);
-        HDSA::Ptr<HDSA::Vector<RealT>> tmp = z_out.clone();
-        tmp->set(z_in);
+        RealT alpha = s_[param_counter - 1]->Dot(z_in);
+        HDSA::Ptr<HDSA::Vector<RealT>> tmp = z_out.Clone();
+        tmp->Set(z_in);
         tmp->axpy(-rho_[param_counter - 1] * alpha, *y_[param_counter - 1]);
-        HDSA::Ptr<HDSA::Vector<RealT>> tmp_out = z_out.clone();
+        HDSA::Ptr<HDSA::Vector<RealT>> tmp_out = z_out.Clone();
         Apply_QN_Inverse_Hessian_Approximation(*tmp_out, *tmp, param_counter - 1, block_counter);
-        z_out.set(*tmp_out);
-        RealT coeff = rho_[param_counter - 1] * (alpha - y_[param_counter - 1]->dot(*tmp_out));
+        z_out.Set(*tmp_out);
+        RealT coeff = rho_[param_counter - 1] * (alpha - y_[param_counter - 1]->Dot(*tmp_out));
         z_out.axpy(coeff, *s_[param_counter - 1]);
       }
       else
@@ -187,8 +187,8 @@ namespace HDSA
         {
           HDSA::Ptr<HDSA::Dense_Matrix<RealT>> Pr_z = Pr_[block_counter - 1]->MatVec(z_in);
           int m = Pr_z->numRows();
-          HDSA::Ptr<HDSA::Vector<RealT>> tmp = z_out.clone();
-          tmp->set(z_in);
+          HDSA::Ptr<HDSA::Vector<RealT>> tmp = z_out.Clone();
+          tmp->Set(z_in);
           for (int i = 0; i < m; i++)
           {
             tmp->axpy(-(*Pr_z)(i, 0) / (*Dr_[block_counter - 1])(i, i), *(*Wr_[block_counter - 1])[i]);

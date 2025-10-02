@@ -25,14 +25,14 @@ namespace HDSA
 
     HDSA::Ptr<HDSA::Vector<RealT>> Load_Optimal_u(void) const
     {
-      HDSA::Ptr<HDSA::Vector<RealT>> u_opt = md_ouu_data_interface_->Load_Optimal_us(0)->clone();
-      u_opt->zeros();
+      HDSA::Ptr<HDSA::Vector<RealT>> u_opt = md_ouu_data_interface_->Load_Optimal_us(0)->Clone();
+      u_opt->Zeros();
       for (int s = 0; s < ens_size_; s++)
       {
         HDSA::Ptr<HDSA::Vector<RealT>> us_opt = md_ouu_data_interface_->Load_Optimal_us(s);
-        u_opt->plus(*us_opt);
+        u_opt->Plus(*us_opt);
       }
-      u_opt->scale(1.0 / static_cast<RealT>(ens_size_));
+      u_opt->Scale(1.0 / static_cast<RealT>(ens_size_));
       return u_opt;
     }
 
@@ -50,12 +50,12 @@ namespace HDSA
 
     HDSA::Ptr<HDSA::MultiVector<RealT>> Load_D_Data(void) const
     {
-      HDSA::Ptr<HDSA::MultiVector<RealT>> D = md_ouu_data_interface_->Load_Ds_Data(0)->clone();
+      HDSA::Ptr<HDSA::MultiVector<RealT>> D = md_ouu_data_interface_->Load_Ds_Data(0)->Clone();
       for (int s = 0; s < ens_size_; s++)
       {
-        D->plus(*md_ouu_data_interface_->Load_Ds_Data(s));
+        D->Plus(*md_ouu_data_interface_->Load_Ds_Data(s));
       }
-      D->scale(1.0 / static_cast<RealT>(ens_size_));
+      D->Scale(1.0 / static_cast<RealT>(ens_size_));
       return D;
     }
   };

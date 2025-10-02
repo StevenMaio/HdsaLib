@@ -39,7 +39,7 @@
 #include "../dynpde_shallow_ice.hpp"
 
 template <class RealT>
-void Set_bed(HDSA::Ptr<Tpetra::MultiVector<>> &z_ptr, Teuchos::RCP<Teuchos::ParameterList> &parlist)
+void set_bed(HDSA::Ptr<Tpetra::MultiVector<>> &z_ptr, Teuchos::RCP<Teuchos::ParameterList> &parlist)
 {
   int num_coeff_load = parlist->sublist("Problem").get("Number of Coefficients in Loaded Fields", 10);
 
@@ -67,7 +67,7 @@ void Set_bed(HDSA::Ptr<Tpetra::MultiVector<>> &z_ptr, Teuchos::RCP<Teuchos::Para
 }
 
 template <class RealT>
-void Set_Initial_Condition(HDSA::Ptr<Tpetra::MultiVector<>> &u_ptr, const HDSA::Ptr<Teuchos::ParameterList> &parlist)
+void set_Initial_Condition(HDSA::Ptr<Tpetra::MultiVector<>> &u_ptr, const HDSA::Ptr<Teuchos::ParameterList> &parlist)
 {
   int num_coeff_load = parlist->sublist("Problem").get("Number of Coefficients in Loaded Fields", 10);
 
@@ -157,7 +157,7 @@ int main(int argc, char *argv[])
   ck = HDSA::makePtr<PDE_DualSimVector<RealT>>(ck_ptr, pde, *dyn_con->getAssembler());
   z = HDSA::makePtr<PDE_PrimalOptVector<RealT>>(z_ptr, pde, *dyn_con->getAssembler());
   u0->zero();
-  Set_Initial_Condition<RealT>(u0_ptr, parlist);
+  set_Initial_Condition<RealT>(u0_ptr, parlist);
 
   dyn_con->setSolveParameters(*parlist);
 
@@ -191,7 +191,7 @@ int main(int argc, char *argv[])
   // 2. Run Sparcify_Data.m matlab code to remove unwanted data and write to data.txt
   std::vector<std::vector<RealT>> clean_data;
   clean_data.resize(nt);
-  Set_bed<RealT>(z_ptr, parlist);
+  set_bed<RealT>(z_ptr, parlist);
   int dim = u0->dimension();
   uo->set(*u0);
   un->zero();

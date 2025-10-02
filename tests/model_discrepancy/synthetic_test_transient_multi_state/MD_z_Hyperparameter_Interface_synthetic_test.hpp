@@ -15,7 +15,7 @@ private:
 public:
   std::vector<std::vector<RealT>> Spatial_Domain_Bounds(void) const
   {
-    std::vector<std::vector<RealT>> vec; // vec.size() = spatial dimension, e.g. 1,2, or 3, [ vec[i][0],vec[i][1] ] is an interval bounding the ith spatial coordinate
+    std::vector<std::vector<RealT>> vec; // vec.size() = spatial Dimension, e.g. 1,2, or 3, [ vec[i][0],vec[i][1] ] is an interval bounding the ith spatial coordinate
     vec.resize(1);
     vec[0].resize(2);
     vec[0][0] = 0.0;

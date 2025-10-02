@@ -43,8 +43,8 @@ namespace HDSA
       HDSA::Ptr<HDSA::Randomized_GEVP<RealT>> hessian_gevp = HDSA::makePtr<MD_Hessian_GEVP<RealT>>(opt_prob_interface_, z_prior_interface_, z);
       evecs_ = HDSA::makePtr<HDSA::MultiVector<RealT>>(num_evals, *z);
       evals_ = HDSA::makePtr<HDSA::Dense_Matrix<RealT>>(num_evals, 1);
-      z_current_ = z->clone();
-      z_current_->set(*z);
+      z_current_ = z->Clone();
+      z_current_->Set(*z);
       hessian_gevp->Compute_GEVP(*evecs_, *evals_, num_evals, oversampling);
       use_projector_ = true;
       if (write_output)
@@ -64,10 +64,10 @@ namespace HDSA
     {
       if (use_projector_)
       {
-        HDSA::Ptr<HDSA::Vector<RealT>> z_tmp = z.clone();
-        z_tmp->set(z);
+        HDSA::Ptr<HDSA::Vector<RealT>> z_tmp = z.Clone();
+        z_tmp->Set(z);
         z_tmp->axpy(-1.0, *z_current_);
-        if (z_tmp->norm() > 0.0)
+        if (z_tmp->Norm() > 0.0)
         {
           HDSA_TEST_FOR_EXCEPTION(true, std::logic_error,
                                   "Error in HDSA::MD_Hessian_Analysis::Apply_RS_Hessian_Inverse: The z input has changed. Need to recompute the GEVP." << std::endl);
@@ -86,7 +86,7 @@ namespace HDSA
     void Apply_Projected_RS_Hessian_Inverse(HDSA::Vector<RealT> &z_out, const HDSA::Vector<RealT> &z_in) const
     {
       HDSA::Ptr<HDSA::Dense_Matrix<RealT>> coeffs = evecs_->MatVec(z_in);
-      z_out.zeros();
+      z_out.Zeros();
       int r = evecs_->Number_of_Vectors();
       for (int k = 0; k < r; k++)
       {
@@ -129,7 +129,7 @@ namespace HDSA
       const HDSA::Ptr<const HDSA::Vector<ScalarType>> z_;
       HDSA::Ptr<HDSA::MD_Opt_Prob_Interface<ScalarType>> opt_prob_interface_;
       HDSA::Ptr<HDSA::MD_z_Prior_Interface<ScalarType>> z_prior_interface_;
-      ScalarType normalization_coeff_;
+      ScalarType Normalization_coeff_;
 
     public:
       MD_Hessian_GEVP(const HDSA::Ptr<HDSA::MD_Opt_Prob_Interface<ScalarType>> &opt_prob_interface, const HDSA::Ptr<HDSA::MD_z_Prior_Interface<ScalarType>> &z_prior_interface,
@@ -137,9 +137,9 @@ namespace HDSA
       {
         opt_prob_interface_ = opt_prob_interface;
         z_prior_interface_ = z_prior_interface;
-        HDSA::Ptr<HDSA::Vector<ScalarType>> z_tmp = z->clone();
+        HDSA::Ptr<HDSA::Vector<ScalarType>> z_tmp = z->Clone();
         z_prior_interface_->Apply_W_z(*z_tmp, *z_);
-        normalization_coeff_ = z_->dot(*z_tmp);
+        Normalization_coeff_ = z_->Dot(*z_tmp);
       }
 
       virtual ~MD_Hessian_GEVP()
@@ -159,25 +159,25 @@ namespace HDSA
       void Apply_Weighting_Operator(HDSA::Vector<ScalarType> &vec_out, const HDSA::Vector<ScalarType> &vec_in) const
       {
         z_prior_interface_->Apply_W_z(vec_out, vec_in);
-        vec_out.scale(1.0 / normalization_coeff_);
+        vec_out.Scale(1.0 / Normalization_coeff_);
       }
 
       void Apply_Weighting_Operator_Inverse(HDSA::Vector<ScalarType> &vec_out, const HDSA::Vector<ScalarType> &vec_in) const
       {
         z_prior_interface_->Apply_W_z_Inverse(vec_out, vec_in);
-        vec_out.scale(normalization_coeff_);
+        vec_out.Scale(Normalization_coeff_);
       }
 
       void Generate_Random_Samples(HDSA::MultiVector<RealT> &samples) const
       {
         z_prior_interface_->Sample_with_Covariance_W_z_Inverse(samples);
-        if (samples[0]->norm() > 0.0)
+        if (samples[0]->Norm() > 0.0)
         {
-          samples.scale(std::sqrt(normalization_coeff_));
+          samples.Scale(std::sqrt(Normalization_coeff_));
         }
         else
         {
-          samples.randomize_standard_normal();
+          samples.Randomize_Standard_Normal();
         }
       }
     };

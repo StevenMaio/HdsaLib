@@ -61,7 +61,7 @@ public:
   {
     HDSA::Ptr<HDSA::Vector<RealT>> z_opt = Load_Optimal_z();
     HDSA::Ptr<HDSA::MultiVector<RealT>> Z = HDSA::makePtr<HDSA::MultiVector<RealT>>(2, *z_opt);
-    (*Z)[0]->set(*z_opt);
+    (*Z)[0]->Set(*z_opt);
 
     ROL::Ptr<std::vector<RealT>> z_ptr = ROL::makePtr<std::vector<RealT>>(m_, 0.0);
     ROL::StdVector<RealT> z(z_ptr);
@@ -72,7 +72,7 @@ public:
     }
     HDSA::ROL_Vector<RealT> &z_opt_rol = dynamic_cast<HDSA::ROL_Vector<RealT> &>(*z_opt);
     z_opt_rol.rol_vec->set(*zp);
-    (*Z)[1]->set(*z_opt);
+    (*Z)[1]->Set(*z_opt);
 
     return Z;
   }
@@ -90,14 +90,14 @@ public:
     HDSA::ROL_Vector<RealT> &u_hdsa_rol = dynamic_cast<HDSA::ROL_Vector<RealT> &>(*u_hdsa);
     u_hdsa_rol.rol_vec->set(*up);
     HDSA::Ptr<HDSA::MultiVector<RealT>> Y = HDSA::makePtr<HDSA::MultiVector<RealT>>(2, *u_hdsa);
-    (*Y)[0]->set(*u_hdsa);
+    (*Y)[0]->Set(*u_hdsa);
 
     for (int i = 0; i < m_; i++)
     {
       (*u_ptr)[i] = 0.2 * std::pow((*x_)(i, 0) + std::pow((*x_)(i, 0), 2.0), 3.0);
     }
     u_hdsa_rol.rol_vec->set(*up);
-    (*Y)[1]->set(*u_hdsa);
+    (*Y)[1]->Set(*u_hdsa);
 
     return Y;
   }

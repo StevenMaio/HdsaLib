@@ -101,13 +101,13 @@ namespace HDSA
           for (int i = 0; i < n_t; i++)
           {
             prior_delta_z_opt_time_evol_[k][i].resize(num_states);
-            HDSA::Ptr<HDSA::Vector<RealT>> tmp = (*dk_trans)[i]->clone();
+            HDSA::Ptr<HDSA::Vector<RealT>> tmp = (*dk_trans)[i]->Clone();
             u_prior_interface_->Apply_M_u(*tmp, *(*dk_trans)[i]);
             for (int j = 0; j < num_states; j++)
             {
               HDSA::Ptr<const HDSA::Vector<RealT>> dk_transi_j = data_interface_->Extract_State_Component(*(*dk_trans)[i], j);
               HDSA::Ptr<const HDSA::Vector<RealT>> tmp_j = data_interface_->Extract_State_Component(*tmp, j);
-              prior_delta_z_opt_time_evol_[k][i][j] = std::sqrt(dk_transi_j->dot(*tmp_j));
+              prior_delta_z_opt_time_evol_[k][i][j] = std::sqrt(dk_transi_j->Dot(*tmp_j));
             }
           }
         }
@@ -128,14 +128,14 @@ namespace HDSA
         HDSA::Ptr<HDSA::Transient_Vector<RealT>> d_trans = HDSA::dynamicPtrCast<HDSA::Transient_Vector<RealT>>(D0_tmp);
         for (int i = 0; i < n_t; i++)
         {
-          HDSA::Ptr<HDSA::Vector<RealT>> tmp = (*d_trans)[i]->clone();
+          HDSA::Ptr<HDSA::Vector<RealT>> tmp = (*d_trans)[i]->Clone();
           u_prior_interface_->Apply_M_u(*tmp, *(*d_trans)[i]);
           prior_discrep_data_time_evol_[i].resize(num_states);
           for (int j = 0; j < num_states; j++)
           {
             HDSA::Ptr<const HDSA::Vector<RealT>> d_transi_j = data_interface_->Extract_State_Component(*(*d_trans)[i], j);
             HDSA::Ptr<const HDSA::Vector<RealT>> tmp_j = data_interface_->Extract_State_Component(*tmp, j);
-            prior_discrep_data_time_evol_[i][j] = std::sqrt(d_transi_j->dot(*tmp_j));
+            prior_discrep_data_time_evol_[i][j] = std::sqrt(d_transi_j->Dot(*tmp_j));
           }
         }
       }
@@ -149,20 +149,20 @@ namespace HDSA
         prior_z_pert_evals_.resize(2);
         prior_delta_z_pert_.resize(2);
 
-        HDSA::Ptr<HDSA::Vector<RealT>> z_tmp = data_interface_->get_z_opt()->clone();
+        HDSA::Ptr<HDSA::Vector<RealT>> z_tmp = data_interface_->get_z_opt()->Clone();
         z_prior_interface_->Apply_M_z(*z_tmp, *data_interface_->get_z_opt());
-        RealT scaling = 0.3 * std::sqrt(data_interface_->get_z_opt()->dot(*z_tmp));
+        RealT scaling = 0.3 * std::sqrt(data_interface_->get_z_opt()->Dot(*z_tmp));
 
-        prior_z_pert_[0] = data_interface_->get_z_opt()->clone();
+        prior_z_pert_[0] = data_interface_->get_z_opt()->Clone();
         HDSA::Ptr<HDSA::Vector<RealT>> z1 = prior_z_pert_[0];
-        z1->setScalar(1.0);
-        z_tmp->zeros();
+        z1->Set_Scalar(1.0);
+        z_tmp->Zeros();
         z_prior_interface_->Apply_M_z(*z_tmp, *z1);
-        RealT tmp1 = std::sqrt(z1->dot(*z_tmp));
-        z1->scale(scaling / tmp1);
+        RealT tmp1 = std::sqrt(z1->Dot(*z_tmp));
+        z1->Scale(scaling / tmp1);
         prior_z_pert_evals_[0] = 1.0;
 
-        prior_z_pert_[1] = data_interface_->get_z_opt()->clone();
+        prior_z_pert_[1] = data_interface_->get_z_opt()->Clone();
         HDSA::Ptr<HDSA::Vector<RealT>> z2 = prior_z_pert_[1];
         int spatial_dim = spatial_coords->Number_of_Vectors();
         RealT omega = 0.0;
@@ -174,7 +174,7 @@ namespace HDSA
         omega *= z_hyperparam_interface->Get_beta_z();
         omega = 1.5 * std::sqrt(1.0 / omega) / M_PI;
         omega = std::round(omega);
-        int num_spatial_nodes = (*spatial_coords)[0]->dimension();
+        int num_spatial_nodes = (*spatial_coords)[0]->Dimension();
         for (int i = 0; i < num_spatial_nodes; i++)
         {
           RealT val = 1.0;
@@ -185,21 +185,21 @@ namespace HDSA
           }
           z2->Set_Entry(i, val);
         }
-        z_tmp->zeros();
+        z_tmp->Zeros();
         z_prior_interface_->Apply_M_z(*z_tmp, *z2);
-        RealT tmp2 = std::sqrt(z2->dot(*z_tmp));
-        z2->scale(1.0 / tmp2);
+        RealT tmp2 = std::sqrt(z2->Dot(*z_tmp));
+        z2->Scale(1.0 / tmp2);
 
         HDSA::Ptr<MD_Elliptic_z_Prior_Interface<RealT>> elliptic_z_prior_interface = HDSA::dynamicPtrCast<MD_Elliptic_z_Prior_Interface<RealT> >(z_prior_interface_);
         elliptic_z_prior_interface->Apply_E_z(*z_tmp, *z2);
-        prior_z_pert_evals_[1] = 1.0 / (z2->dot(*z_tmp));
-        z2->scale(scaling);
+        prior_z_pert_evals_[1] = 1.0 / (z2->Dot(*z_tmp));
+        z2->Scale(scaling);
 
         for (int k = 0; k < 2; k++)
         {
           prior_delta_z_pert_[k] = HDSA::makePtr<HDSA::MultiVector<RealT>>(num_samps, *data_interface_->get_u_opt());
           u_prior_interface_->Sample_with_Covariance_W_u_Inverse(*prior_delta_z_pert_[k]);
-          prior_delta_z_pert_[k]->scale(scaling * std::sqrt(z_hyperparam_interface->Get_alpha_z()) * prior_z_pert_evals_[k]);
+          prior_delta_z_pert_[k]->Scale(scaling * std::sqrt(z_hyperparam_interface->Get_alpha_z()) * prior_z_pert_evals_[k]);
         }
       }
       else
@@ -207,21 +207,21 @@ namespace HDSA
         prior_z_pert_.resize(1);
         prior_delta_z_pert_.resize(1);
 
-        HDSA::Ptr<HDSA::Vector<RealT>> z_tmp = data_interface_->get_z_opt()->clone();
+        HDSA::Ptr<HDSA::Vector<RealT>> z_tmp = data_interface_->get_z_opt()->Clone();
         z_prior_interface_->Apply_M_z(*z_tmp, *data_interface_->get_z_opt());
-        RealT scaling = 0.3 * std::sqrt(data_interface_->get_z_opt()->dot(*z_tmp));
+        RealT scaling = 0.3 * std::sqrt(data_interface_->get_z_opt()->Dot(*z_tmp));
 
-        prior_z_pert_[0] = data_interface_->get_z_opt()->clone();
+        prior_z_pert_[0] = data_interface_->get_z_opt()->Clone();
         HDSA::Ptr<HDSA::Vector<RealT>> z1 = prior_z_pert_[0];
-        z1->setScalar(1.0);
-        z_tmp->zeros();
+        z1->Set_Scalar(1.0);
+        z_tmp->Zeros();
         z_prior_interface_->Apply_M_z(*z_tmp, *z1);
-        RealT tmp1 = std::sqrt(z1->dot(*z_tmp));
-        z1->scale(scaling / tmp1);
+        RealT tmp1 = std::sqrt(z1->Dot(*z_tmp));
+        z1->Scale(scaling / tmp1);
 
         prior_delta_z_pert_[0] = HDSA::makePtr<HDSA::MultiVector<RealT>>(num_samps, *data_interface_->get_u_opt());
         u_prior_interface_->Sample_with_Covariance_W_u_Inverse(*prior_delta_z_pert_[0]);
-        prior_delta_z_pert_[0]->scale(scaling * std::sqrt(z_hyperparam_interface->Get_alpha_z()));
+        prior_delta_z_pert_[0]->Scale(scaling * std::sqrt(z_hyperparam_interface->Get_alpha_z()));
       }
     }
 
@@ -231,7 +231,7 @@ namespace HDSA
       u_prior_interface_->Sample_with_Covariance_W_u_Inverse(*delta_samples);
       for (int k = 0; k < delta_samples->Number_of_Vectors(); k++)
       {
-        (*delta_samples)[k]->plus(*data_interface_->get_data_shift());
+        (*delta_samples)[k]->Plus(*data_interface_->get_data_shift());
       }
       return delta_samples;
     }
@@ -250,7 +250,7 @@ namespace HDSA
       for (int k = 0; k < N; k++)
       {
         HDSA::Ptr<HDSA::Vector<RealT>> z_tmp1 = (*Z)[k];
-        z_tmp1->set(*z[k]);
+        z_tmp1->Set(*z[k]);
         z_tmp1->axpy(-1.0, *data_interface_->get_z_opt());
 
         HDSA::Ptr<HDSA::Vector<RealT>> z_tmp2 = (*M_z_Z)[k];
@@ -277,12 +277,12 @@ namespace HDSA
         for (int k = 0; k < N; k++)
         {
           HDSA::Ptr<HDSA::Vector<RealT>> u_out = (*delta_samples[i])[k];
-          u_out->set(*(*u_rand)[N]);
+          u_out->Set(*(*u_rand)[N]);
           for (int j = 0; j < k + 1; j++)
           {
             u_out->axpy((*R)(j, k), *(*u_rand)[j]);
           }
-          u_out->plus(*data_interface_->get_data_shift());
+          u_out->Plus(*data_interface_->get_data_shift());
         }
       }
 

@@ -806,7 +806,7 @@ private:
     const size_t size = static_cast<size_t>(Jv->size());
     for (size_t i = 0; i < size; ++i) {
       Teuchos::ArrayView<const size_t> col(&i,1);
-      vecJzp_->subView(col)->dot(*v, val.view(0,1));
+      vecJzp_->subView(col)->Dot(*v, val.view(0,1));
       (*Jv)[i] = val[0];
     }
   }
@@ -938,7 +938,7 @@ private:
           Teuchos::Array<Real> val(1,0);
           for (size_t i = 0; i < size; ++i) {
             Teuchos::ArrayView<const size_t> col(&i,1);
-            vecHuo_zp_->subView(col)->dot(*v, val.view(0,1));
+            vecHuo_zp_->subView(col)->Dot(*v, val.view(0,1));
             (*Hv)[i] += val[0];
           }
         }
@@ -964,7 +964,7 @@ private:
           Teuchos::Array<Real> val(1,0);
           for (size_t i = 0; i < size; ++i) {
             Teuchos::ArrayView<const size_t> col(&i,1);
-            vecHun_zp_->subView(col)->dot(*v, val.view(0,1));
+            vecHun_zp_->subView(col)->Dot(*v, val.view(0,1));
             (*Hv)[i] += val[0];
           }
         }
@@ -1101,7 +1101,7 @@ private:
           Teuchos::Array<Real> val(1,0);
           for (size_t i = 0; i < size; ++i) {
             Teuchos::ArrayView<const size_t> col(&i,1);
-            vecHzf_zp_->subView(col)->dot(*v, val.view(0,1));
+            vecHzf_zp_->subView(col)->Dot(*v, val.view(0,1));
             (*Hv)[i] += val[0];
           }
         }

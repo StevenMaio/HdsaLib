@@ -21,8 +21,8 @@ namespace HDSA
       vec.resize(NumVecs_);
       for (int k = 0; k < NumVecs_; k++)
       {
-        // Create vector and set to zero
-        vec[k] = vec_in.clone();
+        // Create vector and Set to zero
+        vec[k] = vec_in.Clone();
       }
     }
 
@@ -36,32 +36,32 @@ namespace HDSA
     {
     }
 
-    //! Returns a clone of the current vector.
+    //! Returns a Clone of the current vector.
     Belos_Vector *Clone(const int NumberVecs) const
     {
       Belos_Vector *tmp = new Belos_Vector(*vec[0], NumberVecs);
       return tmp;
     }
 
-    // Returns a clone of the current multi-vector.
+    // Returns a Clone of the current multi-vector.
     Belos_Vector *CloneCopy() const
     {
       Belos_Vector *tmp = new Belos_Vector(*vec[0], NumVecs_);
       for (int k = 0; k < NumVecs_; k++)
       {
-        tmp->vec[k]->set(*vec[k]);
+        tmp->vec[k]->Set(*vec[k]);
       }
       return tmp;
     }
 
-    //! Returns a clone copy of specified vectors.
+    //! Returns a Clone copy of specified vectors.
     Belos_Vector *CloneCopy(const std::vector<int> &index) const
     {
       int size = index.size();
       Belos_Vector *tmp = new Belos_Vector(*vec[0], size);
       for (int k = 0; k < size; k++)
       {
-        tmp->vec[k]->set(*vec[index[k]]);
+        tmp->vec[k]->Set(*vec[index[k]]);
       }
       return tmp;
     }
@@ -92,7 +92,7 @@ namespace HDSA
 
     ptrdiff_t GetGlobalLength() const
     {
-      return vec[0]->dimension();
+      return vec[0]->Dimension();
     }
 
     int GetNumberVecs() const
@@ -114,7 +114,7 @@ namespace HDSA
 
       for (int k = 0; k < NumVecs_; k++)
       {
-        vec[k]->scale(beta);
+        vec[k]->Scale(beta);
         for (int i = 0; i < B.numRows(); i++)
         {
           vec[k]->axpy(alpha * B(i, k), *MyA->vec[i]);
@@ -140,10 +140,10 @@ namespace HDSA
 
       for (int k = 0; k < NumVecs_; k++)
       {
-        Mytmp.vec[k]->set(*(MyA->vec[k]));
-        Mytmp.vec[k]->scale(alpha);
+        Mytmp.vec[k]->Set(*(MyA->vec[k]));
+        Mytmp.vec[k]->Scale(alpha);
         Mytmp.vec[k]->axpy(beta, *(MyB->vec[k]));
-        vec[k]->set(*Mytmp.vec[k]);
+        vec[k]->Set(*Mytmp.vec[k]);
       }
     }
 
@@ -161,12 +161,12 @@ namespace HDSA
       {
         for (int j = 0; j < NumVecs_; j++)
         {
-          B(i, j) = alpha * (MyA->vec[i]->dot(*vec[j]));
+          B(i, j) = alpha * (MyA->vec[i]->Dot(*vec[j]));
         }
       }
     }
 
-    // Compute a vector b where the components are the individual dot-products, i.e.b[i] = A[i]^H*this[i] where A[i] is the i-th column of A.
+    // Compute a vector b where the components are the individual Dot-products, i.e.b[i] = A[i]^H*this[i] where A[i] is the i-th column of A.
     void MvDot(const Belos::MultiVec<RealT> &A, std::vector<RealT> &b) const
     {
       assert(NumVecs_ == A.GetNumberVecs());
@@ -175,7 +175,7 @@ namespace HDSA
       MyA = dynamic_cast<Belos_Vector *>(&const_cast<Belos::MultiVec<RealT> &>(A));
       for (int k = 0; k < NumVecs_; k++)
       {
-        b[k] = MyA->vec[k]->dot(*vec[k]);
+        b[k] = MyA->vec[k]->Dot(*vec[k]);
       }
     }
 
@@ -184,7 +184,7 @@ namespace HDSA
     {
       for (int k = 0; k < NumVecs_; k++)
       {
-        vec[k]->scale(alpha);
+        vec[k]->Scale(alpha);
       }
     }
 
@@ -193,20 +193,20 @@ namespace HDSA
     {
       for (int k = 0; k < NumVecs_; k++)
       {
-        vec[k]->scale(alpha[k]);
+        vec[k]->Scale(alpha[k]);
       }
     }
 
-    void MvNorm(std::vector<typename Teuchos::ScalarTraits<RealT>::magnitudeType> &normvec, Belos::NormType type = Belos::TwoNorm) const
+    void MvNorm(std::vector<typename Teuchos::ScalarTraits<RealT>::magnitudeType> &Normvec, Belos::NormType type = Belos::TwoNorm) const
     {
       for (int k = 0; k < NumVecs_; k++)
       {
-        normvec[k] = std::sqrt(vec[k]->dot(*vec[k]));
+        Normvec[k] = std::sqrt(vec[k]->Dot(*vec[k]));
       }
     }
 
-    // Copy the vectors in A to a set of vectors in *this. The numvecs vectors in
-    // A are copied to a subset of vectors in *this indicated by the indices given
+    // Copy the vectors in A to a Set of vectors in *this. The numvecs vectors in
+    // A are copied to a subSet of vectors in *this indicated by the indices given
     // in index.
     void SetBlock(const Belos::MultiVec<RealT> &A,
                   const std::vector<int> &index)
@@ -215,7 +215,7 @@ namespace HDSA
       MyA = dynamic_cast<Belos_Vector *>(&const_cast<Belos::MultiVec<RealT> &>(A));
       for (unsigned int k = 0; k < index.size(); k++)
       {
-        vec[index[k]]->set(*(MyA->vec[k]));
+        vec[index[k]]->Set(*(MyA->vec[k]));
       }
     }
 
@@ -224,7 +224,7 @@ namespace HDSA
     {
       for (int k = 0; k < NumVecs_; k++)
       {
-        vec[k]->setScalar(alpha);
+        vec[k]->Set_Scalar(alpha);
       }
     }
 
@@ -233,7 +233,7 @@ namespace HDSA
     {
       for (int k = 0; k < NumVecs_; k++)
       {
-        vec[k]->randomize_standard_normal();
+        vec[k]->Randomize_Standard_Normal();
       }
     }
 

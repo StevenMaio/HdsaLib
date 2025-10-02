@@ -24,7 +24,7 @@ namespace HDSA
       vecs_.resize(num_vecs);
       for (int k = 0; k < num_vecs; k++)
       {
-        vecs_[k] = vec.clone();
+        vecs_[k] = vec.Clone();
       }
     }
 
@@ -61,7 +61,7 @@ namespace HDSA
       HDSA::Ptr<HDSA::Dense_Matrix<RealT>> Ax = HDSA::makePtr<HDSA::Dense_Matrix<RealT>>(num_vecs_, 1);
       for (int k = 0; k < num_vecs_; k++)
       {
-        Ax->Set_Entry(k, 0, vecs_[k]->dot(x));
+        Ax->Set_Entry(k, 0, vecs_[k]->Dot(x));
       }
       return Ax;
     }
@@ -73,7 +73,7 @@ namespace HDSA
       {
         for (int j = 0; j < num_vecs_; j++)
         {
-          C->Set_Entry(i, j, x[i]->dot(*vecs_[j]));
+          C->Set_Entry(i, j, x[i]->Dot(*vecs_[j]));
         }
       }
       return C;
@@ -84,39 +84,39 @@ namespace HDSA
       return num_vecs_;
     }
 
-    void zeros(void)
+    void Zeros(void)
     {
       for (int k = 0; k < num_vecs_; k++)
       {
-        vecs_[k]->zeros();
+        vecs_[k]->Zeros();
       }
     }
 
-    void randomize_standard_normal(void)
+    void Randomize_Standard_Normal(void)
     {
       for (int k = 0; k < num_vecs_; k++)
       {
-        vecs_[k]->randomize_standard_normal();
+        vecs_[k]->Randomize_Standard_Normal();
       }
     }
 
-    HDSA::Ptr<HDSA::MultiVector<RealT>> clone() const
+    HDSA::Ptr<HDSA::MultiVector<RealT>> Clone() const
     {
       HDSA::Ptr<HDSA::MultiVector<RealT>> x = HDSA::makePtr<HDSA::MultiVector<RealT>>(num_vecs_, *vecs_[0]);
       return x;
     }
 
-    std::vector<RealT> norms(void) const
+    std::vector<RealT> Norms(void) const
     {
       std::vector<RealT> n = std::vector<RealT>(num_vecs_);
       for (int k = 0; k < num_vecs_; k++)
       {
-        n[k] = vecs_[k]->norm();
+        n[k] = vecs_[k]->Norm();
       }
       return n;
     }
 
-    void plus(const HDSA::MultiVector<RealT> &y)
+    void Plus(const HDSA::MultiVector<RealT> &y)
     {
       this->axpy(1.0, y);
     }
@@ -142,11 +142,11 @@ namespace HDSA
       }
     }
 
-    void scale(const RealT &alpha)
+    void Scale(const RealT &alpha)
     {
       for (int k = 0; k < num_vecs_; k++)
       {
-        vecs_[k]->scale(alpha);
+        vecs_[k]->Scale(alpha);
       }
     }
 

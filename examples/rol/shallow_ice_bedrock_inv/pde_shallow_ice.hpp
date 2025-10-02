@@ -123,7 +123,7 @@ public:
     N_ = std::sqrt(num_coeff_load_) - 1;
     h_ = 1.0 / static_cast<Real>(N_);
 
-    Real beta_scale = parlist.sublist("Problem").get("Sliding Scale", 1.0);
+    Real beta_scale = parlist.sublist("Problem").get("Sliding scale", 1.0);
     basal_coeff_.resize(num_coeff_load_);
     // read in data
     std::ifstream in("Log_Basal_Sliding.txt");
@@ -2786,7 +2786,7 @@ public:
     bdryCellLocIds_ = bdryCellLocIds;
     // Finite element definition.
     fe_ = ROL::makePtr<FE<Real>>(volCellNodes_, basisPtr_, cellCub_);
-    // Set local boundary DOFs.
+    // set local boundary DOFs.
     fidx_ = fe_->getBoundaryDofs();
     // Compute Dirichlet values at DOFs.
     int d = basisPtr_->getBaseCellTopology().getDimension();
@@ -2829,9 +2829,9 @@ public:
     }
   }
 
-  ROL::Ptr<Intrepid::FieldContainer<Real>> getBoundaryCoeff(const Intrepid::FieldContainer<Real> &cell_coeff, int sideSet, int cell) const
+  ROL::Ptr<Intrepid::FieldContainer<Real>> getBoundaryCoeff(const Intrepid::FieldContainer<Real> &cell_coeff, int sideset, int cell) const
   {
-    std::vector<int> bdryCellLocId = bdryCellLocIds_[sideSet][cell];
+    std::vector<int> bdryCellLocId = bdryCellLocIds_[sideset][cell];
     const int numCellsSide = bdryCellLocId.size();
     const int f = basisPtr_->getCardinality();
 

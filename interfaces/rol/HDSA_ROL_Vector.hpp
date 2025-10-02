@@ -8,7 +8,7 @@ namespace HDSA
 {
 
   template <class RealT>
-  class ROL_Vector : public Vector<RealT>
+  class ROL_Vector : public HDSA::Vector<RealT>
   {
 
   public:
@@ -32,15 +32,15 @@ namespace HDSA
     }
 
     // Clone the vector
-    HDSA::Ptr<HDSA::Vector<RealT>> clone() const override
+    HDSA::Ptr<HDSA::Vector<RealT>> Clone() const override
     {
       ROL::Ptr<ROL::Vector<RealT>> rol_vec_clone = rol_vec->clone();
       rol_vec_clone->zero(); // ROL clone() vector is not initialized
       return Teuchos::rcp(new HDSA::ROL_Vector<RealT>(rol_vec_clone));
     }
 
-    // compute the dot product of this and x
-    RealT dot(const HDSA::Vector<RealT> &x) const override
+    // compute the Dot product of this and x
+    RealT Dot(const HDSA::Vector<RealT> &x) const override
     {
       const HDSA::ROL_Vector<RealT> &ex = dynamic_cast<const HDSA::ROL_Vector<RealT> &>(x);
       RealT val = ex.rol_vec->dot(*rol_vec);
@@ -54,19 +54,19 @@ namespace HDSA
       rol_vec->axpy(alpha, *ex.rol_vec);
     }
 
-    // return vector dimension
-    int dimension() const override
+    // return vector Dimension
+    int Dimension() const override
     {
       return rol_vec->dimension();
     }
 
-    // set this=val elementwise
-    void setScalar(const RealT val) override
+    // Set this=val elementwise
+    void Set_Scalar(const RealT val) override
     {
       rol_vec->setScalar(val);
     }
 
-    void randomize_standard_normal() override
+    void Randomize_Standard_Normal() override
     {
       rol_vec->applyUnary(nr);
     }

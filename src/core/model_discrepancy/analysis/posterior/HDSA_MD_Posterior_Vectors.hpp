@@ -16,7 +16,7 @@ namespace HDSA
   public:
     MD_Posterior_Vectors(const int num_samples_in, const HDSA::Vector<RealT> &vec) : num_samples(num_samples_in)
     {
-      mean = vec.clone();
+      mean = vec.Clone();
       samples = HDSA::makePtr<HDSA::MultiVector<RealT>>(num_samples_in, vec);
     }
 

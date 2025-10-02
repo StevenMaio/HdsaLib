@@ -41,7 +41,7 @@ namespace HDSA
       cmdp.setOption("num-rhs", &numrhs, "Number of right-hand sides to be solved for.");
       cmdp.setOption("blocksize", &blocksize, "Block size used by CG .");
 
-      int maxits = b.dimension();
+      int maxits = b.Dimension();
       Teuchos::ParameterList belosList;
       belosList.set("Block Size", blocksize);      // Blocksize to be used by iterative solver
       belosList.set("Num Blocks", maxits);         // Number of blocks
@@ -58,12 +58,12 @@ namespace HDSA
 
       HDSA::Ptr<HDSA::Belos_Vector<RealT>> soln = HDSA::makePtr<HDSA::Belos_Vector<RealT>>(b, numrhs);
       HDSA::Ptr<HDSA::Belos_Vector<RealT>> rhs = HDSA::makePtr<HDSA::Belos_Vector<RealT>>(b, numrhs);
-      rhs->vec[0]->set(b);
+      rhs->vec[0]->Set(b);
 
-      RealT rhs_norm = b.norm();
-      if (rhs_norm != 0.0)
+      RealT rhs_Norm = b.Norm();
+      if (rhs_Norm != 0.0)
       {
-        rhs->vec[0]->scale(1.0 / rhs_norm);
+        rhs->vec[0]->Scale(1.0 / rhs_Norm);
         Belos::OperatorTraits<RealT, Belos::MultiVec<RealT>, Belos::Operator<RealT>>::Apply(*A_Belos, *rhs, *soln);
 
         HDSA::Ptr<Belos::LinearProblem<RealT, Belos::MultiVec<RealT>, Belos::Operator<RealT>>> problem =
@@ -74,7 +74,7 @@ namespace HDSA
           if (verbose)
           {
             HDSA_TEST_FOR_EXCEPTION(true, std::logic_error,
-                                    "Error in HDSA::Linear_Algebra: Belos::LinearProblem failed to set up correctly" << std::endl);
+                                    "Error in HDSA::Linear_Algebra: Belos::LinearProblem failed to Set up correctly" << std::endl);
           }
           verbose = true;
         }
@@ -101,8 +101,8 @@ namespace HDSA
           std::cout << "Belos solver did not converge for linear solve" << std::endl;
         }
 
-        x.set(*soln->vec[0]);
-        x.scale(rhs_norm);
+        x.Set(*soln->vec[0]);
+        x.Scale(rhs_Norm);
 
         // Test achievedTol output
         RealT ach_tol = belos_solver->achievedTol();
@@ -113,7 +113,7 @@ namespace HDSA
       }
       else
       {
-        x.zeros();
+        x.Zeros();
       }
     }
 

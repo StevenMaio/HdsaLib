@@ -36,31 +36,31 @@ namespace HDSA
         // Overloading pure virtual functions in HDSA::Vector base class
         //////////////////////////////////////////////////////////////////////////////////
 
-        HDSA::Ptr<HDSA::Vector<RealT>> clone() const override
+        HDSA::Ptr<HDSA::Vector<RealT>> Clone() const override
         {
             HDSA::Ptr<HDSA::Vector<RealT>> vec = HDSA::makePtr<Transient_Vector<RealT>>(n_t_, const_vec_[0]);
             return vec;
         }
 
-        // compute the dot product of this and x
-        RealT dot(const HDSA::Vector<RealT> &x) const override
+        // compute the Dot product of this and x
+        RealT Dot(const HDSA::Vector<RealT> &x) const override
         {
             RealT val = 0.0;
             const Transient_Vector<RealT> x_trans = dynamic_cast<const Transient_Vector<RealT> &>(x);
             for (int k = 0; k < n_t_; k++)
             {
-                val += const_vec_[k]->dot(*x_trans.Get_Vector_Const(k));
+                val += const_vec_[k]->Dot(*x_trans.Get_Vector_Const(k));
             }
             return val;
         }
 
-        // compute the dot product of this and x
-        RealT norm(void) const override
+        // compute the Dot product of this and x
+        RealT Norm(void) const override
         {
             RealT val = 0.0;
             for (int k = 0; k < n_t_; k++)
             {
-                val += const_vec_[k]->dot(*const_vec_[k]);
+                val += const_vec_[k]->Dot(*const_vec_[k]);
             }
             val = std::sqrt(val);
             return val;
@@ -73,23 +73,23 @@ namespace HDSA
                                     "Error in HDSA::Transient_Vector_Const: Cannot use axpy method" << std::endl);
         }
 
-        // return vector dimension
-        int dimension() const override
+        // return vector Dimension
+        int Dimension() const override
         {
-            return n_t_ * const_vec_[0]->dimension();
+            return n_t_ * const_vec_[0]->Dimension();
         }
 
-        // set this=val elementwise
-        void setScalar(const RealT val) override
+        // Set this=val elementwise
+        void Set_Scalar(const RealT val) override
         {
             HDSA_TEST_FOR_EXCEPTION(true, std::logic_error,
-                                    "Error in HDSA::Transient_Vector_Const: Cannot use setScalar method" << std::endl);
+                                    "Error in HDSA::Transient_Vector_Const: Cannot use Set_Scalar method" << std::endl);
         }
 
-        void randomize_standard_normal() override
+        void Randomize_Standard_Normal() override
         {
             HDSA_TEST_FOR_EXCEPTION(true, std::logic_error,
-                                    "Error in HDSA::Transient_Vector_Const: Cannot use randomize_standard_normal method" << std::endl);
+                                    "Error in HDSA::Transient_Vector_Const: Cannot use Randomize_Standard_Normal method" << std::endl);
         }
 
         void Write_to_File(const std::string &name) const override

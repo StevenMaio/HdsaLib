@@ -37,16 +37,16 @@ namespace HDSA
       z_opt_ = Load_Optimal_z();
       Z_ = Load_Z_Data();
       D_ = Load_D_Data();
-      data_shift_ = u_opt_->clone();
-      data_shift_->zeros();
+      data_shift_ = u_opt_->Clone();
+      data_shift_->Zeros();
       is_data_loaded_ = true;
     }
 
     void Center_Data()
     {
-      data_shift_->setScalar(1.0);
-      RealT val = data_shift_->dot(*(*D_)[0]) / static_cast<RealT>(data_shift_->dimension());
-      data_shift_->setScalar(val);
+      data_shift_->Set_Scalar(1.0);
+      RealT val = data_shift_->Dot(*(*D_)[0]) / static_cast<RealT>(data_shift_->Dimension());
+      data_shift_->Set_Scalar(val);
       for (int k = 0; k < D_->Number_of_Vectors(); k++)
       {
         (*D_)[k]->axpy(-1.0, *data_shift_);
@@ -85,7 +85,7 @@ namespace HDSA
 
     virtual void Set_State_Component(HDSA::Vector<RealT> &u, const HDSA::Vector<RealT> &u_component, int component_id) const
     {
-      u.set(u_component);
+      u.Set(u_component);
     }
 
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -33,7 +33,7 @@ public:
       postproc_->hdsa_solop_data[set] = HDSA::makePtr<MrHyDE::SolutionStorage<SolverNode>>(solver_->settings);
     }
 
-    grad_nom_ = data_interface->get_z_opt()->clone();
+    grad_nom_ = data_interface->get_z_opt()->Clone();
     gradient(*grad_nom_, *data_interface->get_z_opt());
   }
 
@@ -54,19 +54,19 @@ public:
     writedata_solopt(u_in);
     do_solop(true);
     gradient(z_out, z);
-    z_out.scale(-1.0);
+    z_out.Scale(-1.0);
   }
 
   void Apply_RS_Hessian(HDSA::Vector<RealT> &z_out, const HDSA::Vector<RealT> &z_in, const HDSA::Vector<RealT> &z) const
   {
     do_solop(false);
-    HDSA::Ptr<HDSA::Vector<RealT>> z_pert = z.clone();
-    z_pert->set(z);
+    HDSA::Ptr<HDSA::Vector<RealT>> z_pert = z.Clone();
+    z_pert->Set(z);
     RealT h = 1.e-4;
     z_pert->axpy(h, z_in);
     gradient(z_out, *z_pert);
     z_out.axpy(-1.0, *grad_nom_);
-    z_out.scale(1.0 / h);
+    z_out.Scale(1.0 / h);
   }
 
   void Misfit_Gradient(HDSA::Vector<RealT> &u_grad, const HDSA::Vector<RealT> &u, const HDSA::Vector<RealT> &z) const
@@ -79,7 +79,7 @@ public:
 
       if (postproc_->objectives[0].type == "integrated control")
       { // only works for one objective term
-        eu_grad[0]->zeros();
+        eu_grad[0]->Zeros();
         for (int i = 0; i < n_t - 1; i++)
         { // exludes initial condition
           const HDSA::Tpetra_Vector<RealT> &eu_i = dynamic_cast<const HDSA::Tpetra_Vector<RealT> &>(*eu[i + 1]);
@@ -96,10 +96,10 @@ public:
           postproc_->computeObjectiveGradState(0, ui_over, currenttime, solver_->deltat, eu_grad_i_tpetra);
           if (i == 0)
           {
-            eu_grad_i.scale(solver_->deltat);
+            eu_grad_i.Scale(solver_->deltat);
           }
         }
-        u_grad.scale(-1.0);
+        u_grad.Scale(-1.0);
       }
     }
     else
@@ -113,23 +113,23 @@ public:
       solver_->linalg->importVectorToOverlapped(0, u_over, eu.getVector());
       postproc_->computeObjectiveGradState(0, u_over, 0.0, solver_->deltat, grad);
 
-      u_grad.scale(-1.0);
+      u_grad.Scale(-1.0);
     }
   }
 
   void Apply_Misfit_Hessian(HDSA::Vector<RealT> &u_out, const HDSA::Vector<RealT> &u_in, const HDSA::Vector<RealT> &u, const HDSA::Vector<RealT> &z) const
   {
-    HDSA::Ptr<HDSA::Vector<RealT>> ugrad_nom = u_out.clone();
+    HDSA::Ptr<HDSA::Vector<RealT>> ugrad_nom = u_out.Clone();
     Misfit_Gradient(*ugrad_nom, u, z);
 
-    HDSA::Ptr<HDSA::Vector<RealT>> u_pert = u_out.clone();
-    u_pert->set(u);
+    HDSA::Ptr<HDSA::Vector<RealT>> u_pert = u_out.Clone();
+    u_pert->Set(u);
     RealT h = 1.0e-4;
     u_pert->axpy(h, u_in);
     Misfit_Gradient(u_out, *u_pert, z);
 
     u_out.axpy(-1.0, *ugrad_nom);
-    u_out.scale(1.0 / h);
+    u_out.Scale(1.0 / h);
   }
 
   //////////////////////////////////////////////////////////////////////////////////////////////////////////////////

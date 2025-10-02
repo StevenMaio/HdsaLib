@@ -43,7 +43,7 @@
 typedef double RealT;
 
 template <class RealT>
-void Set_Initial_Iterate(HDSA::Ptr<Tpetra::MultiVector<>> &z_ptr, const HDSA::Ptr<HDSA::ParameterList> &parlist)
+void set_Initial_Iterate(HDSA::Ptr<Tpetra::MultiVector<>> &z_ptr, const HDSA::Ptr<HDSA::ParameterList> &parlist)
 {
   int num_coeff_load = 3 * parlist->sublist("Problem").get("Number of Coefficients in Loaded Fields", 10);
   std::vector<RealT> initial_iter_coeff = std::vector<RealT>(num_coeff_load);
@@ -70,7 +70,7 @@ void Set_Initial_Iterate(HDSA::Ptr<Tpetra::MultiVector<>> &z_ptr, const HDSA::Pt
 }
 
 template <class RealT>
-void Set_Initial_Condition(HDSA::Ptr<Tpetra::MultiVector<>> &u_ptr, const HDSA::Ptr<HDSA::ParameterList> &parlist)
+void set_Initial_Condition(HDSA::Ptr<Tpetra::MultiVector<>> &u_ptr, const HDSA::Ptr<HDSA::ParameterList> &parlist)
 {
   int num_coeff_load = parlist->sublist("Problem").get("Number of Coefficients in Loaded Fields", 10);
 
@@ -171,7 +171,7 @@ int main(int argc, char *argv[])
   ck = HDSA::makePtr<PDE_DualSimVector<RealT>>(ck_ptr, pde, *dyn_con->getAssembler());
   z = HDSA::makePtr<PDE_PrimalOptVector<RealT>>(z_ptr, pde, *dyn_con->getAssembler());
   u0->zero();
-  Set_Initial_Condition<RealT>(u0_ptr, parlist);
+  set_Initial_Condition<RealT>(u0_ptr, parlist);
 
   dyn_con->setSolveParameters(*parlist);
 
@@ -192,8 +192,8 @@ int main(int argc, char *argv[])
   /*************************************************************************/
   int nx = parlist->sublist("Geometry").get("NX", 70);
   int ny = parlist->sublist("Geometry").get("NY", 70);
-  int nsx = parlist->sublist("Geometry").get("Sensors Per x-Dimension", 10);
-  int nsy = parlist->sublist("Geometry").get("Sensors Per y-Dimension", 10);
+  int nsx = parlist->sublist("Geometry").get("Sensors Per x-dimension", 10);
+  int nsy = parlist->sublist("Geometry").get("Sensors Per y-dimension", 10);
 
   /*** Check sensors and mesh nodes coorespond ***/
   if (nx % (nsx - 1) != 0 || ny % (nsy - 1) != 0)
@@ -201,7 +201,7 @@ int main(int argc, char *argv[])
     std::cout << "Error: NX and NY must be divisible by the number of sensors in their respective dimensions \n";
   }
 
-  /*** Set sensor locations ***/
+  /*** set sensor locations ***/
   std::vector<int> data_weight_id = std::vector<int>(2 * nsx * nsy);
   int count = 0;
   for (int i = 0; i < nsy; i++)
@@ -277,9 +277,9 @@ int main(int argc, char *argv[])
   obj_vec[1] = robj_reg;
   HDSA::Ptr<ROL::Objective<RealT>> robj = HDSA::makePtr<RS_Objective<RealT>>(rs_weights, obj_vec);
 
-  // Set initial vector
+  // set initial vector
   z->zero();
-  Set_Initial_Iterate<RealT>(z_ptr, parlist);
+  set_Initial_Iterate<RealT>(z_ptr, parlist);
   dyn_con->outputTpetraVector(z_ptr, "initial_iterate.txt");
 
   // Build optimization problem and check derivatives

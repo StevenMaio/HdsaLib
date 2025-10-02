@@ -18,7 +18,7 @@ public:
   Randomized_GEVP_test(HDSA::Vector<RealT> &vec, const HDSA::Ptr<HDSA::Random_Number_Generator<RealT>> &random_number_generator)
       : HDSA::Randomized_GEVP<RealT>(), random_number_generator_(random_number_generator)
   {
-    m_ = vec.dimension();
+    m_ = vec.Dimension();
     RealT h = 1.0 / static_cast<RealT>(m_ - 1);
 
     S_ = HDSA::makePtr<HDSA::Dense_Matrix<RealT>>(m_, m_);
@@ -118,9 +118,9 @@ public:
     {
 
       HDSA::Ptr<HDSA::Dense_Matrix<RealT>> b = HDSA::makePtr<HDSA::Dense_Matrix<RealT>>(m_, 1);
-      HDSA::Ptr<HDSA::Vector<RealT>> vec_in = samples[0]->clone();
+      HDSA::Ptr<HDSA::Vector<RealT>> vec_in = samples[0]->Clone();
       HDSA::Std_Vector<RealT> &vec_in_std = dynamic_cast<HDSA::Std_Vector<RealT> &>(*vec_in);
-      vec_in_std.randomize_standard_normal();
+      vec_in_std.Randomize_Standard_Normal();
       for (int k = 0; k < m_; k++)
       {
         b->Set_Entry(k, 0, vec_in_std(k));

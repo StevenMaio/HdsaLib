@@ -18,7 +18,7 @@ namespace HDSA
       vecs_.resize(num_vecs);
       for (int k = 0; k < num_vecs; k++)
       {
-        vecs_[k] = vec.clone();
+        vecs_[k] = vec.Clone();
       }
     }
 
@@ -42,19 +42,19 @@ namespace HDSA
       return num_vecs_;
     }
 
-    HDSA::Ptr<HDSA::Vector<RealT>> clone() const
+    HDSA::Ptr<HDSA::Vector<RealT>> Clone() const
     {
       HDSA::Ptr<HDSA::Vector<RealT>> ens_vec = HDSA::makePtr<HDSA::Ensemble_Vector<RealT>>(num_vecs_, *vecs_[0]);
       return ens_vec;
     }
 
-    RealT dot(const HDSA::Vector<RealT> &x) const
+    RealT Dot(const HDSA::Vector<RealT> &x) const
     {
       RealT val = 0.0;
       const HDSA::Ensemble_Vector<RealT> x_ens = dynamic_cast<const HDSA::Ensemble_Vector<RealT> &>(x);
       for (int k = 0; k < num_vecs_; k++)
       {
-        val += x_ens[k]->dot(*vecs_[k]);
+        val += x_ens[k]->Dot(*vecs_[k]);
       }
       return val;
     }
@@ -68,25 +68,25 @@ namespace HDSA
       }
     }
 
-    int dimension() const
+    int Dimension() const
     {
-      int dim = num_vecs_ * vecs_[0]->dimension();
+      int dim = num_vecs_ * vecs_[0]->Dimension();
       return dim;
     }
 
-    void setScalar(const RealT val)
+    void Set_Scalar(const RealT val)
     {
       for (int k = 0; k < num_vecs_; k++)
       {
-        vecs_[k]->setScalar(val);
+        vecs_[k]->Set_Scalar(val);
       }
     }
 
-    void randomize_standard_normal()
+    void Randomize_Standard_Normal()
     {
       for (int k = 0; k < num_vecs_; k++)
       {
-        vecs_[k]->randomize_standard_normal();
+        vecs_[k]->Randomize_Standard_Normal();
       }
     }
 
@@ -101,13 +101,13 @@ namespace HDSA
 
     HDSA::Ptr<HDSA::Vector<RealT>> Ensemble_Average(void) const
     {
-      HDSA::Ptr<HDSA::Vector<RealT>> avg_vec = vecs_[0]->clone();
-      avg_vec->zeros();
+      HDSA::Ptr<HDSA::Vector<RealT>> avg_vec = vecs_[0]->Clone();
+      avg_vec->Zeros();
       for (int k = 0; k < num_vecs_; k++)
       {
-        avg_vec->plus(*vecs_[k]);
+        avg_vec->Plus(*vecs_[k]);
       }
-      avg_vec->scale(1.0 / static_cast<RealT>(num_vecs_));
+      avg_vec->Scale(1.0 / static_cast<RealT>(num_vecs_));
       return avg_vec;
     }
   };

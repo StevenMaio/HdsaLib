@@ -49,26 +49,26 @@ namespace HDSA
 
     void Apply_Solution_Operator_z_Jacobian_Transpose(HDSA::Vector<RealT> &z_out, const HDSA::Vector<RealT> &u_in, const HDSA::Vector<RealT> &z) const
     {
-      z_out.zeros();
-      HDSA::Ptr<HDSA::Vector<RealT>> z_tmp = z_out.clone();
+      z_out.Zeros();
+      HDSA::Ptr<HDSA::Vector<RealT>> z_tmp = z_out.Clone();
 
       const HDSA::Ensemble_Vector<RealT> u_in_ens = dynamic_cast<const HDSA::Ensemble_Vector<RealT> &>(u_in);
 
       for (int s = 0; s < ens_size_; s++)
       {
-        z_tmp->zeros();
+        z_tmp->Zeros();
         Apply_Solution_Operator_z_Jacobian_Transpose_Per_Sample(*z_tmp, *u_in_ens[s], z, s);
-        z_out.plus(*z_tmp);
+        z_out.Plus(*z_tmp);
       }
     }
 
     void Apply_RS_Hessian(HDSA::Vector<RealT> &z_out, const HDSA::Vector<RealT> &z_in, const HDSA::Vector<RealT> &z) const
     {
-      z_out.zeros();
-      HDSA::Ptr<HDSA::Vector<RealT>> z_tmp = z_out.clone();
+      z_out.Zeros();
+      HDSA::Ptr<HDSA::Vector<RealT>> z_tmp = z_out.Clone();
       for (int s = 0; s < ens_size_; s++)
       {
-        z_tmp->zeros();
+        z_tmp->Zeros();
         Apply_RS_Hessian_Per_Sample(*z_tmp, z_in, z, s);
         z_out.axpy(ens_weights_[s], *z_tmp);
       }
@@ -81,7 +81,7 @@ namespace HDSA
       for (int s = 0; s < ens_size_; s++)
       {
         Misfit_Gradient_Per_Sample(*u_grad_ens[s], *u_ens[s], z, s);
-        u_grad_ens[s]->scale(ens_weights_[s]);
+        u_grad_ens[s]->Scale(ens_weights_[s]);
       }
     }
 
@@ -93,7 +93,7 @@ namespace HDSA
       for (int s = 0; s < ens_size_; s++)
       {
         Apply_Misfit_Hessian_Per_Sample(*u_out_ens[s], *u_in_ens[s], *u_ens[s], z, s);
-        u_out_ens[s]->scale(ens_weights_[s]);
+        u_out_ens[s]->Scale(ens_weights_[s]);
       }
     }
   };

@@ -218,7 +218,7 @@ public:
     HDSA::Ptr<HDSA::MultiVector<RealT>> Z = Load_Z_Data();
     for (int k = 0; k < num_hifi_; k++)
     {
-      HDSA::Ptr<HDSA::Vector<RealT>> u_k_lofi = Load_Optimal_u()->clone();
+      HDSA::Ptr<HDSA::Vector<RealT>> u_k_lofi = Load_Optimal_u()->Clone();
       solver_interface_->State_Solve(*u_k_lofi, *(*Z)[k]);
 
       if (num_time_nodes > 1)
@@ -346,7 +346,7 @@ public:
     int num_states = solve_->varlist[0][0].size();
     if (num_states == 1)
     {
-      u.set(u_component);
+      u.Set(u_component);
     }
     else
     {

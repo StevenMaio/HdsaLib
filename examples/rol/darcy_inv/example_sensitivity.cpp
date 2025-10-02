@@ -60,9 +60,9 @@ void Load_Nominal_Solution(HDSA::Ptr<Tpetra::MultiVector<>> &z_ptr)
 }
 
 template <class RealT>
-void Set_Parameters(HDSA::Ptr<HDSA::Vector<RealT>> &theta, std::string &filename)
+void set_Parameters(HDSA::Ptr<HDSA::Vector<RealT>> &theta, std::string &filename)
 {
-  int theta_dim = theta->dimension();
+  int theta_dim = theta->Dimension();
   HDSA::Std_Vector<RealT> &theta_std = dynamic_cast<HDSA::Std_Vector<RealT> &>(*theta);
 
   // read in data
@@ -85,7 +85,7 @@ void Set_Parameters(HDSA::Ptr<HDSA::Vector<RealT>> &theta, std::string &filename
 }
 
 template <class RealT>
-void Set_Parameters(std::vector<RealT> &param, std::string &filename)
+void set_Parameters(std::vector<RealT> &param, std::string &filename)
 {
   int theta_dim = param.size();
 
@@ -140,10 +140,10 @@ int main(int argc, char *argv[])
 
   HDSA::Ptr<PDE_darcy_flow_aux_param<RealT>> pde_aux_param = HDSA::makePtr<PDE_darcy_flow_aux_param<RealT>>(*parlist);
   HDSA::Ptr<ROL::Constraint_SimOpt<RealT>> con_aux_param = HDSA::makePtr<PDE_Constraint<RealT>>(pde_aux_param, meshMgr, comm->Get_Teuchos_Communicator(), *parlist, *outStream);
-  int theta_modes = parlist->sublist("Problem").get("Uncertain Modes per Dimension", 1);
+  int theta_modes = parlist->sublist("Problem").get("Uncertain Modes per dimension", 1);
   std::vector<RealT> param = std::vector<RealT>(std::pow(theta_modes, 2), 0.0);
   std::string filename_theta_bar = "theta_bar.txt";
-  Set_Parameters<RealT>(param, filename_theta_bar);
+  set_Parameters<RealT>(param, filename_theta_bar);
   pdecon->setParameter(param);
   con->setSolveParameters(*parlist);
 
@@ -222,7 +222,7 @@ int main(int argc, char *argv[])
 
   int theta_dim = param.size();
   HDSA::Ptr<HDSA::Vector<RealT>> theta_bar = HDSA::makePtr<HDSA::Std_Vector<RealT>>(theta_dim, comm);
-  Set_Parameters<RealT>(theta_bar, filename_theta_bar);
+  set_Parameters<RealT>(theta_bar, filename_theta_bar);
 
   Load_Nominal_Solution<RealT>(z_ptr);
   HDSA::Ptr<HDSA::Vector<RealT>> z_bar = HDSA::makePtr<HDSA::ROL_Vector<RealT>>(zp);
@@ -262,10 +262,10 @@ int main(int argc, char *argv[])
   HDSA::Ptr<ROL::Vector<RealT>> z_star_rol = HDSA::makePtr<PDE_PrimalOptVector<RealT>>(z_star_ptr, pde, assembler, *parlist);
   HDSA::Ptr<HDSA::Vector<RealT>> z_star = HDSA::makePtr<HDSA::ROL_Vector<RealT>>(z_star_rol);
 
-  HDSA::Ptr<HDSA::Vector<RealT>> grad_star = z_bar->clone();
-  HDSA::Ptr<HDSA::Vector<RealT>> theta_star = theta_bar->clone();
+  HDSA::Ptr<HDSA::Vector<RealT>> grad_star = z_bar->Clone();
+  HDSA::Ptr<HDSA::Vector<RealT>> theta_star = theta_bar->Clone();
   std::string filename_theta_star = "theta_star.txt";
-  Set_Parameters<RealT>(theta_star, filename_theta_star);
+  set_Parameters<RealT>(theta_star, filename_theta_star);
 
   if (N_fe > 0)
   {

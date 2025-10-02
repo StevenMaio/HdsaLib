@@ -58,7 +58,7 @@ namespace HDSA
 
     void Auxillary_Constructor()
     {
-      E_u_ = M_->clone();
+      E_u_ = M_->Clone();
       determine_u_hyperparams_ = HDSA::makePtr<HDSA::MD_Determine_u_Hyperparameters<RealT>>(data_interface_, u_hyperparam_interface_);
 
       if (u_hyperparam_interface_->Get_beta_u() == 0.0)
@@ -100,7 +100,7 @@ namespace HDSA
 
     void Set_beta_u(RealT beta_u_new)
     {
-      E_u_->set(*M_);
+      E_u_->Set(*M_);
       E_u_->axpy(beta_u_new, *S_);
       beta_u_ = beta_u_new;
       E_u_solver_ = HDSA::makePtr<HDSA::Sparse_Matrix_Solver<RealT>>(E_u_);

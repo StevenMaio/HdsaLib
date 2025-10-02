@@ -54,19 +54,19 @@ namespace HDSA
     virtual void Apply_W_z_Inverse(HDSA::Vector<RealT> &z_out, const HDSA::Vector<RealT> &z_in) const
     {
       Apply_W_z_Acute_Inverse(z_out, z_in);
-      z_out.scale(alpha_z_);
+      z_out.Scale(alpha_z_);
     }
 
     virtual void Sample_with_Covariance_W_z_Inverse(HDSA::MultiVector<RealT> &samples) const
     {
       Sample_with_Covariance_W_z_Acute_Inverse(samples);
-      samples.scale(std::sqrt(alpha_z_));
+      samples.Scale(std::sqrt(alpha_z_));
     }
 
     virtual void Apply_W_z(HDSA::Vector<RealT> &z_out, const HDSA::Vector<RealT> &z_in) const
     {
       Apply_W_z_Acute(z_out, z_in);
-      z_out.scale(1.0 / alpha_z_);
+      z_out.Scale(1.0 / alpha_z_);
     }
 
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -65,8 +65,8 @@ namespace HDSA
 
     virtual void Apply_W_z_Acute_Inverse(HDSA::Vector<RealT> &z_out, const HDSA::Vector<RealT> &z_in) const
     {
-      HDSA::Ptr<HDSA::Vector<RealT>> z_tmp1 = z_in.clone();
-      HDSA::Ptr<HDSA::Vector<RealT>> z_tmp2 = z_in.clone();
+      HDSA::Ptr<HDSA::Vector<RealT>> z_tmp1 = z_in.Clone();
+      HDSA::Ptr<HDSA::Vector<RealT>> z_tmp2 = z_in.Clone();
       Apply_E_z_Inverse_Transpose(*z_tmp1, z_in);
       Apply_M_z(*z_tmp2, *z_tmp1);
       Apply_E_z_Inverse(z_out, *z_tmp2);
@@ -74,8 +74,8 @@ namespace HDSA
 
     virtual void Apply_W_z_Acute(HDSA::Vector<RealT> &z_out, const HDSA::Vector<RealT> &z_in) const
     {
-      HDSA::Ptr<HDSA::Vector<RealT>> z_tmp1 = z_in.clone();
-      HDSA::Ptr<HDSA::Vector<RealT>> z_tmp2 = z_in.clone();
+      HDSA::Ptr<HDSA::Vector<RealT>> z_tmp1 = z_in.Clone();
+      HDSA::Ptr<HDSA::Vector<RealT>> z_tmp2 = z_in.Clone();
       Apply_E_z(*z_tmp1, z_in);
       Apply_M_z_Inverse(*z_tmp2, *z_tmp1);
       Apply_E_z_Transpose(z_out, *z_tmp2);

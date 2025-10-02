@@ -88,7 +88,7 @@ namespace HDSA
 
     virtual void Apply_W_u_Acute_Plus_scalar_M_u_Inverse(HDSA::Vector<RealT> &u_out, const HDSA::Vector<RealT> &u_in, const RealT &scalar) const
     {
-      u_out.zeros();
+      u_out.Zeros();
       HDSA::Ptr<HDSA::Dense_Matrix<RealT>> c = sing_vecs_output_->MatVec(u_in);
       for (int k = 0; k < c->numRows(); k++)
       {
@@ -99,7 +99,7 @@ namespace HDSA
 
     virtual void Apply_W_u_Acute_Inverse(HDSA::Vector<RealT> &u_out, const HDSA::Vector<RealT> &u_in) const
     {
-      u_out.zeros();
+      u_out.Zeros();
       HDSA::Ptr<HDSA::Dense_Matrix<RealT>> c = sing_vecs_output_->MatVec(u_in);
       for (int k = 0; k < c->numRows(); k++)
       {
@@ -179,7 +179,7 @@ namespace HDSA
 
       void Generate_Random_Samples(HDSA::MultiVector<RealT> &samples) const
       {
-        samples.randomize_standard_normal();
+        samples.Randomize_Standard_Normal();
       }
     };
   };

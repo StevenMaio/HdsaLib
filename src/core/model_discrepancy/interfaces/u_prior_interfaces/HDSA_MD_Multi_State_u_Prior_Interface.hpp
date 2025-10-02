@@ -28,7 +28,7 @@ namespace HDSA
       for (int k = 0; k < num_components_; k++)
       {
         HDSA::Ptr<const HDSA::Vector<RealT>> u_in_k = data_interface_->Extract_State_Component(u_in, k, true);
-        HDSA::Ptr<HDSA::Vector<RealT>> u_out_k = u_in_k->clone();
+        HDSA::Ptr<HDSA::Vector<RealT>> u_out_k = u_in_k->Clone();
         u_prior_interface_std_[k]->Apply_M_u(*u_out_k, *u_in_k);
         data_interface_->Set_State_Component(u_out, *u_out_k, k, true);
       }
@@ -39,7 +39,7 @@ namespace HDSA
       for (int k = 0; k < num_components_; k++)
       {
         HDSA::Ptr<const HDSA::Vector<RealT>> u_in_k = data_interface_->Extract_State_Component(u_in, k, true);
-        HDSA::Ptr<HDSA::Vector<RealT>> u_out_k = u_in_k->clone();
+        HDSA::Ptr<HDSA::Vector<RealT>> u_out_k = u_in_k->Clone();
         u_prior_interface_std_[k]->Apply_W_u_Inverse(*u_out_k, *u_in_k);
         data_interface_->Set_State_Component(u_out, *u_out_k, k, true);
       }
@@ -50,7 +50,7 @@ namespace HDSA
       for (int k = 0; k < num_components_; k++)
       {
         HDSA::Ptr<const HDSA::Vector<RealT>> u_in_k = data_interface_->Extract_State_Component(u_in, k, true);
-        HDSA::Ptr<HDSA::Vector<RealT>> u_out_k = u_in_k->clone();
+        HDSA::Ptr<HDSA::Vector<RealT>> u_out_k = u_in_k->Clone();
         u_prior_interface_std_[k]->Apply_W_u_Plus_scalar_M_u_Inverse(*u_out_k, *u_in_k, scalar);
         data_interface_->Set_State_Component(u_out, *u_out_k, k, true);
       }

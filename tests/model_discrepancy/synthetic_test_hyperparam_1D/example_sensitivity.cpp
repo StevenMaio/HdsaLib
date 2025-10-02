@@ -83,13 +83,13 @@ int main(int argc, char *argv[])
 
   std::vector<HDSA::Ptr<HDSA::Vector<RealT>>> z_test;
   z_test.resize(3);
-  z_test[0] = prior_z_pert[0]->clone();
-  z_test[0]->set(*(*data_interface->get_Z())[0]);
-  z_test[1] = prior_z_pert[0]->clone();
-  z_test[1]->set(*(*data_interface->get_Z())[1]);
-  z_test[2] = prior_z_pert[0]->clone();
+  z_test[0] = prior_z_pert[0]->Clone();
+  z_test[0]->Set(*(*data_interface->get_Z())[0]);
+  z_test[1] = prior_z_pert[0]->Clone();
+  z_test[1]->Set(*(*data_interface->get_Z())[1]);
+  z_test[2] = prior_z_pert[0]->Clone();
   HDSA::Tpetra_Vector<RealT> ztest2_tpetra = dynamic_cast<HDSA::Tpetra_Vector<RealT> &>(*z_test[2]);
-  int m = prior_z_pert[0]->dimension();
+  int m = prior_z_pert[0]->Dimension();
   for (int k = 0; k < m; k++)
   {
     ztest2_tpetra.getVector()->replaceGlobalValue(k, 0, 1.5);

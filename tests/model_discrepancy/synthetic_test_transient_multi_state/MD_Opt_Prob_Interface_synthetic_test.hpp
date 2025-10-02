@@ -101,8 +101,8 @@ public:
     const HDSA::Tpetra_Vector<RealT> z_tpetra = dynamic_cast<const HDSA::Tpetra_Vector<RealT> &>(z);
     const HDSA::Tpetra_Vector<RealT> z_in_tpetra = dynamic_cast<const HDSA::Tpetra_Vector<RealT> &>(z_in);
     HDSA::Tpetra_Vector<RealT> z_out_tpetra = dynamic_cast<const HDSA::Tpetra_Vector<RealT> &>(z_out);
-    HDSA::Ptr<HDSA::Vector<RealT>> z_tmp1 = z_out.clone();
-    HDSA::Ptr<HDSA::Vector<RealT>> z_tmp2 = z_out.clone();
+    HDSA::Ptr<HDSA::Vector<RealT>> z_tmp1 = z_out.Clone();
+    HDSA::Ptr<HDSA::Vector<RealT>> z_tmp2 = z_out.Clone();
     HDSA::Tpetra_Vector<RealT> z_tmp1_tpetra = dynamic_cast<const HDSA::Tpetra_Vector<RealT> &>(*z_tmp1);
     HDSA::Tpetra_Vector<RealT> z_tmp2_tpetra = dynamic_cast<const HDSA::Tpetra_Vector<RealT> &>(*z_tmp2);
     Teuchos::ArrayRCP<const RealT> z_view = z_tpetra.getVector()->get1dView();
@@ -129,14 +129,14 @@ public:
     const HDSA::Tpetra_Vector<RealT> uf_tpetra = dynamic_cast<const HDSA::Tpetra_Vector<RealT> &>(*uf);
     Teuchos::ArrayRCP<const RealT> uf_view = uf_tpetra.getVector()->get1dView();
 
-    HDSA::Ptr<HDSA::Vector<RealT>> u_tmp1 = uf->clone();
+    HDSA::Ptr<HDSA::Vector<RealT>> u_tmp1 = uf->Clone();
     HDSA::Tpetra_Vector<RealT> u_tmp1_tpetra = dynamic_cast<HDSA::Tpetra_Vector<RealT> &>(*u_tmp1);
     for (int k = 0; k < n_y_; k++)
     {
       RealT val = uf_view[k] - std::pow(c_low_, n_t_) * std::pow((*x_)(k, 0) + 1.0, 3.0);
       u_tmp1_tpetra.getVector()->replaceGlobalValue(k, 0, val);
     }
-    HDSA::Ptr<HDSA::Vector<RealT>> u_tmp2 = uf->clone();
+    HDSA::Ptr<HDSA::Vector<RealT>> u_tmp2 = uf->Clone();
     M_sm_->Apply(*u_tmp2, *u_tmp1);
     const HDSA::Transient_Vector<RealT> u_grad_trans = dynamic_cast<const HDSA::Transient_Vector<RealT> &>(u_grad);
     HDSA::Ptr<HDSA::Vector<RealT>> uf_grad = u_grad_trans[n_t_ - 1];
@@ -148,7 +148,7 @@ public:
     const HDSA::Transient_Vector<RealT> u_in_trans = dynamic_cast<const HDSA::Transient_Vector<RealT> &>(u_in);
     HDSA::Ptr<HDSA::Vector<RealT>> uf_in = u_in_trans[n_t_ - 1];
     HDSA::Ptr<const HDSA::Vector<RealT>> u_in2 = data_interface_->Extract_State_Component(*uf_in, 1);
-    HDSA::Ptr<HDSA::Vector<RealT>> u_tmp = u_in2->clone();
+    HDSA::Ptr<HDSA::Vector<RealT>> u_tmp = u_in2->Clone();
     M_sm_->Apply(*u_tmp, *u_in2);
     const HDSA::Transient_Vector<RealT> u_out_trans = dynamic_cast<const HDSA::Transient_Vector<RealT> &>(u_out);
     HDSA::Ptr<HDSA::Vector<RealT>> uf_out = u_out_trans[n_t_ - 1];

@@ -18,7 +18,7 @@ namespace HDSA
     {
     }
 
-    // Constructor given matrix dimensions
+    // Constructor given matrix Dimensions
     Dense_Matrix(int m, int n)
     {
       A_ = HDSA::makePtr<Teuchos::SerialDenseMatrix<int, RealT>>(m, n);
@@ -77,7 +77,7 @@ namespace HDSA
       }
     }
 
-    void zeros(void)
+    void Zeros(void)
     {
       A_->putScalar(0.0);
     }

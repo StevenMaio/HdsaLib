@@ -31,7 +31,7 @@ namespace HDSA
         {
         }
 
-        HDSA::Ptr<HDSA::Sparse_Matrix<RealT>> clone(void) const
+        HDSA::Ptr<HDSA::Sparse_Matrix<RealT>> Clone(void) const
         {
             HDSA::Ptr<Tpetra::CrsMatrix<RealT, LO, GO, Node>> B = HDSA::makePtr<Tpetra::CrsMatrix<RealT, LO, GO, Node>>(*A_, Teuchos::Copy);
             HDSA::Ptr<HDSA::Sparse_Matrix<RealT>> B_sm = HDSA::makePtr<HDSA::Sparse_Matrix<RealT>>(B);
@@ -55,7 +55,7 @@ namespace HDSA
             A_->apply(*ex_in.getVector(), *ex_out.getVector());
         }
 
-        void set(HDSA::Sparse_Matrix<RealT> &B)
+        void Set(HDSA::Sparse_Matrix<RealT> &B)
         {
             // Prepare A for updates
             A_->resumeFill();

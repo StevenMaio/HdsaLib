@@ -94,8 +94,8 @@ public:
     const HDSA::Tpetra_Vector<RealT> z_tpetra = dynamic_cast<const HDSA::Tpetra_Vector<RealT> &>(z);
     const HDSA::Tpetra_Vector<RealT> z_in_tpetra = dynamic_cast<const HDSA::Tpetra_Vector<RealT> &>(z_in);
     HDSA::Tpetra_Vector<RealT> z_out_tpetra = dynamic_cast<const HDSA::Tpetra_Vector<RealT> &>(z_out);
-    HDSA::Ptr<HDSA::Vector<RealT>> z_tmp1 = z_out.clone();
-    HDSA::Ptr<HDSA::Vector<RealT>> z_tmp2 = z_out.clone();
+    HDSA::Ptr<HDSA::Vector<RealT>> z_tmp1 = z_out.Clone();
+    HDSA::Ptr<HDSA::Vector<RealT>> z_tmp2 = z_out.Clone();
     HDSA::Tpetra_Vector<RealT> z_tmp1_tpetra = dynamic_cast<const HDSA::Tpetra_Vector<RealT> &>(*z_tmp1);
     HDSA::Tpetra_Vector<RealT> z_tmp2_tpetra = dynamic_cast<const HDSA::Tpetra_Vector<RealT> &>(*z_tmp2);
     Teuchos::ArrayRCP<const RealT> z_view = z_tpetra.getVector()->get1dView();
@@ -118,7 +118,7 @@ public:
   void Misfit_Gradient(HDSA::Vector<RealT> &u_grad, const HDSA::Vector<RealT> &u, const HDSA::Vector<RealT> &z) const
   {
     const HDSA::Tpetra_Vector<RealT> u_tpetra = dynamic_cast<const HDSA::Tpetra_Vector<RealT> &>(u);
-    HDSA::Ptr<HDSA::Vector<RealT>> u_tmp1 = u_grad.clone();
+    HDSA::Ptr<HDSA::Vector<RealT>> u_tmp1 = u_grad.Clone();
     HDSA::Tpetra_Vector<RealT> u_tmp1_tpetra = dynamic_cast<const HDSA::Tpetra_Vector<RealT> &>(*u_tmp1);
     Teuchos::ArrayRCP<const RealT> u_view = u_tpetra.getVector()->get1dView();
     for (int k = 0; k < m_; k++)

@@ -22,7 +22,7 @@
     where \f$f_n:\mathcal{U}\times\mathcal{U}\times\mathcal{Z}\to\mathbb{R}\f$,
     and \f$u_n\in\mathcal{U}\f$ solves the system of equations
     \f[
-       c_n(u_{n-1},u_n,z_n) = 0,\quad n=1,\ldots,N_t
+       c_n(u_{n-1},u_n,z_n) = 0,\quad n=1,\lDots,N_t
     \f]
     with \f$u_0\f$ provided.
 
@@ -164,7 +164,7 @@ public:
   Real value( const Vector<Real> &x, Real &tol ) {
     if (!isValueComputed_) {
       const Real one(1);
-      // Set initial condition
+      // set initial condition
       uhist_[0]->set(*u0_);
       if (useSketch_) {
         stateSketch_->update();
@@ -308,7 +308,7 @@ public:
                          v,        *whist_[uindex-1],
                          *uhist_[uindex-1], *uhist_[uindex],
                          x,        timeStamp_[k-1]);
-        // Set control only Hessian
+        // set control only Hessian
         computeControlHessLag(*hvc,
                               v,        *lhist_[lindex],
                               *uhist_[uindex-1], *uhist_[uindex],
@@ -438,7 +438,7 @@ private:
   void solveState(const Vector<Real> &x) {
     if (!isStateComputed_) {
       const Real one(1);
-      // Set initial condition
+      // set initial condition
       uhist_[0]->set(*u0_);
       if (useSketch_) {
         //stateSketch_->advance(one,*uhist_[0],0,one);

@@ -26,15 +26,15 @@ public:
   {
     u_current_ = u_vec->clone();
     lambda_current_ = u_vec->clone();
-    z_current_ = z_vec->clone();
-    theta_current_ = theta_vec->clone();
+    z_current_ = z_vec->Clone();
+    theta_current_ = theta_vec->Clone();
 
     if (fd_check)
     {
-      HDSA::Ptr<HDSA::Vector<RealT>> z = z_vec->clone();
-      z->randomize_standard_normal();
-      HDSA::Ptr<HDSA::Vector<RealT>> theta = theta_vec->clone();
-      theta->randomize_standard_normal();
+      HDSA::Ptr<HDSA::Vector<RealT>> z = z_vec->Clone();
+      z->Randomize_Standard_Normal();
+      HDSA::Ptr<HDSA::Vector<RealT>> theta = theta_vec->Clone();
+      theta->Randomize_Standard_Normal();
       Finite_Difference_Checks(*z, *theta);
     }
   }
@@ -45,20 +45,20 @@ public:
 
   void Update(const HDSA::Vector<RealT> &z, const HDSA::Vector<RealT> &theta) const
   {
-    HDSA::Ptr<HDSA::Vector<RealT>> z_tmp = z_current_->clone();
-    z_tmp->set(z);
+    HDSA::Ptr<HDSA::Vector<RealT>> z_tmp = z_current_->Clone();
+    z_tmp->Set(z);
     z_tmp->axpy(-1.0, *z_current_);
-    HDSA::Ptr<HDSA::Vector<RealT>> theta_tmp = theta_current_->clone();
-    theta_tmp->set(theta);
+    HDSA::Ptr<HDSA::Vector<RealT>> theta_tmp = theta_current_->Clone();
+    theta_tmp->Set(theta);
     theta_tmp->axpy(-1.0, *theta_current_);
-    RealT val = z_tmp->norm() + theta_tmp->norm();
+    RealT val = z_tmp->Norm() + theta_tmp->Norm();
     if (val > 0.0)
     {
       const HDSA::ROL_Vector<RealT> &z_rol = dynamic_cast<const HDSA::ROL_Vector<RealT> &>(z);
       const HDSA::Std_Vector<RealT> &theta_std = dynamic_cast<const HDSA::Std_Vector<RealT> &>(theta);
       con_->setParameter(*theta_std.get_std_vec());
-      z_current_->set(z);
-      theta_current_->set(theta);
+      z_current_->Set(z);
+      theta_current_->Set(theta);
 
       RealT tol = 1.e-14;
       ROL::Ptr<ROL::Vector<RealT>> c = u_current_->clone();
@@ -163,19 +163,19 @@ public:
   void Finite_Difference_Gradient(HDSA::Vector<RealT> &z, HDSA::Vector<RealT> &theta) const
   {
     RealT val = Value(z, theta);
-    HDSA::Ptr<HDSA::Vector<RealT>> dz = z.clone();
-    dz->randomize_standard_normal();
-    HDSA::Ptr<HDSA::Vector<RealT>> grad = z.clone();
+    HDSA::Ptr<HDSA::Vector<RealT>> dz = z.Clone();
+    dz->Randomize_Standard_Normal();
+    HDSA::Ptr<HDSA::Vector<RealT>> grad = z.Clone();
     Gradient(*grad, z, theta);
-    RealT true_grad = grad->dot(*dz);
-    HDSA::Ptr<HDSA::Vector<RealT>> z_pert = z.clone();
+    RealT true_grad = grad->Dot(*dz);
+    HDSA::Ptr<HDSA::Vector<RealT>> z_pert = z.Clone();
     int n = 6;
     std::vector<RealT> grad_fd = std::vector<RealT>(n);
     std::vector<RealT> fd_error = std::vector<RealT>(n);
     for (int k = 0; k < n; k++)
     {
       RealT h = std::pow(10.0, static_cast<RealT>(-k - 1));
-      z_pert->set(z);
+      z_pert->Set(z);
       z_pert->axpy(h, *dz);
       RealT val_pert = Value(*z_pert, theta);
       grad_fd[k] = (val_pert - val) / h;
@@ -186,54 +186,54 @@ public:
 
   void Finite_Difference_Hessian(HDSA::Vector<RealT> &z, HDSA::Vector<RealT> &theta) const
   {
-    HDSA::Ptr<HDSA::Vector<RealT>> hv = z.clone();
-    HDSA::Ptr<HDSA::Vector<RealT>> v = z.clone();
-    v->randomize_standard_normal();
+    HDSA::Ptr<HDSA::Vector<RealT>> hv = z.Clone();
+    HDSA::Ptr<HDSA::Vector<RealT>> v = z.Clone();
+    v->Randomize_Standard_Normal();
 
-    HDSA::Ptr<HDSA::Vector<RealT>> grad = z.clone();
+    HDSA::Ptr<HDSA::Vector<RealT>> grad = z.Clone();
     Gradient(*grad, z, theta);
     Apply_Hessian(*hv, *v, z, theta);
 
-    HDSA::Ptr<HDSA::Vector<RealT>> z_pert = z.clone();
-    HDSA::Ptr<HDSA::Vector<RealT>> grad_pert = z.clone();
+    HDSA::Ptr<HDSA::Vector<RealT>> z_pert = z.Clone();
+    HDSA::Ptr<HDSA::Vector<RealT>> grad_pert = z.Clone();
     int n = 6;
     std::vector<RealT> fd_error = std::vector<RealT>(n);
     for (int k = 0; k < n; k++)
     {
       RealT h = std::pow(10.0, static_cast<RealT>(-k - 1));
-      z_pert->set(z);
+      z_pert->Set(z);
       z_pert->axpy(h, *v);
-      grad_pert->setScalar(0.0);
+      grad_pert->Set_Scalar(0.0);
       Gradient(*grad_pert, *z_pert, theta);
       grad_pert->axpy(-1.0, *grad);
-      fd_error[k] = grad_pert->norm();
+      fd_error[k] = grad_pert->Norm();
       std::cout << "Step size = " << h << " and Hessian FD error = " << fd_error[k] << std::endl;
     }
   }
 
   void Finite_Difference_B(HDSA::Vector<RealT> &z, HDSA::Vector<RealT> &theta) const
   {
-    HDSA::Ptr<HDSA::Vector<RealT>> hv = z.clone();
-    HDSA::Ptr<HDSA::Vector<RealT>> v = theta.clone();
-    v->randomize_standard_normal();
+    HDSA::Ptr<HDSA::Vector<RealT>> hv = z.Clone();
+    HDSA::Ptr<HDSA::Vector<RealT>> v = theta.Clone();
+    v->Randomize_Standard_Normal();
 
-    HDSA::Ptr<HDSA::Vector<RealT>> grad = z.clone();
+    HDSA::Ptr<HDSA::Vector<RealT>> grad = z.Clone();
     Gradient(*grad, z, theta);
     Apply_B(*hv, *v, z, theta);
 
-    HDSA::Ptr<HDSA::Vector<RealT>> theta_pert = theta.clone();
-    HDSA::Ptr<HDSA::Vector<RealT>> grad_pert = z.clone();
+    HDSA::Ptr<HDSA::Vector<RealT>> theta_pert = theta.Clone();
+    HDSA::Ptr<HDSA::Vector<RealT>> grad_pert = z.Clone();
     int n = 6;
     std::vector<RealT> fd_error = std::vector<RealT>(n);
     for (int k = 0; k < n; k++)
     {
       RealT h = std::pow(10.0, static_cast<RealT>(-k - 1));
-      theta_pert->set(theta);
+      theta_pert->Set(theta);
       theta_pert->axpy(h, *v);
-      grad_pert->setScalar(0.0);
+      grad_pert->Set_Scalar(0.0);
       Gradient(*grad_pert, z, *theta_pert);
       grad_pert->axpy(-1.0, *grad);
-      fd_error[k] = grad_pert->norm();
+      fd_error[k] = grad_pert->Norm();
       std::cout << "Step size = " << h << " and B FD error = " << fd_error[k] << std::endl;
     }
   }

@@ -106,11 +106,11 @@ namespace HDSA
     void Sample_with_Covariance_W_z_Acute_Inverse(HDSA::MultiVector<RealT> &samples) const override
     {
       int num_samps = samples.Number_of_Vectors();
-      HDSA::Ptr<HDSA::Vector<RealT>> omega = samples[0]->clone();
+      HDSA::Ptr<HDSA::Vector<RealT>> omega = samples[0]->Clone();
       for (int k = 0; k < num_samps; k++)
       {
         HDSA::Ptr<HDSA::Vector<RealT>> vec = samples[k];
-        omega->randomize_standard_normal();
+        omega->Randomize_Standard_Normal();
 
         HDSA::Ptr<HDSA::Dense_Matrix<RealT>> b = HDSA::makePtr<HDSA::Dense_Matrix<RealT>>(n_t_, num_controls_);
         HDSA::Ptr<HDSA::Dense_Matrix<RealT>> x = HDSA::makePtr<HDSA::Dense_Matrix<RealT>>(n_t_, num_controls_);

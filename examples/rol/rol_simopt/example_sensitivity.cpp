@@ -78,7 +78,7 @@ int main(int argc, char *argv[])
   int num_sing_vals = parlist->sublist("MD Prior").get("Number of Singular Values", m);
   int oversampling = parlist->sublist("MD Prior").get("Oversampling Factor", 10);
   int num_subspace_iters = parlist->sublist("MD Prior").get("Number of Subspace Iterations", 1);
-  HDSA::Ptr<HDSA::Vector<RealT>> u_vec = data_interface->get_u_opt()->clone();
+  HDSA::Ptr<HDSA::Vector<RealT>> u_vec = data_interface->get_u_opt()->Clone();
   HDSA::Ptr<HDSA::MD_Elliptic_u_Prior_Interface<RealT>> elliptic_u_prior_interface = HDSA::dynamicPtrCast<HDSA::MD_Elliptic_u_Prior_Interface<RealT>>(u_prior_interface);
   elliptic_u_prior_interface->Compute_E_u_Inverse_GSVD(num_sing_vals, oversampling, num_subspace_iters, *u_vec);
 
@@ -127,11 +127,11 @@ int main(int argc, char *argv[])
 
   std::vector<HDSA::Ptr<HDSA::Vector<RealT>>> z_test2;
   z_test2.resize(3);
-  z_test2[0] = z0->clone();
-  z_test2[0]->set(*(*data_interface->get_Z())[0]);
-  z_test2[1] = z0->clone();
-  z_test2[1]->set(*(*data_interface->get_Z())[1]);
-  z_test2[2] = z0->clone();
+  z_test2[0] = z0->Clone();
+  z_test2[0]->Set(*(*data_interface->get_Z())[0]);
+  z_test2[1] = z0->Clone();
+  z_test2[1]->Set(*(*data_interface->get_Z())[1]);
+  z_test2[2] = z0->Clone();
   HDSA::Ptr<HDSA::ROL_Vector<RealT>> ztest2_rol = HDSA::dynamicPtrCast<HDSA::ROL_Vector<RealT>>(z_test2[2]);
   ROL::StdVector<RealT> ztest2_std = dynamic_cast<ROL::StdVector<RealT> &>(*ztest2_rol->rol_vec);
   for (int k = 0; k < m; k++)

@@ -14,7 +14,7 @@
 #include <cmath>
 
 // Defines the porous media flow PDE
-// -\nabla \cdot (\kappa * \nabla u) = z
+// -\nabla \cDot (\kappa * \nabla u) = z
 // where u is the state, z is the source, and \kappa is the permeability
 
 template <class Real>
@@ -300,7 +300,7 @@ public:
     bdryCellLocIds_ = bdryCellLocIds;
     // Finite element definition.
     fe_vol_ = ROL::makePtr<FE<Real>>(volCellNodes_, basisPtr_, cellCub_);
-    // Set local boundary DOFs.
+    // set local boundary DOFs.
     fidx_ = fe_vol_->getBoundaryDofs();
     // Compute Dirichlet values at DOFs.
     int d = basisPtr_->getBaseCellTopology().getDimension();

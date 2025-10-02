@@ -16,8 +16,8 @@ private:
 public:
   PC_Sensitivity_Operator_Interface_shallow_ice(HDSA::Ptr<ROL::Objective<RealT>> &robj, HDSA::Ptr<HDSA::Vector<RealT>> &z_vec, HDSA::Ptr<HDSA::Vector<RealT>> theta_vec) : robj_(robj)
   {
-    z_current_ = z_vec->clone();
-    theta_current_ = theta_vec->clone();
+    z_current_ = z_vec->Clone();
+    theta_current_ = theta_vec->Clone();
   }
 
   virtual ~PC_Sensitivity_Operator_Interface_shallow_ice()
@@ -26,19 +26,19 @@ public:
 
   void Update(const HDSA::Vector<RealT> &z, const HDSA::Vector<RealT> &theta) const
   {
-    HDSA::Ptr<HDSA::Vector<RealT>> z_tmp = z_current_->clone();
-    z_tmp->set(z);
+    HDSA::Ptr<HDSA::Vector<RealT>> z_tmp = z_current_->Clone();
+    z_tmp->Set(z);
     z_tmp->axpy(-1.0, *z_current_);
-    HDSA::Ptr<HDSA::Vector<RealT>> theta_tmp = theta_current_->clone();
-    theta_tmp->set(theta);
+    HDSA::Ptr<HDSA::Vector<RealT>> theta_tmp = theta_current_->Clone();
+    theta_tmp->Set(theta);
     theta_tmp->axpy(-1.0, *theta_current_);
-    RealT val = z_tmp->norm() + theta_tmp->norm();
+    RealT val = z_tmp->Norm() + theta_tmp->Norm();
     if (val > 0.0)
     {
       const HDSA::Std_Vector<RealT> &theta_std = dynamic_cast<const HDSA::Std_Vector<RealT> &>(theta);
       robj_->setParameter(*theta_std.get_std_vec());
-      z_current_->set(z);
-      theta_current_->set(theta);
+      z_current_->Set(z);
+      theta_current_->Set(theta);
     }
   }
 
@@ -77,22 +77,22 @@ public:
     RealT tol = 1.e-8;
     const HDSA::ROL_Vector<RealT> &z_rol = dynamic_cast<const HDSA::ROL_Vector<RealT> &>(z);
     HDSA::ROL_Vector<RealT> &z_out_rol = dynamic_cast<HDSA::ROL_Vector<RealT> &>(z_out);
-    HDSA::Ptr<HDSA::Vector<RealT>> grad_nom = z_out.clone();
+    HDSA::Ptr<HDSA::Vector<RealT>> grad_nom = z_out.Clone();
     HDSA::ROL_Vector<RealT> &grad_nom_rol = dynamic_cast<HDSA::ROL_Vector<RealT> &>(*grad_nom);
 
     Update(z, theta);
     robj_->gradient(*grad_nom_rol.rol_vec, *z_rol.rol_vec, tol);
 
     RealT h = 1.e-4;
-    HDSA::Ptr<HDSA::Vector<RealT>> theta_pert = theta.clone();
-    theta_pert->set(theta);
+    HDSA::Ptr<HDSA::Vector<RealT>> theta_pert = theta.Clone();
+    theta_pert->Set(theta);
     theta_pert->axpy(h, theta_in);
 
     Update(z, *theta_pert);
     robj_->gradient(*z_out_rol.rol_vec, *z_rol.rol_vec, tol);
 
     z_out.axpy(-1.0, *grad_nom);
-    z_out.scale(1.0 / h);
+    z_out.Scale(1.0 / h);
 
     // auto end = std::chrono::high_resolution_clock::now();
     // auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);

@@ -226,7 +226,7 @@ public:
     }
   }
 
-  /** \brief Set solve parameters.
+  /** \brief set solve parameters.
 
              @param[in]       parlist   ParameterList containing solve parameters
 
@@ -238,7 +238,7 @@ public:
                 - "Sufficient Decrease Tolerance": Tolerance signifying sufficient decrease in the residual norm, between 0 and 1 (Real)
                 - "Step Tolerance": Absolute tolerance for the step size parameter (Real)
                 - "Backtracking Factor": Rate for decreasing step size during backtracking, between 0 and 1 (Real)
-                - "Output Iteration History": Set to true in order to print solve iteration history (bool)
+                - "Output Iteration History": set to true in order to print solve iteration history (bool)
                 - "Zero Initial Guess": Use a vector of zeros as an initial guess for the solve (bool)
                 - "Solver Type": Determine which solver to use (0: Newton with line search, 1: Levenberg-Marquardt, 2: SQP) (int)
 

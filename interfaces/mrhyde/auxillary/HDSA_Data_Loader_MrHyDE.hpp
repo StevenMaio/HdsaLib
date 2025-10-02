@@ -143,10 +143,10 @@ public:
       }
     }
 
-    int index_normalization = 1;
+    int index_Normalization = 1;
     if (!load_state)
     {
-      index_normalization = state_vars.size();
+      index_Normalization = state_vars.size();
       if (opt_vars.size() > 1)
       {
         HDSA_TEST_FOR_EXCEPTION(true, std::logic_error,
@@ -173,7 +173,7 @@ public:
           {
             for (int i = 0; i < nDOF(n_var); i++)
             {
-              index = LIDs[0](p, offsets(n_var, i)) / index_normalization;
+              index = LIDs[0](p, offsets(n_var, i)) / index_Normalization;
               dindex = connect[e * num_node_per_el + i] - 1;
               vec_over_kv(index, 0) = nfield_vals[n][dindex];
             }

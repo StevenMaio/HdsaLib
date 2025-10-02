@@ -23,7 +23,7 @@
 typedef double RealT;
 
 template <class RealT>
-void Set_perm(HDSA::Ptr<Tpetra::MultiVector<>> &z_ptr)
+void set_perm(HDSA::Ptr<Tpetra::MultiVector<>> &z_ptr)
 {
   int num_coeff_load = z_ptr->getGlobalLength();
   // read in data
@@ -46,7 +46,7 @@ void Set_perm(HDSA::Ptr<Tpetra::MultiVector<>> &z_ptr)
 }
 
 template <class RealT>
-void Set_Parameters(std::vector<RealT> &param)
+void set_Parameters(std::vector<RealT> &param)
 {
   int theta_dim = param.size();
 
@@ -100,9 +100,9 @@ int main(int argc, char *argv[])
   HDSA::Ptr<Assembler<RealT>> assembler = pdecon->getAssembler();
   assembler->printMeshData(*outStream);
 
-  int theta_modes = parlist->sublist("Problem").get("Uncertain Modes per Dimension", 1);
+  int theta_modes = parlist->sublist("Problem").get("Uncertain Modes per dimension", 1);
   std::vector<RealT> param = std::vector<RealT>(std::pow(theta_modes, 2), 0.0);
-  Set_Parameters<RealT>(param);
+  set_Parameters<RealT>(param);
   pdecon->setParameter(param);
   con->setSolveParameters(*parlist);
 
@@ -123,7 +123,7 @@ int main(int argc, char *argv[])
   z_ptr = assembler->createControlVector();
   zp = HDSA::makePtr<PDE_PrimalOptVector<RealT>>(z_ptr, pde, assembler, *parlist);
 
-  Set_perm<RealT>(z_ptr);
+  set_perm<RealT>(z_ptr);
   RealT tol = 1.e-8;
   con->solve(*pp, *up, *zp, tol);
 

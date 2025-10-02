@@ -12,55 +12,55 @@ public:
   Teuchos::RCP<Tpetra::CrsMatrix<ScalarT, LO, GO, Node>> M;
   Teuchos::RCP<Tpetra::CrsMatrix<ScalarT, LO, GO, Node>> S;
 
-  Prior_Operators_Interface_MrHyDE(Teuchos::RCP<Teuchos::MpiComm<int>> &comm, Teuchos::RCP<Teuchos::ParameterList> &settings, std::vector<string> &blockNames)
+  Prior_Operators_Interface_MrHyDE(Teuchos::RCP<Teuchos::MpiComm<int>> &comm, Teuchos::RCP<Teuchos::ParameterList> &Settings, std::vector<string> &blockNames)
   {
-    Teuchos::RCP<Teuchos::ParameterList> settings_prior = HDSA::makePtr<Teuchos::ParameterList>(*settings);
-    settings_prior->remove("Physics");
-    settings_prior->sublist("Physics").set("modules", "ellipticPrior");
-    settings_prior->sublist("Solver").set("solver", "steady-state");
-    settings_prior->sublist("Solver").set("matrix free", true);
-    settings_prior->remove("Analysis");
-    settings_prior->sublist("Analysis").set("Analysis type", "forward");
-    settings_prior->remove("Functions");
-    settings_prior->sublist("Functions").set("ellipticPrior diffusion", "0.0");
-    settings_prior->sublist("Functions").set("ellipticPrior reaction", "1.0");
-    settings_prior->sublist("Functions").set("specific heat", "0.0");
-    settings_prior->remove("Postprocess");
-    settings_prior->sublist("Postprocess").set("write solution", false);
-    settings_prior->sublist("Postprocess").set("create optimization movie", false);
+    Teuchos::RCP<Teuchos::ParameterList> Settings_prior = HDSA::makePtr<Teuchos::ParameterList>(*Settings);
+    Settings_prior->remove("Physics");
+    Settings_prior->sublist("Physics").set("modules", "ellipticPrior");
+    Settings_prior->sublist("Solver").set("solver", "steady-state");
+    Settings_prior->sublist("Solver").set("matrix free", true);
+    Settings_prior->remove("Analysis");
+    Settings_prior->sublist("Analysis").set("Analysis type", "forward");
+    Settings_prior->remove("Functions");
+    Settings_prior->sublist("Functions").set("ellipticPrior diffusion", "0.0");
+    Settings_prior->sublist("Functions").set("ellipticPrior reaction", "1.0");
+    Settings_prior->sublist("Functions").set("specific heat", "0.0");
+    Settings_prior->remove("Postprocess");
+    Settings_prior->sublist("Postprocess").set("write solution", false);
+    Settings_prior->sublist("Postprocess").set("create optimization movie", false);
 
-    M = Instantiate_Prior_Operators(comm, settings_prior, blockNames);
-    settings_prior->sublist("Functions").set("ellipticPrior diffusion", "1.0");
-    settings_prior->sublist("Functions").set("ellipticPrior reaction", "0.0");
-    S = Instantiate_Prior_Operators(comm, settings_prior, blockNames);
+    M = Instantiate_Prior_Operators(comm, Settings_prior, blockNames);
+    Settings_prior->sublist("Functions").set("ellipticPrior diffusion", "1.0");
+    Settings_prior->sublist("Functions").set("ellipticPrior reaction", "0.0");
+    S = Instantiate_Prior_Operators(comm, Settings_prior, blockNames);
   }
 
   virtual ~Prior_Operators_Interface_MrHyDE()
   {
   }
 
-  Teuchos::RCP<Tpetra::CrsMatrix<ScalarT, LO, GO, Node>> Instantiate_Prior_Operators(Teuchos::RCP<Teuchos::MpiComm<int>> comm, Teuchos::RCP<Teuchos::ParameterList> &settings, std::vector<string> &blockNames)
+  Teuchos::RCP<Tpetra::CrsMatrix<ScalarT, LO, GO, Node>> Instantiate_Prior_Operators(Teuchos::RCP<Teuchos::MpiComm<int>> comm, Teuchos::RCP<Teuchos::ParameterList> &Settings, std::vector<string> &blockNames)
   {
 
-    Teuchos::RCP<MrHyDE::MeshInterface> mesh = Teuchos::rcp(new MrHyDE::MeshInterface(settings, comm));
+    Teuchos::RCP<MrHyDE::MeshInterface> mesh = Teuchos::rcp(new MrHyDE::MeshInterface(Settings, comm));
 
-    Teuchos::RCP<MrHyDE::PhysicsInterface> physics = Teuchos::rcp(new MrHyDE::PhysicsInterface(settings, comm,
+    Teuchos::RCP<MrHyDE::PhysicsInterface> physics = Teuchos::rcp(new MrHyDE::PhysicsInterface(Settings, comm,
                                                                                                mesh->getBlockNames(),
                                                                                                mesh->getSideNames(),
                                                                                                mesh->getDimension()));
 
     mesh->finalize(physics->getVarList(), physics->getVarTypes(), physics->getDerivedList());
 
-    Teuchos::RCP<MrHyDE::DiscretizationInterface> disc = Teuchos::rcp(new MrHyDE::DiscretizationInterface(settings, comm,
+    Teuchos::RCP<MrHyDE::DiscretizationInterface> disc = Teuchos::rcp(new MrHyDE::DiscretizationInterface(Settings, comm,
                                                                                                           mesh, physics));
 
-    Teuchos::RCP<MrHyDE::ParameterManager<SolverNode>> params = Teuchos::rcp(new MrHyDE::ParameterManager<SolverNode>(comm, settings, mesh, physics, disc));
+    Teuchos::RCP<MrHyDE::ParameterManager<SolverNode>> params = Teuchos::rcp(new MrHyDE::ParameterManager<SolverNode>(comm, Settings, mesh, physics, disc));
 
-    Teuchos::RCP<MrHyDE::AssemblyManager<SolverNode>> assembler = Teuchos::rcp(new MrHyDE::AssemblyManager<SolverNode>(comm, settings, mesh, disc, physics, params));
+    Teuchos::RCP<MrHyDE::AssemblyManager<SolverNode>> assembler = Teuchos::rcp(new MrHyDE::AssemblyManager<SolverNode>(comm, Settings, mesh, disc, physics, params));
 
     assembler->setMeshData();
 
-    Teuchos::RCP<MrHyDE::MultiscaleManager> multiscale_manager = Teuchos::rcp(new MrHyDE::MultiscaleManager(comm, mesh, settings,
+    Teuchos::RCP<MrHyDE::MultiscaleManager> multiscale_manager = Teuchos::rcp(new MrHyDE::MultiscaleManager(comm, mesh, Settings,
                                                                                                             assembler->groups,
 #ifndef MrHyDE_NO_AD
                                                                                                             assembler->function_managers_AD));
@@ -69,12 +69,12 @@ public:
 #endif
 
     Teuchos::RCP<MrHyDE::PostprocessManager<SolverNode>>
-        postproc = Teuchos::rcp(new MrHyDE::PostprocessManager<SolverNode>(comm, settings, mesh,
+        postproc = Teuchos::rcp(new MrHyDE::PostprocessManager<SolverNode>(comm, Settings, mesh,
                                                                            disc, physics,
                                                                            multiscale_manager,
                                                                            assembler, params));
 
-    Teuchos::RCP<MrHyDE::SolverManager<SolverNode>> solve = Teuchos::rcp(new MrHyDE::SolverManager<SolverNode>(comm, settings, mesh, disc, physics, assembler, params));
+    Teuchos::RCP<MrHyDE::SolverManager<SolverNode>> solve = Teuchos::rcp(new MrHyDE::SolverManager<SolverNode>(comm, Settings, mesh, disc, physics, assembler, params));
 
     solve->multiscale_manager = multiscale_manager;
     assembler->multiscale_manager = multiscale_manager;

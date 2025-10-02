@@ -23,19 +23,19 @@ int main(int argc, char *argv[])
   HDSA::Ptr<Rosenbrock<RealT>> rosenbrock = HDSA::makePtr<Rosenbrock<RealT>>(d);
 
   HDSA::Ptr<HDSA::Vector<RealT>> z_bar = HDSA::makePtr<HDSA::Std_Vector<RealT>>(d, comm);
-  z_bar->setScalar(1.0);
+  z_bar->Set_Scalar(1.0);
   HDSA::Ptr<HDSA::Vector<RealT>> theta_bar = HDSA::makePtr<HDSA::Std_Vector<RealT>>(d - 1, comm);
-  theta_bar->setScalar(1.0);
+  theta_bar->Set_Scalar(1.0);
 
   HDSA::Ptr<HDSA::PC_Sensitivity_Operator_Interface<RealT>> sen_op = HDSA::makePtr<PC_Sensitivity_Operator_Interface_Rosenbrock<RealT>>(rosenbrock);
   HDSA::Ptr<HDSA::PC_Quasi_Newton_Preconditioner<RealT>> qn_prec = HDSA::makePtr<HDSA::PC_Quasi_Newton_Preconditioner<RealT>>();
   HDSA::Ptr<HDSA::PC_Pseudo_Time_Continuation<RealT>> sen = HDSA::makePtr<HDSA::PC_Pseudo_Time_Continuation<RealT>>(z_bar, theta_bar, sen_op, qn_prec);
 
-  HDSA::Ptr<HDSA::Vector<RealT>> theta_star = theta_bar->clone();
-  theta_star->setScalar(1.2);
+  HDSA::Ptr<HDSA::Vector<RealT>> theta_star = theta_bar->Clone();
+  theta_star->Set_Scalar(1.2);
 
-  HDSA::Ptr<HDSA::Vector<RealT>> z_star = z_bar->clone();
-  HDSA::Ptr<HDSA::Vector<RealT>> grad_star = z_bar->clone();
+  HDSA::Ptr<HDSA::Vector<RealT>> z_star = z_bar->Clone();
+  HDSA::Ptr<HDSA::Vector<RealT>> grad_star = z_bar->Clone();
   int N = 30;
   sen->Pseudo_Time_Continuation_Modified_Euler(*z_star, *grad_star, *theta_star, N);
 

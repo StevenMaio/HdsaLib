@@ -76,7 +76,7 @@ int main(int argc, char *argv[])
   HDSA::Std_Vector<RealT> z0_std = dynamic_cast<HDSA::Std_Vector<RealT> &>(*z0);
   HDSA::Std_Vector<RealT> z1_std = dynamic_cast<HDSA::Std_Vector<RealT> &>(*z1);
   HDSA::Std_Vector<RealT> z2_std = dynamic_cast<HDSA::Std_Vector<RealT> &>(*z2);
-  int m = z0->dimension();
+  int m = z0->Dimension();
   HDSA::Ptr<HDSA::Dense_Matrix<RealT>> x = HDSA::makePtr<HDSA::Dense_Matrix<RealT>>(m, 1);
   for (int k = 0; k < m; k++)
   {
@@ -107,11 +107,11 @@ int main(int argc, char *argv[])
 
   std::vector<HDSA::Ptr<HDSA::Vector<RealT>>> z_test;
   z_test.resize(3);
-  z_test[0] = z0->clone();
-  z_test[0]->set(*(*data_interface->get_Z())[0]);
-  z_test[1] = z0->clone();
-  z_test[1]->set(*(*data_interface->get_Z())[1]);
-  z_test[2] = z0->clone();
+  z_test[0] = z0->Clone();
+  z_test[0]->Set(*(*data_interface->get_Z())[0]);
+  z_test[1] = z0->Clone();
+  z_test[1]->Set(*(*data_interface->get_Z())[1]);
+  z_test[2] = z0->Clone();
   HDSA::Std_Vector<RealT> ztest2_std = dynamic_cast<HDSA::Std_Vector<RealT> &>(*z_test[2]);
   for (int k = 0; k < m; k++)
   {

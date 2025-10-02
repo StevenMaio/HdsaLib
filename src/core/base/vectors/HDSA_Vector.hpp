@@ -24,21 +24,21 @@ namespace HDSA
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     // Clone the vector
-    virtual HDSA::Ptr<HDSA::Vector<RealT>> clone() const = 0;
+    virtual HDSA::Ptr<HDSA::Vector<RealT>> Clone() const = 0;
 
-    // compute the dot product of this and x
-    virtual RealT dot(const HDSA::Vector<RealT> &x) const = 0;
+    // compute the Dot product of this and x
+    virtual RealT Dot(const HDSA::Vector<RealT> &x) const = 0;
 
     // add alpha*x to this
     virtual void axpy(const RealT alpha, const HDSA::Vector<RealT> &x) = 0;
 
-    // return vector dimension
-    virtual int dimension() const = 0;
+    // return vector Dimension
+    virtual int Dimension() const = 0;
 
-    // set this=val elementwise
-    virtual void setScalar(const RealT val) = 0;
+    // Set this=val elementwise
+    virtual void Set_Scalar(const RealT val) = 0;
 
-    virtual void randomize_standard_normal() = 0;
+    virtual void Randomize_Standard_Normal() = 0;
 
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // Virtual functions available for convienence when useful, these are not called within HdsaLib but rather are for the user to call from main rather than going through casts
@@ -68,34 +68,34 @@ namespace HDSA
     // Implementations using the pure virtual functions above, may be overloaded if an efficiency gain is possible
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    // scale this by val
-    virtual void scale(const RealT val)
+    // Scale this by val
+    virtual void Scale(const RealT val)
     {
       this->axpy(val - 1.0, *this);
     }
 
-    // set this=0
-    virtual void zeros(void)
+    // Set this=0
+    virtual void Zeros(void)
     {
-      this->setScalar(0.0);
+      this->Set_Scalar(0.0);
     }
 
-    // compute the norm of this
-    virtual RealT norm(void) const
+    // compute the Norm of this
+    virtual RealT Norm(void) const
     {
-      return std::sqrt(this->dot(*this));
+      return std::sqrt(this->Dot(*this));
     }
 
     // add x to this
-    virtual void plus(const HDSA::Vector<RealT> &x)
+    virtual void Plus(const HDSA::Vector<RealT> &x)
     {
       this->axpy(1.0, x);
     }
 
-    // set this=x
-    virtual void set(const HDSA::Vector<RealT> &x)
+    // Set this=x
+    virtual void Set(const HDSA::Vector<RealT> &x)
     {
-      this->scale(0.0);
+      this->Scale(0.0);
       this->axpy(1.0, x);
     }
 
@@ -105,33 +105,33 @@ namespace HDSA
       bool pass = true;
       RealT tol = 1.e-14;
 
-      this->zeros();
-      if (this->norm() != 0.0)
+      this->Zeros();
+      if (this->Norm() != 0.0)
       {
         std::cout << "Failed test 1" << std::endl;
         pass = false;
       }
 
-      this->setScalar(2.0);
-      RealT d = static_cast<RealT>(this->dimension());
-      if (std::abs(this->norm() - 2.0 * std::sqrt(d)) > tol)
+      this->Set_Scalar(2.0);
+      RealT d = static_cast<RealT>(this->Dimension());
+      if (std::abs(this->Norm() - 2.0 * std::sqrt(d)) > tol)
       {
         std::cout << "Failed test 2" << std::endl;
         pass = false;
       }
 
-      this->scale(0.5);
-      if (std::abs(this->norm() - std::sqrt(d)) > tol)
+      this->Scale(0.5);
+      if (std::abs(this->Norm() - std::sqrt(d)) > tol)
       {
         std::cout << "Failed test 3" << std::endl;
         pass = false;
       }
 
-      HDSA::Ptr<HDSA::Vector<RealT>> vec = this->clone();
-      vec->setScalar(3.0);
-      this->setScalar(5.0);
-      vec->plus(*this);
-      if (std::abs(vec->dot(*this) - 40.0 * d) > tol)
+      HDSA::Ptr<HDSA::Vector<RealT>> vec = this->Clone();
+      vec->Set_Scalar(3.0);
+      this->Set_Scalar(5.0);
+      vec->Plus(*this);
+      if (std::abs(vec->Dot(*this) - 40.0 * d) > tol)
       {
         std::cout << "Failed test 4" << std::endl;
         pass = false;

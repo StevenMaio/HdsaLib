@@ -46,7 +46,7 @@ namespace HDSA
       con_simopt_->solve(*c_rol_vec, *u_rol_vec, *z_rol.rol_vec, tol);
       con_simopt_->applyInverseAdjointJacobian_1(*u_tmp, *u_in_rol.rol_vec, *u_rol_vec, *z_rol.rol_vec, tol);
       con_simopt_->applyAdjointJacobian_2(*z_out_rol.rol_vec, *u_tmp, *u_rol_vec, *z_rol.rol_vec, tol);
-      z_out.scale(-1.0);
+      z_out.Scale(-1.0);
     }
 
     void Apply_RS_Hessian(HDSA::Vector<RealT> &z_out, const HDSA::Vector<RealT> &z_in, const HDSA::Vector<RealT> &z) const

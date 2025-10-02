@@ -27,7 +27,7 @@ namespace HDSA
 
     void Apply_Operator_Sqrt(HDSA::Vector<RealT> &vec_out, const HDSA::Vector<RealT> &vec_in)
     {
-      RealT norm_in = vec_in.norm();
+      RealT Norm_in = vec_in.Norm();
 
       std::vector<HDSA::Ptr<HDSA::Vector<RealT>>> V;
       HDSA::Ptr<HDSA::Dense_Matrix<RealT>> T = HDSA::makePtr<HDSA::Dense_Matrix<RealT>>(max_iter_, max_iter_);
@@ -37,45 +37,45 @@ namespace HDSA
       std::vector<RealT> ykp;
       std::vector<RealT> yk;
 
-      HDSA::Ptr<HDSA::Vector<RealT>> v_j = vec_in.clone();
+      HDSA::Ptr<HDSA::Vector<RealT>> v_j = vec_in.Clone();
 
-      v_j->set(vec_in);
-      v_j->scale(1.0 / norm_in);
+      v_j->Set(vec_in);
+      v_j->Scale(1.0 / Norm_in);
 
       for (int j = 0; j < max_iter_; j++)
       {
-        HDSA::Ptr<HDSA::Vector<RealT>> v_push = vec_in.clone();
-        v_push->set(*v_j);
+        HDSA::Ptr<HDSA::Vector<RealT>> v_push = vec_in.Clone();
+        v_push->Set(*v_j);
         V.push_back(v_push);
 
-        HDSA::Ptr<HDSA::Vector<RealT>> w_j = vec_in.clone();
+        HDSA::Ptr<HDSA::Vector<RealT>> w_j = vec_in.Clone();
         Apply_Operator(*w_j, *v_j);
-        alpha = w_j->dot(*v_j);
+        alpha = w_j->Dot(*v_j);
         w_j->axpy(-alpha, *v_j);
         if (j > 0)
         {
           w_j->axpy(-beta, *V[j - 1]);
         }
-        beta = w_j->norm();
+        beta = w_j->Norm();
 
-        v_j->set(*w_j);
-        v_j->scale(1.0 / beta);
-
-        for (int k = 0; k < j; k++)
-        {
-          RealT val = v_j->dot(*V[j]);
-          v_j->axpy(-val, *V[j]);
-        }
-        RealT val = v_j->norm();
-        v_j->scale(1.0 / val);
+        v_j->Set(*w_j);
+        v_j->Scale(1.0 / beta);
 
         for (int k = 0; k < j; k++)
         {
-          RealT val = v_j->dot(*V[j]);
+          RealT val = v_j->Dot(*V[j]);
           v_j->axpy(-val, *V[j]);
         }
-        val = v_j->norm();
-        v_j->scale(1.0 / val);
+        RealT val = v_j->Norm();
+        v_j->Scale(1.0 / val);
+
+        for (int k = 0; k < j; k++)
+        {
+          RealT val = v_j->Dot(*V[j]);
+          v_j->axpy(-val, *V[j]);
+        }
+        val = v_j->Norm();
+        v_j->Scale(1.0 / val);
 
         T->Set_Entry(j, j, alpha);
         T->Set_Entry(j, j + 1, beta);
@@ -94,7 +94,7 @@ namespace HDSA
         HDSA::Ptr<HDSA::Dense_Matrix<RealT>> S = HDSA::makePtr<HDSA::Dense_Matrix<RealT>>(j + 1, 1);
         HDSA::Linear_Algebra::Symmetric_Eig_Decomposition<RealT>(*Tk, *V, *S);
         HDSA::Ptr<HDSA::Dense_Matrix<RealT>> e = HDSA::makePtr<HDSA::Dense_Matrix<RealT>>(j + 1, 1);
-        e->Set_Entry(0, 0, norm_in);
+        e->Set_Entry(0, 0, Norm_in);
         HDSA::Ptr<HDSA::Dense_Matrix<RealT>> Ve = HDSA::makePtr<HDSA::Dense_Matrix<RealT>>(j + 1, 1);
         V->Multiply(*Ve, *e, true, false);
         yk.clear();
@@ -140,7 +140,7 @@ namespace HDSA
         }
       }
 
-      vec_out.zeros();
+      vec_out.Zeros();
       for (int i = 0; i < yk.size(); i++)
       {
         vec_out.axpy(yk[i], *V[i]);

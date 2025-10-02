@@ -357,8 +357,8 @@ public:
     Intrepid::RealSpaceTools<Real>::add(*J[0][0], *Jn[0][0]);
 
     // APPLY DIRICHLET CONDITIONS
-    int numSideSets = bdryCellLocIds_[0].size();
-    if (numSideSets > 0)
+    int numSidesets = bdryCellLocIds_[0].size();
+    if (numSidesets > 0)
     {
       int numLocalSideIds = bdryCellLocIds_[0].size();
       for (int j = 0; j < numLocalSideIds; ++j)

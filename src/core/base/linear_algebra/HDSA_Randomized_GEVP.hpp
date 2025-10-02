@@ -38,7 +38,7 @@ namespace HDSA
 			Generate_Random_Samples(*tmp);
 			for (int k = 0; k < kpp; k++)
 			{
-				HDSA::Ptr<HDSA::Vector<RealT>> vec_tmp1 = evecs[0]->clone();
+				HDSA::Ptr<HDSA::Vector<RealT>> vec_tmp1 = evecs[0]->Clone();
 				Apply_Operator(*vec_tmp1, *(*tmp)[k]);
 				Apply_Weighting_Operator_Inverse(*(*Y)[k], *vec_tmp1);
 			}
@@ -49,7 +49,7 @@ namespace HDSA
 			std::string type = "weighting";
 			CholQR(*Q, *WQ, *R, *Y, type);
 
-			Y->zeros();
+			Y->Zeros();
 			for (int k = 0; k < kpp; k++)
 			{
 				Apply_Operator(*(*Y)[k], *(*Q)[k]);
@@ -88,9 +88,9 @@ namespace HDSA
 				}
 
 				type = "weighting_inverse";
-				Q->zeros();
-				WQ->zeros();
-				R->zeros();
+				Q->Zeros();
+				WQ->Zeros();
+				R->Zeros();
 				CholQR(*Q, *WQ, *R, *M, type);
 
 				HDSA::Ptr<HDSA::Dense_Matrix<RealT>> U = HDSA::makePtr<HDSA::Dense_Matrix<RealT>>(kpp, kpp);
@@ -98,7 +98,7 @@ namespace HDSA
 				HDSA::Ptr<HDSA::Dense_Matrix<RealT>> S = HDSA::makePtr<HDSA::Dense_Matrix<RealT>>(kpp, 1);
 				HDSA::Linear_Algebra::SVD<RealT>(*R, *U, *VT, *S);
 
-				evecs.zeros();
+				evecs.Zeros();
 				for (int k = 0; k < num_evals; k++)
 				{
 					evals.Set_Entry(k, 0, std::pow((*S)(k, 0), 2.0));
@@ -108,7 +108,7 @@ namespace HDSA
 					}
 					if ((*U)(0, k) < 0.0)
 					{
-						evecs[k]->scale(-1.0);
+						evecs[k]->Scale(-1.0);
 					}
 				}
 			}
@@ -118,7 +118,7 @@ namespace HDSA
 				HDSA::Ptr<HDSA::Dense_Matrix<RealT>> Lambda = HDSA::makePtr<HDSA::Dense_Matrix<RealT>>(kpp, 1);
 				HDSA::Linear_Algebra::Symmetric_Eig_Decomposition<RealT>(*T, *S, *Lambda);
 
-				evecs.zeros();
+				evecs.Zeros();
 				for (int k = 0; k < num_evals; k++)
 				{
 					evals.Set_Entry(k, 0, (*Lambda)(k, 0));
@@ -128,7 +128,7 @@ namespace HDSA
 					}
 					if ((*S)(0, k) < 0.0)
 					{
-						evecs[k]->scale(-1.0);
+						evecs[k]->Scale(-1.0);
 					}
 				}
 			}

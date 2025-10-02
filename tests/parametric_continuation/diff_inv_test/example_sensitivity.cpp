@@ -77,9 +77,9 @@ int main(int argc, char *argv[])
   int oversampling = 10;
   qn_prec->Compute_Hessian_GEVP(z_bar, theta_bar, rank, oversampling);
 
-  HDSA::Ptr<HDSA::Vector<RealT>> z_star = z_bar->clone();
-  HDSA::Ptr<HDSA::Vector<RealT>> grad_star = z_bar->clone();
-  HDSA::Ptr<HDSA::Vector<RealT>> theta_star = theta_bar->clone();
+  HDSA::Ptr<HDSA::Vector<RealT>> z_star = z_bar->Clone();
+  HDSA::Ptr<HDSA::Vector<RealT>> grad_star = z_bar->Clone();
+  HDSA::Ptr<HDSA::Vector<RealT>> theta_star = theta_bar->Clone();
 
   HDSA::Std_Vector<RealT> &theta_star_std = dynamic_cast<HDSA::Std_Vector<RealT> &>(*theta_star);
   // read in data
@@ -106,8 +106,8 @@ int main(int argc, char *argv[])
   name = "grad_star_fe.txt";
   grad_star->Write_to_File(name);
 
-  z_star->zeros();
-  grad_star->zeros();
+  z_star->Zeros();
+  grad_star->Zeros();
   int N_me = 10;
   sen->Pseudo_Time_Continuation_Modified_Euler(*z_star, *grad_star, *theta_star, N_me);
   name = "z_star_me.txt";

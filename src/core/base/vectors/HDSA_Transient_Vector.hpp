@@ -23,7 +23,7 @@ namespace HDSA
             vec_.resize(n_t);
             for (int k = 0; k < n_t; k++)
             {
-                vec_[k] = spatial_vec->clone();
+                vec_[k] = spatial_vec->Clone();
             }
         }
 
@@ -50,20 +50,20 @@ namespace HDSA
         // Overloading pure virtual functions in HDSA::Vector base class
         //////////////////////////////////////////////////////////////////////////////////
 
-        HDSA::Ptr<HDSA::Vector<RealT>> clone() const override
+        HDSA::Ptr<HDSA::Vector<RealT>> Clone() const override
         {
             HDSA::Ptr<HDSA::Vector<RealT>> vec = HDSA::makePtr<Transient_Vector<RealT>>(n_t_, vec_[0]);
             return vec;
         }
 
-        // compute the dot product of this and x
-        RealT dot(const HDSA::Vector<RealT> &x) const override
+        // compute the Dot product of this and x
+        RealT Dot(const HDSA::Vector<RealT> &x) const override
         {
             RealT val = 0.0;
             const Transient_Vector<RealT> x_trans = dynamic_cast<const Transient_Vector<RealT> &>(x);
             for (int k = 0; k < n_t_; k++)
             {
-                val += Get_Vector_Const(k)->dot(*x_trans.Get_Vector_Const(k));
+                val += Get_Vector_Const(k)->Dot(*x_trans.Get_Vector_Const(k));
             }
             return val;
         }
@@ -78,26 +78,26 @@ namespace HDSA
             }
         }
 
-        // return vector dimension
-        int dimension() const override
+        // return vector Dimension
+        int Dimension() const override
         {
-            return n_t_ * vec_[0]->dimension();
+            return n_t_ * vec_[0]->Dimension();
         }
 
-        // set this=val elementwise
-        void setScalar(const RealT val) override
+        // Set this=val elementwise
+        void Set_Scalar(const RealT val) override
         {
             for (int k = 0; k < n_t_; k++)
             {
-                vec_[k]->setScalar(val);
+                vec_[k]->Set_Scalar(val);
             }
         }
 
-        void randomize_standard_normal() override
+        void Randomize_Standard_Normal() override
         {
             for (int k = 0; k < n_t_; k++)
             {
-                vec_[k]->randomize_standard_normal();
+                vec_[k]->Randomize_Standard_Normal();
             }
         }
 

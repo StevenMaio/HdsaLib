@@ -23,7 +23,7 @@ namespace HDSA
       if (const HDSA::Transient_Vector<RealT> *u_in_trans = dynamic_cast<const HDSA::Transient_Vector<RealT> *>(&u_in))
       {
         HDSA::Transient_Vector<RealT> *u_out_trans = dynamic_cast<HDSA::Transient_Vector<RealT> *>(&u_out);
-        HDSA::Ptr<HDSA::Vector<RealT>> u_tmp = u_out.clone();
+        HDSA::Ptr<HDSA::Vector<RealT>> u_tmp = u_out.Clone();
         HDSA::Ptr<HDSA::Transient_Vector<RealT>> u_tmp_trans = HDSA::dynamicPtrCast<HDSA::Transient_Vector<RealT>>(u_tmp);
         for (int j = 0; j < n_t_; j++)
         {
@@ -31,7 +31,7 @@ namespace HDSA
         }
         for (int j = 0; j < n_t_; j++)
         {
-          (*u_out_trans)[j]->zeros();
+          (*u_out_trans)[j]->Zeros();
           for (int i = 0; i < n_t_; i++)
           {
             (*u_out_trans)[j]->axpy((*transient_prior_cov_->Get_M_t())(i, j), *(*u_tmp_trans)[i]);
@@ -57,7 +57,7 @@ namespace HDSA
       {
         for (int j = 0; j < n_t_; j++)
         {
-          RealT val = (*spatial_sing_vecs)[i]->dot(*u_in_trans->Get_Vector_Const(j));
+          RealT val = (*spatial_sing_vecs)[i]->Dot(*u_in_trans->Get_Vector_Const(j));
           tmp1->Set_Entry(i, j, val);
         }
       }
@@ -81,7 +81,7 @@ namespace HDSA
       tmp2->Multiply(*tmp3, *transient_prior_cov_->Get_Evecs(), false, true);
       for (int j = 0; j < n_t_; j++)
       {
-        (*u_out_trans)[j]->zeros();
+        (*u_out_trans)[j]->Zeros();
         for (int i = 0; i < spatial_rank; i++)
         {
           (*u_out_trans)[j]->axpy((*tmp3)(i, j), *(*spatial_sing_vecs)[i]);
@@ -94,7 +94,7 @@ namespace HDSA
       HDSA::Ptr<const MD_Elliptic_u_Prior_Interface<RealT>> spatial_prior_cov_cast = HDSA::dynamicPtrCast<const MD_Elliptic_u_Prior_Interface<RealT>>(spatial_prior_cov_);
       const HDSA::Transient_Vector<RealT> *u_in_trans = dynamic_cast<const HDSA::Transient_Vector<RealT> *>(&u_in);
       HDSA::Transient_Vector<RealT> *u_out_trans = dynamic_cast<HDSA::Transient_Vector<RealT> *>(&u_out);
-      HDSA::Ptr<HDSA::Vector<RealT>> u_tmp = u_out.clone();
+      HDSA::Ptr<HDSA::Vector<RealT>> u_tmp = u_out.Clone();
       HDSA::Ptr<HDSA::Transient_Vector<RealT>> u_tmp_trans = HDSA::dynamicPtrCast<HDSA::Transient_Vector<RealT>>(u_tmp);
       for (int j = 0; j < n_t_; j++)
       {
@@ -102,7 +102,7 @@ namespace HDSA
       }
       for (int j = 0; j < n_t_; j++)
       {
-        (*u_out_trans)[j]->zeros();
+        (*u_out_trans)[j]->Zeros();
         for (int i = 0; i < n_t_; i++)
         {
           (*u_out_trans)[j]->axpy((*transient_prior_cov_->Get_W_t_Inverse())(i, j), *(*u_tmp_trans)[i]);
@@ -139,7 +139,7 @@ namespace HDSA
         tmp1->Multiply(*tmp2, *transient_prior_cov_->Get_Evecs(), false, true);
         for (int j = 0; j < n_t_; j++)
         {
-          (*sk_trans)[j]->zeros();
+          (*sk_trans)[j]->Zeros();
           for (int i = 0; i < spatial_rank; i++)
           {
             (*sk_trans)[j]->axpy((*tmp2)(i, j), *(*spatial_sing_vecs)[i]);
@@ -179,7 +179,7 @@ namespace HDSA
         tmp1->Multiply(*tmp2, *transient_prior_cov_->Get_Evecs(), false, true);
         for (int j = 0; j < n_t_; j++)
         {
-          (*sk_trans)[j]->zeros();
+          (*sk_trans)[j]->Zeros();
           for (int i = 0; i < spatial_rank; i++)
           {
             (*sk_trans)[j]->axpy((*tmp2)(i, j), *(*spatial_sing_vecs)[i]);

@@ -58,14 +58,14 @@ namespace HDSA
         HDSA::Ptr<HDSA::MultiVector<RealT>> WQ_iter_in = HDSA::makePtr<HDSA::MultiVector<RealT>>(kpp, *sing_vecs_input[0]);
         CholQR(*Q_iter_in, *WQ_iter_in, *Y_subspace_iter_in, type);
 
-        Y->zeros();
+        Y->Zeros();
         for (int k = 0; k < kpp; k++)
         {
           Apply_Operator(*(*Y)[k], *(*WQ_iter_in)[k]);
         }
         type = "output_weighting";
-        Q->zeros();
-        WQ->zeros();
+        Q->Zeros();
+        WQ->Zeros();
         CholQR(*Q, *WQ, *Y, type);
       }
 
@@ -101,8 +101,8 @@ namespace HDSA
       HDSA::Ptr<HDSA::Dense_Matrix<RealT>> S = HDSA::makePtr<HDSA::Dense_Matrix<RealT>>(kpp, 1);
       HDSA::Linear_Algebra::SVD<RealT>(*R_B, *V, *UT, *S);
 
-      sing_vecs_input.zeros();
-      sing_vecs_output.zeros();
+      sing_vecs_input.Zeros();
+      sing_vecs_output.Zeros();
       for (int k = 0; k < num_sing_vals; k++)
       {
 
@@ -115,8 +115,8 @@ namespace HDSA
 
         if ((*V)(0, k) < 0.0)
         {
-          sing_vecs_input[k]->scale(-1.0);
-          sing_vecs_output[k]->scale(-1.0);
+          sing_vecs_input[k]->Scale(-1.0);
+          sing_vecs_output[k]->Scale(-1.0);
         }
       }
     }

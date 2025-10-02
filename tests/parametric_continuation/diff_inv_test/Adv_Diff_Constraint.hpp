@@ -183,7 +183,7 @@ public:
 
   void c_uu_Apply(HDSA::Vector<RealT> &u_out, const HDSA::Vector<RealT> &u_in, const HDSA::Vector<RealT> &u, const HDSA::Vector<RealT> &z, const HDSA::Vector<RealT> &lambda, const HDSA::Vector<RealT> &theta) const
   {
-    u_out.zeros();
+    u_out.Zeros();
   }
 
   void c_uz_Apply(HDSA::Vector<RealT> &u_out, const HDSA::Vector<RealT> &z_in, const HDSA::Vector<RealT> &u, const HDSA::Vector<RealT> &z, const HDSA::Vector<RealT> &lambda, const HDSA::Vector<RealT> &theta) const
@@ -238,7 +238,7 @@ public:
 
   void c_zz_Apply(HDSA::Vector<RealT> &z_out, const HDSA::Vector<RealT> &z_in, const HDSA::Vector<RealT> &u, const HDSA::Vector<RealT> &z, const HDSA::Vector<RealT> &lambda, const HDSA::Vector<RealT> &theta) const
   {
-    z_out.zeros();
+    z_out.Zeros();
   }
 
   void c_theta_Apply(HDSA::Vector<RealT> &u_out, const HDSA::Vector<RealT> &theta_in, const HDSA::Vector<RealT> &u, const HDSA::Vector<RealT> &z, const HDSA::Vector<RealT> &theta) const
@@ -267,7 +267,7 @@ public:
 
   void c_ztheta_Apply(HDSA::Vector<RealT> &z_out, const HDSA::Vector<RealT> &theta_in, const HDSA::Vector<RealT> &u, const HDSA::Vector<RealT> &z, const HDSA::Vector<RealT> &lambda, const HDSA::Vector<RealT> &theta) const
   {
-    z_out.zeros();
+    z_out.Zeros();
   }
 
   void c_utheta_Apply(HDSA::Vector<RealT> &u_out, const HDSA::Vector<RealT> &theta_in, const HDSA::Vector<RealT> &u, const HDSA::Vector<RealT> &z, const HDSA::Vector<RealT> &lambda, const HDSA::Vector<RealT> &theta) const
@@ -299,8 +299,8 @@ public:
   {
     HDSA::Ptr<HDSA::Dense_Matrix<RealT>> D = HDSA::makePtr<HDSA::Dense_Matrix<RealT>>(m_, m_);
     RealT h = (*x_)(1, 0) - (*x_)(0, 0);
-    std::vector<RealT> phi_down_dot = {-1.0 / h, -1.0 / h};
-    std::vector<RealT> phi_up_dot = {1.0 / h, 1.0 / h};
+    std::vector<RealT> phi_down_Dot = {-1.0 / h, -1.0 / h};
+    std::vector<RealT> phi_up_Dot = {1.0 / h, 1.0 / h};
     RealT val = 0.0;
 
     for (int i = 1; i <= m_; ++i)
@@ -310,9 +310,9 @@ public:
         RealT x1 = (i - 2) * h + (h / 2) * (-1.0 / std::sqrt(3.0) + 1.0);
         RealT x2 = (i - 2) * h + (h / 2) * (1.0 / std::sqrt(3.0) + 1.0);
         std::vector<RealT> perm = {Diffusion_Coeff(x1, z), Diffusion_Coeff(x2, z)};
-        val = (h / 2) * (phi_up_dot[0] * phi_down_dot[0] * perm[0] + phi_up_dot[1] * phi_down_dot[1] * perm[1]);
+        val = (h / 2) * (phi_up_Dot[0] * phi_down_Dot[0] * perm[0] + phi_up_Dot[1] * phi_down_Dot[1] * perm[1]);
         D->Set_Entry(i - 2, i - 1, val);
-        val = (h / 2) * (phi_up_dot[0] * phi_up_dot[0] * perm[0] + phi_up_dot[1] * phi_up_dot[1] * perm[1]);
+        val = (h / 2) * (phi_up_Dot[0] * phi_up_Dot[0] * perm[0] + phi_up_Dot[1] * phi_up_Dot[1] * perm[1]);
         D->Set_Entry(i - 1, i - 1, val);
       }
       if (i < m_)
@@ -320,9 +320,9 @@ public:
         RealT x1 = (i - 1) * h + (h / 2) * (-1.0 / std::sqrt(3.0) + 1.0);
         RealT x2 = (i - 1) * h + (h / 2) * (1.0 / std::sqrt(3.0) + 1.0);
         std::vector<RealT> perm = {Diffusion_Coeff(x1, z), Diffusion_Coeff(x2, z)};
-        val = (*D)(i - 1, i - 1) + (h / 2) * (phi_down_dot[0] * phi_down_dot[0] * perm[0] + phi_down_dot[1] * phi_down_dot[1] * perm[1]);
+        val = (*D)(i - 1, i - 1) + (h / 2) * (phi_down_Dot[0] * phi_down_Dot[0] * perm[0] + phi_down_Dot[1] * phi_down_Dot[1] * perm[1]);
         D->Set_Entry(i - 1, i - 1, val);
-        val = (h / 2) * (phi_up_dot[0] * phi_down_dot[0] * perm[0] + phi_up_dot[1] * phi_down_dot[1] * perm[1]);
+        val = (h / 2) * (phi_up_Dot[0] * phi_down_Dot[0] * perm[0] + phi_up_Dot[1] * phi_down_Dot[1] * perm[1]);
         D->Set_Entry(i, i - 1, val);
       }
     }
@@ -337,28 +337,28 @@ public:
     RealT x2 = (h / 2) * (1 / std::sqrt(3) + 1);
     std::vector<RealT> phi_down = {x2 / h, x1 / h};
     std::vector<RealT> phi_up = {x1 / h, x2 / h};
-    std::vector<RealT> phi_down_dot = {-1.0 / h, -1.0 / h};
-    std::vector<RealT> phi_up_dot = {1.0 / h, 1.0 / h};
+    std::vector<RealT> phi_down_Dot = {-1.0 / h, -1.0 / h};
+    std::vector<RealT> phi_up_Dot = {1.0 / h, 1.0 / h};
     RealT val = 0.0;
 
     for (int i = 0; i < m_; ++i)
     {
       if (i > 0)
       {
-        std::vector<RealT> u_prime = {u[i - 1] * phi_down_dot[0] + u[i] * phi_up_dot[0],
-                                      u[i - 1] * phi_down_dot[1] + u[i] * phi_up_dot[1]};
-        val = (h / 2) * (phi_up[0] * phi_down_dot[0] * u_prime[0] + phi_up[1] * phi_down_dot[1] * u_prime[1]);
+        std::vector<RealT> u_prime = {u[i - 1] * phi_down_Dot[0] + u[i] * phi_up_Dot[0],
+                                      u[i - 1] * phi_down_Dot[1] + u[i] * phi_up_Dot[1]};
+        val = (h / 2) * (phi_up[0] * phi_down_Dot[0] * u_prime[0] + phi_up[1] * phi_down_Dot[1] * u_prime[1]);
         D_diff->Set_Entry(i - 1, i, val);
-        val = (h / 2) * (phi_up[0] * phi_up_dot[0] * u_prime[0] + phi_up[1] * phi_up_dot[1] * u_prime[1]);
+        val = (h / 2) * (phi_up[0] * phi_up_Dot[0] * u_prime[0] + phi_up[1] * phi_up_Dot[1] * u_prime[1]);
         D_diff->Set_Entry(i, i, val);
       }
       if (i < m_ - 1)
       {
-        std::vector<RealT> u_prime = {u[i] * phi_down_dot[0] + u[i + 1] * phi_up_dot[0],
-                                      u[i] * phi_down_dot[1] + u[i + 1] * phi_up_dot[1]};
-        val = (*D_diff)(i, i) + (h / 2) * (phi_down[0] * phi_down_dot[0] * u_prime[0] + phi_down[1] * phi_down_dot[1] * u_prime[1]);
+        std::vector<RealT> u_prime = {u[i] * phi_down_Dot[0] + u[i + 1] * phi_up_Dot[0],
+                                      u[i] * phi_down_Dot[1] + u[i + 1] * phi_up_Dot[1]};
+        val = (*D_diff)(i, i) + (h / 2) * (phi_down[0] * phi_down_Dot[0] * u_prime[0] + phi_down[1] * phi_down_Dot[1] * u_prime[1]);
         D_diff->Set_Entry(i, i, val);
-        val = (h / 2) * (phi_down[0] * phi_up_dot[0] * u_prime[0] + phi_down[1] * phi_up_dot[1] * u_prime[1]);
+        val = (h / 2) * (phi_down[0] * phi_up_Dot[0] * u_prime[0] + phi_down[1] * phi_up_Dot[1] * u_prime[1]);
         D_diff->Set_Entry(i + 1, i, val);
       }
     }
@@ -370,8 +370,8 @@ public:
   {
     HDSA::Ptr<HDSA::Dense_Matrix<RealT>> V = HDSA::makePtr<HDSA::Dense_Matrix<RealT>>(m_, m_);
     RealT h = (*x_)(1, 0) - (*x_)(0, 0);
-    std::vector<RealT> phi_down_dot = {-1.0 / h, -1.0 / h};
-    std::vector<RealT> phi_up_dot = {1.0 / h, 1.0 / h};
+    std::vector<RealT> phi_down_Dot = {-1.0 / h, -1.0 / h};
+    std::vector<RealT> phi_up_Dot = {1.0 / h, 1.0 / h};
     RealT x1 = (h / 2) * (-1.0 / std::sqrt(3) + 1);
     RealT x2 = (h / 2) * (1.0 / std::sqrt(3) + 1);
     std::vector<RealT> phi_down = {x2 / h, x1 / h};
@@ -385,9 +385,9 @@ public:
         x1 = (i - 2) * h + (h / 2) * (-1.0 / std::sqrt(3) + 1);
         x2 = (i - 2) * h + (h / 2) * (1.0 / std::sqrt(3) + 1);
         std::vector<RealT> vel = {Velocity_Coeff(x1, theta), Velocity_Coeff(x2, theta)};
-        val = (*V)(i - 1, i - 1) + (h / 2.0) * (phi_up_dot[0] * phi_down[0] * vel[0] + phi_up_dot[1] * phi_down[1] * vel[1]);
+        val = (*V)(i - 1, i - 1) + (h / 2.0) * (phi_up_Dot[0] * phi_down[0] * vel[0] + phi_up_Dot[1] * phi_down[1] * vel[1]);
         V->Set_Entry(i - 2, i - 1, val);
-        val = (*V)(i - 1, i - 1) + (h / 2.0) * (phi_up_dot[0] * phi_up[0] * vel[0] + phi_up_dot[1] * phi_up[1] * vel[1]);
+        val = (*V)(i - 1, i - 1) + (h / 2.0) * (phi_up_Dot[0] * phi_up[0] * vel[0] + phi_up_Dot[1] * phi_up[1] * vel[1]);
         V->Set_Entry(i - 1, i - 1, val);
       }
       if (i < m_)
@@ -395,9 +395,9 @@ public:
         x1 = (i - 1) * h + (h / 2) * (-1.0 / std::sqrt(3) + 1);
         x2 = (i - 1) * h + (h / 2) * (1.0 / std::sqrt(3) + 1);
         std::vector<RealT> vel = {Velocity_Coeff(x1, theta), Velocity_Coeff(x2, theta)};
-        val = (*V)(i - 1, i - 1) + (h / 2.0) * (phi_down_dot[0] * phi_down[0] * vel[0] + phi_down_dot[1] * phi_down[1] * vel[1]);
+        val = (*V)(i - 1, i - 1) + (h / 2.0) * (phi_down_Dot[0] * phi_down[0] * vel[0] + phi_down_Dot[1] * phi_down[1] * vel[1]);
         V->Set_Entry(i - 1, i - 1, val);
-        val = (h / 2.0) * (phi_down_dot[0] * phi_up[0] * vel[0] + phi_down_dot[1] * phi_up[1] * vel[1]);
+        val = (h / 2.0) * (phi_down_Dot[0] * phi_up[0] * vel[0] + phi_down_Dot[1] * phi_up[1] * vel[1]);
         V->Set_Entry(i, i - 1, val);
       }
     }
@@ -413,16 +413,16 @@ public:
     RealT x2 = (h / 2) * (1 / std::sqrt(3) + 1);
     std::vector<RealT> phi_down = {x2 / h, x1 / h};
     std::vector<RealT> phi_up = {x1 / h, x2 / h};
-    std::vector<RealT> phi_down_dot = {-1.0 / h, -1.0 / h};
-    std::vector<RealT> phi_up_dot = {1.0 / h, 1.0 / h};
+    std::vector<RealT> phi_down_Dot = {-1.0 / h, -1.0 / h};
+    std::vector<RealT> phi_up_Dot = {1.0 / h, 1.0 / h};
     RealT val = 0.0;
 
     for (int i = 0; i < m_; ++i)
     {
       if (i > 0)
       {
-        std::vector<RealT> u_prime = {u[i - 1] * phi_down_dot[0] + u[i] * phi_up_dot[0],
-                                      u[i - 1] * phi_down_dot[1] + u[i] * phi_up_dot[1]};
+        std::vector<RealT> u_prime = {u[i - 1] * phi_down_Dot[0] + u[i] * phi_up_Dot[0],
+                                      u[i - 1] * phi_down_Dot[1] + u[i] * phi_up_Dot[1]};
         val = (h / 2) * (phi_up[0] * phi_down[0] * u_prime[0] + phi_up[1] * phi_down[1] * u_prime[1]);
         V_diff->Set_Entry(i - 1, i, val);
         val = (h / 2) * (phi_up[0] * phi_up[0] * u_prime[0] + phi_up[1] * phi_up[1] * u_prime[1]);
@@ -430,8 +430,8 @@ public:
       }
       if (i < m_ - 1)
       {
-        std::vector<RealT> u_prime = {u[i] * phi_down_dot[0] + u[i + 1] * phi_up_dot[0],
-                                      u[i] * phi_down_dot[1] + u[i + 1] * phi_up_dot[1]};
+        std::vector<RealT> u_prime = {u[i] * phi_down_Dot[0] + u[i + 1] * phi_up_Dot[0],
+                                      u[i] * phi_down_Dot[1] + u[i + 1] * phi_up_Dot[1]};
         val = (*V_diff)(i, i) + (h / 2) * (phi_down[0] * phi_down[0] * u_prime[0] + phi_down[1] * phi_down[1] * u_prime[1]);
         V_diff->Set_Entry(i, i, val);
         val = (h / 2) * (phi_down[0] * phi_up[0] * u_prime[0] + phi_down[1] * phi_up[1] * u_prime[1]);
@@ -450,8 +450,8 @@ public:
     RealT x2 = (h / 2) * (1 / std::sqrt(3) + 1);
     std::vector<RealT> phi_down = {x2 / h, x1 / h};
     std::vector<RealT> phi_up = {x1 / h, x2 / h};
-    std::vector<RealT> phi_down_dot = {-1.0 / h, -1.0 / h};
-    std::vector<RealT> phi_up_dot = {1.0 / h, 1.0 / h};
+    std::vector<RealT> phi_down_Dot = {-1.0 / h, -1.0 / h};
+    std::vector<RealT> phi_up_Dot = {1.0 / h, 1.0 / h};
     RealT val = 0.0;
 
     for (int i = 0; i < m_; ++i)
@@ -460,18 +460,18 @@ public:
       {
         std::vector<RealT> lam = {lambda[i - 1] * phi_down[0] + lambda[i] * phi_up[0],
                                   lambda[i - 1] * phi_down[1] + lambda[i] * phi_up[1]};
-        val = (h / 2) * (phi_up[0] * phi_down_dot[0] * lam[0] + phi_up[1] * phi_down_dot[1] * lam[1]);
+        val = (h / 2) * (phi_up[0] * phi_down_Dot[0] * lam[0] + phi_up[1] * phi_down_Dot[1] * lam[1]);
         V_hess->Set_Entry(i - 1, i, val);
-        val = (h / 2) * (phi_up[0] * phi_up_dot[0] * lam[0] + phi_up[1] * phi_up_dot[1] * lam[1]);
+        val = (h / 2) * (phi_up[0] * phi_up_Dot[0] * lam[0] + phi_up[1] * phi_up_Dot[1] * lam[1]);
         V_hess->Set_Entry(i, i, val);
       }
       if (i < m_ - 1)
       {
         std::vector<RealT> lam = {lambda[i] * phi_down[0] + lambda[i + 1] * phi_up[0],
                                   lambda[i] * phi_down[1] + lambda[i + 1] * phi_up[1]};
-        val = (*V_hess)(i, i) + (h / 2) * (phi_down[0] * phi_down_dot[0] * lam[0] + phi_down[1] * phi_down_dot[1] * lam[1]);
+        val = (*V_hess)(i, i) + (h / 2) * (phi_down[0] * phi_down_Dot[0] * lam[0] + phi_down[1] * phi_down_Dot[1] * lam[1]);
         V_hess->Set_Entry(i, i, val);
-        val = (h / 2) * (phi_down[0] * phi_up_dot[0] * lam[0] + phi_down[1] * phi_up_dot[1] * lam[1]);
+        val = (h / 2) * (phi_down[0] * phi_up_Dot[0] * lam[0] + phi_down[1] * phi_up_Dot[1] * lam[1]);
         V_hess->Set_Entry(i + 1, i, val);
       }
     }

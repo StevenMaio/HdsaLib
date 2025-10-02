@@ -101,8 +101,8 @@ public:
     const HDSA::Tpetra_Vector<RealT> z_tpetra = dynamic_cast<const HDSA::Tpetra_Vector<RealT> &>(z);
     const HDSA::Tpetra_Vector<RealT> z_in_tpetra = dynamic_cast<const HDSA::Tpetra_Vector<RealT> &>(z_in);
     HDSA::Tpetra_Vector<RealT> z_out_tpetra = dynamic_cast<const HDSA::Tpetra_Vector<RealT> &>(z_out);
-    HDSA::Ptr<HDSA::Vector<RealT>> z_tmp1 = z_out.clone();
-    HDSA::Ptr<HDSA::Vector<RealT>> z_tmp2 = z_out.clone();
+    HDSA::Ptr<HDSA::Vector<RealT>> z_tmp1 = z_out.Clone();
+    HDSA::Ptr<HDSA::Vector<RealT>> z_tmp2 = z_out.Clone();
     HDSA::Tpetra_Vector<RealT> z_tmp1_tpetra = dynamic_cast<const HDSA::Tpetra_Vector<RealT> &>(*z_tmp1);
     HDSA::Tpetra_Vector<RealT> z_tmp2_tpetra = dynamic_cast<const HDSA::Tpetra_Vector<RealT> &>(*z_tmp2);
     Teuchos::ArrayRCP<const RealT> z_view = z_tpetra.getVector()->get1dView();
@@ -129,7 +129,7 @@ public:
     HDSA::Tpetra_Vector<RealT> uf_tpetra = dynamic_cast<HDSA::Tpetra_Vector<RealT> &>(*uf);
     Teuchos::ArrayRCP<const RealT> uf_view = uf_tpetra.getVector()->get1dView();
 
-    HDSA::Ptr<HDSA::Vector<RealT>> u_tmp = u_grad.clone();
+    HDSA::Ptr<HDSA::Vector<RealT>> u_tmp = u_grad.Clone();
     const HDSA::Transient_Vector<RealT> u_tmp_trans = dynamic_cast<const HDSA::Transient_Vector<RealT> &>(*u_tmp);
     HDSA::Ptr<HDSA::Vector<RealT>> uf_tmp = u_tmp_trans[n_t_ - 1];
     HDSA::Tpetra_Vector<RealT> uf_tmp_tpetra = dynamic_cast<HDSA::Tpetra_Vector<RealT> &>(*uf_tmp);

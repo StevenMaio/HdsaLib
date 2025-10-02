@@ -20,22 +20,22 @@ namespace HDSA
 
     void Apply_M_z(HDSA::Vector<RealT> &z_out, const HDSA::Vector<RealT> &z_in) const
     {
-      z_out.set(z_in);
+      z_out.Set(z_in);
     }
 
     void Apply_W_z_Acute_Inverse(HDSA::Vector<RealT> &z_out, const HDSA::Vector<RealT> &z_in) const
     {
-      z_out.set(z_in);
+      z_out.Set(z_in);
     }
 
     void Sample_with_Covariance_W_z_Acute_Inverse(HDSA::MultiVector<RealT> &samples) const
     {
-      samples.randomize_standard_normal();
+      samples.Randomize_Standard_Normal();
     }
 
     void Apply_W_z_Acute(HDSA::Vector<RealT> &z_out, const HDSA::Vector<RealT> &z_in) const
     {
-      z_out.set(z_in);
+      z_out.Set(z_in);
     }
   };
 

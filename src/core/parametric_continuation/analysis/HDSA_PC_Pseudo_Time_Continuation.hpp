@@ -28,50 +28,50 @@ namespace HDSA
 		virtual int Apply_Inverse_Hessian(HDSA::Vector<RealT> &z_out, const HDSA::Vector<RealT> &z_in, const HDSA::Vector<RealT> &z, const HDSA::Vector<RealT> &theta, RealT &cg_tol) const
 		{
 
-			z_out.zeros();
-			RealT z_in_norm = z_in.norm();
-			HDSA::Ptr<HDSA::Vector<RealT>> r = z_in.clone();
-			r->set(z_in);
-			r->scale(1.0 / z_in_norm);
-			HDSA::Ptr<HDSA::Vector<RealT>> v = z_in.clone();
+			z_out.Zeros();
+			RealT z_in_Norm = z_in.Norm();
+			HDSA::Ptr<HDSA::Vector<RealT>> r = z_in.Clone();
+			r->Set(z_in);
+			r->Scale(1.0 / z_in_Norm);
+			HDSA::Ptr<HDSA::Vector<RealT>> v = z_in.Clone();
 			qn_prec_->Apply_Inverse_Hessian_Approximation(*v, *r);
-			HDSA::Ptr<HDSA::Vector<RealT>> p = z_in.clone();
-			p->set(*v);
-			RealT scalar = r->dot(*p);
+			HDSA::Ptr<HDSA::Vector<RealT>> p = z_in.Clone();
+			p->Set(*v);
+			RealT scalar = r->Dot(*p);
 
-			RealT r_norm = r->norm();
+			RealT r_Norm = r->Norm();
 			int iter = 0;
-			HDSA::Ptr<HDSA::Vector<RealT>> w = z_in.clone();
+			HDSA::Ptr<HDSA::Vector<RealT>> w = z_in.Clone();
 
-			while ((std::sqrt(scalar) > cg_tol) && (r_norm > cg_tol) && (iter < max_cg_iter_))
+			while ((std::sqrt(scalar) > cg_tol) && (r_Norm > cg_tol) && (iter < max_cg_iter_))
 			{
 				iter += 1;
 				sen_op_interface_->Apply_Hessian(*w, *p, z, theta);
 				qn_prec_->Add_Block_Quasi_Newton_Step(p, w);
 
-				RealT scalar_tmp = w->dot(*p);
+				RealT scalar_tmp = w->Dot(*p);
 				RealT alpha = scalar / scalar_tmp;
 				z_out.axpy(alpha, *p);
 				r->axpy(-alpha, *w);
 				qn_prec_->Apply_Inverse_Hessian_Approximation(*v, *r);
 				RealT scalar_old = scalar;
-				scalar = v->dot(*r);
-				p->scale(scalar / scalar_old);
-				p->plus(*v);
-				r_norm = r->norm();
+				scalar = v->Dot(*r);
+				p->Scale(scalar / scalar_old);
+				p->Plus(*v);
+				r_Norm = r->Norm();
 
 				if (print_cg_iter_)
 				{
-					std::cout << "Iteration = " << iter << " with relative residual = " << r_norm << std::endl;
+					std::cout << "Iteration = " << iter << " with relative residual = " << r_Norm << std::endl;
 				}
 			}
 
-			z_out.scale(z_in_norm);
+			z_out.Scale(z_in_Norm);
 
 			if (print_cg_output_)
 			{
 				std::cout << "Total iterations = " << iter << std::endl;
-				std::cout << "Relative residual = " << r_norm << std::endl;
+				std::cout << "Relative residual = " << r_Norm << std::endl;
 			}
 
 			return iter;
@@ -90,11 +90,11 @@ namespace HDSA
 
 		void Pseudo_Time_Continuation_Forward_Euler(HDSA::Vector<RealT> &z_star, HDSA::Vector<RealT> &grad_star, const HDSA::Vector<RealT> &theta_star, const int &N)
 		{
-			HDSA::Ptr<HDSA::Vector<RealT>> z_current = z_star.clone();
-			HDSA::Ptr<HDSA::Vector<RealT>> z_new = z_star.clone();
-			HDSA::Ptr<HDSA::Vector<RealT>> z_tmp = z_star.clone();
-			HDSA::Ptr<HDSA::Vector<RealT>> grad_current = z_star.clone();
-			HDSA::Ptr<HDSA::Vector<RealT>> theta_current = theta_star.clone();
+			HDSA::Ptr<HDSA::Vector<RealT>> z_current = z_star.Clone();
+			HDSA::Ptr<HDSA::Vector<RealT>> z_new = z_star.Clone();
+			HDSA::Ptr<HDSA::Vector<RealT>> z_tmp = z_star.Clone();
+			HDSA::Ptr<HDSA::Vector<RealT>> grad_current = z_star.Clone();
+			HDSA::Ptr<HDSA::Vector<RealT>> theta_current = theta_star.Clone();
 
 			int num_Hvecs = 0;
 			int num_Bvecs = 0;
@@ -106,12 +106,12 @@ namespace HDSA
 			}
 
 			RealT dt = 1.0 / static_cast<RealT>(N);
-			HDSA::Ptr<HDSA::Vector<RealT>> d_theta = theta_star.clone();
-			d_theta->set(theta_star);
+			HDSA::Ptr<HDSA::Vector<RealT>> d_theta = theta_star.Clone();
+			d_theta->Set(theta_star);
 			d_theta->axpy(-1.0, *theta_bar_);
 
-			z_current->set(*z_bar_);
-			theta_current->set(*theta_bar_);
+			z_current->Set(*z_bar_);
+			theta_current->Set(*theta_bar_);
 			sen_op_interface_->Gradient(*grad_current, *z_current, *theta_current);
 			num_grads += 1;
 
@@ -119,14 +119,14 @@ namespace HDSA
 			if (use_qn_prec_)
 			{
 				qn_prec_->Set_N(2 * N + 1);
-				s = z_new->clone();
-				y = z_new->clone();
+				s = z_new->Clone();
+				y = z_new->Clone();
 			}
 
 			for (int k = 0; k < N; k++)
 			{
 				std::cout << "-----------------------------------------------------" << std::endl;
-				std::cout << "The gradient norm after step: " << k << " is " << grad_current->norm() << std::endl;
+				std::cout << "The gradient Norm after step: " << k << " is " << grad_current->Norm() << std::endl;
 
 				std::cout << "Beginning B matvec at time step " << k + 1 << std::endl;
 				sen_op_interface_->Apply_B(*z_tmp, *d_theta, *z_current, *theta_current);
@@ -136,19 +136,19 @@ namespace HDSA
 				int iters = Apply_Inverse_Hessian(*z_new, *z_tmp, *z_current, *theta_current, cg_tol_);
 				num_Hvecs += iters;
 
-				z_new->scale(-dt);
-				z_new->plus(*z_current);
+				z_new->Scale(-dt);
+				z_new->Plus(*z_current);
 
 				if (use_qn_prec_)
 				{
-					s->set(*z_new);
+					s->Set(*z_new);
 					s->axpy(-1.0, *z_current);
 
-					y->set(*grad_current);
+					y->Set(*grad_current);
 					y->axpy(dt, *z_tmp);
-					y->scale(-1.0);
+					y->Scale(-1.0);
 				}
-				z_current->set(*z_new);
+				z_current->Set(*z_new);
 				theta_current->axpy(dt, *d_theta);
 
 				sen_op_interface_->Gradient(*grad_current, *z_current, *theta_current);
@@ -156,15 +156,15 @@ namespace HDSA
 				if (use_qn_prec_ & (k < N - 1))
 				{
 					qn_prec_->Add_Block_Quasi_Newton_Data();
-					y->plus(*grad_current);
+					y->Plus(*grad_current);
 					qn_prec_->Add_Parametric_Quasi_Newton_Data(*s, *y);
 				}
-				RealT sol_grad_norm = grad_current->norm();
+				RealT sol_grad_Norm = grad_current->Norm();
 
-				if (sol_grad_norm > grad_tol_)
+				if (sol_grad_Norm > grad_tol_)
 				{
 					std::cout << "Beginning inverse Hessian matvec at Newton step " << k + 1 << std::endl;
-					std::cout << "The current gradient norm = " << sol_grad_norm << std::endl;
+					std::cout << "The current gradient Norm = " << sol_grad_Norm << std::endl;
 					iters = Apply_Inverse_Hessian(*z_new, *grad_current, *z_current, *theta_current, cg_tol_);
 					num_Hvecs += iters;
 
@@ -175,31 +175,31 @@ namespace HDSA
 					{
 						qn_prec_->Add_Block_Quasi_Newton_Data();
 					}
-					sol_grad_norm = grad_current->norm();
+					sol_grad_Norm = grad_current->Norm();
 				}
 
 				RealT variable_cg_tol = cg_tol_;
-				while (sol_grad_norm > grad_tol_)
+				while (sol_grad_Norm > grad_tol_)
 				{
 					std::cout << "Taking an extra Newton iteration at step " << k + 1 << std::endl;
-					std::cout << "The current gradient norm = " << sol_grad_norm << std::endl;
+					std::cout << "The current gradient Norm = " << sol_grad_Norm << std::endl;
 					iters = Apply_Inverse_Hessian(*z_new, *grad_current, *z_current, *theta_current, variable_cg_tol);
 					num_Hvecs += iters;
 					z_current->axpy(-1.0, *z_new);
 					sen_op_interface_->Gradient(*grad_current, *z_current, *theta_current);
 					num_grads += 1;
-					sol_grad_norm = grad_current->norm();
+					sol_grad_Norm = grad_current->Norm();
 					variable_cg_tol = (1.e-1) * variable_cg_tol;
 				}
 			}
 
-			z_star.set(*z_current);
-			grad_star.set(*grad_current);
+			z_star.Set(*z_current);
+			grad_star.Set(*grad_current);
 
-			RealT sol_grad_norm = grad_current->norm();
+			RealT sol_grad_Norm = grad_current->Norm();
 			std::cout << " " << std::endl;
 			std::cout << "-----------------------------------------------------" << std::endl;
-			std::cout << "Solution gradient norm = " << sol_grad_norm << std::endl;
+			std::cout << "Solution gradient Norm = " << sol_grad_Norm << std::endl;
 			std::cout << " " << std::endl;
 
 			std::string name = "Forward_Euler_Cost_Report.txt";
@@ -209,18 +209,18 @@ namespace HDSA
 			fout << "Number of H-vector products: " << num_Hvecs << std::endl;
 			fout << "Number of gradient evaluations: " << num_grads << std::endl;
 			fout << "Number of vectors stored for preconditioner: " << qn_prec_->Get_Number_Vecs_Stored() << std::endl;
-			fout << "Solution gradient norm = " << sol_grad_norm << std::endl;
+			fout << "Solution gradient Norm = " << sol_grad_Norm << std::endl;
 			fout.close();
 		}
 
 		void Pseudo_Time_Continuation_Modified_Euler(HDSA::Vector<RealT> &z_star, HDSA::Vector<RealT> &grad_star, const HDSA::Vector<RealT> &theta_star, const int &N)
 		{
-			HDSA::Ptr<HDSA::Vector<RealT>> z_current = z_star.clone();
-			HDSA::Ptr<HDSA::Vector<RealT>> z_new = z_star.clone();
-			HDSA::Ptr<HDSA::Vector<RealT>> z_tmp = z_star.clone();
-			HDSA::Ptr<HDSA::Vector<RealT>> z_store = z_star.clone();
-			HDSA::Ptr<HDSA::Vector<RealT>> grad_current = z_star.clone();
-			HDSA::Ptr<HDSA::Vector<RealT>> theta_current = theta_star.clone();
+			HDSA::Ptr<HDSA::Vector<RealT>> z_current = z_star.Clone();
+			HDSA::Ptr<HDSA::Vector<RealT>> z_new = z_star.Clone();
+			HDSA::Ptr<HDSA::Vector<RealT>> z_tmp = z_star.Clone();
+			HDSA::Ptr<HDSA::Vector<RealT>> z_store = z_star.Clone();
+			HDSA::Ptr<HDSA::Vector<RealT>> grad_current = z_star.Clone();
+			HDSA::Ptr<HDSA::Vector<RealT>> theta_current = theta_star.Clone();
 
 			int num_Hvecs = 0;
 			int num_Bvecs = 0;
@@ -232,12 +232,12 @@ namespace HDSA
 			}
 
 			RealT dt = 1.0 / static_cast<RealT>(N);
-			HDSA::Ptr<HDSA::Vector<RealT>> d_theta = theta_star.clone();
-			d_theta->set(theta_star);
+			HDSA::Ptr<HDSA::Vector<RealT>> d_theta = theta_star.Clone();
+			d_theta->Set(theta_star);
 			d_theta->axpy(-1.0, *theta_bar_);
 
-			z_current->set(*z_bar_);
-			theta_current->set(*theta_bar_);
+			z_current->Set(*z_bar_);
+			theta_current->Set(*theta_bar_);
 			sen_op_interface_->Gradient(*grad_current, *z_current, *theta_current);
 			num_grads += 1;
 
@@ -245,16 +245,16 @@ namespace HDSA
 			if (use_qn_prec_)
 			{
 				qn_prec_->Set_N(3 * N + 1);
-				s = z_new->clone();
-				y = z_new->clone();
+				s = z_new->Clone();
+				y = z_new->Clone();
 			}
 
 			for (int k = 0; k < N; k++)
 			{
 				std::cout << "-----------------------------------------------------" << std::endl;
-				std::cout << "The gradient norm after step: " << k << " is " << grad_current->norm() << std::endl;
+				std::cout << "The gradient Norm after step: " << k << " is " << grad_current->Norm() << std::endl;
 
-				z_store->set(*z_current);
+				z_store->Set(*z_current);
 
 				std::cout << "Beginning B matvec at Euler step " << k + 1 << std::endl;
 				sen_op_interface_->Apply_B(*z_tmp, *d_theta, *z_current, *theta_current);
@@ -264,21 +264,21 @@ namespace HDSA
 				int iters = Apply_Inverse_Hessian(*z_new, *z_tmp, *z_current, *theta_current, cg_tol_);
 				num_Hvecs += iters;
 
-				z_new->scale(-0.5 * dt);
-				z_new->plus(*z_current);
+				z_new->Scale(-0.5 * dt);
+				z_new->Plus(*z_current);
 
 				if (use_qn_prec_)
 				{
-					s->set(*z_new);
+					s->Set(*z_new);
 					s->axpy(-1.0, *z_current);
 
-					y->set(*grad_current);
+					y->Set(*grad_current);
 					y->axpy(0.5 * dt, *z_tmp);
-					y->scale(-1.0);
+					y->Scale(-1.0);
 				}
 
-				z_current->set(*z_new);
-				z_new->zeros();
+				z_current->Set(*z_new);
+				z_new->Zeros();
 				theta_current->axpy(0.5 * dt, *d_theta);
 
 				sen_op_interface_->Gradient(*grad_current, *z_current, *theta_current);
@@ -286,7 +286,7 @@ namespace HDSA
 				if (use_qn_prec_)
 				{
 					qn_prec_->Add_Block_Quasi_Newton_Data();
-					y->plus(*grad_current);
+					y->Plus(*grad_current);
 					qn_prec_->Add_Parametric_Quasi_Newton_Data(*s, *y);
 				}
 
@@ -298,20 +298,20 @@ namespace HDSA
 				iters = Apply_Inverse_Hessian(*z_new, *z_tmp, *z_current, *theta_current, cg_tol_);
 				num_Hvecs += iters;
 
-				z_new->scale(-dt);
-				z_new->plus(*z_store);
+				z_new->Scale(-dt);
+				z_new->Plus(*z_store);
 
 				if (use_qn_prec_)
 				{
-					s->set(*z_new);
+					s->Set(*z_new);
 					s->axpy(-1.0, *z_current);
 
-					y->set(*grad_current);
+					y->Set(*grad_current);
 					y->axpy(0.5 * dt, *z_tmp);
-					y->scale(-1.0);
+					y->Scale(-1.0);
 				}
 
-				z_current->set(*z_new);
+				z_current->Set(*z_new);
 				theta_current->axpy(0.5 * dt, *d_theta);
 				sen_op_interface_->Gradient(*grad_current, *z_current, *theta_current);
 				num_grads += 1;
@@ -319,15 +319,15 @@ namespace HDSA
 				if (use_qn_prec_)
 				{
 					qn_prec_->Add_Block_Quasi_Newton_Data();
-					y->plus(*grad_current);
+					y->Plus(*grad_current);
 					qn_prec_->Add_Parametric_Quasi_Newton_Data(*s, *y);
 				}
-				RealT sol_grad_norm = grad_current->norm();
+				RealT sol_grad_Norm = grad_current->Norm();
 
-				if (sol_grad_norm > grad_tol_)
+				if (sol_grad_Norm > grad_tol_)
 				{
 					std::cout << "Beginning inverse Hessian matvec at Newton step " << k + 1 << std::endl;
-					std::cout << "The current gradient norm = " << sol_grad_norm << std::endl;
+					std::cout << "The current gradient Norm = " << sol_grad_Norm << std::endl;
 					iters = Apply_Inverse_Hessian(*z_new, *grad_current, *z_current, *theta_current, cg_tol_);
 					num_Hvecs += iters;
 
@@ -340,30 +340,30 @@ namespace HDSA
 						qn_prec_->Add_Block_Quasi_Newton_Data();
 					}
 
-					sol_grad_norm = grad_current->norm();
+					sol_grad_Norm = grad_current->Norm();
 				}
 
 				RealT variable_cg_tol = cg_tol_;
-				while (sol_grad_norm > grad_tol_)
+				while (sol_grad_Norm > grad_tol_)
 				{
 					std::cout << "Taking an extra Newton iteration at step " << k + 1 << std::endl;
-					std::cout << "The current gradient norm = " << sol_grad_norm << std::endl;
+					std::cout << "The current gradient Norm = " << sol_grad_Norm << std::endl;
 					iters = Apply_Inverse_Hessian(*z_new, *grad_current, *z_current, *theta_current, variable_cg_tol);
 					num_Hvecs += iters;
 					z_current->axpy(-1.0, *z_new);
 					sen_op_interface_->Gradient(*grad_current, *z_current, *theta_current);
 					num_grads += 1;
-					sol_grad_norm = grad_current->norm();
+					sol_grad_Norm = grad_current->Norm();
 					variable_cg_tol = (1.e-1) * variable_cg_tol;
 				}
 			}
-			z_star.set(*z_current);
-			grad_star.set(*grad_current);
+			z_star.Set(*z_current);
+			grad_star.Set(*grad_current);
 
-			RealT sol_grad_norm = grad_current->norm();
+			RealT sol_grad_Norm = grad_current->Norm();
 			std::cout << " " << std::endl;
 			std::cout << "-----------------------------------------------------" << std::endl;
-			std::cout << "Solution gradient norm = " << sol_grad_norm << std::endl;
+			std::cout << "Solution gradient Norm = " << sol_grad_Norm << std::endl;
 			std::cout << " " << std::endl;
 
 			std::string name = "Modified_Euler_Cost_Report.txt";
@@ -373,7 +373,7 @@ namespace HDSA
 			fout << "Number of H-vector products: " << num_Hvecs << std::endl;
 			fout << "Number of gradient evaluations: " << num_grads << std::endl;
 			fout << "Number of vectors stored for preconditioner: " << qn_prec_->Get_Number_Vecs_Stored() << std::endl;
-			fout << "Solution gradient norm = " << sol_grad_norm << std::endl;
+			fout << "Solution gradient Norm = " << sol_grad_Norm << std::endl;
 			fout.close();
 		}
 	};

@@ -102,11 +102,11 @@ namespace HDSA
 
     void Apply_M_u(HDSA::Vector<RealT> &u_out, const HDSA::Vector<RealT> &u_in) const
     {
-      u_out.zeros();
+      u_out.Zeros();
 
       if (const HDSA::Ensemble_Vector<RealT> *u_in_ens = dynamic_cast<const HDSA::Ensemble_Vector<RealT> *>(&u_in))
       {
-        HDSA::Ptr<HDSA::Vector<RealT>> u_tmp = u_out.clone();
+        HDSA::Ptr<HDSA::Vector<RealT>> u_tmp = u_out.Clone();
 
         HDSA::Ensemble_Vector<RealT> u_out_ens = dynamic_cast<HDSA::Ensemble_Vector<RealT> &>(u_out);
         HDSA::Ensemble_Vector<RealT> u_tmp_ens = dynamic_cast<HDSA::Ensemble_Vector<RealT> &>(*u_tmp);
@@ -132,8 +132,8 @@ namespace HDSA
 
     void Apply_W_u_Inverse(HDSA::Vector<RealT> &u_out, const HDSA::Vector<RealT> &u_in) const
     {
-      u_out.zeros();
-      HDSA::Ptr<HDSA::Vector<RealT>> u_tmp = u_out.clone();
+      u_out.Zeros();
+      HDSA::Ptr<HDSA::Vector<RealT>> u_tmp = u_out.Clone();
 
       const HDSA::Ensemble_Vector<RealT> u_in_ens = dynamic_cast<const HDSA::Ensemble_Vector<RealT> &>(u_in);
       HDSA::Ensemble_Vector<RealT> u_out_ens = dynamic_cast<HDSA::Ensemble_Vector<RealT> &>(u_out);
@@ -155,8 +155,8 @@ namespace HDSA
 
     void Apply_W_u_Plus_scalar_M_u_Inverse(HDSA::Vector<RealT> &u_out, const HDSA::Vector<RealT> &u_in, const RealT &scalar) const
     {
-      u_out.zeros();
-      HDSA::Ptr<HDSA::Vector<RealT>> u_tmp = u_out.clone();
+      u_out.Zeros();
+      HDSA::Ptr<HDSA::Vector<RealT>> u_tmp = u_out.Clone();
 
       const HDSA::Ensemble_Vector<RealT> u_in_ens = dynamic_cast<const HDSA::Ensemble_Vector<RealT> &>(u_in);
       HDSA::Ensemble_Vector<RealT> u_out_ens = dynamic_cast<HDSA::Ensemble_Vector<RealT> &>(u_out);
@@ -178,7 +178,7 @@ namespace HDSA
 
     void Sample_with_Covariance_W_u_Inverse(HDSA::MultiVector<RealT> &samples) const
     {
-      samples.zeros();
+      samples.Zeros();
       int M = samples.Number_of_Vectors();
       for (int i = 0; i < M; i++)
       {
@@ -197,7 +197,7 @@ namespace HDSA
 
     void Sample_with_Covariance_W_u_Plus_scalar_M_u_Inverse(HDSA::MultiVector<RealT> &samples, const RealT &scalar) const
     {
-      samples.zeros();
+      samples.Zeros();
       int M = samples.Number_of_Vectors();
       for (int i = 0; i < M; i++)
       {

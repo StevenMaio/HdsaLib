@@ -135,10 +135,10 @@ public:
     if (dirichlet_)
     {
       // APPLY DIRICHLET CONDITIONS
-      int numSideSets = bdryCellLocIds_.size();
-      if (numSideSets > 0)
+      int numSidesets = bdryCellLocIds_.size();
+      if (numSidesets > 0)
       {
-        for (int i = 0; i < numSideSets; ++i)
+        for (int i = 0; i < numSidesets; ++i)
         {
           int numLocalSideIds = bdryCellLocIds_[i].size();
           for (int j = 0; j < numLocalSideIds; ++j)
@@ -214,10 +214,10 @@ public:
     if (dirichlet_)
     {
       // APPLY DIRICHLET CONDITIONS
-      int numSideSets = bdryCellLocIds_.size();
-      if (numSideSets > 0)
+      int numSidesets = bdryCellLocIds_.size();
+      if (numSidesets > 0)
       {
-        for (int i = 0; i < numSideSets; ++i)
+        for (int i = 0; i < numSidesets; ++i)
         {
           int numLocalSideIds = bdryCellLocIds_[i].size();
           for (int j = 0; j < numLocalSideIds; ++j)
@@ -331,7 +331,7 @@ public:
     bdryCellLocIds_ = bdryCellLocIds;
     // Finite element definition.
     fe_ = ROL::makePtr<FE<Real>>(volCellNodes_, basisPtr_, cellCub_);
-    // Set local boundary DOFs.
+    // set local boundary DOFs.
     fidx_ = fe_->getBoundaryDofs();
     // Compute Dirichlet values at DOFs.
     int d = basisPtr_->getBaseCellTopology().getDimension();
@@ -374,9 +374,9 @@ public:
     }
   }
 
-  ROL::Ptr<Intrepid::FieldContainer<Real>> getBoundaryCoeff(const Intrepid::FieldContainer<Real> &cell_coeff, int sideSet, int cell) const
+  ROL::Ptr<Intrepid::FieldContainer<Real>> getBoundaryCoeff(const Intrepid::FieldContainer<Real> &cell_coeff, int sideset, int cell) const
   {
-    std::vector<int> bdryCellLocId = bdryCellLocIds_[sideSet][cell];
+    std::vector<int> bdryCellLocId = bdryCellLocIds_[sideset][cell];
     const int numCellsSide = bdryCellLocId.size();
     const int f = basisPtr_->getCardinality();
 
@@ -640,7 +640,7 @@ public:
     bdryCellLocIds_ = bdryCellLocIds;
     // Finite element definition.
     fe_ = ROL::makePtr<FE<Real>>(volCellNodes_, basisPtr_, cellCub_);
-    // Set local boundary DOFs.
+    // set local boundary DOFs.
     fidx_ = fe_->getBoundaryDofs();
     // Compute Dirichlet values at DOFs.
     int d = basisPtr_->getBaseCellTopology().getDimension();
@@ -683,9 +683,9 @@ public:
     }
   }
 
-  ROL::Ptr<Intrepid::FieldContainer<Real>> getBoundaryCoeff(const Intrepid::FieldContainer<Real> &cell_coeff, int sideSet, int cell) const
+  ROL::Ptr<Intrepid::FieldContainer<Real>> getBoundaryCoeff(const Intrepid::FieldContainer<Real> &cell_coeff, int sideset, int cell) const
   {
-    std::vector<int> bdryCellLocId = bdryCellLocIds_[sideSet][cell];
+    std::vector<int> bdryCellLocId = bdryCellLocIds_[sideset][cell];
     const int numCellsSide = bdryCellLocId.size();
     const int f = basisPtr_->getCardinality();
 
@@ -723,7 +723,7 @@ public:
 // }
 
 template <class Real>
-void Set_Prior_Mean(ROL::Ptr<Tpetra::MultiVector<>> &z_ptr, const ROL::Ptr<Teuchos::ParameterList> &parlist)
+void set_Prior_Mean(ROL::Ptr<Tpetra::MultiVector<>> &z_ptr, const ROL::Ptr<Teuchos::ParameterList> &parlist)
 {
   int num_coeff_load = parlist->sublist("Problem").get("Number of Coefficients in Loaded Fields", 10);
   std::vector<Real> prior_mean_coeff = std::vector<Real>(num_coeff_load);
@@ -789,7 +789,7 @@ public:
     prior_mean_ptr->putScalar(0.0);
     prior_mean_ = ROL::makePtr<PDE_PrimalOptVector<Real>>(prior_mean_ptr, elliptic_pde, assembler);
 
-    Set_Prior_Mean<Real>(prior_mean_ptr, parlist);
+    set_Prior_Mean<Real>(prior_mean_ptr, parlist);
 
     if (construct_operators)
     {
@@ -962,7 +962,7 @@ public:
     prior_mean_ptr->putScalar(0.0);
     prior_mean_ = ROL::makePtr<PDE_PrimalOptVector<Real>>(prior_mean_ptr, elliptic_pde, assembler);
 
-    Set_Prior_Mean<Real>(prior_mean_ptr, parlist);
+    set_Prior_Mean<Real>(prior_mean_ptr, parlist);
 
     if (construct_operators)
     {

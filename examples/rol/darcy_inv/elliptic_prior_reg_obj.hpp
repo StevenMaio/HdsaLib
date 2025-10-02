@@ -184,7 +184,7 @@ public:
     bdryCellLocIds_ = bdryCellLocIds;
     // Finite element definition.
     fe_vol_ = ROL::makePtr<FE<Real>>(volCellNodes_, basisPtr_, cellCub_);
-    // Set local boundary DOFs.
+    // set local boundary DOFs.
     fidx_ = fe_vol_->getBoundaryDofs();
     // Compute Dirichlet values at DOFs.
     int d = basisPtr_->getBaseCellTopology().getDimension();
@@ -379,7 +379,7 @@ public:
     bdryCellLocIds_ = bdryCellLocIds;
     // Finite element definition.
     fe_vol_ = ROL::makePtr<FE<Real>>(volCellNodes_, basisPtr_, cellCub_);
-    // Set local boundary DOFs.
+    // set local boundary DOFs.
     fidx_ = fe_vol_->getBoundaryDofs();
     // Compute Dirichlet values at DOFs.
     int d = basisPtr_->getBaseCellTopology().getDimension();

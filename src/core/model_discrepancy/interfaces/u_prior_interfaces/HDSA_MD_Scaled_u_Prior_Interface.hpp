@@ -56,25 +56,25 @@ namespace HDSA
     virtual void Apply_W_u_Inverse(HDSA::Vector<RealT> &u_out, const HDSA::Vector<RealT> &u_in) const
     {
       Apply_W_u_Acute_Inverse(u_out, u_in);
-      u_out.scale(alpha_u_);
+      u_out.Scale(alpha_u_);
     }
 
     virtual void Apply_W_u_Plus_scalar_M_u_Inverse(HDSA::Vector<RealT> &u_out, const HDSA::Vector<RealT> &u_in, const RealT &scalar) const
     {
       Apply_W_u_Acute_Plus_scalar_M_u_Inverse(u_out, u_in, scalar * alpha_u_);
-      u_out.scale(alpha_u_);
+      u_out.Scale(alpha_u_);
     }
 
     virtual void Sample_with_Covariance_W_u_Inverse(HDSA::MultiVector<RealT> &samples) const
     {
       Sample_with_Covariance_W_u_Acute_Inverse(samples);
-      samples.scale(std::sqrt(alpha_u_));
+      samples.Scale(std::sqrt(alpha_u_));
     }
 
     virtual void Sample_with_Covariance_W_u_Plus_scalar_M_u_Inverse(HDSA::MultiVector<RealT> &samples, const RealT &scalar) const
     {
       Sample_with_Covariance_W_u_Acute_Plus_scalar_M_u_Inverse(samples, alpha_u_ * scalar);
-      samples.scale(std::sqrt(alpha_u_));
+      samples.Scale(std::sqrt(alpha_u_));
     }
 
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////
