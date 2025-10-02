@@ -102,7 +102,8 @@ target_include_directories(HdsaLib INTERFACE
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/trilinos_adapter/adapters>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/trilinos_adapter/core>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/interfaces/rol>
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/interfaces/mrhyde>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/interfaces/mrhyde/md_interfaces>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/interfaces/mrhyde/auxillary>
     $<INSTALL_INTERFACE:include>
 )
 

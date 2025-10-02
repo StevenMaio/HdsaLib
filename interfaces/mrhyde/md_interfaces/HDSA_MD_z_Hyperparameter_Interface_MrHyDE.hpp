@@ -11,6 +11,7 @@ class MD_z_Hyperparameter_Interface_MrHyDE : public HDSA::MD_z_Hyperparameter_In
 private:
   HDSA::Ptr<HDSA::MD_Data_Interface<RealT>> data_interface_;
   Teuchos::RCP<Teuchos::MpiComm<int>> comm_;
+  HDSA::Ptr<Solver_Interface_MrHyDE<RealT>> solver_interface_;
 
 public:
   std::vector<std::vector<RealT>> Spatial_Domain_Bounds(void) const override
@@ -55,37 +56,28 @@ public:
 
   void State_Solve(HDSA::Vector<RealT> &u, const HDSA::Vector<RealT> &z) const override
   {
-    if (const MD_Data_Interface_MrHyDE<RealT> *data_interface_myhyde = dynamic_cast<const MD_Data_Interface_MrHyDE<RealT> *>(&(*data_interface_)))
-    {
-      data_interface_myhyde->State_Solve(u, z);
-    }
-    else if (const MD_OUU_Data_Interface_MrHyDE<RealT> *ouu_data_interface_myhyde = dynamic_cast<const MD_OUU_Data_Interface_MrHyDE<RealT> *>(&(*data_interface_)))
-    {
-      std::vector<HDSA::Ptr<MD_Data_Interface_MrHyDE<RealT>>> data_interface_myhyde_std = ouu_data_interface_myhyde->Get_Data_Interface_MrHyDE();
-      data_interface_myhyde_std[0]->State_Solve(u, z);
-    }
-    else
-    {
-      std::cout << "Error: MD_z_Hyperparameter_Interface_MrHyDE was unable to execute the requested State_Solve" << std::endl;
-    }
+    solver_interface_->State_Solve(u,z);
   }
 
-  MD_z_Hyperparameter_Interface_MrHyDE(const Teuchos::RCP<Teuchos::MpiComm<int>> &comm, const HDSA::Ptr<HDSA::MD_Data_Interface<RealT>> data_interface, const std::string &z_type, const int &num_state_solves = 0) : HDSA::MD_z_Hyperparameter_Interface<RealT>(z_type, num_state_solves)
+  MD_z_Hyperparameter_Interface_MrHyDE(const Teuchos::RCP<MrHyDE::SolverManager<SolverNode>> &solve, const HDSA::Ptr<MrHyDE::ParameterManager<SolverNode>> &params, const Teuchos::RCP<Teuchos::MpiComm<int>> &comm, const HDSA::Ptr<HDSA::MD_Data_Interface<RealT>> data_interface, const std::string &z_type, const int &num_state_solves = 0) : HDSA::MD_z_Hyperparameter_Interface<RealT>(z_type, num_state_solves)
   {
     comm_ = comm;
     data_interface_ = data_interface;
+    solver_interface_ = HDSA::makePtr<Solver_Interface_MrHyDE<RealT>>(solve, params);
   }
 
-  MD_z_Hyperparameter_Interface_MrHyDE(const Teuchos::RCP<Teuchos::MpiComm<int>> &comm, const HDSA::Ptr<HDSA::MD_Data_Interface<RealT>> data_interface, int seed, const std::string &z_type, const int &num_state_solves = 0) : HDSA::MD_z_Hyperparameter_Interface<RealT>(seed, z_type, num_state_solves)
+  MD_z_Hyperparameter_Interface_MrHyDE(const Teuchos::RCP<MrHyDE::SolverManager<SolverNode>> &solve, const HDSA::Ptr<MrHyDE::ParameterManager<SolverNode>> &params, const Teuchos::RCP<Teuchos::MpiComm<int>> &comm, const HDSA::Ptr<HDSA::MD_Data_Interface<RealT>> data_interface, int seed, const std::string &z_type, const int &num_state_solves = 0) : HDSA::MD_z_Hyperparameter_Interface<RealT>(seed, z_type, num_state_solves)
   {
     comm_ = comm;
     data_interface_ = data_interface;
+    solver_interface_ = HDSA::makePtr<Solver_Interface_MrHyDE<RealT>>(solve, params);
   }
 
-  MD_z_Hyperparameter_Interface_MrHyDE(const Teuchos::RCP<Teuchos::MpiComm<int>> &comm, const HDSA::Ptr<HDSA::MD_Data_Interface<RealT>> data_interface, const HDSA::Ptr<HDSA::Random_Number_Generator<RealT>> &random_number_generator, const std::string &z_type, const int &num_state_solves = 0) : HDSA::MD_z_Hyperparameter_Interface<RealT>(random_number_generator, z_type, num_state_solves)
+  MD_z_Hyperparameter_Interface_MrHyDE(const Teuchos::RCP<MrHyDE::SolverManager<SolverNode>> &solve, const HDSA::Ptr<MrHyDE::ParameterManager<SolverNode>> &params, const Teuchos::RCP<Teuchos::MpiComm<int>> &comm, const HDSA::Ptr<HDSA::MD_Data_Interface<RealT>> data_interface, const HDSA::Ptr<HDSA::Random_Number_Generator<RealT>> &random_number_generator, const std::string &z_type, const int &num_state_solves = 0) : HDSA::MD_z_Hyperparameter_Interface<RealT>(random_number_generator, z_type, num_state_solves)
   {
     comm_ = comm;
     data_interface_ = data_interface;
+    solver_interface_ = HDSA::makePtr<Solver_Interface_MrHyDE<RealT>>(solve, params);
   }
 };
 

@@ -4,15 +4,18 @@
 #include "HDSA_MD_Opt_Prob_Interface.hpp"
 #include "HDSA_Tpetra_Vector.hpp"
 #include "HDSA_Std_Vector.hpp"
+#include "HDSA_Solver_Interface_MrHyDE.hpp"
 
 template <class RealT>
 class MD_Opt_Prob_Interface_MrHyDE : public HDSA::MD_Opt_Prob_Interface<RealT>
 {
 
 private:
-  HDSA::Ptr<MrHyDE::PostprocessManager<SolverNode>> postproc_;
   HDSA::Ptr<MrHyDE::SolverManager<SolverNode>> solver_;
+  HDSA::Ptr<MrHyDE::PostprocessManager<SolverNode>> postproc_;
   HDSA::Ptr<MrHyDE::ParameterManager<SolverNode>> params_;
+  
+  HDSA::Ptr<Solver_Interface_MrHyDE<RealT>> solver_interface_;
   HDSA::Ptr<HDSA::Vector<RealT>> grad_nom_;
 
 public:
@@ -21,6 +24,8 @@ public:
     postproc_ = postproc;
     solver_ = solver;
     params_ = params;
+
+    solver_interface_ = HDSA::makePtr<Solver_Interface_MrHyDE<RealT>>(solver_, params_);
 
     postproc_->hdsa_solop_data.resize(solver_->setnames.size());
     for (int set = 0; set < solver_->setnames.size(); set++)
@@ -35,6 +40,14 @@ public:
   virtual ~MD_Opt_Prob_Interface_MrHyDE()
   {
   }
+
+  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  // Implementation of base class pure virtual functions:
+  // Apply_Solution_Operator_z_Jacobian_Transpose
+  // Apply_RS_Hessian
+  // Misfit_Gradient
+  // Apply_Misfit_Hessian
+  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   void Apply_Solution_Operator_z_Jacobian_Transpose(HDSA::Vector<RealT> &z_out, const HDSA::Vector<RealT> &u_in, const HDSA::Vector<RealT> &z) const
   {
@@ -119,6 +132,10 @@ public:
     u_out.scale(1.0 / h);
   }
 
+  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  // Functions that aid in the implementation of the base class pure virtual function
+  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
   void writedata_solopt(const HDSA::Vector<RealT> &u) const
   {
     if (solver_->isTransient)
@@ -139,41 +156,17 @@ public:
     }
   }
 
+  void do_solop(bool solop_flag) const
+  {
+    postproc_->hdsa_solop = solop_flag;
+  }
+
   void gradient(HDSA::Vector<RealT> &grad_z, const HDSA::Vector<RealT> &z) const
   {
     bool new_z = checkNewParams(z);
-
-    const std::vector<ROL::Ptr<std::vector<ScalarT>>> svec;
     if (new_z)
     {
-      ROL::Ptr<MrHyDE_OptVector> z_rol;
-      if (const HDSA::Tpetra_Vector<RealT> *ez = dynamic_cast<const HDSA::Tpetra_Vector<RealT> *>(&z))
-      {
-        HDSA::Ptr<Tpetra::MultiVector<ScalarT, LO, GO, SolverNode>> fvec = ez->getVector();
-        ROL::Ptr<std::vector<ScalarT>> svec = ROL::makePtr<std::vector<RealT>>(0);
-        z_rol = ROL::makePtr<MrHyDE_OptVector>(fvec, svec);
-      }
-      else if (const HDSA::Transient_Vector<RealT> *ez = dynamic_cast<const HDSA::Transient_Vector<RealT> *>(&z))
-      {
-        std::vector<ROL::Ptr<Tpetra::MultiVector<RealT, LO, GO, SolverNode>>> f_vec;
-        std::vector<ROL::Ptr<std::vector<RealT>>> s_vec;
-        int n_t = ez->Get_n_t();
-        s_vec.resize(n_t);
-        for (int k = 0; k < n_t; k++)
-        {
-          HDSA::Ptr<HDSA::Vector<RealT>> z_k = (*ez)[k];
-          const HDSA::Std_Vector<RealT> *ez_k = dynamic_cast<const HDSA::Std_Vector<RealT> *>(&(*z_k));
-          s_vec[k] = ez_k->get_std_vec();
-        }
-        RealT dt = solver_->deltat; // Assumes that z is discretized on the same time nodes as the state
-        z_rol = ROL::makePtr<MrHyDE_OptVector>(f_vec, s_vec, dt);
-      }
-      else if (const HDSA::Std_Vector<RealT> *ez = dynamic_cast<const HDSA::Std_Vector<RealT> *>(&z))
-      {
-        ROL::Ptr<std::vector<ScalarT>> svec = ez->get_std_vec();
-        z_rol = ROL::makePtr<MrHyDE_OptVector>(svec);
-      }
-
+      HDSA::Ptr<MrHyDE_OptVector> z_rol = solver_interface_->Map_HDSA_Vector_to_MrHyDE_OptVector(z);
       MrHyDE_OptVector curr_z = params_->getCurrentVector();
       ROL::Ptr<ROL::Vector<RealT>> z_tmp = curr_z.clone();
       MrHyDE_OptVector ez_tmp = Teuchos::dyn_cast<MrHyDE_OptVector>(dynamic_cast<ROL::Vector<RealT> &>(*z_tmp));
@@ -184,33 +177,7 @@ public:
       solver_->forwardModel(val);
     }
 
-    ROL::Ptr<MrHyDE_OptVector> grad_z_rol;
-    if (const HDSA::Tpetra_Vector<RealT> *egrad_z = dynamic_cast<const HDSA::Tpetra_Vector<RealT> *>(&grad_z))
-    {
-      HDSA::Ptr<Tpetra::MultiVector<ScalarT, LO, GO, SolverNode>> fvec = egrad_z->getVector();
-      ROL::Ptr<std::vector<ScalarT>> svec = ROL::makePtr<std::vector<RealT>>(0);
-      grad_z_rol = ROL::makePtr<MrHyDE_OptVector>(fvec, svec);
-    }
-    else if (const HDSA::Transient_Vector<RealT> *egrad_z = dynamic_cast<const HDSA::Transient_Vector<RealT> *>(&grad_z))
-    {
-      std::vector<ROL::Ptr<Tpetra::MultiVector<RealT, LO, GO, SolverNode>>> f_vec;
-      std::vector<ROL::Ptr<std::vector<RealT>>> s_vec;
-      int n_t = egrad_z->Get_n_t();
-      s_vec.resize(n_t);
-      for (int k = 0; k < n_t; k++)
-      {
-        HDSA::Ptr<HDSA::Vector<RealT>> grad_z_k = (*egrad_z)[k];
-        const HDSA::Std_Vector<RealT> *egrad_z_k = dynamic_cast<const HDSA::Std_Vector<RealT> *>(&(*grad_z_k));
-        s_vec[k] = egrad_z_k->get_std_vec();
-      }
-      RealT dt = solver_->deltat; // Assumes that z is discretized on the same time nodes as the state
-      grad_z_rol = ROL::makePtr<MrHyDE_OptVector>(f_vec, s_vec, dt);
-    }
-    else if (const HDSA::Std_Vector<RealT> *egrad_z = dynamic_cast<const HDSA::Std_Vector<RealT> *>(&grad_z))
-    {
-      ROL::Ptr<std::vector<ScalarT>> svec = egrad_z->get_std_vec();
-      grad_z_rol = ROL::makePtr<MrHyDE_OptVector>(svec);
-    }
+    HDSA::Ptr<MrHyDE_OptVector> grad_z_rol = solver_interface_->Map_HDSA_Vector_to_MrHyDE_OptVector(grad_z);
     grad_z_rol->zero();
 
     solver_->adjointModel(*grad_z_rol);
@@ -218,44 +185,19 @@ public:
 
   bool checkNewParams(const HDSA::Vector<RealT> &z) const
   {
+    HDSA::Ptr<MrHyDE_OptVector> z_rol = solver_interface_->Map_HDSA_Vector_to_MrHyDE_OptVector(z);
     MrHyDE_OptVector curr_z = params_->getCurrentVector();
+
     ROL::Ptr<ROL::Vector<RealT>> diff = curr_z.clone();
-
-    ROL::Ptr<MrHyDE_OptVector> z_rol;
-    if (const HDSA::Tpetra_Vector<RealT> *ez = dynamic_cast<const HDSA::Tpetra_Vector<RealT> *>(&z))
-    {
-      HDSA::Ptr<Tpetra::MultiVector<ScalarT, LO, GO, SolverNode>> fvec = ez->getVector();
-      ROL::Ptr<std::vector<ScalarT>> svec = ROL::makePtr<std::vector<RealT>>(0);
-      z_rol = ROL::makePtr<MrHyDE_OptVector>(fvec, svec);
-    }
-    else if (const HDSA::Transient_Vector<RealT> *ez = dynamic_cast<const HDSA::Transient_Vector<RealT> *>(&z))
-    {
-      std::vector<ROL::Ptr<Tpetra::MultiVector<RealT, LO, GO, SolverNode>>> f_vec;
-      std::vector<ROL::Ptr<std::vector<RealT>>> s_vec;
-      int n_t = ez->Get_n_t();
-      s_vec.resize(n_t);
-      for (int k = 0; k < n_t; k++)
-      {
-        HDSA::Ptr<HDSA::Vector<RealT>> z_k = (*ez)[k];
-        const HDSA::Std_Vector<RealT> *ez_k = dynamic_cast<const HDSA::Std_Vector<RealT> *>(&(*z_k));
-        s_vec[k] = ez_k->get_std_vec();
-      }
-      RealT dt = solver_->deltat; // Assumes that z is discretized on the same time nodes as the state
-      z_rol = ROL::makePtr<MrHyDE_OptVector>(f_vec, s_vec, dt);
-    }
-    else if (const HDSA::Std_Vector<RealT> *ez = dynamic_cast<const HDSA::Std_Vector<RealT> *>(&z))
-    {
-      ROL::Ptr<std::vector<ScalarT>> svec = ez->get_std_vec();
-      z_rol = ROL::makePtr<MrHyDE_OptVector>(svec);
-    }
-
     diff->zero();
     diff->set(curr_z);
     diff->axpy(-1.0, *z_rol);
+
     ScalarT dnorm = diff->norm();
     ScalarT refnorm = curr_z.norm();
     dnorm = dnorm / refnorm;
     ScalarT reltol = 1.0e-12;
+
     bool new_z = false;
     if (dnorm > reltol)
     {
@@ -264,9 +206,5 @@ public:
     return new_z;
   }
 
-  void do_solop(bool solop_flag) const
-  {
-    postproc_->hdsa_solop = solop_flag;
-  }
 };
 #endif

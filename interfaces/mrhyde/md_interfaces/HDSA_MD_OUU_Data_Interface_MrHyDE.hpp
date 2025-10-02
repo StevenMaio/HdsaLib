@@ -54,9 +54,5 @@ public:
     return spatial_nodes;
   }
 
-  std::vector<HDSA::Ptr<MD_Data_Interface_MrHyDE<RealT>>> Get_Data_Interface_MrHyDE(void) const
-  {
-    return data_interface_mrhyde_;
-  }
 };
 #endif

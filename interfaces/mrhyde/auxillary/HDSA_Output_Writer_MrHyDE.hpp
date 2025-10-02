@@ -1,5 +1,5 @@
-#ifndef HDSA_WRITE_OUTPUT_MRHYDE_HPP
-#define HDSA_WRITE_OUTPUT_MRHYDE_HPP
+#ifndef HDSA_Output_Writer_MrHyDE_HPP
+#define HDSA_Output_Writer_MrHyDE_HPP
 
 #include <filesystem>
 #include "HDSA_MD_u_Hyperparameter_Interface.hpp"
@@ -9,7 +9,7 @@
 #include "HDSA_Ensemble_Vector.hpp"
 
 template <class RealT>
-class Write_Output_MrHyDE
+class Output_Writer_MrHyDE
 {
 
 private:
@@ -19,7 +19,7 @@ private:
     std::string output_dir_name_;
 
 public:
-    Write_Output_MrHyDE(const HDSA::Ptr<MrHyDE::PostprocessManager<SolverNode>> &postproc, const HDSA::Ptr<MrHyDE::SolverManager<SolverNode>> &solver, bool write_exo) : postproc_(postproc), solver_(solver), write_exo_(write_exo)
+    Output_Writer_MrHyDE(const HDSA::Ptr<MrHyDE::PostprocessManager<SolverNode>> &postproc, const HDSA::Ptr<MrHyDE::SolverManager<SolverNode>> &solver, bool write_exo) : postproc_(postproc), solver_(solver), write_exo_(write_exo)
     {
         if (write_exo_)
         {
@@ -40,7 +40,7 @@ public:
         solver_->Comm->barrier();
     }
 
-    virtual ~Write_Output_MrHyDE()
+    virtual ~Output_Writer_MrHyDE()
     {
     }
 
