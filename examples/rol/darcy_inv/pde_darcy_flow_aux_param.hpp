@@ -69,8 +69,8 @@ public:
     int c = fe_vol_->gradN()->dimension(0);
     int f = fe_vol_->gradN()->dimension(1);
     int p = fe_vol_->gradN()->dimension(2);
-    int d = fe_vol_->gradN()->dimension(3);
-    // INITIALIZE RESIDUAL
+    // int d = fe_vol_->gradN()->dimension(3);
+    //  INITIALIZE RESIDUAL
     res = ROL::makePtr<Intrepid::FieldContainer<Real>>(c, f);
     // COMPUTE PDE COEFFICIENTS
     ROL::Ptr<Intrepid::FieldContainer<Real>> rhs = ROL::makePtr<Intrepid::FieldContainer<Real>>(c, p);
@@ -107,9 +107,9 @@ public:
     // GET DIMENSIONS
     int c = fe_vol_->gradN()->dimension(0);
     int f = fe_vol_->gradN()->dimension(1);
-    int p = fe_vol_->gradN()->dimension(2);
-    int d = fe_vol_->gradN()->dimension(3);
-    // INITILAIZE JACOBIAN
+    // int p = fe_vol_->gradN()->dimension(2);
+    // int d = fe_vol_->gradN()->dimension(3);
+    //  INITILAIZE JACOBIAN
     jac = ROL::makePtr<Intrepid::FieldContainer<Real>>(c, f, f);
 
     // APPLY DIRICHLET CONDITIONS
@@ -151,7 +151,7 @@ public:
     int c = fe_vol_->gradN()->dimension(0);
     int f = fe_vol_->gradN()->dimension(1);
     int p = fe_vol_->gradN()->dimension(2);
-    int d = fe_vol_->gradN()->dimension(3);
+    // int d = fe_vol_->gradN()->dimension(3);
     int size = z_param->size();
     for (int i = 0; i < size; i++)
     {

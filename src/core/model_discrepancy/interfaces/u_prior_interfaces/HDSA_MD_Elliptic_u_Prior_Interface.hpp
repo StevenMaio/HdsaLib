@@ -75,7 +75,7 @@ namespace HDSA
 
     void Compute_E_u_Inverse_GSVD(int num_sing_vals, int oversampling, int num_subspace_iters, const HDSA::Vector<RealT> &u_vec)
     {
-      gsvd_ = HDSA::makePtr<MD_Elliptic_GSVD<RealT>>(this, u_vec);
+      gsvd_ = HDSA::makePtr<MD_Elliptic_GSVD<RealT>>(this);
       sing_vecs_output_ = HDSA::makePtr<HDSA::MultiVector<RealT>>(num_sing_vals, u_vec);
       sing_vecs_input_ = HDSA::makePtr<HDSA::MultiVector<RealT>>(num_sing_vals, u_vec);
       sing_vals_ = HDSA::makePtr<HDSA::Dense_Matrix<RealT>>(num_sing_vals, 1);
@@ -148,7 +148,7 @@ namespace HDSA
       HDSA::MD_Elliptic_u_Prior_Interface<ScalarType> *u_prior_interface_;
 
     public:
-      MD_Elliptic_GSVD(HDSA::MD_Elliptic_u_Prior_Interface<ScalarType> *u_prior_interface, const HDSA::Vector<ScalarType> &u) : HDSA::Randomized_GSVD<ScalarType>(u, u)
+      MD_Elliptic_GSVD(HDSA::MD_Elliptic_u_Prior_Interface<ScalarType> *u_prior_interface) : HDSA::Randomized_GSVD<ScalarType>()
       {
         u_prior_interface_ = u_prior_interface;
       }

@@ -7,7 +7,7 @@ namespace HDSA
   template <class RealT>
   class Vector
   {
-
+    
   public:
     Vector()
     {

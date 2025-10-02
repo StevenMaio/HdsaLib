@@ -169,9 +169,9 @@ public:
   {
     // GET DIMENSIONS
     int c = u_coeff->dimension(0);
-    int p = cellCub_->getNumPoints();
+    // int p = cellCub_->getNumPoints();
     int f = basisPtr_->getCardinality();
-    int d = cellCub_->getDimension();
+    // int d = cellCub_->getDimension();
 
     // INITILAIZE JACOBIAN
     std::vector<std::vector<ROL::Ptr<Intrepid::FieldContainer<Real>>>> J(3);
@@ -252,10 +252,10 @@ public:
   {
     // GET DIMENSIONS
     int c = u_coeff->dimension(0);
-    int p = cellCub_->getNumPoints();
+    // int p = cellCub_->getNumPoints();
     int f = basisPtr_->getCardinality();
-    int d = cellCub_->getDimension();
-    // INITILAIZE JACOBIAN
+    // int d = cellCub_->getDimension();
+    //  INITILAIZE JACOBIAN
     std::vector<std::vector<ROL::Ptr<Intrepid::FieldContainer<Real>>>> J(3);
     for (int i = 0; i < 3; ++i)
     {
@@ -480,7 +480,7 @@ public:
     int c = u_coeff->dimension(0);
     int p = cellCub_->getNumPoints();
     int f = basisPtr_->getCardinality();
-    int d = cellCub_->getDimension();
+    // int d = cellCub_->getDimension();
 
     // Initialize residuals.
     std::vector<ROL::Ptr<Intrepid::FieldContainer<Real>>> R(3);
@@ -525,10 +525,10 @@ public:
   {
     // GET DIMENSIONS
     int c = u_coeff->dimension(0);
-    int p = cellCub_->getNumPoints();
+    // int p = cellCub_->getNumPoints();
     int f = basisPtr_->getCardinality();
-    int d = cellCub_->getDimension();
-    // INITILAIZE JACOBIAN
+    // int d = cellCub_->getDimension();
+    //  INITILAIZE JACOBIAN
     std::vector<std::vector<ROL::Ptr<Intrepid::FieldContainer<Real>>>> J(3);
     for (int i = 0; i < 3; ++i)
     {
@@ -561,10 +561,10 @@ public:
   {
     // GET DIMENSIONS
     int c = u_coeff->dimension(0);
-    int p = cellCub_->getNumPoints();
+    // int p = cellCub_->getNumPoints();
     int f = basisPtr_->getCardinality();
-    int d = cellCub_->getDimension();
-    // INITILAIZE JACOBIAN
+    // int d = cellCub_->getDimension();
+    //  INITILAIZE JACOBIAN
     std::vector<std::vector<ROL::Ptr<Intrepid::FieldContainer<Real>>>> J(3);
     for (int i = 0; i < 3; ++i)
     {
@@ -870,7 +870,7 @@ public:
     con_->applyInverseJacobian_1(z_out, *z_tmp2, z_in, z_in, tol);
   }
 
-  Real value(const ROL::Vector<Real> &u, const ROL::Vector<Real> &z, Real &tol)
+  Real value(const ROL::Vector<Real> &u, const ROL::Vector<Real> &z, Real &tol) override
   {
     ROL::Ptr<ROL::Vector<Real>> tmp = z.clone();
     tmp->set(z);
@@ -886,13 +886,13 @@ public:
   }
 
   void gradient_1(ROL::Vector<Real> &g, const ROL::Vector<Real> &u,
-                  const ROL::Vector<Real> &z, Real &tol)
+                  const ROL::Vector<Real> &z, Real &tol) override
   {
     g.zero();
   }
 
   void gradient_2(ROL::Vector<Real> &g, const ROL::Vector<Real> &u,
-                  const ROL::Vector<Real> &z, Real &tol)
+                  const ROL::Vector<Real> &z, Real &tol) override
   {
     ROL::Ptr<ROL::Vector<Real>> tmp = z.clone();
     tmp->set(z);
@@ -905,25 +905,25 @@ public:
   }
 
   void hessVec_11(ROL::Vector<Real> &hv, const ROL::Vector<Real> &v,
-                  const ROL::Vector<Real> &u, const ROL::Vector<Real> &z, Real &tol)
+                  const ROL::Vector<Real> &u, const ROL::Vector<Real> &z, Real &tol) override
   {
     hv.zero();
   }
 
   void hessVec_12(ROL::Vector<Real> &hv, const ROL::Vector<Real> &v,
-                  const ROL::Vector<Real> &u, const ROL::Vector<Real> &z, Real &tol)
+                  const ROL::Vector<Real> &u, const ROL::Vector<Real> &z, Real &tol) override
   {
     hv.zero();
   }
 
   void hessVec_21(ROL::Vector<Real> &hv, const ROL::Vector<Real> &v,
-                  const ROL::Vector<Real> &u, const ROL::Vector<Real> &z, Real &tol)
+                  const ROL::Vector<Real> &u, const ROL::Vector<Real> &z, Real &tol) override
   {
     hv.zero();
   }
 
   void hessVec_22(ROL::Vector<Real> &hv, const ROL::Vector<Real> &v,
-                  const ROL::Vector<Real> &u, const ROL::Vector<Real> &z, Real &tol)
+                  const ROL::Vector<Real> &u, const ROL::Vector<Real> &z, Real &tol) override
   {
     ROL::Ptr<ROL::Vector<Real>> Av = z.clone();
     con_->applyJacobian_1(*Av, v, u, u, tol);
@@ -1043,7 +1043,7 @@ public:
     con_->applyInverseJacobian_1(z_out, *z_tmp2, z_in, z_in, tol);
   }
 
-  Real value(const ROL::Vector<Real> &z, Real &tol)
+  Real value(const ROL::Vector<Real> &z, Real &tol) override
   {
     ROL::Ptr<ROL::Vector<Real>> tmp = z.clone();
     tmp->set(z);
@@ -1058,7 +1058,7 @@ public:
     return val;
   }
 
-  void gradient(ROL::Vector<Real> &g, const ROL::Vector<Real> &z, Real &tol)
+  void gradient(ROL::Vector<Real> &g, const ROL::Vector<Real> &z, Real &tol) override
   {
     ROL::Ptr<ROL::Vector<Real>> tmp = z.clone();
     tmp->set(z);
@@ -1071,7 +1071,7 @@ public:
   }
 
   void hessVec(ROL::Vector<Real> &hv, const ROL::Vector<Real> &v,
-               const ROL::Vector<Real> &z, Real &tol)
+               const ROL::Vector<Real> &z, Real &tol) override
   {
     ROL::Ptr<ROL::Vector<Real>> Av = z.clone();
     con_->applyJacobian_1(*Av, v, z, z, tol);

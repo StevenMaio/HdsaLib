@@ -254,7 +254,7 @@ public:
                    const ROL::Ptr<const std::vector<Real>> &z_param = ROL::nullPtr)
   {
     // Retrieve dimensions.
-    int c = fe_->gradN()->dimension(0);
+    // int c = fe_->gradN()->dimension(0);
     int f = fe_->gradN()->dimension(1);
     // GET TIME STEP INFORMATION
     Real told = ts.t[0], tnew = ts.t[1], dt = tnew - told;

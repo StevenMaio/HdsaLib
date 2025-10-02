@@ -38,13 +38,13 @@ namespace HDSA
       return evals_;
     }
 
-    void Compute_Hessian_GEVP(const HDSA::Vector<RealT> &z, const int &num_evals, const int &oversampling, bool write_output = true)
+    void Compute_Hessian_GEVP(const HDSA::Ptr<const HDSA::Vector<RealT>> &z, const int &num_evals, const int &oversampling, bool write_output = true)
     {
       HDSA::Ptr<HDSA::Randomized_GEVP<RealT>> hessian_gevp = HDSA::makePtr<MD_Hessian_GEVP<RealT>>(opt_prob_interface_, z_prior_interface_, z);
-      evecs_ = HDSA::makePtr<HDSA::MultiVector<RealT>>(num_evals, z);
+      evecs_ = HDSA::makePtr<HDSA::MultiVector<RealT>>(num_evals, *z);
       evals_ = HDSA::makePtr<HDSA::Dense_Matrix<RealT>>(num_evals, 1);
-      z_current_ = z.clone();
-      z_current_->set(z);
+      z_current_ = z->clone();
+      z_current_->set(*z);
       hessian_gevp->Compute_GEVP(*evecs_, *evals_, num_evals, oversampling);
       use_projector_ = true;
       if (write_output)
@@ -126,20 +126,18 @@ namespace HDSA
     {
 
     private:
-      HDSA::Ptr<HDSA::Vector<ScalarType>> z_;
+      const HDSA::Ptr<const HDSA::Vector<ScalarType>> z_;
       HDSA::Ptr<HDSA::MD_Opt_Prob_Interface<ScalarType>> opt_prob_interface_;
       HDSA::Ptr<HDSA::MD_z_Prior_Interface<ScalarType>> z_prior_interface_;
       ScalarType normalization_coeff_;
 
     public:
       MD_Hessian_GEVP(const HDSA::Ptr<HDSA::MD_Opt_Prob_Interface<ScalarType>> &opt_prob_interface, const HDSA::Ptr<HDSA::MD_z_Prior_Interface<ScalarType>> &z_prior_interface,
-                      const HDSA::Vector<ScalarType> &z) : HDSA::Randomized_GEVP<ScalarType>(z)
+                      const HDSA::Ptr<const HDSA::Vector<ScalarType>> &z) : HDSA::Randomized_GEVP<ScalarType>(), z_(z)
       {
-        z_ = z.clone();
-        z_->set(z);
         opt_prob_interface_ = opt_prob_interface;
         z_prior_interface_ = z_prior_interface;
-        HDSA::Ptr<HDSA::Vector<ScalarType>> z_tmp = z.clone();
+        HDSA::Ptr<HDSA::Vector<ScalarType>> z_tmp = z->clone();
         z_prior_interface_->Apply_W_z(*z_tmp, *z_);
         normalization_coeff_ = z_->dot(*z_tmp);
       }

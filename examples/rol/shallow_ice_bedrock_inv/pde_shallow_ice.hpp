@@ -3060,8 +3060,8 @@ private:
     Real val = 0.0;
     Real x = pt[0];
     Real y = pt[1];
-    Real t = PDE<Real>::getTime();
-    Real pi(M_PI);
+    // Real t = PDE<Real>::getTime();
+    // Real pi(M_PI);
     Real time_coeff = 1.0;
 
     int i = std::floor(x / h_);

@@ -88,10 +88,10 @@ void Set_Initial_Condition(HDSA::Ptr<Tpetra::MultiVector<>> &u_ptr, const HDSA::
     std::cout << "Error loading the data from Surface_Height.txt" << std::endl;
   }
 
-  int nx = parlist->sublist("Geometry").get("NX", 0);
-  int ny = parlist->sublist("Geometry").get("NY", 0);
-  RealT nx_float = static_cast<RealT>(nx);
-  RealT ny_float = static_cast<RealT>(ny);
+  // int nx = parlist->sublist("Geometry").get("NX", 0);
+  // int ny = parlist->sublist("Geometry").get("NY", 0);
+  // RealT nx_float = static_cast<RealT>(nx);
+  // RealT ny_float = static_cast<RealT>(ny);
   std::vector<RealT> coords = std::vector<RealT>(2, 0.0);
 
   for (int k = 0; k < num_coeff_load; k++)

@@ -16,7 +16,7 @@ private:
 
 public:
   Randomized_GEVP_test(HDSA::Vector<RealT> &vec, const HDSA::Ptr<HDSA::Random_Number_Generator<RealT>> &random_number_generator)
-      : HDSA::Randomized_GEVP<RealT>(vec), random_number_generator_(random_number_generator)
+      : HDSA::Randomized_GEVP<RealT>(), random_number_generator_(random_number_generator)
   {
     m_ = vec.dimension();
     RealT h = 1.0 / static_cast<RealT>(m_ - 1);

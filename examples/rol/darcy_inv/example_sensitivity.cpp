@@ -255,7 +255,7 @@ int main(int argc, char *argv[])
 
   if (rank > 0)
   {
-    qn_prec->Compute_Hessian_GEVP(*z_bar, *theta_bar, rank, oversampling);
+    qn_prec->Compute_Hessian_GEVP(z_bar, theta_bar, rank, oversampling);
   }
 
   HDSA::Ptr<Tpetra::MultiVector<>> z_star_ptr = assembler->createControlVector();

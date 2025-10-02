@@ -99,9 +99,9 @@ public:
   {
     // GET DIMENSIONS
     int c = u_coeff->dimension(0);
-    int p = cellCub_->getNumPoints();
+    // int p = cellCub_->getNumPoints();
     int f = basisPtr_->getCardinality();
-    int d = cellCub_->getDimension();
+    // int d = cellCub_->getDimension();
 
     // INITILAIZE JACOBIAN
     jac = ROL::makePtr<Intrepid::FieldContainer<Real>>(c, f, f);
@@ -132,9 +132,9 @@ public:
   {
     // GET DIMENSIONS
     int c = u_coeff->dimension(0);
-    int p = cellCub_->getNumPoints();
+    // int p = cellCub_->getNumPoints();
     int f = basisPtr_->getCardinality();
-    int d = cellCub_->getDimension();
+    // int d = cellCub_->getDimension();
 
     jac = ROL::makePtr<Intrepid::FieldContainer<Real>>(c, f, f);
   }
@@ -285,7 +285,7 @@ public:
     int c = u_coeff->dimension(0);
     int p = cellCub_->getNumPoints();
     int f = basisPtr_->getCardinality();
-    int d = cellCub_->getDimension();
+    // int d = cellCub_->getDimension();
 
     // Initialize residuals.
     res = ROL::makePtr<Intrepid::FieldContainer<Real>>(c, f);
@@ -307,9 +307,9 @@ public:
   {
     // GET DIMENSIONS
     int c = u_coeff->dimension(0);
-    int p = cellCub_->getNumPoints();
+    // int p = cellCub_->getNumPoints();
     int f = basisPtr_->getCardinality();
-    int d = cellCub_->getDimension();
+    // int d = cellCub_->getDimension();
 
     jac = ROL::makePtr<Intrepid::FieldContainer<Real>>(c, f, f);
 
@@ -327,9 +327,9 @@ public:
   {
     // GET DIMENSIONS
     int c = u_coeff->dimension(0);
-    int p = cellCub_->getNumPoints();
+    // int p = cellCub_->getNumPoints();
     int f = basisPtr_->getCardinality();
-    int d = cellCub_->getDimension();
+    // int d = cellCub_->getDimension();
 
     jac = ROL::makePtr<Intrepid::FieldContainer<Real>>(c, f, f);
   }
@@ -474,7 +474,7 @@ public:
     con_->applyInverseJacobian_1(z_out, *z_tmp2, z_in, z_in, tol);
   }
 
-  Real value(const ROL::Vector<Real> &z, Real &tol)
+  Real value(const ROL::Vector<Real> &z, Real &tol) override
   {
     ROL::Ptr<ROL::Vector<Real>> Az = z.clone();
     con_->applyJacobian_1(*Az, z, z, z, tol);
@@ -486,7 +486,7 @@ public:
     return val;
   }
 
-  void gradient(ROL::Vector<Real> &g, const ROL::Vector<Real> &z, Real &tol)
+  void gradient(ROL::Vector<Real> &g, const ROL::Vector<Real> &z, Real &tol) override
   {
     ROL::Ptr<ROL::Vector<Real>> Az = z.clone();
     con_->applyJacobian_1(*Az, z, z, z, tol);
@@ -495,7 +495,7 @@ public:
     con_->applyAdjointJacobian_1(g, *MinvAz, z, z, tol);
   }
 
-  void hessVec(ROL::Vector<Real> &hv, const ROL::Vector<Real> &v, const ROL::Vector<Real> &z, Real &tol)
+  void hessVec(ROL::Vector<Real> &hv, const ROL::Vector<Real> &v, const ROL::Vector<Real> &z, Real &tol) override
   {
     ROL::Ptr<ROL::Vector<Real>> Av = z.clone();
     con_->applyJacobian_1(*Av, v, z, z, tol);

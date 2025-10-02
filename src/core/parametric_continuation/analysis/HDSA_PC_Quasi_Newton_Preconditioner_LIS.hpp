@@ -31,10 +31,10 @@ namespace HDSA
     {
     }
 
-    void Compute_Hessian_GEVP(const HDSA::Vector<RealT> &z, const HDSA::Vector<RealT> &theta, const int &num_evals, const int &oversampling)
+    void Compute_Hessian_GEVP(const HDSA::Ptr<HDSA::Vector<RealT>> &z, const HDSA::Ptr<HDSA::Vector<RealT>> &theta, const int &num_evals, const int &oversampling)
     {
       rank_ = num_evals;
-      HDSA::Ptr<HDSA::Randomized_GEVP<RealT>> hessian_gevp = HDSA::makePtr<PC_LIS_Hessian_GEVP<RealT>>(lis_interface_, *z_bar_, *theta_bar_);
+      HDSA::Ptr<HDSA::Randomized_GEVP<RealT>> hessian_gevp = HDSA::makePtr<PC_LIS_Hessian_GEVP<RealT>>(lis_interface_, z_bar_, theta_bar_);
       evecs_ = HDSA::makePtr<HDSA::MultiVector<RealT>>(num_evals, *z_bar_);
       evals_ = HDSA::makePtr<HDSA::Dense_Matrix<RealT>>(num_evals, 1);
       hessian_gevp->Compute_GEVP(*evecs_, *evals_, num_evals, oversampling);
@@ -76,13 +76,11 @@ namespace HDSA
       HDSA::Ptr<HDSA::PC_LIS_Interface<ScalarType>> lis_interface_;
 
     public:
-      PC_LIS_Hessian_GEVP(const HDSA::Ptr<HDSA::PC_LIS_Interface<ScalarType>> &lis_interface, const HDSA::Vector<ScalarType> &z_bar, const HDSA::Vector<ScalarType> &theta_bar)
-          : HDSA::Randomized_GEVP<ScalarType>(z_bar)
+      PC_LIS_Hessian_GEVP(const HDSA::Ptr<HDSA::PC_LIS_Interface<ScalarType>> &lis_interface, const HDSA::Ptr<HDSA::Vector<ScalarType>> &z_bar, const HDSA::Ptr<HDSA::Vector<ScalarType>> &theta_bar)
+          : HDSA::Randomized_GEVP<ScalarType>()
       {
-        z_bar_ = z_bar.clone();
-        z_bar_->set(z_bar);
-        theta_bar_ = theta_bar.clone();
-        theta_bar_->set(theta_bar);
+        z_bar_ = z_bar;
+        theta_bar_ = theta_bar;
         lis_interface_ = lis_interface;
       }
 

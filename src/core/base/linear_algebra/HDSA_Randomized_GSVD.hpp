@@ -11,15 +11,10 @@ namespace HDSA
   template <class RealT>
   class Randomized_GSVD
   {
-  private:
-    HDSA::Ptr<HDSA::Vector<RealT>> vec_in_;
-    HDSA::Ptr<HDSA::Vector<RealT>> vec_out_;
 
   public:
-    Randomized_GSVD(const HDSA::Vector<RealT> &vec_in, const HDSA::Vector<RealT> &vec_out)
+    Randomized_GSVD()
     {
-      vec_in_ = vec_in.clone();
-      vec_out_ = vec_out.clone();
     }
 
     virtual void Apply_Operator(HDSA::Vector<RealT> &vec_out, const HDSA::Vector<RealT> &vec_in) const = 0;
@@ -37,30 +32,30 @@ namespace HDSA
     {
       int kpp = num_sing_vals + oversampling;
 
-      HDSA::Ptr<HDSA::MultiVector<RealT>> samples = HDSA::makePtr<HDSA::MultiVector<RealT>>(kpp, *vec_in_);
+      HDSA::Ptr<HDSA::MultiVector<RealT>> samples = HDSA::makePtr<HDSA::MultiVector<RealT>>(kpp, *sing_vecs_input[0]);
       Generate_Random_Samples(*samples);
-      HDSA::Ptr<HDSA::MultiVector<RealT>> Y = HDSA::makePtr<HDSA::MultiVector<RealT>>(kpp, *vec_out_);
+      HDSA::Ptr<HDSA::MultiVector<RealT>> Y = HDSA::makePtr<HDSA::MultiVector<RealT>>(kpp, *sing_vecs_output[0]);
       for (int k = 0; k < kpp; k++)
       {
         HDSA::Ptr<HDSA::Vector<RealT>> vec_in_random = (*samples)[k];
         Apply_Operator(*(*Y)[k], *vec_in_random);
       }
 
-      HDSA::Ptr<HDSA::MultiVector<RealT>> Q = HDSA::makePtr<HDSA::MultiVector<RealT>>(kpp, *vec_out_);
-      HDSA::Ptr<HDSA::MultiVector<RealT>> WQ = HDSA::makePtr<HDSA::MultiVector<RealT>>(kpp, *vec_out_);
+      HDSA::Ptr<HDSA::MultiVector<RealT>> Q = HDSA::makePtr<HDSA::MultiVector<RealT>>(kpp, *sing_vecs_output[0]);
+      HDSA::Ptr<HDSA::MultiVector<RealT>> WQ = HDSA::makePtr<HDSA::MultiVector<RealT>>(kpp, *sing_vecs_output[0]);
       std::string type = "output_weighting";
       CholQR(*Q, *WQ, *Y, type);
 
       for (int j = 0; j < num_subspace_iters; j++)
       {
-        HDSA::Ptr<HDSA::MultiVector<RealT>> Y_subspace_iter_in = HDSA::makePtr<HDSA::MultiVector<RealT>>(kpp, *vec_in_);
+        HDSA::Ptr<HDSA::MultiVector<RealT>> Y_subspace_iter_in = HDSA::makePtr<HDSA::MultiVector<RealT>>(kpp, *sing_vecs_input[0]);
         for (int k = 0; k < kpp; k++)
         {
           Apply_Operator_Transpose(*(*Y_subspace_iter_in)[k], *(*WQ)[k]);
         }
         type = "input_weighting_inverse";
-        HDSA::Ptr<HDSA::MultiVector<RealT>> Q_iter_in = HDSA::makePtr<HDSA::MultiVector<RealT>>(kpp, *vec_in_);
-        HDSA::Ptr<HDSA::MultiVector<RealT>> WQ_iter_in = HDSA::makePtr<HDSA::MultiVector<RealT>>(kpp, *vec_in_);
+        HDSA::Ptr<HDSA::MultiVector<RealT>> Q_iter_in = HDSA::makePtr<HDSA::MultiVector<RealT>>(kpp, *sing_vecs_input[0]);
+        HDSA::Ptr<HDSA::MultiVector<RealT>> WQ_iter_in = HDSA::makePtr<HDSA::MultiVector<RealT>>(kpp, *sing_vecs_input[0]);
         CholQR(*Q_iter_in, *WQ_iter_in, *Y_subspace_iter_in, type);
 
         Y->zeros();
@@ -74,8 +69,8 @@ namespace HDSA
         CholQR(*Q, *WQ, *Y, type);
       }
 
-      HDSA::Ptr<HDSA::MultiVector<RealT>> B = HDSA::makePtr<HDSA::MultiVector<RealT>>(kpp, *vec_in_);
-      HDSA::Ptr<HDSA::MultiVector<RealT>> Tinv_B = HDSA::makePtr<HDSA::MultiVector<RealT>>(kpp, *vec_in_);
+      HDSA::Ptr<HDSA::MultiVector<RealT>> B = HDSA::makePtr<HDSA::MultiVector<RealT>>(kpp, *sing_vecs_input[0]);
+      HDSA::Ptr<HDSA::MultiVector<RealT>> Tinv_B = HDSA::makePtr<HDSA::MultiVector<RealT>>(kpp, *sing_vecs_input[0]);
       for (int k = 0; k < kpp; k++)
       {
         Apply_Operator_Transpose(*(*B)[k], *(*WQ)[k]);
@@ -85,7 +80,7 @@ namespace HDSA
       HDSA::Ptr<HDSA::Dense_Matrix<RealT>> R_B = HDSA::makePtr<HDSA::Dense_Matrix<RealT>>(kpp, kpp);
       HDSA::Linear_Algebra::Cholesky_Factorization<RealT>(*C, *R_B);
 
-      HDSA::Ptr<HDSA::MultiVector<RealT>> Q_B = HDSA::makePtr<HDSA::MultiVector<RealT>>(kpp, *vec_in_);
+      HDSA::Ptr<HDSA::MultiVector<RealT>> Q_B = HDSA::makePtr<HDSA::MultiVector<RealT>>(kpp, *sing_vecs_input[0]);
       HDSA::Ptr<HDSA::Dense_Matrix<RealT>> I = HDSA::makePtr<HDSA::Dense_Matrix<RealT>>(kpp, kpp);
       for (int k = 0; k < kpp; k++)
       {

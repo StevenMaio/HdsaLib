@@ -75,7 +75,7 @@ int main(int argc, char *argv[])
 
   int rank = 8;
   int oversampling = 10;
-  qn_prec->Compute_Hessian_GEVP(*z_bar, *theta_bar, rank, oversampling);
+  qn_prec->Compute_Hessian_GEVP(z_bar, theta_bar, rank, oversampling);
 
   HDSA::Ptr<HDSA::Vector<RealT>> z_star = z_bar->clone();
   HDSA::Ptr<HDSA::Vector<RealT>> grad_star = z_bar->clone();

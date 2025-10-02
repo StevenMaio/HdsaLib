@@ -265,7 +265,7 @@ int main(int argc, char *argv[])
   HDSA::Ptr<ROL::Objective<RealT>> robj_misfit = HDSA::makePtr<ROL::ReducedDynamicObjective_Stationary_Control<RealT>>(dyn_obj_misfit, dyn_con, u0, z, ck, timeStamp, rpl);
   // Regularization
   std::vector<RealT> weights_reg = std::vector<RealT>(1);
-  RealT time_scaling = T * static_cast<RealT>(nt - 1) / static_cast<RealT>(nt);
+  // RealT time_scaling = T * static_cast<RealT>(nt - 1) / static_cast<RealT>(nt);
   weights_reg[0] = 1.0; // weights[1]*time_scaling;
   HDSA::Ptr<ROL::Objective_SimOpt<RealT>> obj_reg = HDSA::makePtr<ROL::LinearCombinationObjective_SimOpt<RealT>>(weights_reg, reg_obj);
   HDSA::Ptr<ROL::Objective<RealT>> robj_reg = HDSA::makePtr<Reduced_Objective_Regularization<RealT>>(obj_reg, u0);
@@ -301,7 +301,7 @@ int main(int argc, char *argv[])
 
   if (rank > 0)
   {
-    qn_prec->Compute_Hessian_GEVP(*z_bar, *theta_bar, rank, oversampling);
+    qn_prec->Compute_Hessian_GEVP(z_bar, theta_bar, rank, oversampling);
   }
 
   HDSA::Ptr<Tpetra::MultiVector<>> z_star_ptr;

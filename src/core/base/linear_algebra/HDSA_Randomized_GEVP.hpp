@@ -11,13 +11,10 @@ namespace HDSA
 	template <class RealT>
 	class Randomized_GEVP
 	{
-	private:
-		HDSA::Ptr<HDSA::Vector<RealT>> vec_;
 
 	public:
-		Randomized_GEVP(const HDSA::Vector<RealT> &vec)
+		Randomized_GEVP()
 		{
-			vec_ = vec.clone();
 		}
 
 		virtual ~Randomized_GEVP()
@@ -36,18 +33,18 @@ namespace HDSA
 		{
 			int kpp = num_evals + oversampling;
 
-			HDSA::Ptr<HDSA::MultiVector<RealT>> Y = HDSA::makePtr<HDSA::MultiVector<RealT>>(kpp, *vec_);
-			HDSA::Ptr<HDSA::MultiVector<RealT>> tmp = HDSA::makePtr<HDSA::MultiVector<RealT>>(kpp, *vec_);
+			HDSA::Ptr<HDSA::MultiVector<RealT>> Y = HDSA::makePtr<HDSA::MultiVector<RealT>>(kpp, *evecs[0]);
+			HDSA::Ptr<HDSA::MultiVector<RealT>> tmp = HDSA::makePtr<HDSA::MultiVector<RealT>>(kpp, *evecs[0]);
 			Generate_Random_Samples(*tmp);
 			for (int k = 0; k < kpp; k++)
 			{
-				HDSA::Ptr<HDSA::Vector<RealT>> vec_tmp1 = vec_->clone();
+				HDSA::Ptr<HDSA::Vector<RealT>> vec_tmp1 = evecs[0]->clone();
 				Apply_Operator(*vec_tmp1, *(*tmp)[k]);
 				Apply_Weighting_Operator_Inverse(*(*Y)[k], *vec_tmp1);
 			}
 
-			HDSA::Ptr<HDSA::MultiVector<RealT>> Q = HDSA::makePtr<HDSA::MultiVector<RealT>>(kpp, *vec_);
-			HDSA::Ptr<HDSA::MultiVector<RealT>> WQ = HDSA::makePtr<HDSA::MultiVector<RealT>>(kpp, *vec_);
+			HDSA::Ptr<HDSA::MultiVector<RealT>> Q = HDSA::makePtr<HDSA::MultiVector<RealT>>(kpp, *evecs[0]);
+			HDSA::Ptr<HDSA::MultiVector<RealT>> WQ = HDSA::makePtr<HDSA::MultiVector<RealT>>(kpp, *evecs[0]);
 			HDSA::Ptr<HDSA::Dense_Matrix<RealT>> R = HDSA::makePtr<HDSA::Dense_Matrix<RealT>>(kpp, kpp);
 			std::string type = "weighting";
 			CholQR(*Q, *WQ, *R, *Y, type);
@@ -74,7 +71,7 @@ namespace HDSA
 
 			if (info == 0)
 			{
-				HDSA::Ptr<HDSA::MultiVector<RealT>> M = HDSA::makePtr<HDSA::MultiVector<RealT>>(kpp, *vec_);
+				HDSA::Ptr<HDSA::MultiVector<RealT>> M = HDSA::makePtr<HDSA::MultiVector<RealT>>(kpp, *evecs[0]);
 				HDSA::Ptr<HDSA::Dense_Matrix<RealT>> I = HDSA::makePtr<HDSA::Dense_Matrix<RealT>>(kpp, kpp);
 				for (int k = 0; k < kpp; k++)
 				{
