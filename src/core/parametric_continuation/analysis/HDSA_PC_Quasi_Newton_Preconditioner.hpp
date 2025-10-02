@@ -88,7 +88,8 @@ namespace HDSA
       rho_[param_current_data_step_] = 1.0 / (s_k.dot(y_k));
       if (rho_[param_current_data_step_] < 0.0)
       {
-        std::cout << "Error: Negative Curvature Parameter" << std::endl;
+        HDSA_TEST_FOR_EXCEPTION(true, std::logic_error,
+                                "Error in HDSA::PC_Quasi_Newton_Preconditioner::Add_Parametric_Quasi_Newton_Data: Negative Curvature Parameter" << std::endl);
       }
       param_current_data_step_ += 1;
       total_vecs_stored_ += 2;

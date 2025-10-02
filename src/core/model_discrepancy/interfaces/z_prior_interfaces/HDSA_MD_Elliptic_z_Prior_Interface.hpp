@@ -38,25 +38,25 @@ namespace HDSA
     virtual void Sample_with_Covariance_W_z_Acute_Inverse(HDSA::MultiVector<RealT> &samples) const
     {
       HDSA_TEST_FOR_EXCEPTION(true, std::logic_error,
-                              "MD_Elliptic_z_Prior_Interface::Sample_with_Covariance_W_z_Acute_Inverse must be implemented to use sampling algorithms" << std::endl);
+                              "Error in HDSA::MD_Elliptic_z_Prior_Interface::Sample_with_Covariance_W_z_Acute_Inverse: Method must be implemented to use sampling algorithms" << std::endl);
     }
 
     virtual void Apply_E_z(HDSA::Vector<RealT> &z_out, const HDSA::Vector<RealT> &z_in) const
     {
       HDSA_TEST_FOR_EXCEPTION(true, std::logic_error,
-                              "MD_Elliptic_z_Prior_Interface::Apply_E_z must be implemented to use the Hessian GEVP" << std::endl);
+                              "Error in HDSA::MD_Elliptic_z_Prior_Interface::Apply_E_z: Method must be implemented to use the Hessian GEVP" << std::endl);
     }
 
     virtual void Apply_E_z_Transpose(HDSA::Vector<RealT> &z_out, const HDSA::Vector<RealT> &z_in) const
     {
       HDSA_TEST_FOR_EXCEPTION(true, std::logic_error,
-                              "MD_Elliptic_z_Prior_Interface::Apply_E_z_Transpose must be implemented to use the Hessian GEVP" << std::endl);
+                              "Error in HDSA::MD_Elliptic_z_Prior_Interface::Apply_E_z_Transpose: Method must be implemented to use the Hessian GEVP" << std::endl);
     }
 
     virtual void Apply_M_z_Inverse(HDSA::Vector<RealT> &z_out, const HDSA::Vector<RealT> &z_in) const
     {
       HDSA_TEST_FOR_EXCEPTION(true, std::logic_error,
-                              "MD_Elliptic_z_Prior_Interface::Apply_M_z_Inverse must be implemented to use the Hessian GEVP" << std::endl);
+                              "Error in HDSA::MD_Elliptic_z_Prior_Interface::Apply_M_z_Inverse: Method must be implemented to use the Hessian GEVP" << std::endl);
     }
 
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////

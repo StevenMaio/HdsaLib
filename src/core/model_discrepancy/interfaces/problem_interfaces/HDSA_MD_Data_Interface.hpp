@@ -71,8 +71,9 @@ namespace HDSA
 
     virtual HDSA::Ptr<HDSA::MultiVector<RealT>> Read_Spatial_Node_Data() const
     {
+      HDSA_TEST_FOR_EXCEPTION(true, std::logic_error,
+                              "Error: HDSA::MD_Data_Interface::Read_Spatial_Node_Data is a virtual function that was called but never implemented" << std::endl);
       HDSA::Ptr<HDSA::MultiVector<RealT>> spatial_nodes;
-      std::cout << "Error: HDSA::MD_Data_Interface::Read_Spatial_Node_Data is a virtual function that was called but never implemented" << std::endl;
       return spatial_nodes;
     }
 

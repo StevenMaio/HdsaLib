@@ -1,13 +1,15 @@
 #ifndef HDSA_VECTOR_HPP
 #define HDSA_VECTOR_HPP
 
+#include "HDSA_Stack_Trace.hpp"
+
 namespace HDSA
 {
 
   template <class RealT>
   class Vector
   {
-    
+
   public:
     Vector()
     {
@@ -44,22 +46,22 @@ namespace HDSA
 
     virtual void Write_to_File(const std::string &name) const
     {
-      std::ofstream fout;
-      fout.open(name);
-      fout << "Write_to_File has not been implemented for this vector type";
-      fout.close();
+      HDSA_TEST_FOR_EXCEPTION(true, std::logic_error,
+                              "Error in HDSA::Vector: Write_to_File has not been implemented for this vector type" << std::endl);
     }
 
     virtual RealT Get_Entry(int k) const
     {
+      HDSA_TEST_FOR_EXCEPTION(true, std::logic_error,
+                              "Error in HDSA::Vector: Get_Entry has not been implemented for this vector type" << std::endl);
       RealT val = 0.0;
-      std::cout << "Get_Entry has not been implemented for this vector type" << std::endl;
       return val;
     }
 
     virtual void Set_Entry(int k, RealT val)
     {
-      std::cout << "Set_Entry has not been implemented for this vector type" << std::endl;
+      HDSA_TEST_FOR_EXCEPTION(true, std::logic_error,
+                              "Error in HDSA::Vector: Set_Entry has not been implemented for this vector type" << std::endl);
     }
 
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -106,7 +106,7 @@ namespace HDSA
 				if (tmp < -1.e-12)
 				{
 					HDSA_TEST_FOR_EXCEPTION(true, std::logic_error,
-											"Error in Posterior Discrepancy Samples: delta breve coeff < 0" << std::endl);
+											"Error in HDSA::MD_Posterior_Sampling::Posterior_Discrepancy_Samples: delta breve coeff < 0" << std::endl);
 				}
 				RealT breve_coeff = std::sqrt(std::abs(tmp));
 				delta_samples_k->axpy(breve_coeff, *post_data->u_breve);

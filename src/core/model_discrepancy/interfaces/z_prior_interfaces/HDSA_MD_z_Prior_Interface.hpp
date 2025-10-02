@@ -34,13 +34,13 @@ namespace HDSA
     virtual void Sample_with_Covariance_W_z_Inverse(HDSA::MultiVector<RealT> &samples) const
     {
       HDSA_TEST_FOR_EXCEPTION(true, std::logic_error,
-                              "MD_z_Prior_Interface::Sample_with_Covariance_W_z_Inverse must be implemented to use sampling algorithms" << std::endl);
+                              "Error in HDSA::MD_z_Prior_Interface::Sample_with_Covariance_W_z_Inverse: Method must be implemented to use sampling algorithms" << std::endl);
     }
 
     virtual void Apply_W_z(HDSA::Vector<RealT> &z_out, const HDSA::Vector<RealT> &z_in) const
     {
       HDSA_TEST_FOR_EXCEPTION(true, std::logic_error,
-                              "MD_z_Prior_Interface::Apply_W_z must be implemented to use the Hessian GEVP" << std::endl);
+                              "Error in HDSA::MD_z_Prior_Interface::Apply_W_z: Method must be implemented to use the Hessian GEVP" << std::endl);
     }
   };
 

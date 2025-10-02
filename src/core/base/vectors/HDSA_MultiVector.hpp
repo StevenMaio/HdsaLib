@@ -126,7 +126,7 @@ namespace HDSA
       if (y.Number_of_Vectors() != num_vecs_)
       {
         HDSA_TEST_FOR_EXCEPTION(true, std::logic_error,
-                                "Called axpy on HDSA::MultiVector, but x and y do not have the same number of vectors" << std::endl);
+                                "Error in HDSA::MultiVector: Called axpy, but x and y do not have the same number of vectors" << std::endl);
       }
       for (int k = 0; k < num_vecs_; k++)
       {

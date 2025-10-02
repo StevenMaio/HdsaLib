@@ -159,7 +159,8 @@ namespace HDSA
         }
         else
         {
-          std::cout << "Error in type specification for CholQR" << std::endl;
+          HDSA_TEST_FOR_EXCEPTION(true, std::logic_error,
+                                  "Error in HDSA::Randomized_GSVD::CholQR incorrect type specification for CholQR" << std::endl);
         }
       }
 

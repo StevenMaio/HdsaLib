@@ -61,7 +61,8 @@ namespace HDSA
       determine_u_hyperparams_ = HDSA::makePtr<HDSA::MD_Determine_u_Hyperparameters<RealT>>(data_interface_, u_hyperparam_interface_);
       if (u_hyperparam_interface_->Get_beta_t() == 0.0)
       {
-        std::cout << "Error: the value of beta_t must be specificed" << std::endl;
+        HDSA_TEST_FOR_EXCEPTION(true, std::logic_error,
+                                "Error in HDSA::MD_Transient_Prior_Covariance: the value of beta_t must be specificed" << std::endl);
       }
       Set_beta_t(u_hyperparam_interface_->Get_beta_t());
     }

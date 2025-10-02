@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <cstdlib>
 #include <random>
+#include "HDSA_Stack_Trace.hpp"
 
 namespace HDSA
 {
@@ -68,7 +69,8 @@ namespace HDSA
       }
       else
       {
-        std::cout << "Error loading the data from " << random_number_file << std::endl;
+          HDSA_TEST_FOR_EXCEPTION(true, std::logic_error,
+                                  "Error in HDSA::Random_Number_Generator: Cannot open random number file" << std::endl);
       }
     }
 
@@ -84,7 +86,8 @@ namespace HDSA
       {
         if (file_reading_index_ > num_random_numbers_)
         {
-          std::cout << "Requested more random numbers than was provided" << std::endl;
+          HDSA_TEST_FOR_EXCEPTION(true, std::logic_error,
+                                  "Error in HDSA::Random_Number_Generator: Requested more random numbers than was provided" << std::endl);
         }
         val = random_numbers_[file_reading_index_];
         file_reading_index_ += 1;

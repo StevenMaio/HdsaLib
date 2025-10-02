@@ -70,7 +70,7 @@ namespace HDSA
         if (z_tmp->norm() > 0.0)
         {
           HDSA_TEST_FOR_EXCEPTION(true, std::logic_error,
-                                  "The z input has changed. Need to recompute the GEVP." << std::endl);
+                                  "Error in HDSA::MD_Hessian_Analysis::Apply_RS_Hessian_Inverse: The z input has changed. Need to recompute the GEVP." << std::endl);
         }
         else
         {

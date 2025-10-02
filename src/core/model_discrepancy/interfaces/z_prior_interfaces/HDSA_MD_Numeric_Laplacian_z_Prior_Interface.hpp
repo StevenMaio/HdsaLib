@@ -81,7 +81,8 @@ namespace HDSA
 
       if (z_hyperparam_interface_->Get_beta_z() == 0.0)
       {
-        std::cout << "Error: the value of beta_z must be specificed" << std::endl;
+        HDSA_TEST_FOR_EXCEPTION(true, std::logic_error,
+                                "Error in HDSA::MD_Numeric_Laplacian_z_Prior_Interface: The value of beta_z must be specificed" << std::endl);
       }
       Set_beta_z(z_hyperparam_interface_->Get_beta_z());
 

@@ -138,7 +138,8 @@ namespace HDSA
   template <class RealT>
   void MD_Determine_u_Hyperparameters<RealT>::Determine_GSVD_Hyperparameters(void) const
   {
-    std::cout << "Need to implement Determine_GSVD_Hyperparameters" << std::endl;
+    HDSA_TEST_FOR_EXCEPTION(true, std::logic_error,
+                            "Error in HDSA::MD_Determine_u_Hyperparameters<RealT>::Determine_GSVD_Hyperparameters: Need to implement this method" << std::endl);
   }
 
 }

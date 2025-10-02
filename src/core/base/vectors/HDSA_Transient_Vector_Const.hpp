@@ -69,7 +69,8 @@ namespace HDSA
         // add alpha*x to this
         void axpy(const RealT alpha, const HDSA::Vector<RealT> &x) override
         {
-            std::cout << "Cannot use axpy on Transient_Vector_Const" << std::endl;
+            HDSA_TEST_FOR_EXCEPTION(true, std::logic_error,
+                                    "Error in HDSA::Transient_Vector_Const: Cannot use axpy method" << std::endl);
         }
 
         // return vector dimension
@@ -81,12 +82,14 @@ namespace HDSA
         // set this=val elementwise
         void setScalar(const RealT val) override
         {
-            std::cout << "Cannot use setScalar on Transient_Vector_Const" << std::endl;
+            HDSA_TEST_FOR_EXCEPTION(true, std::logic_error,
+                                    "Error in HDSA::Transient_Vector_Const: Cannot use setScalar method" << std::endl);
         }
 
         void randomize_standard_normal() override
         {
-            std::cout << "Cannot use randomize_standard_normal on Transient_Vector_Const" << std::endl;
+            HDSA_TEST_FOR_EXCEPTION(true, std::logic_error,
+                                    "Error in HDSA::Transient_Vector_Const: Cannot use randomize_standard_normal method" << std::endl);
         }
 
         void Write_to_File(const std::string &name) const override

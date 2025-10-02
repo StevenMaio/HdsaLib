@@ -73,8 +73,8 @@ namespace HDSA
         {
           if (verbose)
           {
-            std::cout << std::endl
-                      << "ERROR:  Belos::LinearProblem failed to set up correctly!" << std::endl;
+            HDSA_TEST_FOR_EXCEPTION(true, std::logic_error,
+                                    "Error in HDSA::Linear_Algebra: Belos::LinearProblem failed to set up correctly" << std::endl);
           }
           verbose = true;
         }
@@ -90,7 +90,8 @@ namespace HDSA
         }
         else
         {
-          std::cout << "Error specifying the linear solver" << std::endl;
+          HDSA_TEST_FOR_EXCEPTION(true, std::logic_error,
+                                  "Error in HDSA::Linear_Algebra: Linear solver is not specified correctly" << std::endl);
         }
 
         Belos::ReturnType ret = belos_solver->solve();

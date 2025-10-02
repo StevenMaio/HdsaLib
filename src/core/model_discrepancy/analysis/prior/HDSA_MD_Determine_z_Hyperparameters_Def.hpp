@@ -208,7 +208,8 @@ namespace HDSA
       }
       else
       {
-        std::cout << "Error: the code only supports spatial dimensions s=1,2,3" << std::endl;
+        HDSA_TEST_FOR_EXCEPTION(true, std::logic_error,
+                                "Error in HDSA::MD_Determine_z_Hyperparameters_Def: The code only supports spatial dimensions s=1,2,3" << std::endl);
       }
       std::sort(evals.begin(), evals.end(), std::greater<RealT>());
     }

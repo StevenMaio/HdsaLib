@@ -21,14 +21,16 @@ namespace HDSA
   public:
     virtual std::vector<std::vector<RealT>> Spatial_Domain_Bounds(void) const
     {
-      std::cout << "Spatial_Domain_Bounds is required for hyperparameter algorithm-based initialization" << std::endl;
+      HDSA_TEST_FOR_EXCEPTION(true, std::logic_error,
+                              "Error in HDSA::MD_z_Hyperparameter_Interface::Spatial_Domain_Bounds must be implemented for hyperparameter algorithm-based initialization" << std::endl);
       std::vector<std::vector<RealT>> vec; // vec.size() = spatial dimension, e.g. 1,2, or 3, [ vec[i][0],vec[i][1] ] is an interval bounding the ith spatial coordinate
       return vec;
     }
 
     virtual void State_Solve(HDSA::Vector<RealT> &u, const HDSA::Vector<RealT> &z) const
     {
-      std::cout << "State_Solve is required to estimate alpha_z using low-fidelity solves" << std::endl;
+      HDSA_TEST_FOR_EXCEPTION(true, std::logic_error,
+                              "Error in HDSA::MD_z_Hyperparameter_Interface: State_Solve must be implemented to estimate alpha_z using low-fidelity solves" << std::endl);
     }
 
     MD_z_Hyperparameter_Interface(const std::string &z_type, const int &num_state_solves = 0) : random_number_generator_(HDSA::makePtr<HDSA::Random_Number_Generator<RealT>>()), z_type_(z_type), num_state_solves_(num_state_solves)
@@ -50,7 +52,8 @@ namespace HDSA
     {
       if (!(z_type_ == "spatial field" || z_type_ == "transient vector" || z_type_ == "vector"))
       {
-        std::cout << "Error in MD_z_Hyperparameter_Interface: The input z_type should be either 'spatial field' 'transient vector' or 'vector' " << std::endl;
+        HDSA_TEST_FOR_EXCEPTION(true, std::logic_error,
+                                "Error in HDSA::MD_z_Hyperparameter_Interface: The input z_type should be either 'spatial field' 'transient vector' or 'vector'" << std::endl);
       }
 
       discrepancy_percent_z_variation_ = 1.0;
