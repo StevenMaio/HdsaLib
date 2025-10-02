@@ -76,7 +76,7 @@ namespace HDSA
       int num_states = 1;
       if (is_multi_state)
       {
-        HDSA::MD_Multi_State_u_Hyperparameter_Interface<RealT> *multi_state_u_hyperparam_interface = dynamic_cast<HDSA::MD_Multi_State_u_Hyperparameter_Interface<RealT> *>(&(*u_hyperparam_interface));
+        HDSA::Ptr<HDSA::MD_Multi_State_u_Hyperparameter_Interface<RealT>> multi_state_u_hyperparam_interface = HDSA::dynamicPtrCast<HDSA::MD_Multi_State_u_Hyperparameter_Interface<RealT>>(u_hyperparam_interface);
         num_states = multi_state_u_hyperparam_interface->Get_Number_of_States();
       }
       if (u_hyperparam_interface->Is_Transient())
@@ -87,7 +87,7 @@ namespace HDSA
           HDSA::Ptr<HDSA::Vector<RealT>> dk = (*prior_delta_z_opt_)[k];
 
           HDSA::Ptr<HDSA::Vector<RealT>> dk_tmp;
-          if (HDSA::Ensemble_Vector<RealT> *dk_ens = dynamic_cast<HDSA::Ensemble_Vector<RealT> *>(&(*dk)))
+          if (HDSA::Ptr<HDSA::Ensemble_Vector<RealT>> dk_ens = HDSA::dynamicPtrCast<HDSA::Ensemble_Vector<RealT>>(dk))
           {
             dk_tmp = dk_ens->Ensemble_Average();
           }
@@ -95,7 +95,7 @@ namespace HDSA
           {
             dk_tmp = dk;
           }
-          HDSA::Transient_Vector<RealT> *dk_trans = dynamic_cast<HDSA::Transient_Vector<RealT> *>(&(*dk_tmp));
+          HDSA::Ptr<HDSA::Transient_Vector<RealT>> dk_trans = HDSA::dynamicPtrCast<HDSA::Transient_Vector<RealT>>(dk_tmp);
           int n_t = dk_trans->Get_n_t();
           prior_delta_z_opt_time_evol_[k].resize(n_t);
           for (int i = 0; i < n_t; i++)
@@ -116,7 +116,7 @@ namespace HDSA
 
         HDSA::Ptr<HDSA::Vector<RealT>> D0 = (*data_interface_->get_D())[0];
         HDSA::Ptr<HDSA::Vector<RealT>> D0_tmp;
-        if (HDSA::Ensemble_Vector<RealT> *D0_ens = dynamic_cast<HDSA::Ensemble_Vector<RealT> *>(&(*D0)))
+        if (HDSA::Ptr<HDSA::Ensemble_Vector<RealT>> D0_ens = HDSA::dynamicPtrCast<HDSA::Ensemble_Vector<RealT>>(D0))
         {
           D0_tmp = D0_ens->Ensemble_Average();
         }
@@ -125,7 +125,7 @@ namespace HDSA
           D0_tmp = D0;
         }
 
-        HDSA::Transient_Vector<RealT> *d_trans = dynamic_cast<HDSA::Transient_Vector<RealT> *>(&(*D0_tmp));
+        HDSA::Ptr<HDSA::Transient_Vector<RealT>> d_trans = HDSA::dynamicPtrCast<HDSA::Transient_Vector<RealT>>(D0_tmp);
         for (int i = 0; i < n_t; i++)
         {
           HDSA::Ptr<HDSA::Vector<RealT>> tmp = (*d_trans)[i]->clone();
@@ -190,7 +190,7 @@ namespace HDSA
         RealT tmp2 = std::sqrt(z2->dot(*z_tmp));
         z2->scale(1.0 / tmp2);
 
-        MD_Elliptic_z_Prior_Interface<RealT> *elliptic_z_prior_interface = dynamic_cast<MD_Elliptic_z_Prior_Interface<RealT> *>(&(*z_prior_interface_));
+        HDSA::Ptr<MD_Elliptic_z_Prior_Interface<RealT>> elliptic_z_prior_interface = HDSA::dynamicPtrCast<MD_Elliptic_z_Prior_Interface<RealT> >(z_prior_interface_);
         elliptic_z_prior_interface->Apply_E_z(*z_tmp, *z2);
         prior_z_pert_evals_[1] = 1.0 / (z2->dot(*z_tmp));
         z2->scale(scaling);

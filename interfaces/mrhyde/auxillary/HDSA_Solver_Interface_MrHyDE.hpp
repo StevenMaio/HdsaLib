@@ -68,7 +68,7 @@ public:
       for (int k = 0; k < n_t; k++)
       {
         HDSA::Ptr<HDSA::Vector<RealT>> z_k = (*ez)[k];
-        const HDSA::Std_Vector<RealT> *ez_k = dynamic_cast<const HDSA::Std_Vector<RealT> *>(&(*z_k));
+        const HDSA::Ptr<HDSA::Std_Vector<RealT>> ez_k = HDSA::dynamicPtrCast<HDSA::Std_Vector<RealT>>(z_k);
         s_vec[k] = ez_k->get_std_vec();
       }
       RealT dt = solve_->deltat; // Assumes that z is discretized on the same time nodes as the state

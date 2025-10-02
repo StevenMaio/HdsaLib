@@ -52,7 +52,7 @@ public:
             // u hyperparameters
             if (u_hyperparam_interface->Is_Multi_State_Interface())
             {
-                HDSA::MD_Multi_State_u_Hyperparameter_Interface<RealT> *u_hyperparam_interface_multistate = dynamic_cast<HDSA::MD_Multi_State_u_Hyperparameter_Interface<RealT> *>(&(*u_hyperparam_interface));
+                const HDSA::Ptr<HDSA::MD_Multi_State_u_Hyperparameter_Interface<RealT>> u_hyperparam_interface_multistate = HDSA::dynamicPtrCast<HDSA::MD_Multi_State_u_Hyperparameter_Interface<RealT>>(u_hyperparam_interface);
                 int num_states = u_hyperparam_interface_multistate->Get_Number_of_States();
                 for (int k = 0; k < num_states; k++)
                 {
@@ -253,7 +253,7 @@ public:
 
             if (is_state)
             {
-                if (HDSA::Ensemble_Vector<RealT> *evec = dynamic_cast<HDSA::Ensemble_Vector<RealT> *>(&(*vec)))
+                if (const HDSA::Ptr<HDSA::Ensemble_Vector<RealT>> evec = HDSA::dynamicPtrCast<HDSA::Ensemble_Vector<RealT>>(vec))
                 {
                     for (int s = 0; s < evec->Number_of_Vectors(); s++)
                     {
@@ -269,7 +269,7 @@ public:
                     std::vector<HDSA::Ptr<Tpetra::MultiVector<RealT>>> sol;
                     sol.resize(1);
                     RealT current_time = 0.0;
-                    if (HDSA::Transient_Vector<RealT> *evec = dynamic_cast<HDSA::Transient_Vector<RealT> *>(&(*vec)))
+                    if (const HDSA::Ptr<HDSA::Transient_Vector<RealT>> evec = HDSA::dynamicPtrCast<HDSA::Transient_Vector<RealT>>(vec))
                     {
                         int n_t = evec->Get_n_t();
                         for (int i = 0; i < n_t; i++)
@@ -280,7 +280,7 @@ public:
                             current_time = current_time + solver_->deltat;
                         }
                     }
-                    else if (HDSA::Tpetra_Vector<RealT> *evec = dynamic_cast<HDSA::Tpetra_Vector<RealT> *>(&(*vec)))
+                    else if (const HDSA::Ptr<HDSA::Tpetra_Vector<RealT>> evec = HDSA::dynamicPtrCast<HDSA::Tpetra_Vector<RealT>>(vec))
                     {
                         sol[0] = evec->getVector();
                         postproc_->writeSolution(sol, current_time);
@@ -290,13 +290,13 @@ public:
             }
             else
             {
-                if (HDSA::Tpetra_Vector<RealT> *evec = dynamic_cast<HDSA::Tpetra_Vector<RealT> *>(&(*vec)))
+                if (const HDSA::Ptr<HDSA::Tpetra_Vector<RealT>> evec = HDSA::dynamicPtrCast<HDSA::Tpetra_Vector<RealT>>(vec))
                 {
                     postproc_->mesh->setupOptimizationExodusFile(name);
                     postproc_->params->updateParams(evec->getVector());
                     postproc_->writeOptimizationSolution(name);
                 }
-                else if (HDSA::Std_Vector<RealT> *evec = dynamic_cast<HDSA::Std_Vector<RealT> *>(&(*vec)))
+                else if (const HDSA::Ptr<HDSA::Std_Vector<RealT>> evec = HDSA::dynamicPtrCast<HDSA::Std_Vector<RealT>>(vec))
                 {
                     vec->Write_to_File(filename + ".txt");
                 }
