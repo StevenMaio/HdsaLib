@@ -66,7 +66,7 @@ namespace HDSA
       {
         HDSA::Ptr<HDSA::Vector<RealT>> z_tmp = z.Clone();
         z_tmp->Set(z);
-        z_tmp->axpy(-1.0, *z_current_);
+        z_tmp->Scaled_Plus(-1.0, *z_current_);
         if (z_tmp->Norm() > 0.0)
         {
           HDSA_TEST_FOR_EXCEPTION(true, std::logic_error,
@@ -91,7 +91,7 @@ namespace HDSA
       for (int k = 0; k < r; k++)
       {
         RealT val = (*coeffs)(k, 0) / (*evals_)(k, 0);
-        z_out.axpy(val, *(*evecs_)[k]);
+        z_out.Scaled_Plus(val, *(*evecs_)[k]);
       }
     }
 

@@ -246,7 +246,7 @@ public:
           u_hdsa_hifi[i] = HDSA::makePtr<HDSA::Tpetra_Vector<RealT>>(u_tpetra_hifi[i], random_number_generator_);
         }
         HDSA::Ptr<HDSA::Vector<RealT>> u_k_hifi = HDSA::makePtr<HDSA::Transient_Vector<ScalarT>>(u_hdsa_hifi);
-        u_k_hifi->axpy(-1.0, *u_k_lofi);
+        u_k_hifi->Scaled_Plus(-1.0, *u_k_lofi);
         u_vecs.push_back(u_k_hifi);
       }
       else
@@ -266,7 +266,7 @@ public:
                                   "Error in HDSA_Data_Interface_MrHyDE: no valid input file given for Load_D_Data" << std::endl);
         }
         HDSA::Ptr<HDSA::Vector<RealT>> u_k = HDSA::makePtr<HDSA::Tpetra_Vector<RealT>>(u_tpetra_hifi, random_number_generator_);
-        u_k->axpy(-1.0, *u_k_lofi);
+        u_k->Scaled_Plus(-1.0, *u_k_lofi);
         u_vecs.push_back(u_k);
       }
     }

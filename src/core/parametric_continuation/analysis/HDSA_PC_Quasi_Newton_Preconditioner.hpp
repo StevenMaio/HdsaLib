@@ -136,8 +136,8 @@ namespace HDSA
           HDSA::Ptr<HDSA::Vector<RealT>> w_tmp = w->Clone();
           for (int j = 0; j < num_vecs; j++)
           {
-            p_tmp->axpy((*V)(j, k), *(*Ptmp_)[j]);
-            w_tmp->axpy((*V)(j, k), *(*Wtmp_)[j]);
+            p_tmp->Scaled_Plus((*V)(j, k), *(*Ptmp_)[j]);
+            w_tmp->Scaled_Plus((*V)(j, k), *(*Wtmp_)[j]);
           }
           Pr_[block_current_data_step_]->push_back(p_tmp);
           Wr_[block_current_data_step_]->push_back(w_tmp);
@@ -174,24 +174,24 @@ namespace HDSA
         RealT alpha = s_[param_counter - 1]->Dot(z_in);
         HDSA::Ptr<HDSA::Vector<RealT>> tmp = z_out.Clone();
         tmp->Set(z_in);
-        tmp->axpy(-rho_[param_counter - 1] * alpha, *y_[param_counter - 1]);
+        tmp->Scaled_Plus(-rho_[param_counter - 1] * alpha, *y_[param_counter - 1]);
         HDSA::Ptr<HDSA::Vector<RealT>> tmp_out = z_out.Clone();
         Apply_QN_Inverse_Hessian_Approximation(*tmp_out, *tmp, param_counter - 1, block_counter);
         z_out.Set(*tmp_out);
         RealT coeff = rho_[param_counter - 1] * (alpha - y_[param_counter - 1]->Dot(*tmp_out));
-        z_out.axpy(coeff, *s_[param_counter - 1]);
+        z_out.Scaled_Plus(coeff, *s_[param_counter - 1]);
       }
       else
       {
         if (use_block_update_)
         {
           HDSA::Ptr<HDSA::Dense_Matrix<RealT>> Pr_z = Pr_[block_counter - 1]->MatVec(z_in);
-          int m = Pr_z->numRows();
+          int m = Pr_z->Number_of_Rows();
           HDSA::Ptr<HDSA::Vector<RealT>> tmp = z_out.Clone();
           tmp->Set(z_in);
           for (int i = 0; i < m; i++)
           {
-            tmp->axpy(-(*Pr_z)(i, 0) / (*Dr_[block_counter - 1])(i, i), *(*Wr_[block_counter - 1])[i]);
+            tmp->Scaled_Plus(-(*Pr_z)(i, 0) / (*Dr_[block_counter - 1])(i, i), *(*Wr_[block_counter - 1])[i]);
           }
 
           Apply_QN_Inverse_Hessian_Approximation(z_out, *tmp, param_counter, block_counter - 1);
@@ -199,8 +199,8 @@ namespace HDSA
           HDSA::Ptr<HDSA::Dense_Matrix<RealT>> Wr_z = Wr_[block_counter - 1]->MatVec(z_out);
           for (int i = 0; i < m; i++)
           {
-            z_out.axpy(-(*Wr_z)(i, 0) / (*Dr_[block_counter - 1])(i, i), *(*Pr_[block_counter - 1])[i]);
-            z_out.axpy((*Pr_z)(i, 0) / (*Dr_[block_counter - 1])(i, i), *(*Pr_[block_counter - 1])[i]);
+            z_out.Scaled_Plus(-(*Wr_z)(i, 0) / (*Dr_[block_counter - 1])(i, i), *(*Pr_[block_counter - 1])[i]);
+            z_out.Scaled_Plus((*Pr_z)(i, 0) / (*Dr_[block_counter - 1])(i, i), *(*Pr_[block_counter - 1])[i]);
           }
         }
         else

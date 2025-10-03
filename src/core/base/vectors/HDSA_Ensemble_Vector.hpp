@@ -59,12 +59,12 @@ namespace HDSA
       return val;
     }
 
-    void axpy(const RealT alpha, const HDSA::Vector<RealT> &x)
+    void Scaled_Plus(const RealT alpha, const HDSA::Vector<RealT> &x)
     {
       const HDSA::Ensemble_Vector<RealT> x_ens = dynamic_cast<const HDSA::Ensemble_Vector<RealT> &>(x);
       for (int k = 0; k < num_vecs_; k++)
       {
-        vecs_[k]->axpy(alpha, *x_ens[k]);
+        vecs_[k]->Scaled_Plus(alpha, *x_ens[k]);
       }
     }
 

@@ -68,7 +68,7 @@ namespace HDSA
       {
       }
 
-      void matvec(HDSA::Vector<ScalarType> &y, const HDSA::Vector<ScalarType> &x) const
+      void Apply(HDSA::Vector<ScalarType> &y, const HDSA::Vector<ScalarType> &x) const
       {
         A_invert_->A_->Apply(y, x);
       }

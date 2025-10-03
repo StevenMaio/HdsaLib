@@ -67,10 +67,10 @@ namespace HDSA
         }
 
         // add alpha*x to this
-        void axpy(const RealT alpha, const HDSA::Vector<RealT> &x) override
+        void Scaled_Plus(const RealT alpha, const HDSA::Vector<RealT> &x) override
         {
             HDSA_TEST_FOR_EXCEPTION(true, std::logic_error,
-                                    "Error in HDSA::Transient_Vector_Const: Cannot use axpy method" << std::endl);
+                                    "Error in HDSA::Transient_Vector_Const: Cannot use Scaled_Plus method" << std::endl);
         }
 
         // return vector Dimension

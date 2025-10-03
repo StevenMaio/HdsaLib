@@ -70,7 +70,7 @@ namespace HDSA
       {
         z_tmp->Zeros();
         Apply_RS_Hessian_Per_Sample(*z_tmp, z_in, z, s);
-        z_out.axpy(ens_weights_[s], *z_tmp);
+        z_out.Scaled_Plus(ens_weights_[s], *z_tmp);
       }
     }
 

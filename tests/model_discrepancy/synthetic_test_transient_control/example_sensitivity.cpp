@@ -72,7 +72,7 @@ int main(int argc, char *argv[])
 
   int num_evals = 30;
   int oversampling = 9;
-  hessian_analysis->Compute_Hessian_GEVP(data_interface->get_z_opt(), num_evals, oversampling);
+  hessian_analysis->Compute_Hessian_GEVP(data_interface->Get_z_opt(), num_evals, oversampling);
 
   HDSA::Ptr<HDSA::MD_Update<RealT>> update = HDSA::makePtr<HDSA::MD_Update<RealT>>(data_interface, u_prior_interface, z_prior_interface, opt_prob_interface, post_sampling, hessian_analysis);
 

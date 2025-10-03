@@ -47,10 +47,10 @@ public:
   {
     HDSA::Ptr<HDSA::Vector<RealT>> z_tmp = z_current_->Clone();
     z_tmp->Set(z);
-    z_tmp->axpy(-1.0, *z_current_);
+    z_tmp->Scaled_Plus(-1.0, *z_current_);
     HDSA::Ptr<HDSA::Vector<RealT>> theta_tmp = theta_current_->Clone();
     theta_tmp->Set(theta);
-    theta_tmp->axpy(-1.0, *theta_current_);
+    theta_tmp->Scaled_Plus(-1.0, *theta_current_);
     RealT val = z_tmp->Norm() + theta_tmp->Norm();
     if (val > 0.0)
     {
@@ -176,7 +176,7 @@ public:
     {
       RealT h = std::pow(10.0, static_cast<RealT>(-k - 1));
       z_pert->Set(z);
-      z_pert->axpy(h, *dz);
+      z_pert->Scaled_Plus(h, *dz);
       RealT val_pert = Value(*z_pert, theta);
       grad_fd[k] = (val_pert - val) / h;
       fd_error[k] = std::abs(grad_fd[k] - true_grad);
@@ -202,10 +202,10 @@ public:
     {
       RealT h = std::pow(10.0, static_cast<RealT>(-k - 1));
       z_pert->Set(z);
-      z_pert->axpy(h, *v);
+      z_pert->Scaled_Plus(h, *v);
       grad_pert->Set_Scalar(0.0);
       Gradient(*grad_pert, *z_pert, theta);
-      grad_pert->axpy(-1.0, *grad);
+      grad_pert->Scaled_Plus(-1.0, *grad);
       fd_error[k] = grad_pert->Norm();
       std::cout << "Step size = " << h << " and Hessian FD error = " << fd_error[k] << std::endl;
     }
@@ -229,10 +229,10 @@ public:
     {
       RealT h = std::pow(10.0, static_cast<RealT>(-k - 1));
       theta_pert->Set(theta);
-      theta_pert->axpy(h, *v);
+      theta_pert->Scaled_Plus(h, *v);
       grad_pert->Set_Scalar(0.0);
       Gradient(*grad_pert, z, *theta_pert);
-      grad_pert->axpy(-1.0, *grad);
+      grad_pert->Scaled_Plus(-1.0, *grad);
       fd_error[k] = grad_pert->Norm();
       std::cout << "Step size = " << h << " and B FD error = " << fd_error[k] << std::endl;
     }

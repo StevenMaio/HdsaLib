@@ -87,7 +87,7 @@ namespace HDSA
       return discrepancy_percent_z_variation_;
     }
 
-    int Get_Num_State_Solves(void) const
+    int Get_num_state_solves(void) const
     {
       return num_state_solves_;
     }

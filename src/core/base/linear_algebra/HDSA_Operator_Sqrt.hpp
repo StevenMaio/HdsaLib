@@ -23,9 +23,9 @@ namespace HDSA
     {
     }
 
-    virtual void Apply_Operator(HDSA::Vector<RealT> &vec_out, const HDSA::Vector<RealT> &vec_in) const = 0;
+    virtual void Apply(HDSA::Vector<RealT> &vec_out, const HDSA::Vector<RealT> &vec_in) const = 0;
 
-    void Apply_Operator_Sqrt(HDSA::Vector<RealT> &vec_out, const HDSA::Vector<RealT> &vec_in)
+    void Apply_Sqrt(HDSA::Vector<RealT> &vec_out, const HDSA::Vector<RealT> &vec_in)
     {
       RealT Norm_in = vec_in.Norm();
 
@@ -49,12 +49,12 @@ namespace HDSA
         V.push_back(v_push);
 
         HDSA::Ptr<HDSA::Vector<RealT>> w_j = vec_in.Clone();
-        Apply_Operator(*w_j, *v_j);
+        Apply(*w_j, *v_j);
         alpha = w_j->Dot(*v_j);
-        w_j->axpy(-alpha, *v_j);
+        w_j->Scaled_Plus(-alpha, *v_j);
         if (j > 0)
         {
-          w_j->axpy(-beta, *V[j - 1]);
+          w_j->Scaled_Plus(-beta, *V[j - 1]);
         }
         beta = w_j->Norm();
 
@@ -64,7 +64,7 @@ namespace HDSA
         for (int k = 0; k < j; k++)
         {
           RealT val = v_j->Dot(*V[j]);
-          v_j->axpy(-val, *V[j]);
+          v_j->Scaled_Plus(-val, *V[j]);
         }
         RealT val = v_j->Norm();
         v_j->Scale(1.0 / val);
@@ -72,7 +72,7 @@ namespace HDSA
         for (int k = 0; k < j; k++)
         {
           RealT val = v_j->Dot(*V[j]);
-          v_j->axpy(-val, *V[j]);
+          v_j->Scaled_Plus(-val, *V[j]);
         }
         val = v_j->Norm();
         v_j->Scale(1.0 / val);
@@ -143,7 +143,7 @@ namespace HDSA
       vec_out.Zeros();
       for (int i = 0; i < yk.size(); i++)
       {
-        vec_out.axpy(yk[i], *V[i]);
+        vec_out.Scaled_Plus(yk[i], *V[i]);
       }
     }
   };

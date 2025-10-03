@@ -34,7 +34,7 @@ namespace HDSA
           (*u_out_trans)[j]->Zeros();
           for (int i = 0; i < n_t_; i++)
           {
-            (*u_out_trans)[j]->axpy((*transient_prior_cov_->Get_M_t())(i, j), *(*u_tmp_trans)[i]);
+            (*u_out_trans)[j]->Scaled_Plus((*transient_prior_cov_->Get_M_t())(i, j), *(*u_tmp_trans)[i]);
           }
         }
       }
@@ -84,7 +84,7 @@ namespace HDSA
         (*u_out_trans)[j]->Zeros();
         for (int i = 0; i < spatial_rank; i++)
         {
-          (*u_out_trans)[j]->axpy((*tmp3)(i, j), *(*spatial_sing_vecs)[i]);
+          (*u_out_trans)[j]->Scaled_Plus((*tmp3)(i, j), *(*spatial_sing_vecs)[i]);
         }
       }
     }
@@ -105,7 +105,7 @@ namespace HDSA
         (*u_out_trans)[j]->Zeros();
         for (int i = 0; i < n_t_; i++)
         {
-          (*u_out_trans)[j]->axpy((*transient_prior_cov_->Get_W_t_Inverse())(i, j), *(*u_tmp_trans)[i]);
+          (*u_out_trans)[j]->Scaled_Plus((*transient_prior_cov_->Get_W_t_Inverse())(i, j), *(*u_tmp_trans)[i]);
         }
       }
     }
@@ -142,7 +142,7 @@ namespace HDSA
           (*sk_trans)[j]->Zeros();
           for (int i = 0; i < spatial_rank; i++)
           {
-            (*sk_trans)[j]->axpy((*tmp2)(i, j), *(*spatial_sing_vecs)[i]);
+            (*sk_trans)[j]->Scaled_Plus((*tmp2)(i, j), *(*spatial_sing_vecs)[i]);
           }
         }
       }
@@ -182,7 +182,7 @@ namespace HDSA
           (*sk_trans)[j]->Zeros();
           for (int i = 0; i < spatial_rank; i++)
           {
-            (*sk_trans)[j]->axpy((*tmp2)(i, j), *(*spatial_sing_vecs)[i]);
+            (*sk_trans)[j]->Scaled_Plus((*tmp2)(i, j), *(*spatial_sing_vecs)[i]);
           }
         }
       }
@@ -194,7 +194,7 @@ namespace HDSA
       transient_prior_cov_ = transient_prior_cov;
       u_hyperparam_interface_ = transient_prior_cov_->Get_Hyperparameter_Interface();
       determine_u_hyperparams_ = transient_prior_cov_->Get_Determine_Hyperparameters();
-      n_t_ = transient_prior_cov_->Get_Num_Time_Nodes();
+      n_t_ = transient_prior_cov_->Get_n_t();
 
       if (u_hyperparam_interface_->Adapt_Time_Variance())
       {

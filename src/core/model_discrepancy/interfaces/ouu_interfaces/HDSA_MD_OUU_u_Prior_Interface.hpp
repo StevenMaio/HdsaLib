@@ -26,7 +26,7 @@ namespace HDSA
   public:
     MD_OUU_u_Prior_Interface(const HDSA::Ptr<HDSA::MD_u_Prior_Interface<RealT>> &us_prior_interface, const HDSA::Ptr<HDSA::Dense_Matrix<RealT>> &K) : us_prior_interface_(us_prior_interface), K_(K)
     {
-      ens_size_ = K->numRows();
+      ens_size_ = K->Number_of_Rows();
 
       C_ = HDSA::makePtr<HDSA::Dense_Matrix<RealT>>(ens_size_, ens_size_);
       for (int i = 0; i < ens_size_; i++)
@@ -120,7 +120,7 @@ namespace HDSA
         {
           for (int i = 0; i < ens_size_; i++)
           {
-            u_out_ens[s]->axpy((*C_)(s, i), *u_tmp_ens[i]);
+            u_out_ens[s]->Scaled_Plus((*C_)(s, i), *u_tmp_ens[i]);
           }
         }
       }
@@ -148,7 +148,7 @@ namespace HDSA
       {
         for (int i = 0; i < ens_size_; i++)
         {
-          u_out_ens[s]->axpy((*Cinv_)(s, i), *u_tmp_ens[i]);
+          u_out_ens[s]->Scaled_Plus((*Cinv_)(s, i), *u_tmp_ens[i]);
         }
       }
     }
@@ -171,7 +171,7 @@ namespace HDSA
       {
         for (int i = 0; i < ens_size_; i++)
         {
-          u_out_ens[s]->axpy((*Cinv_)(s, i), *u_tmp_ens[i]);
+          u_out_ens[s]->Scaled_Plus((*Cinv_)(s, i), *u_tmp_ens[i]);
         }
       }
     }
@@ -189,7 +189,7 @@ namespace HDSA
         {
           for (int j = s; j < ens_size_; j++)
           {
-            vec_ens[s]->axpy((*Rinv_)(s, j), *(*ind_samples)[j]);
+            vec_ens[s]->Scaled_Plus((*Rinv_)(s, j), *(*ind_samples)[j]);
           }
         }
       }
@@ -208,7 +208,7 @@ namespace HDSA
         {
           for (int j = s; j < ens_size_; j++)
           {
-            vec_ens[s]->axpy((*Rinv_)(s, j), *(*ind_samples)[j]);
+            vec_ens[s]->Scaled_Plus((*Rinv_)(s, j), *(*ind_samples)[j]);
           }
         }
       }

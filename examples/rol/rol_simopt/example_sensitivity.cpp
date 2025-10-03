@@ -78,7 +78,7 @@ int main(int argc, char *argv[])
   int num_sing_vals = parlist->sublist("MD Prior").get("Number of Singular Values", m);
   int oversampling = parlist->sublist("MD Prior").get("Oversampling Factor", 10);
   int num_subspace_iters = parlist->sublist("MD Prior").get("Number of Subspace Iterations", 1);
-  HDSA::Ptr<HDSA::Vector<RealT>> u_vec = data_interface->get_u_opt()->Clone();
+  HDSA::Ptr<HDSA::Vector<RealT>> u_vec = data_interface->Get_u_opt()->Clone();
   HDSA::Ptr<HDSA::MD_Elliptic_u_Prior_Interface<RealT>> elliptic_u_prior_interface = HDSA::dynamicPtrCast<HDSA::MD_Elliptic_u_Prior_Interface<RealT>>(u_prior_interface);
   elliptic_u_prior_interface->Compute_E_u_Inverse_GSVD(num_sing_vals, oversampling, num_subspace_iters, *u_vec);
 
@@ -89,7 +89,7 @@ int main(int argc, char *argv[])
   std::string name = "prior_discrepancy_evaluated_at_z_opt";
   prior_samples_at_z_opt->Write_to_File(name);
 
-  HDSA::Ptr<HDSA::MultiVector<RealT>> z_test1 = HDSA::makePtr<HDSA::MultiVector<RealT>>(3, *data_interface->get_z_opt());
+  HDSA::Ptr<HDSA::MultiVector<RealT>> z_test1 = HDSA::makePtr<HDSA::MultiVector<RealT>>(3, *data_interface->Get_z_opt());
   HDSA::Ptr<HDSA::Vector<RealT>> z0 = (*z_test1)[0];
   HDSA::Ptr<HDSA::ROL_Vector<RealT>> z0_rol = HDSA::dynamicPtrCast<HDSA::ROL_Vector<RealT>>(z0);
   HDSA::Ptr<HDSA::Vector<RealT>> z1 = (*z_test1)[1];
@@ -128,9 +128,9 @@ int main(int argc, char *argv[])
   std::vector<HDSA::Ptr<HDSA::Vector<RealT>>> z_test2;
   z_test2.resize(3);
   z_test2[0] = z0->Clone();
-  z_test2[0]->Set(*(*data_interface->get_Z())[0]);
+  z_test2[0]->Set(*(*data_interface->Get_Z())[0]);
   z_test2[1] = z0->Clone();
-  z_test2[1]->Set(*(*data_interface->get_Z())[1]);
+  z_test2[1]->Set(*(*data_interface->Get_Z())[1]);
   z_test2[2] = z0->Clone();
   HDSA::Ptr<HDSA::ROL_Vector<RealT>> ztest2_rol = HDSA::dynamicPtrCast<HDSA::ROL_Vector<RealT>>(z_test2[2]);
   ROL::StdVector<RealT> ztest2_std = dynamic_cast<ROL::StdVector<RealT> &>(*ztest2_rol->rol_vec);
@@ -157,7 +157,7 @@ int main(int argc, char *argv[])
   HDSA::Ptr<HDSA::MD_Hessian_Analysis<RealT>> hessian_analysis = HDSA::makePtr<HDSA::MD_Hessian_Analysis<RealT>>(opt_prob_interface, z_prior_interface);
   int num_evals = parlist->sublist("MD Hessian Analysis").get("Rank", 10);
   oversampling = parlist->sublist("MD Hessian Analysis").get("Oversampling Factor", 10);
-  hessian_analysis->Compute_Hessian_GEVP(data_interface->get_z_opt(), num_evals, oversampling);
+  hessian_analysis->Compute_Hessian_GEVP(data_interface->Get_z_opt(), num_evals, oversampling);
 
   HDSA::Ptr<HDSA::MD_Update<RealT>> update = HDSA::makePtr<HDSA::MD_Update<RealT>>(data_interface, u_prior_interface, z_prior_interface, opt_prob_interface, post_sampling, hessian_analysis);
 

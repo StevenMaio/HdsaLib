@@ -49,7 +49,7 @@ namespace HDSA
       {
       }
 
-      void matvec(HDSA::Vector<ScalarType> &y, const HDSA::Vector<ScalarType> &x) const
+      void Apply(HDSA::Vector<ScalarType> &y, const HDSA::Vector<ScalarType> &x) const
       {
         hess_invert_->Apply_RS_Hessian(y, x, *z_);
       }

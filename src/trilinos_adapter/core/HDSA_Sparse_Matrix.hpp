@@ -79,7 +79,7 @@ namespace HDSA
             A_->fillComplete();
         }
 
-        void axpy(RealT &alpha, HDSA::Sparse_Matrix<RealT> &B)
+        void Scaled_Plus(RealT &alpha, HDSA::Sparse_Matrix<RealT> &B)
         {
             A_->resumeFill(); // Prepare A for updates
             // Loop over each row of B and copy its entries to A

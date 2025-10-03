@@ -90,10 +90,10 @@ namespace HDSA
     {
       u_out.Zeros();
       HDSA::Ptr<HDSA::Dense_Matrix<RealT>> c = sing_vecs_output_->MatVec(u_in);
-      for (int k = 0; k < c->numRows(); k++)
+      for (int k = 0; k < c->Number_of_Rows(); k++)
       {
         RealT coeff = (*c)(k, 0) * std::pow((*sing_vals_)(k, 0), 2.0) / (1.0 + scalar * std::pow((*sing_vals_)(k, 0), 2.0));
-        u_out.axpy(coeff, *(*sing_vecs_output_)[k]);
+        u_out.Scaled_Plus(coeff, *(*sing_vecs_output_)[k]);
       }
     }
 
@@ -101,10 +101,10 @@ namespace HDSA
     {
       u_out.Zeros();
       HDSA::Ptr<HDSA::Dense_Matrix<RealT>> c = sing_vecs_output_->MatVec(u_in);
-      for (int k = 0; k < c->numRows(); k++)
+      for (int k = 0; k < c->Number_of_Rows(); k++)
       {
         RealT coeff = (*c)(k, 0) * std::pow((*sing_vals_)(k, 0), 2.0);
-        u_out.axpy(coeff, *(*sing_vecs_output_)[k]);
+        u_out.Scaled_Plus(coeff, *(*sing_vecs_output_)[k]);
       }
     }
 
@@ -115,11 +115,11 @@ namespace HDSA
       for (int k = 0; k < num_samples; k++)
       {
         HDSA::Ptr<HDSA::Vector<RealT>> vec = samples[k];
-        for (int i = 0; i < sing_vals_->numRows(); i++)
+        for (int i = 0; i < sing_vals_->Number_of_Rows(); i++)
         {
           RealT rand = random_number_generator_->Generate_Standard_Normal_Sample();
           RealT coeff = (*sing_vals_)(i, 0) * rand;
-          vec->axpy(coeff, *(*sing_vecs_output_)[i]);
+          vec->Scaled_Plus(coeff, *(*sing_vecs_output_)[i]);
         }
       }
     }
@@ -131,11 +131,11 @@ namespace HDSA
       for (int k = 0; k < num_samples; k++)
       {
         HDSA::Ptr<HDSA::Vector<RealT>> vec = samples[k];
-        for (int i = 0; i < sing_vals_->numRows(); i++)
+        for (int i = 0; i < sing_vals_->Number_of_Rows(); i++)
         {
           RealT rand = random_number_generator_->Generate_Standard_Normal_Sample();
           RealT coeff = rand * std::sqrt(std::pow((*sing_vals_)(i, 0), 2.0) / (1.0 + scalar * std::pow((*sing_vals_)(i, 0), 2.0)));
-          vec->axpy(coeff, *(*sing_vecs_output_)[i]);
+          vec->Scaled_Plus(coeff, *(*sing_vecs_output_)[i]);
         }
       }
     }

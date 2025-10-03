@@ -49,7 +49,7 @@ namespace HDSA
       data_shift_->Set_Scalar(val);
       for (int k = 0; k < D_->Number_of_Vectors(); k++)
       {
-        (*D_)[k]->axpy(-1.0, *data_shift_);
+        (*D_)[k]->Scaled_Plus(-1.0, *data_shift_);
       }
     }
 
@@ -148,7 +148,7 @@ namespace HDSA
     // accessor functions
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    HDSA::Ptr<const HDSA::Vector<RealT>> get_u_opt(void)
+    HDSA::Ptr<const HDSA::Vector<RealT>> Get_u_opt(void)
     {
       if (!is_data_loaded_)
       {
@@ -157,7 +157,7 @@ namespace HDSA
       return u_opt_;
     }
 
-    HDSA::Ptr<const HDSA::Vector<RealT>> get_z_opt(void)
+    HDSA::Ptr<const HDSA::Vector<RealT>> Get_z_opt(void)
     {
       if (!is_data_loaded_)
       {
@@ -166,7 +166,7 @@ namespace HDSA
       return z_opt_;
     }
 
-    HDSA::Ptr<const HDSA::MultiVector<RealT>> get_Z(void)
+    HDSA::Ptr<const HDSA::MultiVector<RealT>> Get_Z(void)
     {
       if (!is_data_loaded_)
       {
@@ -175,7 +175,7 @@ namespace HDSA
       return Z_;
     }
 
-    HDSA::Ptr<const HDSA::MultiVector<RealT>> get_D(void)
+    HDSA::Ptr<const HDSA::MultiVector<RealT>> Get_D(void)
     {
       if (!is_data_loaded_)
       {
@@ -184,7 +184,7 @@ namespace HDSA
       return D_;
     }
 
-    HDSA::Ptr<const HDSA::Vector<RealT>> get_data_shift(void)
+    HDSA::Ptr<const HDSA::Vector<RealT>> Get_data_shift(void)
     {
       if (!is_data_loaded_)
       {

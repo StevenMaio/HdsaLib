@@ -121,8 +121,8 @@ namespace HDSA
     template <class RealT>
     void SVD(const HDSA::Dense_Matrix<RealT> &A, HDSA::Dense_Matrix<RealT> &U, HDSA::Dense_Matrix<RealT> &VT, HDSA::Dense_Matrix<RealT> &S)
     {
-      int m = A.numRows();
-      int n = A.numCols();
+      int m = A.Number_of_Rows();
+      int n = A.Number_of_Columns();
       Teuchos::LAPACK<int, RealT> lapack;
       char JOBU = 'S';
       char JOBVT = 'S';
@@ -143,8 +143,8 @@ namespace HDSA
     template <class RealT>
     void Upper_Tri_Solve(HDSA::Dense_Matrix<RealT> &x, const HDSA::Dense_Matrix<RealT> &b, const HDSA::Dense_Matrix<RealT> &R)
     {
-      int n = R.numRows();
-      for (int c = 0; c < x.numCols(); c++)
+      int n = R.Number_of_Rows();
+      for (int c = 0; c < x.Number_of_Columns(); c++)
       {
         for (int k = n - 1; k >= 0; k--)
         {
@@ -163,7 +163,7 @@ namespace HDSA
     template <class RealT>
     int Cholesky_Factorization(const HDSA::Dense_Matrix<RealT> &A, HDSA::Dense_Matrix<RealT> &R)
     {
-      int n = A.numRows();
+      int n = A.Number_of_Rows();
       Teuchos::SerialSpdDenseSolver<int, RealT> Chol_Solve;
       HDSA::Ptr<Teuchos::SerialSymDenseMatrix<int, RealT>> C = HDSA::makePtr<Teuchos::SerialSymDenseMatrix<int, RealT>>(n, n);
       for (int i = 0; i < n; i++)
@@ -190,11 +190,11 @@ namespace HDSA
     template <class RealT>
     void Symmetric_Direct_Linear_Solve(const HDSA::Dense_Matrix<RealT> &A, HDSA::Dense_Matrix<RealT> &x, const HDSA::Dense_Matrix<RealT> &b)
     {
-      int n = b.numRows();
+      int n = b.Number_of_Rows();
       HDSA::Ptr<HDSA::Dense_Matrix<RealT>> R = HDSA::makePtr<HDSA::Dense_Matrix<RealT>>(n, n);
       HDSA::Linear_Algebra::Cholesky_Factorization<RealT>(A, *R);
-      HDSA::Ptr<HDSA::Dense_Matrix<RealT>> y = HDSA::makePtr<HDSA::Dense_Matrix<RealT>>(n, x.numCols());
-      for (int c = 0; c < x.numCols(); c++)
+      HDSA::Ptr<HDSA::Dense_Matrix<RealT>> y = HDSA::makePtr<HDSA::Dense_Matrix<RealT>>(n, x.Number_of_Columns());
+      for (int c = 0; c < x.Number_of_Columns(); c++)
       {
         for (int i = 0; i < n; i++)
         {
@@ -214,9 +214,9 @@ namespace HDSA
     template <class RealT>
     void Symmetric_Direct_Linear_Solve_Prefactor(const HDSA::Dense_Matrix<RealT> &R, HDSA::Dense_Matrix<RealT> &x, const HDSA::Dense_Matrix<RealT> &b)
     {
-      int n = b.numRows();
-      HDSA::Ptr<HDSA::Dense_Matrix<RealT>> y = HDSA::makePtr<HDSA::Dense_Matrix<RealT>>(n, x.numCols());
-      for (int c = 0; c < x.numCols(); c++)
+      int n = b.Number_of_Rows();
+      HDSA::Ptr<HDSA::Dense_Matrix<RealT>> y = HDSA::makePtr<HDSA::Dense_Matrix<RealT>>(n, x.Number_of_Columns());
+      for (int c = 0; c < x.Number_of_Columns(); c++)
       {
         for (int i = 0; i < n; i++)
         {
@@ -236,7 +236,7 @@ namespace HDSA
     template <class RealT>
     void Symmetric_Eig_Decomposition(const HDSA::Dense_Matrix<RealT> &A, HDSA::Dense_Matrix<RealT> &V, HDSA::Dense_Matrix<RealT> &S)
     {
-      int n = A.numRows();
+      int n = A.Number_of_Rows();
       HDSA::Ptr<Teuchos::SerialDenseMatrix<int, RealT>> B = HDSA::makePtr<Teuchos::SerialDenseMatrix<int, RealT>>(n, n);
       for (int i = 0; i < n; i++)
       {
@@ -272,7 +272,7 @@ namespace HDSA
     template <class RealT>
     void Symmetric_Gen_Eig_Decomposition(const HDSA::Dense_Matrix<RealT> &A, const HDSA::Dense_Matrix<RealT> &M, HDSA::Dense_Matrix<RealT> &V, HDSA::Dense_Matrix<RealT> &S)
     {
-      int n = A.numRows();
+      int n = A.Number_of_Rows();
       HDSA::Ptr<Teuchos::SerialDenseMatrix<int, RealT>> B = HDSA::makePtr<Teuchos::SerialDenseMatrix<int, RealT>>(n, n);
       HDSA::Ptr<Teuchos::SerialDenseMatrix<int, RealT>> C = HDSA::makePtr<Teuchos::SerialDenseMatrix<int, RealT>>(n, n);
       for (int i = 0; i < n; i++)

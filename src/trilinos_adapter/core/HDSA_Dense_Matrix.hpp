@@ -29,13 +29,13 @@ namespace HDSA
     }
 
     // Number of rows
-    int numRows(void) const
+    int Number_of_Rows(void) const
     {
       return A_->numRows();
     }
 
     // Number of columns
-    int numCols(void) const
+    int Number_of_Columns(void) const
     {
       return A_->numCols();
     }
@@ -89,8 +89,8 @@ namespace HDSA
 
     void Write_to_File(const std::string &name) const
     {
-      int m = this->numRows();
-      int n = this->numCols();
+      int m = this->Number_of_Rows();
+      int n = this->Number_of_Columns();
       std::ofstream fout;
       fout.open(name);
       for (int i = 0; i < m; i++)

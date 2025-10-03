@@ -117,7 +117,7 @@ namespace HDSA
         vec[k]->Scale(beta);
         for (int i = 0; i < B.numRows(); i++)
         {
-          vec[k]->axpy(alpha * B(i, k), *MyA->vec[i]);
+          vec[k]->Scaled_Plus(alpha * B(i, k), *MyA->vec[i]);
         }
       }
     }
@@ -142,7 +142,7 @@ namespace HDSA
       {
         Mytmp.vec[k]->Set(*(MyA->vec[k]));
         Mytmp.vec[k]->Scale(alpha);
-        Mytmp.vec[k]->axpy(beta, *(MyB->vec[k]));
+        Mytmp.vec[k]->Scaled_Plus(beta, *(MyB->vec[k]));
         vec[k]->Set(*Mytmp.vec[k]);
       }
     }
@@ -272,7 +272,7 @@ namespace HDSA
 
       for (int k = 0; k < MyX->GetNumberVecs(); k++)
       {
-        A_->matvec(*MyY->vec[k], *MyX->vec[k]);
+        A_->Apply(*MyY->vec[k], *MyX->vec[k]);
       }
     }
   };

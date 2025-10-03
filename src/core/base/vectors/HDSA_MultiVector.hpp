@@ -118,27 +118,27 @@ namespace HDSA
 
     void Plus(const HDSA::MultiVector<RealT> &y)
     {
-      this->axpy(1.0, y);
+      this->Scaled_Plus(1.0, y);
     }
 
-    void axpy(const RealT &alpha, const HDSA::MultiVector<RealT> &y)
+    void Scaled_Plus(const RealT &alpha, const HDSA::MultiVector<RealT> &y)
     {
       if (y.Number_of_Vectors() != num_vecs_)
       {
         HDSA_TEST_FOR_EXCEPTION(true, std::logic_error,
-                                "Error in HDSA::MultiVector: Called axpy, but x and y do not have the same number of vectors" << std::endl);
+                                "Error in HDSA::MultiVector: Called Scaled_Plus, but x and y do not have the same number of vectors" << std::endl);
       }
       for (int k = 0; k < num_vecs_; k++)
       {
-        vecs_[k]->axpy(alpha, *y[k]);
+        vecs_[k]->Scaled_Plus(alpha, *y[k]);
       }
     }
 
-    void axpy(const RealT &alpha, const HDSA::Vector<RealT> &y)
+    void Scaled_Plus(const RealT &alpha, const HDSA::Vector<RealT> &y)
     {
       for (int k = 0; k < num_vecs_; k++)
       {
-        vecs_[k]->axpy(alpha, y);
+        vecs_[k]->Scaled_Plus(alpha, y);
       }
     }
 

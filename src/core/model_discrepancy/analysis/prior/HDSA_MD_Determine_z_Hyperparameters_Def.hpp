@@ -23,7 +23,7 @@ namespace HDSA
   template <class RealT>
   void MD_Determine_z_Hyperparameters<RealT>::Determine_alpha_z(HDSA::MD_z_Prior_Interface<RealT> *z_prior_interface) const
   {
-    HDSA::Ptr<const HDSA::Vector<RealT>> z_opt = data_interface_->get_z_opt();
+    HDSA::Ptr<const HDSA::Vector<RealT>> z_opt = data_interface_->Get_z_opt();
     HDSA::Ptr<HDSA::Vector<RealT>> tmp = z_opt->Clone();
     z_prior_interface->Apply_M_z(*tmp, *z_opt);
     RealT z_opt_Norm = std::sqrt(tmp->Dot(*z_opt));
@@ -53,11 +53,11 @@ namespace HDSA
 
     if (z_hyperparam_interface_->Get_Discrepancy_Percent_z_Variation() == 1.0)
     {
-      int num_state_solves = z_hyperparam_interface_->Get_Num_State_Solves();
+      int num_state_solves = z_hyperparam_interface_->Get_num_state_solves();
       if (num_state_solves > 0)
       {
-        HDSA::Ptr<const HDSA::Vector<RealT>> u_nom = data_interface_->get_u_opt();
-        HDSA::Ptr<HDSA::MultiVector<RealT>> z_samples = HDSA::makePtr<HDSA::MultiVector<RealT>>(num_state_solves, *data_interface_->get_z_opt());
+        HDSA::Ptr<const HDSA::Vector<RealT>> u_nom = data_interface_->Get_u_opt();
+        HDSA::Ptr<HDSA::MultiVector<RealT>> z_samples = HDSA::makePtr<HDSA::MultiVector<RealT>>(num_state_solves, *data_interface_->Get_z_opt());
         if (z_hyperparam_interface_->Get_z_type() == "spatial field")
         {
           MD_Numeric_Laplacian_z_Prior_Interface<RealT> z_elliptic = dynamic_cast<MD_Numeric_Laplacian_z_Prior_Interface<RealT> &>(*z_prior_interface);
@@ -73,24 +73,24 @@ namespace HDSA
           MD_Vector_z_Prior_Interface<RealT> z_vec_prior = dynamic_cast<MD_Vector_z_Prior_Interface<RealT> &>(*z_prior_interface);
           z_vec_prior.Sample_with_Covariance_W_z_Acute_Inverse(*z_samples);
         }
-        HDSA::Ptr<HDSA::Vector<RealT>> z_tmp = data_interface_->get_z_opt()->Clone();
+        HDSA::Ptr<HDSA::Vector<RealT>> z_tmp = data_interface_->Get_z_opt()->Clone();
         for (int k = 0; k < num_state_solves; k++)
         {
           z_prior_interface->Apply_M_z(*z_tmp, *(*z_samples)[k]);
           RealT val = std::sqrt(z_tmp->Dot(*(*z_samples)[k]));
           (*z_samples)[k]->Scale(z_opt_Norm / val);
-          (*z_samples)[k]->Plus(*data_interface_->get_z_opt());
+          (*z_samples)[k]->Plus(*data_interface_->Get_z_opt());
         }
-        HDSA::Ptr<HDSA::MultiVector<RealT>> u_samples = HDSA::makePtr<HDSA::MultiVector<RealT>>(num_state_solves, *data_interface_->get_u_opt());
+        HDSA::Ptr<HDSA::MultiVector<RealT>> u_samples = HDSA::makePtr<HDSA::MultiVector<RealT>>(num_state_solves, *data_interface_->Get_u_opt());
         for (int k = 0; k < num_state_solves; k++)
         {
           z_hyperparam_interface_->State_Solve(*(*u_samples)[k], *(*z_samples)[k]);
-          (*u_samples)[k]->axpy(-1.0, *data_interface_->get_u_opt());
+          (*u_samples)[k]->Scaled_Plus(-1.0, *data_interface_->Get_u_opt());
         }
         std::vector<RealT> e_Norm_sq = std::vector<RealT>(num_state_solves, 0.0);
         RealT val = 0.0;
-        HDSA::Ptr<HDSA::Vector<RealT>> u_tmp = data_interface_->get_u_opt()->Clone();
-        HDSA::Ptr<const HDSA::Vector<RealT>> d1 = (*data_interface_->get_D())[0];
+        HDSA::Ptr<HDSA::Vector<RealT>> u_tmp = data_interface_->Get_u_opt()->Clone();
+        HDSA::Ptr<const HDSA::Vector<RealT>> d1 = (*data_interface_->Get_D())[0];
         u_prior_interface_->Apply_M_u(*u_tmp, *d1);
         RealT d1_Norm_sq = u_tmp->Dot(*d1);
         for (int k = 0; k < num_state_solves; k++)
@@ -105,10 +105,10 @@ namespace HDSA
       }
       else
       {
-        int N = data_interface_->get_D()->Number_of_Vectors();
+        int N = data_interface_->Get_D()->Number_of_Vectors();
         if (N > 1)
         {
-          HDSA::Ptr<const HDSA::Vector<RealT>> z1 = (*data_interface_->get_Z())[0];
+          HDSA::Ptr<const HDSA::Vector<RealT>> z1 = (*data_interface_->Get_Z())[0];
           HDSA::Ptr<HDSA::Vector<RealT>> z_tmp = z1->Clone();
           z_prior_interface->Apply_M_z(*z_tmp, *z1);
           RealT z1_Norm_sq = z_tmp->Dot(*z1);
@@ -116,13 +116,13 @@ namespace HDSA
           for (int k = 0; k < N - 1; k++)
           {
             HDSA::Ptr<HDSA::Vector<RealT>> zk = z1->Clone();
-            zk->Set(*(*data_interface_->get_Z())[k + 1]);
-            zk->axpy(-1.0, *z1);
+            zk->Set(*(*data_interface_->Get_Z())[k + 1]);
+            zk->Scaled_Plus(-1.0, *z1);
             z_prior_interface->Apply_M_z(*z_tmp, *zk);
             z_pert_Norm_sq[k] = z_tmp->Dot(*zk);
           }
 
-          HDSA::Ptr<const HDSA::Vector<RealT>> d1 = (*data_interface_->get_D())[0];
+          HDSA::Ptr<const HDSA::Vector<RealT>> d1 = (*data_interface_->Get_D())[0];
           HDSA::Ptr<HDSA::Vector<RealT>> d_tmp = d1->Clone();
           u_prior_interface_->Apply_M_u(*d_tmp, *d1);
           RealT d1_Norm_sq = d_tmp->Dot(*d1);
@@ -130,8 +130,8 @@ namespace HDSA
           for (int k = 0; k < N - 1; k++)
           {
             HDSA::Ptr<HDSA::Vector<RealT>> dk = d1->Clone();
-            dk->Set(*(*data_interface_->get_D())[k + 1]);
-            dk->axpy(-1.0, *d1);
+            dk->Set(*(*data_interface_->Get_D())[k + 1]);
+            dk->Scaled_Plus(-1.0, *d1);
             u_prior_interface_->Apply_M_u(*d_tmp, *dk);
             d_pert_Norm_sq[k] = d_tmp->Dot(*dk);
           }
@@ -159,7 +159,7 @@ namespace HDSA
     {
       std::vector<std::vector<RealT>> spatial_bounds = z_hyperparam_interface_->Spatial_Domain_Bounds();
       int d = spatial_bounds.size();
-      int n_z = data_interface_->get_z_opt()->Dimension();
+      int n_z = data_interface_->Get_z_opt()->Dimension();
       if (d == 1)
       {
         RealT Lx = spatial_bounds[0][1] - spatial_bounds[0][0];
@@ -228,7 +228,7 @@ namespace HDSA
     }
     else if (z_hyperparam_interface_->Get_z_type() == "vector")
     {
-      evals = std::vector<RealT>(data_interface_->get_z_opt()->Dimension(), 1.0);
+      evals = std::vector<RealT>(data_interface_->Get_z_opt()->Dimension(), 1.0);
     }
     return evals;
   }

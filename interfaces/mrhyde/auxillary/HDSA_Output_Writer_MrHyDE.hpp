@@ -201,7 +201,7 @@ public:
         std::string name = output_dir_name_ + "/hessian_evals.txt";
         std::ofstream fout;
         fout.open(name);
-        int num_evals = evals->numRows();
+        int num_evals = evals->Number_of_Rows();
         for (int i = 0; i < num_evals; i++)
         {
             fout << std::setprecision(8) << (*evals)(i, 0) << "  ";

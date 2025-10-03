@@ -17,8 +17,8 @@ namespace HDSA
     {
     }
 
-    // evaluate matvec y=A*x
-    virtual void matvec(HDSA::Vector<RealT> &y, const HDSA::Vector<RealT> &x) const = 0;
+    // evaluate Apply y=A*x
+    virtual void Apply(HDSA::Vector<RealT> &y, const HDSA::Vector<RealT> &x) const = 0;
   };
 
 }

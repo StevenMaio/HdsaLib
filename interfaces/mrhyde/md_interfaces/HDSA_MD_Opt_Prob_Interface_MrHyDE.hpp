@@ -33,8 +33,8 @@ public:
       postproc_->hdsa_solop_data[set] = HDSA::makePtr<MrHyDE::SolutionStorage<SolverNode>>(solver_->settings);
     }
 
-    grad_nom_ = data_interface->get_z_opt()->Clone();
-    gradient(*grad_nom_, *data_interface->get_z_opt());
+    grad_nom_ = data_interface->Get_z_opt()->Clone();
+    RS_Gradient(*grad_nom_, *data_interface->Get_z_opt());
   }
 
   virtual ~MD_Opt_Prob_Interface_MrHyDE()
@@ -51,21 +51,21 @@ public:
 
   void Apply_Solution_Operator_z_Jacobian_Transpose(HDSA::Vector<RealT> &z_out, const HDSA::Vector<RealT> &u_in, const HDSA::Vector<RealT> &z) const
   {
-    writedata_solopt(u_in);
-    do_solop(true);
-    gradient(z_out, z);
+    Write_Data_Solution_Operator(u_in);
+    Do_Solution_Operator(true);
+    RS_Gradient(z_out, z);
     z_out.Scale(-1.0);
   }
 
   void Apply_RS_Hessian(HDSA::Vector<RealT> &z_out, const HDSA::Vector<RealT> &z_in, const HDSA::Vector<RealT> &z) const
   {
-    do_solop(false);
+    Do_Solution_Operator(false);
     HDSA::Ptr<HDSA::Vector<RealT>> z_pert = z.Clone();
     z_pert->Set(z);
     RealT h = 1.e-4;
-    z_pert->axpy(h, z_in);
-    gradient(z_out, *z_pert);
-    z_out.axpy(-1.0, *grad_nom_);
+    z_pert->Scaled_Plus(h, z_in);
+    RS_Gradient(z_out, *z_pert);
+    z_out.Scaled_Plus(-1.0, *grad_nom_);
     z_out.Scale(1.0 / h);
   }
 
@@ -125,10 +125,10 @@ public:
     HDSA::Ptr<HDSA::Vector<RealT>> u_pert = u_out.Clone();
     u_pert->Set(u);
     RealT h = 1.0e-4;
-    u_pert->axpy(h, u_in);
+    u_pert->Scaled_Plus(h, u_in);
     Misfit_Gradient(u_out, *u_pert, z);
 
-    u_out.axpy(-1.0, *ugrad_nom);
+    u_out.Scaled_Plus(-1.0, *ugrad_nom);
     u_out.Scale(1.0 / h);
   }
 
@@ -136,7 +136,7 @@ public:
   // Functions that aid in the implementation of the base class pure virtual function
   //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-  void writedata_solopt(const HDSA::Vector<RealT> &u) const
+  void Write_Data_Solution_Operator(const HDSA::Vector<RealT> &u) const
   {
     if (solver_->isTransient)
     {
@@ -156,14 +156,14 @@ public:
     }
   }
 
-  void do_solop(bool solop_flag) const
+  void Do_Solution_Operator(bool solop_flag) const
   {
     postproc_->hdsa_solop = solop_flag;
   }
 
-  void gradient(HDSA::Vector<RealT> &grad_z, const HDSA::Vector<RealT> &z) const
+  void RS_Gradient(HDSA::Vector<RealT> &grad_z, const HDSA::Vector<RealT> &z) const
   {
-    bool new_z = checkNewParams(z);
+    bool new_z = Check_New_Params(z);
     if (new_z)
     {
       HDSA::Ptr<MrHyDE_OptVector> z_rol = solver_interface_->Map_HDSA_Vector_to_MrHyDE_OptVector(z);
@@ -183,7 +183,7 @@ public:
     solver_->adjointModel(*grad_z_rol);
   }
 
-  bool checkNewParams(const HDSA::Vector<RealT> &z) const
+  bool Check_New_Params(const HDSA::Vector<RealT> &z) const
   {
     HDSA::Ptr<MrHyDE_OptVector> z_rol = solver_interface_->Map_HDSA_Vector_to_MrHyDE_OptVector(z);
     MrHyDE_OptVector curr_z = params_->getCurrentVector();

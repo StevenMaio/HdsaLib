@@ -29,7 +29,7 @@ namespace HDSA
   template <class RealT>
   void MD_Determine_u_Hyperparameters<RealT>::Determine_alpha_u(HDSA::MD_u_Prior_Interface<RealT> *u_prior_interface) const
   {
-    HDSA::Ptr<const HDSA::MultiVector<RealT>> D = data_interface_->get_D();
+    HDSA::Ptr<const HDSA::MultiVector<RealT>> D = data_interface_->Get_D();
     HDSA::Ptr<HDSA::Vector<RealT>> delta = (*D)[0];
     HDSA::Ptr<const HDSA::Vector<RealT>> delta_k = data_interface_->Extract_State_Component(*delta, component_id_, true);
     HDSA::Ptr<HDSA::Vector<RealT>> tmp1 = delta_k->Clone();
@@ -44,7 +44,7 @@ namespace HDSA
       MD_Numeric_Laplacian_u_Prior_Interface<RealT> u_elliptic = dynamic_cast<MD_Numeric_Laplacian_u_Prior_Interface<RealT> &>(*u_spatial);
 
       HDSA::Ptr<HDSA::Dense_Matrix<RealT>> sing_vals = u_elliptic.Get_Sing_Vals();
-      int m = sing_vals->numRows();
+      int m = sing_vals->Number_of_Rows();
       for (int k = 0; k < m; k++)
       {
         u_op_trace += std::pow((*sing_vals)(k, 0), 2.0);
@@ -53,7 +53,7 @@ namespace HDSA
       HDSA::Ptr<HDSA::MD_Transient_Prior_Covariance<RealT>> u_time = u_transient.Get_Time_Cov();
       RealT tmp = 0.0;
       HDSA::Ptr<HDSA::Dense_Matrix<RealT>> evals = u_time->Get_Evals();
-      int n = evals->numRows();
+      int n = evals->Number_of_Rows();
       for (int k = 0; k < n; k++)
       {
         tmp += (*evals)(k, 0);
@@ -64,7 +64,7 @@ namespace HDSA
     {
       MD_Numeric_Laplacian_u_Prior_Interface<RealT> u_elliptic = dynamic_cast<MD_Numeric_Laplacian_u_Prior_Interface<RealT> &>(*u_prior_interface);
       HDSA::Ptr<HDSA::Dense_Matrix<RealT>> sing_vals = u_elliptic.Get_Sing_Vals();
-      int m = sing_vals->numRows();
+      int m = sing_vals->Number_of_Rows();
       for (int k = 0; k < m; k++)
       {
         u_op_trace += std::pow((*sing_vals)(k, 0), 2.0);
@@ -78,7 +78,7 @@ namespace HDSA
   template <class RealT>
   void MD_Determine_u_Hyperparameters<RealT>::Determine_alpha_t(HDSA::MD_u_Prior_Interface<RealT> *u_prior_interface) const
   {
-    HDSA::Ptr<const HDSA::MultiVector<RealT>> D = data_interface_->get_D();
+    HDSA::Ptr<const HDSA::MultiVector<RealT>> D = data_interface_->Get_D();
     HDSA::Transient_Vector<RealT> tmp = dynamic_cast<HDSA::Transient_Vector<RealT> &>(*(*D)[0]);
     int n_t = tmp.Get_n_t();
     int N = D->Number_of_Vectors();
@@ -119,7 +119,7 @@ namespace HDSA
   template <class RealT>
   void MD_Determine_u_Hyperparameters<RealT>::Determine_alpha_d(HDSA::MD_u_Prior_Interface<RealT> *u_prior_interface) const
   {
-    HDSA::Ptr<const HDSA::MultiVector<RealT>> D = data_interface_->get_D();
+    HDSA::Ptr<const HDSA::MultiVector<RealT>> D = data_interface_->Get_D();
     int N = D->Number_of_Vectors();
     RealT mags = 0.0;
     for (int j = 0; j < N; j++)

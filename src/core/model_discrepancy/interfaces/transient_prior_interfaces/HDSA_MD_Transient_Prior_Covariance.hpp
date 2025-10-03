@@ -81,7 +81,7 @@ namespace HDSA
       return determine_u_hyperparams_;
     }
 
-    int Get_Num_Time_Nodes(void) const
+    int Get_n_t(void) const
     {
       return n_t_;
     }

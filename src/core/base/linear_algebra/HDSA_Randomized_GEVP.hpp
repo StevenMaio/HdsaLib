@@ -83,7 +83,7 @@ namespace HDSA
 				{
 					for (int i = 0; i < kpp; i++)
 					{
-						(*M)[k]->axpy((*R_T_inv)(i, k), *(*Y)[i]);
+						(*M)[k]->Scaled_Plus((*R_T_inv)(i, k), *(*Y)[i]);
 					}
 				}
 
@@ -104,7 +104,7 @@ namespace HDSA
 					evals.Set_Entry(k, 0, std::pow((*S)(k, 0), 2.0));
 					for (int i = 0; i < kpp; i++)
 					{
-						evecs[k]->axpy((*U)(i, k), *(*WQ)[i]);
+						evecs[k]->Scaled_Plus((*U)(i, k), *(*WQ)[i]);
 					}
 					if ((*U)(0, k) < 0.0)
 					{
@@ -124,7 +124,7 @@ namespace HDSA
 					evals.Set_Entry(k, 0, (*Lambda)(k, 0));
 					for (int i = 0; i < kpp; i++)
 					{
-						evecs[k]->axpy((*S)(i, k), *(*Q)[i]);
+						evecs[k]->Scaled_Plus((*S)(i, k), *(*Q)[i]);
 					}
 					if ((*S)(0, k) < 0.0)
 					{
@@ -137,7 +137,7 @@ namespace HDSA
 		void CholQR(HDSA::MultiVector<RealT> &Q, HDSA::MultiVector<RealT> &WQ, HDSA::Dense_Matrix<RealT> &R, const HDSA::MultiVector<RealT> &Z, std::string &type)
 		{
 			HDSA::Ptr<HDSA::Dense_Matrix<RealT>> ZtZ = Z.MatMat(Z);
-			int n = ZtZ->numCols();
+			int n = ZtZ->Number_of_Columns();
 			HDSA::Ptr<HDSA::Dense_Matrix<RealT>> R_Z = HDSA::makePtr<HDSA::Dense_Matrix<RealT>>(n, n);
 			HDSA::Linear_Algebra::Cholesky_Factorization<RealT>(*ZtZ, *R_Z);
 
@@ -153,7 +153,7 @@ namespace HDSA
 			{
 				for (int i = 0; i < n; i++)
 				{
-					(*Q_Z)[k]->axpy((*R_Z_inv)(i, k), *Z[i]);
+					(*Q_Z)[k]->Scaled_Plus((*R_Z_inv)(i, k), *Z[i]);
 				}
 			}
 			// Results in the factorization Z = Q_Z*R_Z
@@ -192,8 +192,8 @@ namespace HDSA
 			{
 				for (int i = 0; i < n; i++)
 				{
-					Q[k]->axpy((*R_C_inv)(i, k), *(*Q_Z)[i]);
-					WQ[k]->axpy((*R_C_inv)(i, k), *(*W_Q_Z)[i]);
+					Q[k]->Scaled_Plus((*R_C_inv)(i, k), *(*Q_Z)[i]);
+					WQ[k]->Scaled_Plus((*R_C_inv)(i, k), *(*W_Q_Z)[i]);
 				}
 			}
 

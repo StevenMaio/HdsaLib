@@ -34,7 +34,7 @@ public:
   {
     HDSA::Ptr<HDSA::Vector<RealT>> z_tmp = z.Clone();
     z_tmp->Set(*current_z_);
-    z_tmp->axpy(-1.0, z);
+    z_tmp->Scaled_Plus(-1.0, z);
     RealT val = z_tmp->Norm();
     if (val != 0.0)
     {
@@ -46,7 +46,7 @@ public:
   {
     HDSA::Ptr<HDSA::Vector<RealT>> z_tmp = z.Clone();
     z_tmp->Set(*current_z_);
-    z_tmp->axpy(-1.0, z);
+    z_tmp->Scaled_Plus(-1.0, z);
     RealT val = z_tmp->Norm();
 
     if (val != 0.0)

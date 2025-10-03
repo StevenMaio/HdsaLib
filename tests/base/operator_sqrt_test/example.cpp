@@ -24,10 +24,10 @@ int main(int argc, char *argv[])
   HDSA::Ptr<HDSA::Vector<RealT>> vec_out_2 = HDSA::makePtr<HDSA::Std_Vector<RealT>>(m, comm);
   HDSA::Ptr<HDSA::Vector<RealT>> vec_out_3 = HDSA::makePtr<HDSA::Std_Vector<RealT>>(m, comm);
 
-  mat_sqrt->Apply_Operator_Sqrt(*vec_out_1, *vec_in);
-  mat_sqrt->Apply_Operator_Sqrt(*vec_out_2, *vec_out_1);
-  mat_sqrt->Apply_Operator(*vec_out_3, *vec_in);
-  vec_out_2->axpy(-1.0, *vec_out_3);
+  mat_sqrt->Apply_Sqrt(*vec_out_1, *vec_in);
+  mat_sqrt->Apply_Sqrt(*vec_out_2, *vec_out_1);
+  mat_sqrt->Apply(*vec_out_3, *vec_in);
+  vec_out_2->Scaled_Plus(-1.0, *vec_out_3);
   std::cout << "Error in Operator squart root = " << vec_out_2->Norm() << std::endl;
 
   return 0;

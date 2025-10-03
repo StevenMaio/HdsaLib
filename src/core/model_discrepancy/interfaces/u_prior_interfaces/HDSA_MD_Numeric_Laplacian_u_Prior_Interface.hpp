@@ -72,7 +72,7 @@ namespace HDSA
       {
         determine_u_hyperparams_->Determine_GSVD_Hyperparameters();
       }
-      HDSA::Ptr<const HDSA::Vector<RealT>> u_opt = data_interface_->get_u_opt();
+      HDSA::Ptr<const HDSA::Vector<RealT>> u_opt = data_interface_->Get_u_opt();
       HDSA::Ptr<const HDSA::Vector<RealT>> u_vec;
       if (HDSA::Ptr<const HDSA::Transient_Vector<RealT>> u_trans = HDSA::dynamicPtrCast<const HDSA::Transient_Vector<RealT>>(u_opt))
       {
@@ -101,7 +101,7 @@ namespace HDSA
     void Set_beta_u(RealT beta_u_new)
     {
       E_u_->Set(*M_);
-      E_u_->axpy(beta_u_new, *S_);
+      E_u_->Scaled_Plus(beta_u_new, *S_);
       beta_u_ = beta_u_new;
       E_u_solver_ = HDSA::makePtr<HDSA::Sparse_Matrix_Solver<RealT>>(E_u_);
     }

@@ -30,7 +30,7 @@ namespace HDSA
     virtual RealT Dot(const HDSA::Vector<RealT> &x) const = 0;
 
     // add alpha*x to this
-    virtual void axpy(const RealT alpha, const HDSA::Vector<RealT> &x) = 0;
+    virtual void Scaled_Plus(const RealT alpha, const HDSA::Vector<RealT> &x) = 0;
 
     // return vector Dimension
     virtual int Dimension() const = 0;
@@ -71,7 +71,7 @@ namespace HDSA
     // Scale this by val
     virtual void Scale(const RealT val)
     {
-      this->axpy(val - 1.0, *this);
+      this->Scaled_Plus(val - 1.0, *this);
     }
 
     // Set this=0
@@ -89,14 +89,14 @@ namespace HDSA
     // add x to this
     virtual void Plus(const HDSA::Vector<RealT> &x)
     {
-      this->axpy(1.0, x);
+      this->Scaled_Plus(1.0, x);
     }
 
     // Set this=x
     virtual void Set(const HDSA::Vector<RealT> &x)
     {
       this->Scale(0.0);
-      this->axpy(1.0, x);
+      this->Scaled_Plus(1.0, x);
     }
 
     // Test vector implementation

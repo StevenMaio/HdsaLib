@@ -30,7 +30,7 @@ public:
     M_->Set_Entry(m_ - 1, m_ - 1, (1.0 / 3.0) * h);
   }
 
-  void Apply_Operator(HDSA::Vector<RealT> &vec_out, const HDSA::Vector<RealT> &vec_in) const
+  void Apply(HDSA::Vector<RealT> &vec_out, const HDSA::Vector<RealT> &vec_in) const
   {
     HDSA::Ptr<HDSA::Dense_Matrix<RealT>> b = HDSA::makePtr<HDSA::Dense_Matrix<RealT>>(m_, 1);
     const HDSA::Std_Vector<RealT> &vec_in_std = dynamic_cast<const HDSA::Std_Vector<RealT> &>(vec_in);

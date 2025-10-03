@@ -51,8 +51,8 @@ namespace HDSA
 
 				RealT scalar_tmp = w->Dot(*p);
 				RealT alpha = scalar / scalar_tmp;
-				z_out.axpy(alpha, *p);
-				r->axpy(-alpha, *w);
+				z_out.Scaled_Plus(alpha, *p);
+				r->Scaled_Plus(-alpha, *w);
 				qn_prec_->Apply_Inverse_Hessian_Approximation(*v, *r);
 				RealT scalar_old = scalar;
 				scalar = v->Dot(*r);
@@ -108,7 +108,7 @@ namespace HDSA
 			RealT dt = 1.0 / static_cast<RealT>(N);
 			HDSA::Ptr<HDSA::Vector<RealT>> d_theta = theta_star.Clone();
 			d_theta->Set(theta_star);
-			d_theta->axpy(-1.0, *theta_bar_);
+			d_theta->Scaled_Plus(-1.0, *theta_bar_);
 
 			z_current->Set(*z_bar_);
 			theta_current->Set(*theta_bar_);
@@ -142,14 +142,14 @@ namespace HDSA
 				if (use_qn_prec_)
 				{
 					s->Set(*z_new);
-					s->axpy(-1.0, *z_current);
+					s->Scaled_Plus(-1.0, *z_current);
 
 					y->Set(*grad_current);
-					y->axpy(dt, *z_tmp);
+					y->Scaled_Plus(dt, *z_tmp);
 					y->Scale(-1.0);
 				}
 				z_current->Set(*z_new);
-				theta_current->axpy(dt, *d_theta);
+				theta_current->Scaled_Plus(dt, *d_theta);
 
 				sen_op_interface_->Gradient(*grad_current, *z_current, *theta_current);
 				num_grads += 1;
@@ -168,7 +168,7 @@ namespace HDSA
 					iters = Apply_Inverse_Hessian(*z_new, *grad_current, *z_current, *theta_current, cg_tol_);
 					num_Hvecs += iters;
 
-					z_current->axpy(-1.0, *z_new);
+					z_current->Scaled_Plus(-1.0, *z_new);
 					sen_op_interface_->Gradient(*grad_current, *z_current, *theta_current);
 					num_grads += 1;
 					if (use_qn_prec_ & (k < N - 1))
@@ -185,7 +185,7 @@ namespace HDSA
 					std::cout << "The current gradient Norm = " << sol_grad_Norm << std::endl;
 					iters = Apply_Inverse_Hessian(*z_new, *grad_current, *z_current, *theta_current, variable_cg_tol);
 					num_Hvecs += iters;
-					z_current->axpy(-1.0, *z_new);
+					z_current->Scaled_Plus(-1.0, *z_new);
 					sen_op_interface_->Gradient(*grad_current, *z_current, *theta_current);
 					num_grads += 1;
 					sol_grad_Norm = grad_current->Norm();
@@ -234,7 +234,7 @@ namespace HDSA
 			RealT dt = 1.0 / static_cast<RealT>(N);
 			HDSA::Ptr<HDSA::Vector<RealT>> d_theta = theta_star.Clone();
 			d_theta->Set(theta_star);
-			d_theta->axpy(-1.0, *theta_bar_);
+			d_theta->Scaled_Plus(-1.0, *theta_bar_);
 
 			z_current->Set(*z_bar_);
 			theta_current->Set(*theta_bar_);
@@ -270,16 +270,16 @@ namespace HDSA
 				if (use_qn_prec_)
 				{
 					s->Set(*z_new);
-					s->axpy(-1.0, *z_current);
+					s->Scaled_Plus(-1.0, *z_current);
 
 					y->Set(*grad_current);
-					y->axpy(0.5 * dt, *z_tmp);
+					y->Scaled_Plus(0.5 * dt, *z_tmp);
 					y->Scale(-1.0);
 				}
 
 				z_current->Set(*z_new);
 				z_new->Zeros();
-				theta_current->axpy(0.5 * dt, *d_theta);
+				theta_current->Scaled_Plus(0.5 * dt, *d_theta);
 
 				sen_op_interface_->Gradient(*grad_current, *z_current, *theta_current);
 				num_grads += 1;
@@ -304,15 +304,15 @@ namespace HDSA
 				if (use_qn_prec_)
 				{
 					s->Set(*z_new);
-					s->axpy(-1.0, *z_current);
+					s->Scaled_Plus(-1.0, *z_current);
 
 					y->Set(*grad_current);
-					y->axpy(0.5 * dt, *z_tmp);
+					y->Scaled_Plus(0.5 * dt, *z_tmp);
 					y->Scale(-1.0);
 				}
 
 				z_current->Set(*z_new);
-				theta_current->axpy(0.5 * dt, *d_theta);
+				theta_current->Scaled_Plus(0.5 * dt, *d_theta);
 				sen_op_interface_->Gradient(*grad_current, *z_current, *theta_current);
 				num_grads += 1;
 
@@ -331,7 +331,7 @@ namespace HDSA
 					iters = Apply_Inverse_Hessian(*z_new, *grad_current, *z_current, *theta_current, cg_tol_);
 					num_Hvecs += iters;
 
-					z_current->axpy(-1.0, *z_new);
+					z_current->Scaled_Plus(-1.0, *z_new);
 					sen_op_interface_->Gradient(*grad_current, *z_current, *theta_current);
 					num_grads += 1;
 
@@ -350,7 +350,7 @@ namespace HDSA
 					std::cout << "The current gradient Norm = " << sol_grad_Norm << std::endl;
 					iters = Apply_Inverse_Hessian(*z_new, *grad_current, *z_current, *theta_current, variable_cg_tol);
 					num_Hvecs += iters;
-					z_current->axpy(-1.0, *z_new);
+					z_current->Scaled_Plus(-1.0, *z_new);
 					sen_op_interface_->Gradient(*grad_current, *z_current, *theta_current);
 					num_grads += 1;
 					sol_grad_Norm = grad_current->Norm();

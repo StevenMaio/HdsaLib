@@ -34,9 +34,9 @@ public:
       RealT maxVal = std::numeric_limits<RealT>::lowest();
 
       // Reduce to find the min and max
-      int numRows = tpetra_vec->getLocalLength();
+      int Number_of_Rows = tpetra_vec->getLocalLength();
       auto localView = tpetra_vec->template getLocalView<HostDevice>(Tpetra::Access::ReadWrite);
-      for (size_t i = 0; i < numRows; ++i)
+      for (size_t i = 0; i < Number_of_Rows; ++i)
       {
         minVal = std::min(minVal, localView(i, 0));
         maxVal = std::max(maxVal, localView(i, 0));

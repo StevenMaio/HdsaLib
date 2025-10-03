@@ -28,10 +28,10 @@ public:
   {
     HDSA::Ptr<HDSA::Vector<RealT>> z_tmp = z_current_->Clone();
     z_tmp->Set(z);
-    z_tmp->axpy(-1.0, *z_current_);
+    z_tmp->Scaled_Plus(-1.0, *z_current_);
     HDSA::Ptr<HDSA::Vector<RealT>> theta_tmp = theta_current_->Clone();
     theta_tmp->Set(theta);
-    theta_tmp->axpy(-1.0, *theta_current_);
+    theta_tmp->Scaled_Plus(-1.0, *theta_current_);
     RealT val = z_tmp->Norm() + theta_tmp->Norm();
     if (val > 0.0)
     {
@@ -86,12 +86,12 @@ public:
     RealT h = 1.e-4;
     HDSA::Ptr<HDSA::Vector<RealT>> theta_pert = theta.Clone();
     theta_pert->Set(theta);
-    theta_pert->axpy(h, theta_in);
+    theta_pert->Scaled_Plus(h, theta_in);
 
     Update(z, *theta_pert);
     robj_->gradient(*z_out_rol.rol_vec, *z_rol.rol_vec, tol);
 
-    z_out.axpy(-1.0, *grad_nom);
+    z_out.Scaled_Plus(-1.0, *grad_nom);
     z_out.Scale(1.0 / h);
 
     // auto end = std::chrono::high_resolution_clock::now();

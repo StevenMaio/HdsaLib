@@ -54,7 +54,7 @@ namespace HDSA
         HDSA::Ptr<HDSA::Vector<RealT>> omega = samples[k]->Clone();
         omega->Randomize_Standard_Normal();
         HDSA::Ptr<HDSA::Vector<RealT>> vec = samples[k]->Clone();
-        M_sqrt->Apply_Operator_Sqrt(*vec, *omega);
+        M_sqrt->Apply_Sqrt(*vec, *omega);
         Apply_E_z_Inverse(*samples[k], *vec);
       }
     }
@@ -102,7 +102,7 @@ namespace HDSA
     void Set_beta_z(RealT beta_z_new)
     {
       E_z_->Set(*M_);
-      E_z_->axpy(beta_z_new, *S_);
+      E_z_->Scaled_Plus(beta_z_new, *S_);
       beta_z_ = beta_z_new;
       E_z_solver_ = HDSA::makePtr<HDSA::Sparse_Matrix_Solver<RealT>>(E_z_);
     }
@@ -122,7 +122,7 @@ namespace HDSA
       {
       }
 
-      void Apply_Operator(HDSA::Vector<ScalarType> &vec_out, const HDSA::Vector<ScalarType> &vec_in) const
+      void Apply(HDSA::Vector<ScalarType> &vec_out, const HDSA::Vector<ScalarType> &vec_in) const
       {
         M_->Apply(vec_out, vec_in);
       }

@@ -69,12 +69,12 @@ namespace HDSA
         }
 
         // add alpha*x to this
-        void axpy(const RealT alpha, const HDSA::Vector<RealT> &x) override
+        void Scaled_Plus(const RealT alpha, const HDSA::Vector<RealT> &x) override
         {
             const Transient_Vector<RealT> x_trans = dynamic_cast<const Transient_Vector<RealT> &>(x);
             for (int k = 0; k < n_t_; k++)
             {
-                vec_[k]->axpy(alpha, *x_trans.Get_Vector_Const(k));
+                vec_[k]->Scaled_Plus(alpha, *x_trans.Get_Vector_Const(k));
             }
         }
 

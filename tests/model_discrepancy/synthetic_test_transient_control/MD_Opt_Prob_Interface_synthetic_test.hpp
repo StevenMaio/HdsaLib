@@ -137,7 +137,7 @@ public:
   void Misfit_Gradient(HDSA::Vector<RealT> &u_grad, const HDSA::Vector<RealT> &u, const HDSA::Vector<RealT> &z) const
   {
     u_grad.Set(u);
-    u_grad.axpy(-1.0, *data_interface_->get_u_opt());
+    u_grad.Scaled_Plus(-1.0, *data_interface_->Get_u_opt());
   }
 
   void Apply_Misfit_Hessian(HDSA::Vector<RealT> &u_out, const HDSA::Vector<RealT> &u_in, const HDSA::Vector<RealT> &u, const HDSA::Vector<RealT> &z) const

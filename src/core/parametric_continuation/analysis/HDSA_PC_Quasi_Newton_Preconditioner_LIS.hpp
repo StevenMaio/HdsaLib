@@ -61,7 +61,7 @@ namespace HDSA
         for (int k = 0; k < rank_; k++)
         {
           RealT val = (*tmp)(k, 0) * (*evals_)(k, 0) / (1.0 + (*evals_)(k, 0));
-          z_out.axpy(-val, *(*evecs_)[k]);
+          z_out.Scaled_Plus(-val, *(*evecs_)[k]);
         }
       }
     }

@@ -55,7 +55,7 @@ namespace HDSA
       return xy;
     }
 
-    void axpy(const RealT alpha, const HDSA::Vector<RealT> &x) override
+    void Scaled_Plus(const RealT alpha, const HDSA::Vector<RealT> &x) override
     {
       RealT one(1);
       const Tpetra_Vector &ex = dynamic_cast<const Tpetra_Vector &>(x);

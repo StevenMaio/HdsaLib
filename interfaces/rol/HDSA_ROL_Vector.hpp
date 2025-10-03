@@ -48,7 +48,7 @@ namespace HDSA
     }
 
     // add alpha*x to this
-    void axpy(const RealT alpha, const HDSA::Vector<RealT> &x) override
+    void Scaled_Plus(const RealT alpha, const HDSA::Vector<RealT> &x) override
     {
       const HDSA::ROL_Vector<RealT> &ex = dynamic_cast<const HDSA::ROL_Vector<RealT> &>(x);
       rol_vec->axpy(alpha, *ex.rol_vec);

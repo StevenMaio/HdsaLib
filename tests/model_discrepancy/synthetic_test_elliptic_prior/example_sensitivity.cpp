@@ -41,7 +41,7 @@ int main(int argc, char *argv[])
   int num_sing_vals = 50;
   int oversampling = 1;
   int num_subspace_iters = 2;
-  HDSA::Ptr<HDSA::Vector<RealT>> u_vec = data_interface->get_u_opt()->Clone();
+  HDSA::Ptr<HDSA::Vector<RealT>> u_vec = data_interface->Get_u_opt()->Clone();
   HDSA::Ptr<HDSA::MD_Elliptic_u_Prior_Interface<RealT>> elliptic_u_prior_interface = HDSA::dynamicPtrCast<HDSA::MD_Elliptic_u_Prior_Interface<RealT>>(u_prior_interface);
   elliptic_u_prior_interface->Compute_E_u_Inverse_GSVD(num_sing_vals, oversampling, num_subspace_iters, *u_vec);
 
@@ -52,7 +52,7 @@ int main(int argc, char *argv[])
   std::string name = "prior_discrepancy_evaluated_at_z_opt";
   prior_samples_at_z_opt->Write_to_File(name);
 
-  HDSA::Ptr<HDSA::MultiVector<RealT>> z = HDSA::makePtr<HDSA::MultiVector<RealT>>(3, *data_interface->get_z_opt());
+  HDSA::Ptr<HDSA::MultiVector<RealT>> z = HDSA::makePtr<HDSA::MultiVector<RealT>>(3, *data_interface->Get_z_opt());
   HDSA::Ptr<HDSA::Vector<RealT>> z0 = (*z)[0];
   HDSA::Ptr<HDSA::Vector<RealT>> z1 = (*z)[1];
   HDSA::Ptr<HDSA::Vector<RealT>> z2 = (*z)[2];
@@ -90,9 +90,9 @@ int main(int argc, char *argv[])
   std::vector<HDSA::Ptr<HDSA::Vector<RealT>>> z_test;
   z_test.resize(3);
   z_test[0] = z0->Clone();
-  z_test[0]->Set(*(*data_interface->get_Z())[0]);
+  z_test[0]->Set(*(*data_interface->Get_Z())[0]);
   z_test[1] = z0->Clone();
-  z_test[1]->Set(*(*data_interface->get_Z())[1]);
+  z_test[1]->Set(*(*data_interface->Get_Z())[1]);
   z_test[2] = z0->Clone();
   HDSA::Std_Vector<RealT> ztest2_std = dynamic_cast<HDSA::Std_Vector<RealT> &>(*z_test[2]);
   for (int k = 0; k < m; k++)
