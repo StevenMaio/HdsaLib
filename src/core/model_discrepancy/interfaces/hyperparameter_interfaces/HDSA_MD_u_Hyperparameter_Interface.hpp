@@ -32,6 +32,14 @@ namespace HDSA
     bool is_multistate_interface_;
 
   public:
+    virtual std::vector<std::vector<RealT>> Spatial_Domain_Bounds(void) const
+    {
+      HDSA_TEST_FOR_EXCEPTION(true, std::logic_error,
+                              "Error in HDSA::MD_u_Hyperparameter_Interface::Spatial_Domain_Bounds must be implemented for hyperparameter algorithm-based initialization" << std::endl);
+      std::vector<std::vector<RealT>> vec; // vec.size() = spatial Dimension, e.g. 1,2, or 3, [ vec[i][0],vec[i][1] ] is an interval bounding the ith spatial coordinate
+      return vec;
+    }
+
     MD_u_Hyperparameter_Interface(const bool &is_transient, const bool &center_data = false, const bool &adapt_time_variance = false, const int &component_id = 1) : is_transient_(is_transient), center_data_(center_data), adapt_time_variance_(adapt_time_variance), component_id_(component_id)
     {
       is_multistate_interface_ = false;
@@ -88,6 +96,11 @@ namespace HDSA
     RealT Get_Data_Noise_Percent(void) const
     {
       return data_noise_percent_;
+    }
+
+    RealT Get_W_u_Inv_Spectal_Gap(void) const 
+    {
+      return W_u_inv_spectral_gap_;
     }
 
     void Set_alpha_u(const RealT &alpha_u_new)

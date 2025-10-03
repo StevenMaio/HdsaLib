@@ -138,8 +138,22 @@ namespace HDSA
   template <class RealT>
   void MD_Determine_u_Hyperparameters<RealT>::Determine_GSVD_Hyperparameters(void) const
   {
-    HDSA_TEST_FOR_EXCEPTION(true, std::logic_error,
-                            "Error in HDSA::MD_Determine_u_Hyperparameters<RealT>::Determine_GSVD_Hyperparameters: Need to implement this method" << std::endl);
+    std::vector<std::vector<RealT>> spatial_domain_bounds = u_hyperparam_interface_->Spatial_Domain_Bounds();
+    int spatial_dim = spatial_domain_bounds.size();
+    std::vector<int> modes_per_dim = std::vector<int>(spatial_dim);
+    int num_sing_vals = 1;
+    int n_u = data_interface_->Extract_State_Component(*data_interface_->Get_u_opt(),0)->Dimension();
+    for (int k = 0; k < spatial_dim; k++)
+    {
+      RealT L = spatial_domain_bounds[k][1] - spatial_domain_bounds[k][0];
+      RealT tmp = std::pow(L / M_PI, 2.0) * (1.0 / u_hyperparam_interface_->Get_beta_u()) * (1.0 / u_hyperparam_interface_->Get_W_u_Inv_Spectal_Gap() - 1.0);
+      modes_per_dim[k] = std::round(std::sqrt(tmp));
+      num_sing_vals *= modes_per_dim[k];
+    }
+    num_sing_vals = std::min(num_sing_vals, n_u);
+    int oversampling = std::min(10, n_u - num_sing_vals);
+
+    u_hyperparam_interface_->Set_GSVD_Hyperparameters(num_sing_vals, oversampling, 1);
   }
 
 }
