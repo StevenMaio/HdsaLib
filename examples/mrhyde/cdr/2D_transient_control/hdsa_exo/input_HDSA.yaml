@@ -5,6 +5,7 @@ ANONYMOUS:
     analysis type: HDSA
     HDSA:
       Configuration:
+        verbosity: 1
         num_prior_samples: 10
         num_posterior_samples: 0
         execute_prior_discrepancy_sampling: true
@@ -27,8 +28,9 @@ ANONYMOUS:
           prior_num_sing_vals: 40
           prior_oversampling: 0
           prior_num_subspace_iter: 1
-        alpha_z: 0.1
-        beta_z: 0.001
+        z:
+          alpha_z: 0.1
+          beta_z: 0.001
         hessian_num_eig_vals: 3
         hessian_oversampling: 4
       DataLoadParameters:

@@ -33,7 +33,7 @@ ANONYMOUS:
     quadrature: 2
   Solver:
     solver: transient
-    workset size: 100
+    workset size: 5
     nonlinear TOL: 1.0e-07
     max nonlinear iters: 10
     final time: 1.0e-1
