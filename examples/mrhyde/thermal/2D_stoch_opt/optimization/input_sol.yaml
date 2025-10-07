@@ -8,20 +8,23 @@ ANONYMOUS:
     save sensor data: false
     move sensors to IP: false
     use line search: false
-    write output: false
+    write output: true
     ROL:
       SOL:
-        Sample Set File: "sample_set.dat"
-        Sample Weight File: "sample_weights.dat"
+        Use Primal Dual: true
         Write Samples: true
-        Number of Samples: 4
+        Number of Samples: 10
         Objective:
-          Type: Risk Neutral
+          Type: Risk Averse
+          Risk Measure:
+            Name: AVaR
+            AVaR:
+              Confidence Level: 0.7
+              Convex Combination Parameter: 0.5
       General: 
         Output Level: 1
         Write Iteration History: false
         Write Final Parameters: true
-        Initial Iterate File: "final_params_.dat"
         Variable Objective Function: false
         Scale for Epsilon Active Sets: 1.0
         Use Scaling For Epsilon-Active Sets: false
@@ -134,7 +137,7 @@ ANONYMOUS:
           Cutting Plane Tolerance: 1.0e-8
           Cutting Plane Iteration Limit: 1000
       Status Test:
-        Gradient Tolerance: 1.0e-6
+        Gradient Tolerance: 1.0e-8
         Constraint Tolerance: 1.0e-8
         Step Tolerance: 1.0e-8
         Iteration Limit: 200

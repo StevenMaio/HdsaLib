@@ -13,7 +13,6 @@ ANONYMOUS:
       SOL:
         Use Primal Dual: true
         Sample Set File: "sample_set_lofi.dat"
-        Sample Weight File: "sample_weights_lofi.dat"
         Write Samples: true
         Number of Samples: 10
         Objective:
@@ -22,7 +21,7 @@ ANONYMOUS:
             Name: AVaR
             AVaR:
               Confidence Level: 0.7
-              Convex Combination Parameter: 1.0
+              Convex Combination Parameter: 0.5
         Primal Dual Risk:
           Iteration Limit: 200
       General: 

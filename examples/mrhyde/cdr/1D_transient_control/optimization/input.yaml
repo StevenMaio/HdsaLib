@@ -44,9 +44,9 @@ ANONYMOUS:
       obj0:
         type: integrated control
         function: '0.5*c^2'
-        weight: 1.0
+        weight: 0.0 #1.0
         Regularization functions:
           reg0:
             type: l2 norm squared
-            weight: 5.0E-4
+            weight: 1.0 #5.0E-4
  

@@ -13,7 +13,6 @@ ANONYMOUS:
       SOL:
         Use Primal Dual: false
         Sample Set File: "sample_set_lofi.dat"
-        Sample Weight File: "sample_weights_lofi.dat"
         Write Samples: true
         Number of Samples: 10
         Objective:
