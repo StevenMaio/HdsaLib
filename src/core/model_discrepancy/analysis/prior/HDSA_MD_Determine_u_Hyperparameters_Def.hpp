@@ -124,7 +124,21 @@ namespace HDSA
     RealT mags = 0.0;
     for (int j = 0; j < N; j++)
     {
-      HDSA::Ptr<HDSA::Vector<RealT>> delta = (*D)[j];
+      HDSA::Ptr<HDSA::Vector<RealT>> delta_tmp = (*D)[j];
+      HDSA::Ptr<HDSA::Vector<RealT>> delta;
+      if (HDSA::Ptr<HDSA::Transient_Vector<RealT>> delta_tmp_trans = HDSA::dynamicPtrCast<HDSA::Transient_Vector<RealT>>(delta_tmp))
+      {
+        delta = (*delta_tmp_trans)[0]->Clone();
+        for(int k = 0; k < delta_tmp_trans->Get_n_t(); k++)
+        {
+          delta->Plus(*(*delta_tmp_trans)[k]);
+        }
+        delta->Scale(1.0/static_cast<RealT>(delta_tmp_trans->Get_n_t()));
+      }
+      else
+      {
+        delta = delta_tmp;
+      }
       HDSA::Ptr<const HDSA::Vector<RealT>> delta_k = data_interface_->Extract_State_Component(*delta, component_id_, true);
       HDSA::Ptr<HDSA::Vector<RealT>> tmp1 = delta_k->Clone();
       u_prior_interface->Apply_M_u(*tmp1, *delta_k);
@@ -142,7 +156,7 @@ namespace HDSA
     int spatial_dim = spatial_domain_bounds.size();
     std::vector<int> modes_per_dim = std::vector<int>(spatial_dim);
     int num_sing_vals = 1;
-    int n_u = data_interface_->Extract_State_Component(*data_interface_->Get_u_opt(),0)->Dimension();
+    int n_u = data_interface_->Extract_State_Component(*data_interface_->Get_u_opt(), 0)->Dimension();
     for (int k = 0; k < spatial_dim; k++)
     {
       RealT L = spatial_domain_bounds[k][1] - spatial_domain_bounds[k][0];

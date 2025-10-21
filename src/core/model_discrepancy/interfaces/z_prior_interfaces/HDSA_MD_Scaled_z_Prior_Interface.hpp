@@ -14,7 +14,7 @@ namespace HDSA
     RealT alpha_z_;
 
   public:
-    MD_Scaled_z_Prior_Interface(RealT &alpha_z) : alpha_z_(alpha_z)
+    MD_Scaled_z_Prior_Interface(RealT alpha_z) : alpha_z_(alpha_z)
     {
     }
 

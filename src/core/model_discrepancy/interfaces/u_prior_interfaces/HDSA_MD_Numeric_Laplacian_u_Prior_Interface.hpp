@@ -92,6 +92,11 @@ namespace HDSA
         }
         this->Set_alpha_u(u_hyperparam_interface_->Get_alpha_u());
       }
+
+      if (u_hyperparam_interface_->Get_alpha_d() == 0.0)
+      {
+        determine_u_hyperparams_->Determine_alpha_d(this);
+      }
     }
 
     virtual ~MD_Numeric_Laplacian_u_Prior_Interface()

@@ -9,9 +9,21 @@ namespace HDSA
   {
 
   private:
+    const HDSA::Ptr<HDSA::MD_Data_Interface<RealT>> data_interface_;
+    const HDSA::Ptr<HDSA::MD_z_Hyperparameter_Interface<RealT>> z_hyperparam_interface_;
+    const HDSA::Ptr<HDSA::MD_u_Prior_Interface<RealT>> u_prior_interface_;
+    HDSA::Ptr<HDSA::MD_Determine_z_Hyperparameters<RealT>> determine_z_hyperparams_;
+
   public:
-    MD_Vector_z_Prior_Interface(RealT alpha_z) : HDSA::MD_Scaled_z_Prior_Interface<RealT>(alpha_z)
+    MD_Vector_z_Prior_Interface(const HDSA::Ptr<HDSA::MD_Data_Interface<RealT>> &data_interface, const HDSA::Ptr<HDSA::MD_z_Hyperparameter_Interface<RealT>> &z_hyperparam_interface, const HDSA::Ptr<HDSA::MD_u_Prior_Interface<RealT>> &u_prior_interface) : HDSA::MD_Scaled_z_Prior_Interface<RealT>(z_hyperparam_interface->Get_alpha_z()), data_interface_(data_interface), z_hyperparam_interface_(z_hyperparam_interface), u_prior_interface_(u_prior_interface)
     {
+      determine_z_hyperparams_ = HDSA::makePtr<HDSA::MD_Determine_z_Hyperparameters<RealT>>(data_interface_, z_hyperparam_interface_, u_prior_interface_);
+
+      if (z_hyperparam_interface_->Get_alpha_z() == 0.0)
+      {
+        determine_z_hyperparams_->Determine_alpha_z(this);
+      }
+      this->Set_alpha_z(z_hyperparam_interface_->Get_alpha_z());
     }
 
     virtual ~MD_Vector_z_Prior_Interface()
