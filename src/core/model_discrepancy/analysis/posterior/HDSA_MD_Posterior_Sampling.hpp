@@ -94,12 +94,15 @@ namespace HDSA
 				HDSA::Ptr<HDSA::Vector<RealT>> z_tmp = dz_k->Clone();
 				z_tmp->Set(*M_z_dz_k);
 
-				HDSA::Ptr<HDSA::Dense_Matrix<RealT>> b = post_data->M_z_Zc->MatVec(*W_z_inv_M_z_dz_k);
-				HDSA::Ptr<HDSA::Dense_Matrix<RealT>> x = HDSA::makePtr<HDSA::Dense_Matrix<RealT>>(post_data->N - 1, 1);
-				HDSA::Linear_Algebra::Symmetric_Direct_Linear_Solve<RealT>(*post_data->Zc_M_z_W_z_inv_M_z_Zc, *x, *b);
-				for (int j = 0; j < post_data->N - 1; j++)
+				if (post_data->N > 1)
 				{
-					z_tmp->Scaled_Plus(-(*x)(j, 0), *(*post_data->M_z_Zc)[j]);
+					HDSA::Ptr<HDSA::Dense_Matrix<RealT>> b = post_data->M_z_Zc->MatVec(*W_z_inv_M_z_dz_k);
+					HDSA::Ptr<HDSA::Dense_Matrix<RealT>> x = HDSA::makePtr<HDSA::Dense_Matrix<RealT>>(post_data->N - 1, 1);
+					HDSA::Linear_Algebra::Symmetric_Direct_Linear_Solve<RealT>(*post_data->Zc_M_z_W_z_inv_M_z_Zc, *x, *b);
+					for (int j = 0; j < post_data->N - 1; j++)
+					{
+						z_tmp->Scaled_Plus(-(*x)(j, 0), *(*post_data->M_z_Zc)[j]);
+					}
 				}
 
 				RealT tmp = W_z_inv_M_z_dz_k->Dot(*z_tmp);

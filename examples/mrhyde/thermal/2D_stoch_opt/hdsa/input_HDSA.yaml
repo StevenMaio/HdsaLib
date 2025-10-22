@@ -6,25 +6,19 @@ ANONYMOUS:
     HDSA:
       Configuration:
         num_prior_samples: 10
-        num_posterior_samples: 0
+        num_posterior_samples: 10
         execute_prior_discrepancy_sampling: true
         execute_posterior_discrepancy_sampling: true
         execute_optimal_solution_update: true
         verbosity: 1
       HyperParameters:
         T:
-          alpha_u: 2000.0
-          beta_u: 0.009
-          beta_t: 0.028
-          alpha_d: 0.01
+          beta_u: 0.01
+          beta_t: 0.03
         z:
-          alpha_z: 0.1
-          beta_z: 0.001
-        prior_num_sing_vals: 50
-        prior_oversampling: 0
-        prior_num_subspace_iter: 1
-        hessian_num_eig_vals: 3
-        hessian_oversampling: 4
+          #alpha_z: 0.1
+        hessian_num_eig_vals: 4
+        hessian_oversampling: 0
       DataLoadParameters:
         Ensemble Size: 10
         OptimalSolutionExoFile: "output_lofi_opt_sample_"
