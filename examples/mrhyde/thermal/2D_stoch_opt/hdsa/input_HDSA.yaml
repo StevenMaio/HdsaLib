@@ -17,8 +17,8 @@ ANONYMOUS:
           beta_t: 0.03
         z:
           #alpha_z: 0.1
-        hessian_num_eig_vals: 4
-        hessian_oversampling: 0
+        hessian_num_eig_vals: 1
+        hessian_oversampling: 3
       DataLoadParameters:
         Ensemble Size: 10
         OptimalSolutionExoFile: "output_lofi_opt_sample_"
