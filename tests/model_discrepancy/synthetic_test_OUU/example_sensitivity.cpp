@@ -45,20 +45,7 @@ int main(int argc, char *argv[])
   HDSA::Ptr<HDSA::MD_Data_Interface<RealT>> data_interface = HDSA::makePtr<MD_Data_Interface_synthetic_test_OUU<RealT>>(random_number_generator, comm, ens_size, Xi);
   HDSA::Ptr<HDSA::MD_Opt_Prob_Interface<RealT>> opt_prob_interface = HDSA::makePtr<MD_Opt_Prob_Interface_synthetic_test_OUU<RealT>>(ens_size, Xi);
   HDSA::Ptr<HDSA::MD_u_Prior_Interface<RealT>> us_prior_interface = HDSA::makePtr<MD_u_Prior_Interface_synthetic_test_OUU<RealT>>(random_number_generator);
-  HDSA::Ptr<HDSA::Dense_Matrix<RealT>> K = HDSA::makePtr<HDSA::Dense_Matrix<RealT>>(ens_size, ens_size);
-  for (int i = 0; i < ens_size; i++)
-  {
-    for (int j = 0; j < ens_size; j++)
-    {
-      RealT dist = 0.0;
-      for (int k = 0; k < 3; k++)
-      {
-        dist += std::pow((*Xi)(k, i) - (*Xi)(k, j), 2.0);
-      }
-      RealT val = std::exp(-0.5 * dist);
-      K->Set_Entry(i, j, val);
-    }
-  }
+  HDSA::Ptr<HDSA::MD_OUU_Ensemble_Weighting_Matrix<RealT>> K = HDSA::makePtr<HDSA::MD_OUU_Ensemble_Weighting_Matrix<RealT>>(data_interface, us_prior_interface, ens_size);
   HDSA::Ptr<HDSA::MD_u_Prior_Interface<RealT>> u_prior_interface = HDSA::makePtr<HDSA::MD_OUU_u_Prior_Interface<RealT>>(us_prior_interface, K);
   HDSA::Ptr<HDSA::MD_z_Prior_Interface<RealT>> z_prior_interface = HDSA::makePtr<MD_z_Prior_Interface_synthetic_test_OUU<RealT>>(random_number_generator);
 

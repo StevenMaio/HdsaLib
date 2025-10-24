@@ -82,6 +82,11 @@ namespace HDSA
       A_->putScalar(0.0);
     }
 
+    void Scale(RealT alpha)
+    {
+      A_->scale(alpha);
+    }
+
     HDSA::Ptr<Teuchos::SerialDenseMatrix<int, RealT>> Get_Teuchos_Matrix(void) const
     {
       return A_;

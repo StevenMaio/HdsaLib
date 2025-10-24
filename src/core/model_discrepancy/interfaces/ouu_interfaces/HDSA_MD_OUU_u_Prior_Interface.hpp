@@ -5,6 +5,7 @@
 #include "HDSA_Dense_Matrix.hpp"
 #include "HDSA_Linear_Algebra.hpp"
 #include "HDSA_Ensemble_Vector.hpp"
+#include "HDSA_MD_OUU_Ensemble_Weighting_Matrix.hpp"
 
 namespace HDSA
 {
@@ -15,81 +16,19 @@ namespace HDSA
 
   private:
     const HDSA::Ptr<HDSA::MD_u_Prior_Interface<RealT>> us_prior_interface_;
-    const HDSA::Ptr<HDSA::Dense_Matrix<RealT>> K_;
-    HDSA::Ptr<HDSA::Dense_Matrix<RealT>> C_;
-    HDSA::Ptr<HDSA::Dense_Matrix<RealT>> Cinv_;
-    HDSA::Ptr<HDSA::Dense_Matrix<RealT>> R_;
-    HDSA::Ptr<HDSA::Dense_Matrix<RealT>> Rinv_;
-    RealT scaling_;
+    const HDSA::Ptr<HDSA::MD_OUU_Ensemble_Weighting_Matrix<RealT>> ensemble_weighting_;
     int ens_size_;
+    HDSA::Ptr<HDSA::Dense_Matrix<RealT>> W_s_;
+    HDSA::Ptr<HDSA::Dense_Matrix<RealT>> W_s_inv_;
+    HDSA::Ptr<HDSA::Dense_Matrix<RealT>> R_inv_;
 
   public:
-    MD_OUU_u_Prior_Interface(const HDSA::Ptr<HDSA::MD_u_Prior_Interface<RealT>> &us_prior_interface, const HDSA::Ptr<HDSA::Dense_Matrix<RealT>> &K) : us_prior_interface_(us_prior_interface), K_(K)
+    MD_OUU_u_Prior_Interface(const HDSA::Ptr<HDSA::MD_u_Prior_Interface<RealT>> &us_prior_interface, const HDSA::Ptr<HDSA::MD_OUU_Ensemble_Weighting_Matrix<RealT>> &ensemble_weighting) : us_prior_interface_(us_prior_interface), ensemble_weighting_(ensemble_weighting)
     {
-      ens_size_ = K->Number_of_Rows();
-
-      C_ = HDSA::makePtr<HDSA::Dense_Matrix<RealT>>(ens_size_, ens_size_);
-      for (int i = 0; i < ens_size_; i++)
-      {
-        for (int j = 0; j < ens_size_; j++)
-        {
-          RealT val = 0.0;
-          if (i == j)
-          {
-            val = -(*K)(i, i);
-            for (int s = 0; s < ens_size_; s++)
-            {
-              val += 2.0 * (*K)(i, s);
-            }
-          }
-          else
-          {
-            val = -2.0 * (*K)(i, j);
-          }
-          C_->Set_Entry(i, j, val);
-        }
-      }
-
-      R_ = HDSA::makePtr<HDSA::Dense_Matrix<RealT>>(ens_size_, ens_size_);
-      HDSA::Linear_Algebra::Cholesky_Factorization<RealT>(*C_, *R_);
-
-      Rinv_ = HDSA::makePtr<HDSA::Dense_Matrix<RealT>>(ens_size_, ens_size_);
-      for (int j = 0; j < ens_size_; j++)
-      {
-        HDSA::Ptr<HDSA::Dense_Matrix<RealT>> x = HDSA::makePtr<HDSA::Dense_Matrix<RealT>>(ens_size_, 1);
-        HDSA::Ptr<HDSA::Dense_Matrix<RealT>> b = HDSA::makePtr<HDSA::Dense_Matrix<RealT>>(ens_size_, 1);
-        b->Set_Entry(j, 0, 1.0);
-        HDSA::Linear_Algebra::Upper_Tri_Solve<RealT>(*x, *b, *R_);
-        for (int i = 0; i < ens_size_; i++)
-        {
-          Rinv_->Set_Entry(i, j, (*x)(i, 0));
-        }
-      }
-
-      Cinv_ = HDSA::makePtr<HDSA::Dense_Matrix<RealT>>(ens_size_, ens_size_);
-      Rinv_->Multiply(*Cinv_, *Rinv_, false, true);
-
-      RealT tmp = 0.0;
-      for (int s = 0; s < ens_size_; s++)
-      {
-        tmp += (*Cinv_)(s, s);
-      }
-      scaling_ = static_cast<RealT>(ens_size_) / tmp;
-
-      for (int i = 0; i < ens_size_; i++)
-      {
-        for (int j = 0; j < ens_size_; j++)
-        {
-          RealT val = (1.0 / scaling_) * (*C_)(i, j);
-          C_->Set_Entry(i, j, val);
-          val = scaling_ * (*Cinv_)(i, j);
-          Cinv_->Set_Entry(i, j, val);
-          val = (1.0 / std::sqrt(scaling_)) * (*R_)(i, j);
-          R_->Set_Entry(i, j, val);
-          val = std::sqrt(scaling_) * (*Rinv_)(i, j);
-          Rinv_->Set_Entry(i, j, val);
-        }
-      }
+      ens_size_ = ensemble_weighting_->Get_ens_size();
+      W_s_ = ensemble_weighting_->Get_W_s();
+      W_s_inv_ = ensemble_weighting_->Get_W_s_inv();
+      R_inv_ = ensemble_weighting_->Get_R_inv();
     }
 
     virtual ~MD_OUU_u_Prior_Interface()
@@ -120,7 +59,7 @@ namespace HDSA
         {
           for (int i = 0; i < ens_size_; i++)
           {
-            u_out_ens[s]->Scaled_Plus((*C_)(s, i), *u_tmp_ens[i]);
+            u_out_ens[s]->Scaled_Plus((*W_s_)(s, i), *u_tmp_ens[i]);
           }
         }
       }
@@ -148,7 +87,7 @@ namespace HDSA
       {
         for (int i = 0; i < ens_size_; i++)
         {
-          u_out_ens[s]->Scaled_Plus((*Cinv_)(s, i), *u_tmp_ens[i]);
+          u_out_ens[s]->Scaled_Plus((*W_s_inv_)(s, i), *u_tmp_ens[i]);
         }
       }
     }
@@ -171,7 +110,7 @@ namespace HDSA
       {
         for (int i = 0; i < ens_size_; i++)
         {
-          u_out_ens[s]->Scaled_Plus((*Cinv_)(s, i), *u_tmp_ens[i]);
+          u_out_ens[s]->Scaled_Plus((*W_s_inv_)(s, i), *u_tmp_ens[i]);
         }
       }
     }
@@ -189,7 +128,7 @@ namespace HDSA
         {
           for (int j = s; j < ens_size_; j++)
           {
-            vec_ens[s]->Scaled_Plus((*Rinv_)(s, j), *(*ind_samples)[j]);
+            vec_ens[s]->Scaled_Plus((*R_inv_)(s, j), *(*ind_samples)[j]);
           }
         }
       }
@@ -208,7 +147,7 @@ namespace HDSA
         {
           for (int j = s; j < ens_size_; j++)
           {
-            vec_ens[s]->Scaled_Plus((*Rinv_)(s, j), *(*ind_samples)[j]);
+            vec_ens[s]->Scaled_Plus((*R_inv_)(s, j), *(*ind_samples)[j]);
           }
         }
       }

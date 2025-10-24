@@ -17,7 +17,7 @@ for j = 1:100
 end
 prior_delta_z_opt_sabl = load('Sabl_Output.mat','prior_delta_z_opt').prior_delta_z_opt;
 
-local_diff = norm(prior_delta_z_opt - prior_delta_z_opt_sabl);
+local_diff = norm(prior_delta_z_opt - prior_delta_z_opt_sabl)/norm(prior_delta_z_opt_sabl);
 diff = [diff;local_diff];
 
 prior_delta = cell(100,1);
@@ -43,7 +43,7 @@ prior_delta_sabl = load('Sabl_Output.mat','prior_delta').prior_delta;
 
 local_diff = 0;
 for k = 1:100
-    local_diff = max(local_diff,norm(prior_delta{k} - prior_delta_sabl{k}));
+    local_diff = max(local_diff,norm(prior_delta{k} - prior_delta_sabl{k})/norm(prior_delta_sabl{k}));
 end
 diff = [diff;local_diff];
 
@@ -59,7 +59,7 @@ for k = 1:3
 end
 post_delta_mean_sabl = load('Sabl_Output.mat','post_delta_mean').post_delta_mean;
 
-local_diff = norm(post_delta_mean - post_delta_mean_sabl);
+local_diff = norm(post_delta_mean - post_delta_mean_sabl)/norm(post_delta_mean_sabl);
 diff = [diff;local_diff];
 
 post_delta_samples = cell(3,1);
@@ -78,7 +78,7 @@ post_delta_samples_sabl = load('Sabl_Output.mat','post_delta_samples').post_delt
 
 local_diff = 0;
 for k = 1:3
-    local_diff = max(local_diff,norm(post_delta_samples{k} - post_delta_samples_sabl{k}));
+    local_diff = max(local_diff,norm(post_delta_samples{k} - post_delta_samples_sabl{k})/norm(post_delta_samples_sabl{k}));
 end
 diff = [diff;local_diff];
 
@@ -90,10 +90,10 @@ end
 post_z_mean_sabl = load('Sabl_Output.mat','post_z_mean').post_z_mean;
 post_z_samples_sabl = load('Sabl_Output.mat','post_z_samples').post_z_samples;
 
-local_diff = norm(post_z_mean - post_z_mean_sabl);
+local_diff = norm(post_z_mean - post_z_mean_sabl)/norm(post_z_mean_sabl);
 diff = [diff;local_diff];
 
-local_diff = norm(post_z_samples - post_z_samples_sabl);
+local_diff = norm(post_z_samples - post_z_samples_sabl)/norm(post_z_samples_sabl);
 diff = [diff;local_diff];
 
 
