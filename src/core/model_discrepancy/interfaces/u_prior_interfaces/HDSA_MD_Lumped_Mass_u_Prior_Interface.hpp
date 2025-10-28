@@ -167,11 +167,19 @@ namespace HDSA
 
       W_u_acute_->Begin_Fill();
 
+      std::vector<std::vector<int>> column_indices;
+      column_indices.resize(n);
+      std::vector<std::vector<RealT>> vals;
+      vals.resize(n);
       for (int i = 0; i < n; i++)
       {
-        std::vector<int> column_indices_i;
-        std::vector<RealT> vals_i;
-        E_u_->Get_Global_Row(i, column_indices_i, vals_i);
+        E_u_->Get_Global_Row(i, column_indices[i], vals[i]);
+      }
+
+      for (int i = 0; i < n; i++)
+      {
+        std::vector<int> column_indices_i = column_indices[i];
+        std::vector<RealT> vals_i = vals[i];
         int i_owner_rank = Get_Row_Owner_Rank(i);
 
         int col_indices_i_dim = column_indices_i.size();
@@ -203,9 +211,8 @@ namespace HDSA
 
         for (int j = 0; j < n; j++)
         {
-          std::vector<int> col_indices_j;
-          std::vector<RealT> vals_j;
-          E_u_->Get_Global_Row(j, col_indices_j, vals_j);
+          std::vector<int> col_indices_j = column_indices[j];
+          std::vector<RealT> vals_j = vals[j];
           int j_owner_rank = Get_Row_Owner_Rank(j);
 
           if (comm_->getRank() == j_owner_rank)
