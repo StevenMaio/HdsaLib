@@ -105,7 +105,6 @@ namespace HDSA
         Teuchos::ArrayRCP<const RealT> vecT_data = tpetra_vec_->get1dView();
         val = vecT_data[localIndex];
       }
-      comm_->barrier();
       return val;
     }
 

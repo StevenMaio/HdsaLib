@@ -31,10 +31,15 @@ namespace HDSA
         {
         }
 
-        HDSA::Ptr<HDSA::Sparse_Matrix<RealT>> Clone(void) const
+        HDSA::Ptr<HDSA::Sparse_Matrix<RealT>> Clone(int max_entries_per_row = 0) const
         {
-            HDSA::Ptr<Tpetra::CrsMatrix<RealT, LO, GO, Node>> B = HDSA::makePtr<Tpetra::CrsMatrix<RealT, LO, GO, Node>>(*A_, Teuchos::Copy);
+            if (max_entries_per_row == 0)
+            {
+                max_entries_per_row = A_->getGlobalMaxNumRowEntries();
+            }
+            HDSA::Ptr<Tpetra::CrsMatrix<RealT, LO, GO, Node>> B = HDSA::makePtr<Tpetra::CrsMatrix<RealT, LO, GO, Node>>(A_->getRowMap(), max_entries_per_row);
             HDSA::Ptr<HDSA::Sparse_Matrix<RealT>> B_sm = HDSA::makePtr<HDSA::Sparse_Matrix<RealT>>(B);
+            B_sm->Scale(0.0);
             return B_sm;
         }
 
@@ -55,6 +60,11 @@ namespace HDSA
             A_->apply(*ex_in.getVector(), *ex_out.getVector());
         }
 
+        void Scale(RealT alpha)
+        {
+            A_->scale(alpha);
+        }
+
         void Set(HDSA::Sparse_Matrix<RealT> &B)
         {
             // Prepare A for updates
@@ -63,46 +73,106 @@ namespace HDSA
             // Loop over each row of B and copy its entries to A
             for (Tpetra::global_size_t row = 0; row < B.Get_Tpetra_Matrix()->getGlobalNumRows(); ++row)
             {
-                size_t numEntries = B.Get_Tpetra_Matrix()->getNumEntriesInGlobalRow(row);
-                typename Tpetra::CrsMatrix<>::nonconst_global_inds_host_view_type indices;
-                typename Tpetra::CrsMatrix<>::nonconst_values_host_view_type values;
-                Kokkos::resize(indices, numEntries);
-                Kokkos::resize(values, numEntries);
+                if (A_->getRowMap()->isNodeGlobalElement(row))
+                {
+                    size_t numEntries = B.Get_Tpetra_Matrix()->getNumEntriesInGlobalRow(row);
+                    typename Tpetra::CrsMatrix<>::nonconst_global_inds_host_view_type indices;
+                    typename Tpetra::CrsMatrix<>::nonconst_values_host_view_type values;
+                    Kokkos::resize(indices, numEntries);
+                    Kokkos::resize(values, numEntries);
 
-                // Get the global row copy from B
-                B.Get_Tpetra_Matrix()->getGlobalRowCopy(row, indices, values, numEntries);
-                // Replace the entries in A with those from B
-                A_->replaceGlobalValues(row, indices, values);
+                    // Get the global row copy from B
+                    B.Get_Tpetra_Matrix()->getGlobalRowCopy(row, indices, values, numEntries);
+                    // Replace the entries in A with those from B
+                    A_->insertGlobalValues(row, numEntries, &values[0], &indices[0]);
+                }
             }
 
             // Complete the fill process
             A_->fillComplete();
         }
 
-        void Scaled_Plus(RealT &alpha, HDSA::Sparse_Matrix<RealT> &B)
+        void Scaled_Plus(const RealT &alpha, const HDSA::Sparse_Matrix<RealT> &B)
         {
             A_->resumeFill(); // Prepare A for updates
             // Loop over each row of B and copy its entries to A
             for (Tpetra::global_size_t row = 0; row < B.Get_Tpetra_Matrix()->getGlobalNumRows(); ++row)
             {
-                size_t numEntries = B.Get_Tpetra_Matrix()->getNumEntriesInGlobalRow(row);
-                typename Tpetra::CrsMatrix<>::nonconst_global_inds_host_view_type indices;
-                typename Tpetra::CrsMatrix<>::nonconst_values_host_view_type values;
-                Kokkos::resize(indices, numEntries);
-                Kokkos::resize(values, numEntries);
-
-                // Get the global row copy from B
-                B.Get_Tpetra_Matrix()->getGlobalRowCopy(row, indices, values, numEntries);
-                for (int k = 0; k < numEntries; k++)
+                if (A_->getRowMap()->isNodeGlobalElement(row))
                 {
-                    values[k] = alpha * values[k];
+                    size_t numEntries = B.Get_Tpetra_Matrix()->getNumEntriesInGlobalRow(row);
+                    typename Tpetra::CrsMatrix<>::nonconst_global_inds_host_view_type indices;
+                    typename Tpetra::CrsMatrix<>::nonconst_values_host_view_type values;
+                    Kokkos::resize(indices, numEntries);
+                    Kokkos::resize(values, numEntries);
+
+                    // Get the global row copy from B
+                    B.Get_Tpetra_Matrix()->getGlobalRowCopy(row, indices, values, numEntries);
+                    for (int k = 0; k < numEntries; k++)
+                    {
+                        values[k] = alpha * values[k];
+                    }
+                    // Replace the entries in A with those from B
+                    Teuchos::ArrayView<const GO> indicesView(indices.data(), numEntries);
+                    Teuchos::ArrayView<const RealT> valuesView(values.data(), numEntries);
+                    A_->sumIntoGlobalValues(row, indicesView, valuesView);
                 }
-                // Replace the entries in A with those from B
-                Teuchos::ArrayView<const GO> indicesView(indices.data(), numEntries);
-                Teuchos::ArrayView<const RealT> valuesView(values.data(), numEntries);
-                A_->sumIntoGlobalValues(row, indicesView, valuesView);
             }
             A_->fillComplete(); // Complete the fill process
+        }
+
+        void Begin_Fill(void)
+        {
+            A_->resumeFill();
+        }
+
+        void End_Fill(void)
+        {
+            A_->fillComplete(); // Complete the fill process
+        }
+
+        void Set_Entry(const int &i, const int &j, const RealT &val)
+        {
+            const long long col = static_cast<long long>(j);
+            A_->insertGlobalValues(i, 1, &val, &col);
+        }
+
+        void Get_Global_Row(const int &row, std::vector<int> &col_indices, std::vector<RealT> &vals)
+        {
+            size_t numEntries = A_->getNumEntriesInGlobalRow(row);
+            typename Tpetra::CrsMatrix<>::nonconst_global_inds_host_view_type indices;
+            typename Tpetra::CrsMatrix<>::nonconst_values_host_view_type values;
+            Kokkos::resize(indices, numEntries);
+            Kokkos::resize(values, numEntries);
+            A_->getGlobalRowCopy(row, indices, values, numEntries);
+
+            col_indices.resize(numEntries);
+            vals.resize(numEntries);
+            for (int k = 0; k < numEntries; k++)
+            {
+                col_indices[k] = indices[k];
+                vals[k] = values[k];
+            }
+        }
+
+        int Get_Number_of_Rows(void) const
+        {
+            return A_->getGlobalNumRows();
+        }
+
+        int Get_Number_of_Columns(void) const
+        {
+            return A_->getGlobalNumCols();
+        }
+
+        int Get_Max_Nonzeros_Per_Row(void) const
+        {
+            return A_->getGlobalMaxNumRowEntries();
+        }
+
+        bool Is_Row_Owned(int row) const 
+        {
+            return A_->getRowMap()->isNodeGlobalElement(row);
         }
     };
 

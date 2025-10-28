@@ -49,6 +49,22 @@ namespace HDSA
       comm_->broadcast(rootRank, bytes, buffer);
     }
 
+    int receive(const int sourceRank, const Ordinal bytes, char recvBuffer[]) const
+    {
+      int info = comm_->receive(sourceRank, bytes, recvBuffer);
+      return info;
+    }
+
+    void send(const Ordinal bytes, const char sendBuffer[], const int destRank) const
+    {
+      comm_->send(bytes, sendBuffer, destRank);
+    }
+
+    void gatherAll(const Ordinal sendBytes, const char sendBuffer[], const Ordinal recvBytes, char recvBuffer[]) const
+    {
+      comm_->gatherAll(sendBytes, sendBuffer, recvBytes, recvBuffer);
+    }
+
     HDSA::Ptr<HDSA::Comm<int>> createSubcommunicator(const std::vector<int> &ranks) const
     {
       Teuchos::Array<int> r;
