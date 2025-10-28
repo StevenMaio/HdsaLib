@@ -25,7 +25,7 @@ def compare_files(file1, file2):
 
 def main():
     # Define paths
-    executable_path = './synthetic_test_hyperparam_1D_example_sensitivity.exe'
+    executable_path = './synthetic_test_lumped_mass_example_sensitivity.exe'
     output_directory = '.'  # Assuming the .exe outputs files in the current directory and subdirectories
     reference_directory = 'reference_output'
 

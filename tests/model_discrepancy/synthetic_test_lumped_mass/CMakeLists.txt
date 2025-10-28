@@ -33,11 +33,11 @@ add_custom_command(TARGET synthetic_test_lumped_mass_example_sensitivity.exe POS
         ${TARGET_DIR}/Sabl_Output.mat
     # Copy the specified files from the reference_output directory
     COMMAND ${CMAKE_COMMAND} -E copy
-        ${SOURCE_DIR}/reference_output/prior_delta_z_opt/Vector_3.txt
-        ${TARGET_DIR}/reference_output/prior_delta_z_opt/Vector_3.txt
+        ${SOURCE_DIR}/reference_output/prior_discrepancy_evaluated_at_z_opt/Vector_3.txt
+        ${TARGET_DIR}/reference_output/prior_discrepancy_evaluated_at_z_opt/Vector_3.txt
     COMMAND ${CMAKE_COMMAND} -E copy
-        ${SOURCE_DIR}/reference_output/prior_delta_z_pert_2/Vector_10.txt
-        ${TARGET_DIR}/reference_output/prior_delta_z_pert_2/Vector_10.txt
+        ${SOURCE_DIR}/reference_output/prior_discrepancy_sample_28/Vector_1.txt
+        ${TARGET_DIR}/reference_output/prior_discrepancy_sample_28/Vector_1.txt
     COMMAND ${CMAKE_COMMAND} -E copy
         ${SOURCE_DIR}/reference_output/posterior_discrepancy_mean_1.txt
         ${TARGET_DIR}/reference_output/posterior_discrepancy_mean_1.txt

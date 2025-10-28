@@ -6,23 +6,9 @@ surpress_figures = false; %true;
 
 diff = [];
 
-data_obj = importdata('prior_z_pert_1.txt', ' ', 2);  %% we need to skip the first two lines
-prior_z_pert_1 = data_obj.data;
-prior_z_pert_1_sabl = load('Sabl_Output.mat','prior_z_pert_1').prior_z_pert_1;
-
-local_diff = norm(prior_z_pert_1 - prior_z_pert_1_sabl);
-diff = [diff;local_diff];
-
-data_obj = importdata('prior_z_pert_2.txt', ' ', 2);  %% we need to skip the first two lines
-prior_z_pert_2 = data_obj.data;
-prior_z_pert_2_sabl = load('Sabl_Output.mat','prior_z_pert_2').prior_z_pert_2;
-
-local_diff = norm(prior_z_pert_2 - prior_z_pert_2_sabl);
-diff = [diff;local_diff];
-
 prior_delta_z_opt = zeros(51,100);
 for j = 1:100
-    data_obj = importdata(['prior_delta_z_opt/Vector_',num2str(j),'.txt'], ' ', 2);  %% we need to skip the first two lines
+    data_obj = importdata(['prior_discrepancy_evaluated_at_z_opt/Vector_',num2str(j),'.txt'], ' ', 2);  %% we need to skip the first two lines
     prior_delta_z_opt(:,j)= data_obj.data;
 end
 prior_delta_z_opt_sabl = load('Sabl_Output.mat','prior_delta_z_opt').prior_delta_z_opt;
@@ -30,24 +16,22 @@ prior_delta_z_opt_sabl = load('Sabl_Output.mat','prior_delta_z_opt').prior_delta
 local_diff = norm(prior_delta_z_opt - prior_delta_z_opt_sabl);
 diff = [diff;local_diff];
 
-prior_delta_z_pert_1 = zeros(51,100);
-for j = 1:100
-    data_obj = importdata(['prior_delta_z_pert_1/Vector_',num2str(j),'.txt'], ' ', 2);  %% we need to skip the first two lines
-    prior_delta_z_pert_1(:,j)= data_obj.data;
+prior_delta = cell(100,1);
+for k = 1:100
+    prior_delta{k} = zeros(51,3);
+    data_obj = importdata(['prior_discrepancy_sample_',num2str(k),'/Vector_1.txt'], ' ', 2);
+    prior_delta{k}(:,1) = data_obj.data;
+    data_obj = importdata(['prior_discrepancy_sample_',num2str(k),'/Vector_2.txt'], ' ', 2);
+    prior_delta{k}(:,2) = data_obj.data;
+    data_obj = importdata(['prior_discrepancy_sample_',num2str(k),'/Vector_3.txt'], ' ', 2);
+    prior_delta{k}(:,3) = data_obj.data;
 end
-prior_delta_z_pert_1_sabl = load('Sabl_Output.mat','prior_delta_z_pert_1').prior_delta_z_pert_1;
+prior_delta_sabl = load('Sabl_Output.mat','prior_delta').prior_delta;
 
-local_diff = norm(prior_delta_z_pert_1 - prior_delta_z_pert_1_sabl);
-diff = [diff;local_diff];
-
-prior_delta_z_pert_2 = zeros(51,100);
-for j = 1:100
-    data_obj = importdata(['prior_delta_z_pert_2/Vector_',num2str(j),'.txt'], ' ', 2);  %% we need to skip the first two lines
-    prior_delta_z_pert_2(:,j)= data_obj.data;
+local_diff = 0;
+for k = 1:100
+    local_diff = max(local_diff,norm(prior_delta{k} - prior_delta_sabl{k}));
 end
-prior_delta_z_pert_2_sabl = load('Sabl_Output.mat','prior_delta_z_pert_2').prior_delta_z_pert_2;
-
-local_diff = norm(prior_delta_z_pert_2 - prior_delta_z_pert_2_sabl);
 diff = [diff;local_diff];
 
 post_delta_mean = zeros(51,3);
@@ -102,25 +86,6 @@ if ~surpress_figures
     title('HdsaLib')
     figure,
     plot(x,prior_delta_z_opt_sabl,'LineWidth',3)
-    title('Sabl')
-    pause()
-    close all
-
-
-    figure,
-    plot(x,prior_delta_z_pert_1,'LineWidth',3)
-    title('HdsaLib')
-    figure,
-    plot(x,prior_delta_z_pert_1_sabl,'LineWidth',3)
-    title('Sabl')
-    pause()
-    close all
-
-    figure,
-    plot(x,prior_delta_z_pert_2,'LineWidth',3)
-    title('HdsaLib')
-    figure,
-    plot(x,prior_delta_z_pert_2_sabl,'LineWidth',3)
     title('Sabl')
     pause()
     close all
