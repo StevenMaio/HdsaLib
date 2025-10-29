@@ -4,7 +4,9 @@
 #include "HDSA_MD_Determine_u_Hyperparameters_Decl.hpp"
 #include "HDSA_MD_Data_Interface.hpp"
 #include "HDSA_MD_Numeric_Laplacian_u_Prior_Interface.hpp"
+#include "HDSA_MD_Lumped_Mass_u_Prior_Interface.hpp"
 #include "HDSA_MD_Transient_Elliptic_u_Prior_Interface.hpp"
+#include "HDSA_MD_Laplacian_Like_Operator_Properties.hpp"
 
 namespace HDSA
 {
@@ -39,15 +41,35 @@ namespace HDSA
     RealT u_op_trace = 0.0;
     if (is_transient_)
     {
+
       MD_Transient_Elliptic_u_Prior_Interface<RealT> u_transient = dynamic_cast<MD_Transient_Elliptic_u_Prior_Interface<RealT> &>(*u_prior_interface);
       HDSA::Ptr<HDSA::MD_u_Prior_Interface<RealT>> u_spatial = u_transient.Get_Spatial_Cov();
-      MD_Numeric_Laplacian_u_Prior_Interface<RealT> u_elliptic = dynamic_cast<MD_Numeric_Laplacian_u_Prior_Interface<RealT> &>(*u_spatial);
 
-      HDSA::Ptr<HDSA::Dense_Matrix<RealT>> sing_vals = u_elliptic.Get_Sing_Vals();
-      int m = sing_vals->Number_of_Rows();
-      for (int k = 0; k < m; k++)
+      if (HDSA::Ptr<HDSA::MD_Numeric_Laplacian_u_Prior_Interface<RealT>> u_elliptic = HDSA::dynamicPtrCast<HDSA::MD_Numeric_Laplacian_u_Prior_Interface<RealT>>(u_spatial))
       {
-        u_op_trace += std::pow((*sing_vals)(k, 0), 2.0);
+        HDSA::Ptr<HDSA::Dense_Matrix<RealT>> sing_vals = u_elliptic->Get_Sing_Vals();
+        int m = sing_vals->Number_of_Rows();
+        for (int k = 0; k < m; k++)
+        {
+          u_op_trace += std::pow((*sing_vals)(k, 0), 2.0);
+        }
+      }
+      else if (HDSA::MD_Lumped_Mass_u_Prior_Interface<RealT> *u_lumped = dynamic_cast<HDSA::MD_Lumped_Mass_u_Prior_Interface<RealT> *>(&(*u_prior_interface)))
+      {
+        HDSA::Ptr<HDSA::MD_Laplacian_Like_Operator_Properties<RealT>> laplacian_op_prop = HDSA::makePtr<HDSA::MD_Laplacian_Like_Operator_Properties<RealT>>();
+        int trace_estimator_sample_size = u_hyperparam_interface_->Get_trace_estimator_sample_size();
+        if (trace_estimator_sample_size > 0)
+        {
+          HDSA::Ptr<HDSA::Vector<RealT>> u_vec = data_interface_->Get_u_opt()->Clone();
+          u_op_trace = laplacian_op_prop->Randomized_Inv_Operator_Trace_Estimation(*u_lumped, u_vec, trace_estimator_sample_size);
+        }
+        else
+        {
+          int n_u = data_interface_->Extract_State_Component(*data_interface_->Get_u_opt(), component_id_)->Dimension();
+          RealT beta_u = u_hyperparam_interface_->Get_beta_u();
+          std::vector<std::vector<RealT>> spatial_domain_bounds = u_hyperparam_interface_->Spatial_Domain_Bounds();
+          u_op_trace = laplacian_op_prop->Get_Rectangular_Domain_Squared_Inv_Operator_Trace(beta_u, spatial_domain_bounds, n_u);
+        }
       }
 
       HDSA::Ptr<HDSA::MD_Transient_Prior_Covariance<RealT>> u_time = u_transient.Get_Time_Cov();
@@ -62,12 +84,32 @@ namespace HDSA
     }
     else
     {
-      MD_Numeric_Laplacian_u_Prior_Interface<RealT> u_elliptic = dynamic_cast<MD_Numeric_Laplacian_u_Prior_Interface<RealT> &>(*u_prior_interface);
-      HDSA::Ptr<HDSA::Dense_Matrix<RealT>> sing_vals = u_elliptic.Get_Sing_Vals();
-      int m = sing_vals->Number_of_Rows();
-      for (int k = 0; k < m; k++)
+
+      if (HDSA::MD_Numeric_Laplacian_u_Prior_Interface<RealT> *u_elliptic = dynamic_cast<HDSA::MD_Numeric_Laplacian_u_Prior_Interface<RealT> *>(&(*u_prior_interface)))
       {
-        u_op_trace += std::pow((*sing_vals)(k, 0), 2.0);
+        HDSA::Ptr<HDSA::Dense_Matrix<RealT>> sing_vals = u_elliptic->Get_Sing_Vals();
+        int m = sing_vals->Number_of_Rows();
+        for (int k = 0; k < m; k++)
+        {
+          u_op_trace += std::pow((*sing_vals)(k, 0), 2.0);
+        }
+      }
+      else if (HDSA::MD_Lumped_Mass_u_Prior_Interface<RealT> *u_lumped = dynamic_cast<HDSA::MD_Lumped_Mass_u_Prior_Interface<RealT> *>(&(*u_prior_interface)))
+      {
+        HDSA::Ptr<HDSA::MD_Laplacian_Like_Operator_Properties<RealT>> laplacian_op_prop = HDSA::makePtr<HDSA::MD_Laplacian_Like_Operator_Properties<RealT>>();
+        int trace_estimator_sample_size = u_hyperparam_interface_->Get_trace_estimator_sample_size();
+        if (trace_estimator_sample_size > 0)
+        {
+          HDSA::Ptr<HDSA::Vector<RealT>> u_vec = data_interface_->Get_u_opt()->Clone();
+          u_op_trace = laplacian_op_prop->Randomized_Inv_Operator_Trace_Estimation(*u_lumped, u_vec, trace_estimator_sample_size);
+        }
+        else
+        {
+          int n_u = data_interface_->Extract_State_Component(*data_interface_->Get_u_opt(), component_id_)->Dimension();
+          RealT beta_u = u_hyperparam_interface_->Get_beta_u();
+          std::vector<std::vector<RealT>> spatial_domain_bounds = u_hyperparam_interface_->Spatial_Domain_Bounds();
+          u_op_trace = laplacian_op_prop->Get_Rectangular_Domain_Squared_Inv_Operator_Trace(beta_u, spatial_domain_bounds, n_u);
+        }
       }
     }
 
@@ -129,11 +171,11 @@ namespace HDSA
       if (HDSA::Ptr<HDSA::Transient_Vector<RealT>> delta_tmp_trans = HDSA::dynamicPtrCast<HDSA::Transient_Vector<RealT>>(delta_tmp))
       {
         delta = (*delta_tmp_trans)[0]->Clone();
-        for(int k = 0; k < delta_tmp_trans->Get_n_t(); k++)
+        for (int k = 0; k < delta_tmp_trans->Get_n_t(); k++)
         {
           delta->Plus(*(*delta_tmp_trans)[k]);
         }
-        delta->Scale(1.0/static_cast<RealT>(delta_tmp_trans->Get_n_t()));
+        delta->Scale(1.0 / static_cast<RealT>(delta_tmp_trans->Get_n_t()));
       }
       else
       {

@@ -13,6 +13,7 @@ namespace HDSA
     bool center_data_;
     bool adapt_time_variance_;
     int component_id_;
+    int trace_estimator_sample_size_;
 
     RealT alpha_u_;
     RealT beta_u_;
@@ -49,6 +50,8 @@ namespace HDSA
       alpha_t_[0] = 1.0;
       beta_t_ = 0.0;
       alpha_d_ = 0.0;
+
+      trace_estimator_sample_size_ = 0;
 
       gsvd_num_sing_vals_ = 0;
       gsvd_oversampling_ = 0;
@@ -98,7 +101,7 @@ namespace HDSA
       return data_noise_percent_;
     }
 
-    RealT Get_W_u_Inv_Spectal_Gap(void) const 
+    RealT Get_W_u_Inv_Spectal_Gap(void) const
     {
       return W_u_inv_spectral_gap_;
     }
@@ -152,6 +155,16 @@ namespace HDSA
     virtual RealT Get_alpha_d(void) const
     {
       return alpha_d_;
+    }
+
+    int Get_trace_estimator_sample_size(void) const 
+    {
+      return trace_estimator_sample_size_;
+    }
+
+    void Set_trace_estimator_sample_size(int sample_size)
+    {
+      trace_estimator_sample_size_ = sample_size;
     }
 
     void Set_GSVD_Hyperparameters(const int &gsvd_num_sing_vals_new, const int &gsvd_oversampling_new, const int &gsvd_num_subspace_iter_new)
