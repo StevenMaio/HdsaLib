@@ -16,12 +16,14 @@ namespace HDSA
     bool invert_;
 
   public:
-    Sparse_Matrix_Sqrt(const HDSA::Ptr<HDSA::Sparse_Matrix<RealT>> &A, bool invert = false) : A_(A), invert_(invert)
+    Sparse_Matrix_Sqrt(const HDSA::Ptr<HDSA::Sparse_Matrix<RealT>> &A) : A_(A)
     {
-      if (invert_)
-      {
-        A_solver_ = HDSA::makePtr<HDSA::Sparse_Matrix_Solver<RealT>>(A_);
-      }
+      invert_ = false;
+    }
+
+    Sparse_Matrix_Sqrt(const HDSA::Ptr<HDSA::Sparse_Matrix_Solver<RealT>> &A_solver) : A_solver_(A_solver)
+    {
+      invert_ = true;
     }
 
     virtual ~Sparse_Matrix_Sqrt()

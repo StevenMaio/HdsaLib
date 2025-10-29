@@ -45,6 +45,12 @@ namespace HDSA
       HDSA_TEST_FOR_EXCEPTION(true, std::logic_error,
                               "Error in HDSA::MD_u_Prior_Interface::Sample_with_Covariance_W_u_Plus_scalar_M_u_Inverse: Method must be implemented to use sampling algorithms" << std::endl);
     }
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // Virtual functions available to enable more efficient reuse of data for W_u_Plus_scalar_M_u computation
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    virtual void Precompute_W_u_Plus_scalar_M_u_Data(RealT &scalar) {}
+
   };
 
 }

@@ -44,7 +44,7 @@ namespace HDSA
 		{
 		}
 
-		void Compute_Posterior_Data(HDSA::MD_Data_Interface<RealT> &data_interface, const HDSA::MD_u_Prior_Interface<RealT> &u_prior_interface, const HDSA::MD_z_Prior_Interface<RealT> &z_prior_interface, const RealT alpha_d_in, int num_samples_in)
+		void Compute_Posterior_Data(HDSA::MD_Data_Interface<RealT> &data_interface, HDSA::MD_u_Prior_Interface<RealT> &u_prior_interface, const HDSA::MD_z_Prior_Interface<RealT> &z_prior_interface, const RealT alpha_d_in, int num_samples_in)
 		{
 			alpha_d = alpha_d_in;
 			num_samples = num_samples_in;
@@ -141,13 +141,15 @@ namespace HDSA
 			for (int i = 0; i < N; i++)
 			{
 				u_i_ell[i] = HDSA::makePtr<HDSA::MultiVector<RealT>>(N, *(*data_interface.Get_D())[0]);
+				RealT scalar = (*Mu)(i, 0) / alpha_d;
+				u_prior_interface.Precompute_W_u_Plus_scalar_M_u_Data(scalar);
 				for (int ell = 0; ell < N; ell++)
 				{
 					HDSA::Ptr<HDSA::Vector<RealT>> uil = (*u_i_ell[i])[ell];
 					HDSA::Ptr<HDSA::Vector<RealT>> ul = (*u_ell)[ell];
 					HDSA::Ptr<HDSA::Vector<RealT>> u_tmp = ul->Clone();
 					u_prior_interface.Apply_M_u(*u_tmp, *ul);
-					u_prior_interface.Apply_W_u_Plus_scalar_M_u_Inverse(*uil, *u_tmp, (*Mu)(i, 0) / alpha_d);
+					u_prior_interface.Apply_W_u_Plus_scalar_M_u_Inverse(*uil, *u_tmp, scalar);
 					uil->Scale(1.0 / alpha_d);
 				}
 			}

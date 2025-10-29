@@ -32,14 +32,18 @@ namespace HDSA
     HDSA::Ptr<HDSA::Sparse_Matrix<RealT>> E_u_;
     HDSA::Ptr<HDSA::Sparse_Matrix_Solver<RealT>> E_u_solver_;
     HDSA::Ptr<HDSA::Sparse_Matrix<RealT>> W_u_acute_;
+    std::vector<RealT> scalars_;
+    std::vector<HDSA::Ptr<HDSA::Sparse_Matrix<RealT>>> W_u_acute_plus_scalar_M_u_;
+    std::vector<HDSA::Ptr<HDSA::Sparse_Matrix_Solver<RealT>>> W_u_acute_plus_scalar_M_u_solver_;
+    std::vector<HDSA::Ptr<HDSA::Sparse_Matrix_Sqrt<RealT>>> W_u_acute_plus_scalar_M_u_inv_sqrt_;
 
   public:
-    void Apply_M_u(HDSA::Vector<RealT> &u_out, const HDSA::Vector<RealT> &u_in) const
+    void Apply_M_u(HDSA::Vector<RealT> &u_out, const HDSA::Vector<RealT> &u_in) const override
     {
       M_->Apply(u_out, u_in);
     }
 
-    void Apply_W_u_Acute_Inverse(HDSA::Vector<RealT> &u_out, const HDSA::Vector<RealT> &u_in) const
+    void Apply_W_u_Acute_Inverse(HDSA::Vector<RealT> &u_out, const HDSA::Vector<RealT> &u_in) const override
     {
       HDSA::Ptr<HDSA::Vector<RealT>> u_tmp = u_in.Clone();
       Apply_E_u_Inverse(*u_tmp, u_in);
@@ -51,16 +55,28 @@ namespace HDSA
       Apply_E_u_Inverse(u_out, *u_tmp);
     }
 
-    void Apply_W_u_Acute_Plus_scalar_M_u_Inverse(HDSA::Vector<RealT> &u_out, const HDSA::Vector<RealT> &u_in, const RealT &scalar) const
+    void Apply_W_u_Acute_Plus_scalar_M_u_Inverse(HDSA::Vector<RealT> &u_out, const HDSA::Vector<RealT> &u_in, const RealT &scalar) const override
     {
-      HDSA::Ptr<HDSA::Sparse_Matrix<RealT>> A = W_u_acute_->Clone();
-      A->Set(*W_u_acute_);
-      A->Scaled_Plus(scalar, *M_);
-      HDSA::Ptr<HDSA::Sparse_Matrix_Solver<RealT>> A_solver = HDSA::makePtr<HDSA::Sparse_Matrix_Solver<RealT>>(A);
-      A_solver->Apply_A_Inverse(u_out, u_in);
+      int i = -1;
+      for (int k = 0; k < scalars_.size(); k++)
+      {
+        if (std::abs(scalars_[k] - scalar) < 1.e-14)
+        {
+          i = k;
+          break;
+        }
+      }
+
+      if (i < 0)
+      {
+        HDSA_TEST_FOR_EXCEPTION(true, std::logic_error,
+                                "Error in HDSA::MD_Lumped_Mass_u_Prior_Interface::Apply_W_u_Acute_Plus_scalar_M_u_Inverse: scalar has not been set by Precompute_W_u_Plus_scalar_M_u_Data" << std::endl);
+      }
+
+      W_u_acute_plus_scalar_M_u_solver_[i]->Apply_A_Inverse(u_out, u_in);
     }
 
-    void Sample_with_Covariance_W_u_Acute_Inverse(HDSA::MultiVector<RealT> &samples) const
+    void Sample_with_Covariance_W_u_Acute_Inverse(HDSA::MultiVector<RealT> &samples) const override
     {
       int num_samples = samples.Number_of_Vectors();
       HDSA::Ptr<HDSA::Vector<RealT>> u_tmp = samples[0]->Clone();
@@ -76,19 +92,47 @@ namespace HDSA
       }
     }
 
-    void Sample_with_Covariance_W_u_Acute_Plus_scalar_M_u_Inverse(HDSA::MultiVector<RealT> &samples, const RealT &scalar) const
+    void Sample_with_Covariance_W_u_Acute_Plus_scalar_M_u_Inverse(HDSA::MultiVector<RealT> &samples, const RealT &scalar) const override
     {
-      HDSA::Ptr<HDSA::Sparse_Matrix<RealT>> A = W_u_acute_->Clone();
-      A->Set(*W_u_acute_);
-      A->Scaled_Plus(scalar, *M_);
-      HDSA::Ptr<HDSA::Sparse_Matrix_Sqrt<RealT>> A_inv_sqrt = HDSA::makePtr<HDSA::Sparse_Matrix_Sqrt<RealT>>(A, true);
-      int M = samples.Number_of_Vectors();
+      int i = -1;
+      for (int k = 0; k < scalars_.size(); k++)
+      {
+        if (std::abs(scalars_[k] - scalar) < 1.e-14)
+        {
+          i = k;
+          break;
+        }
+      }
+
+      if (i < 0)
+      {
+        HDSA_TEST_FOR_EXCEPTION(true, std::logic_error,
+                                "Error in HDSA::MD_Lumped_Mass_u_Prior_Interface::Sample_with_Covariance_W_u_Acute_Plus_scalar_M_u_Inverse: scalar has not been set by Precompute_W_u_Plus_scalar_M_u_Data" << std::endl);
+      }
+
       HDSA::Ptr<HDSA::Vector<RealT>> vec = samples[0]->Clone();
-      for (int s = 0; s < M; s++)
+      for (int s = 0; s < samples.Number_of_Vectors(); s++)
       {
         vec->Randomize_Standard_Normal();
-        A_inv_sqrt->Apply_Sqrt(*samples[s], *vec);
+        W_u_acute_plus_scalar_M_u_inv_sqrt_[i]->Apply_Sqrt(*samples[s], *vec);
       }
+    }
+
+    void Precompute_W_u_Plus_scalar_M_u_Data(RealT &scalar) override
+    {
+      RealT scalar_shift = scalar * u_hyperparam_interface_->Get_alpha_u();
+      scalars_.push_back(scalar_shift);
+
+      HDSA::Ptr<HDSA::Sparse_Matrix<RealT>> A = W_u_acute_->Clone();
+      A->Set(*W_u_acute_);
+      A->Scaled_Plus(scalar_shift, *M_);
+      W_u_acute_plus_scalar_M_u_.push_back(A);
+
+      HDSA::Ptr<HDSA::Sparse_Matrix_Solver<RealT>> A_solver = HDSA::makePtr<HDSA::Sparse_Matrix_Solver<RealT>>(A);
+      W_u_acute_plus_scalar_M_u_solver_.push_back(A_solver);
+
+      HDSA::Ptr<HDSA::Sparse_Matrix_Sqrt<RealT>> A_inv_sqrt = HDSA::makePtr<HDSA::Sparse_Matrix_Sqrt<RealT>>(A_solver);
+      W_u_acute_plus_scalar_M_u_inv_sqrt_.push_back(A_inv_sqrt);
     }
 
     MD_Lumped_Mass_u_Prior_Interface(const HDSA::Ptr<HDSA::Sparse_Matrix<RealT>> &S, const HDSA::Ptr<HDSA::Sparse_Matrix<RealT>> &M, const HDSA::Ptr<HDSA::MD_Data_Interface<RealT>> &data_interface, const HDSA::Ptr<HDSA::MD_u_Hyperparameter_Interface<RealT>> &u_hyperparam_interface, const HDSA::Ptr<const HDSA::Comm<int>> &comm) : HDSA::MD_Scaled_u_Prior_Interface<RealT>(u_hyperparam_interface->Get_alpha_u()), S_(S), M_(M), data_interface_(data_interface), u_hyperparam_interface_(u_hyperparam_interface), comm_(comm), random_number_generator_(HDSA::makePtr<HDSA::Random_Number_Generator<RealT>>())
