@@ -91,7 +91,7 @@ namespace HDSA
 
     void Apply_W_u_Acute_Inverse(HDSA::Vector<RealT> &u_out, const HDSA::Vector<RealT> &u_in) const
     {
-      HDSA::Ptr<const MD_Elliptic_u_Prior_Interface<RealT>> spatial_prior_cov_cast = HDSA::dynamicPtrCast<const MD_Elliptic_u_Prior_Interface<RealT>>(spatial_prior_cov_);
+      HDSA::Ptr<const MD_Scaled_u_Prior_Interface<RealT>> spatial_prior_cov_cast = HDSA::dynamicPtrCast<const MD_Scaled_u_Prior_Interface<RealT>>(spatial_prior_cov_);
       const HDSA::Transient_Vector<RealT> *u_in_trans = dynamic_cast<const HDSA::Transient_Vector<RealT> *>(&u_in);
       HDSA::Transient_Vector<RealT> *u_out_trans = dynamic_cast<HDSA::Transient_Vector<RealT> *>(&u_out);
       HDSA::Ptr<HDSA::Vector<RealT>> u_tmp = u_out.Clone();

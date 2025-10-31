@@ -12,3 +12,5 @@ cp -r hdsa "$cache_dir"
 cp -r hifi_optimization "$cache_dir"
 
 cp -r cvar_obj_compare "$cache_dir"
+
+./execute_clean
