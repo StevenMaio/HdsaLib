@@ -160,9 +160,16 @@ namespace HDSA
 
     void Auxillary_Constructor()
     {
-      HDSA::Ptr<HDSA::Vector<RealT>> u_tmp = data_interface_->Get_u_opt()->Clone();
+      if (HDSA::Ptr<const HDSA::Transient_Vector<RealT>> u_opt_trans = HDSA::dynamicPtrCast<const HDSA::Transient_Vector<RealT>>(data_interface_->Get_u_opt()))
+      {
+        M_lumped_ = (*u_opt_trans)[0]->Clone();
+      }
+      else
+      {
+        M_lumped_ = data_interface_->Get_u_opt()->Clone();
+      }
+      HDSA::Ptr<HDSA::Vector<RealT>> u_tmp = M_lumped_->Clone();
       u_tmp->Set_Scalar(1.0);
-      M_lumped_ = u_tmp->Clone();
       M_->Apply(*M_lumped_, *u_tmp);
 
       E_u_ = M_->Clone();
@@ -206,7 +213,7 @@ namespace HDSA
     void Assemble_W_u_Acute(void)
     {
       int max_nonzeros_per_row = E_u_->Get_Max_Nonzeros_Per_Row();
-      W_u_acute_ = M_->Clone(2 * max_nonzeros_per_row); // This may fail in spatial dimensions > 2. Need to test this and possibly modify.
+      W_u_acute_ = M_->Clone(3 * max_nonzeros_per_row); // This may fail in spatial dimensions > 2. Need to test this and possibly modify.
       int n = W_u_acute_->Get_Number_of_Rows();
 
       W_u_acute_->Begin_Fill();

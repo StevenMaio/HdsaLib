@@ -7,7 +7,7 @@ ANONYMOUS:
       DataLoadParameters:
         TxtFile: "final_params_.dat"
         Read Sample Set: true
-        Number of Samples: 10
+        Number of Samples: 50
         Sample Set File: "sample_set.dat"
         Sample Weight File: "sample_weights.dat"
         

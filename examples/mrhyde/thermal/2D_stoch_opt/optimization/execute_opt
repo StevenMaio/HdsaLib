@@ -7,7 +7,7 @@
 rm output.exo
 
 # Change file name
-for (( i=0; i<10; i++ ))
+for (( i=0; i<50; i++ ))
 do
     mv "output_after_optimization_sample_${i}.exo" "output_lofi_opt_sample_${i}.exo"
 done

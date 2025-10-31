@@ -13,13 +13,13 @@ ANONYMOUS:
       SOL:
         Use Primal Dual: true
         Write Samples: true
-        Number of Samples: 10
+        Number of Samples: 50
         Objective:
           Type: Risk Averse
           Risk Measure:
             Name: AVaR
             AVaR:
-              Confidence Level: 0.7
+              Confidence Level: 0.8
               Convex Combination Parameter: 0.5
       General: 
         Output Level: 1

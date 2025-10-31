@@ -10,7 +10,8 @@ ANONYMOUS:
         execute_prior_discrepancy_sampling: true
         execute_posterior_discrepancy_sampling: true
         execute_optimal_solution_update: true
-        verbosity: 1
+        use_lumped_mass_prior: true
+        verbosity: 2
       HyperParameters:
         T:
           beta_u: 0.01
@@ -20,7 +21,7 @@ ANONYMOUS:
         hessian_num_eig_vals: 1
         hessian_oversampling: 3
       DataLoadParameters:
-        Ensemble Size: 10
+        Ensemble Size: 50
         OptimalSolutionExoFile: "output_lofi_opt_sample_"
         OptimalSolutionTxtFileZ: "final_params_.dat"
         StateVariableName: "T"
