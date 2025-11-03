@@ -14,13 +14,13 @@ ANONYMOUS:
         Use Primal Dual: true
         Sample Set File: "sample_set_lofi.dat"
         Write Samples: true
-        Number of Samples: 10
+        Number of Samples: 50
         Objective:
           Type: Risk Averse
           Risk Measure:
             Name: AVaR
             AVaR:
-              Confidence Level: 0.7
+              Confidence Level: 0.8
               Convex Combination Parameter: 0.5
         Primal Dual Risk:
           Iteration Limit: 200

@@ -2,7 +2,7 @@ import numpy as np
 import pdb
 
 alpha = 0.5
-beta = 0.7
+beta = 0.8
 
 lofi_objs = np.loadtxt('sample_obj_vals_lofi.dat')
 N = lofi_objs.shape[0]

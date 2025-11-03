@@ -10,7 +10,7 @@ ANONYMOUS:
         execute_prior_discrepancy_sampling: true
         execute_posterior_discrepancy_sampling: true
         execute_optimal_solution_update: true
-        use_lumped_mass_prior: true
+        use_lumped_mass_prior: false #true
         verbosity: 2
       HyperParameters:
         T:

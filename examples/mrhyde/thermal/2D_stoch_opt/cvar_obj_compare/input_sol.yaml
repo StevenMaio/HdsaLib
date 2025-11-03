@@ -14,7 +14,7 @@ ANONYMOUS:
         Use Primal Dual: false
         Sample Set File: "sample_set_lofi.dat"
         Write Samples: true
-        Number of Samples: 10
+        Number of Samples: 50
         Objective:
           Type: Risk Neutral
       General: 
