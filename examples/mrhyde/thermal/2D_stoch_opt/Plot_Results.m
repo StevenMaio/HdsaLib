@@ -22,6 +22,55 @@ classdef Plot_Results < handle
             this.Y = reshape(this.coord_y,this.n,this.n);
         end
 
+        function [] = Plot_Domain(this, save_filename)
+            if nargin < 2
+                save_filename = [];
+            end
+
+            % Create a new figure
+            figure,
+
+            % Set axis limits and aspect ratio
+            axis([0 1 0 1]);
+            axis equal;
+            hold on;
+
+            % Define the colors for the boundaries
+            colors = lines(4);
+
+            % Plot the boundaries with shading
+            fill([0.0, 0.01, 0.01, 0.0], [.001, .001, .999, .999], colors(1,:), 'EdgeColor', 'none'); % Left boundary
+            text(.03, 0.45, '$\partial \Omega_1$', 'Interpreter', 'latex', 'FontSize', 24);
+
+            fill([.99, 1.0, 1.0, .99], [.001, .001, .999, .999], colors(2,:), 'EdgeColor', 'none'); % Right boundary
+            text(0.85, 0.45, '$\partial \Omega_2$', 'Interpreter', 'latex', 'FontSize', 24);
+
+            fill([.001, .99, .99, .001], [.99, .99, 1.0, 1.0], colors(3,:), 'EdgeColor', 'none'); % Top boundary
+            text(0.45, 0.94, '$\partial \Omega_3$', 'Interpreter', 'latex', 'FontSize', 24);
+
+            fill([.001, .99, .99, .001], [0.0, 0.0, 0.01, 0.01], colors(4,:), 'EdgeColor', 'none'); % Bottom boundary
+            text(0.45, .05, '$\partial \Omega_4$', 'Interpreter', 'latex', 'FontSize', 24);
+
+            % Create a shaded box in the region (0.4, 0.8)^2
+            fill([0.4, 0.8, 0.8, 0.4], [0.4, 0.4, 0.8, 0.8], [0.5 0.5 0.5], 'EdgeColor', 'none'); % Gray box
+            text(0.54, 0.6, '$f(\mathbf{\xi})$', 'Interpreter', 'latex', 'FontSize', 24);
+
+            % Add an arrow pointing from left to right
+            quiver(0.2, 0.2, 0.2, 0, 'k', 'LineWidth', 2, 'MaxHeadSize', 1, 'AutoScale', 'off');
+            text(0.25, 0.2, 'v', 'FontSize', 24, 'VerticalAlignment', 'bottom');
+
+            xticks([0,.2,.4,.6,.8,1])
+            yticks([0,.2,.4,.6,.8,1])
+            xlim([0,1])
+            ylim([0,1])
+            xlabel('x_1')
+            ylabel('x_2')
+            set(gca, 'FontSize', 24);
+            if ~isempty(save_filename)
+                print(save_filename, '-depsc');
+            end
+        end
+
         function [] = Plot_State(this, T, final_time)
             if nargin < 3
                 final_time = false;
@@ -69,49 +118,99 @@ classdef Plot_Results < handle
             this.Plot_State(d);
         end
 
-        function [] = Plot_Optimal_z(this,num_samples)
+        function [] = Plot_Optimal_z(this,num_samples, save_filename)
+            if nargin < 3
+                save_filename = [];
+            end
             [z_mean, z_samples] = this.Load_Opt_z_Update(num_samples);
             z_lofi = load('optimization/final_params_.dat');
             z_hifi = load('hifi_optimization/final_params_hifi_.dat');
 
-            figure,
-            hold on
-            for k = 1:num_samples
-                plot(1:4,-z_samples(:,k),'o','MarkerSize',10,'Color',.9*ones(3,1))
+            if num_samples > 0
+                figure,
+                hold on
+                for k = 1:num_samples
+                    plot(1:4,-z_samples(:,k),'o','MarkerSize',10,'Color',.9*ones(3,1))
+                end
+                plot(1:4,-z_mean,'x','MarkerSize',10,'Color','black')
+                plot(1:4,-z_lofi,'s','MarkerSize',10,'Color','red')
+                plot(1:4,-z_hifi,'d','MarkerSize',10,'Color','magenta')
+                xlim([0,5])
+            else
+                figure,
+                hold on
+                plot(1:4,-z_lofi,'s','MarkerSize',10,'Color','red')
+                plot(1:4,-z_mean,'x','MarkerSize',10,'Color','black')
+                plot(1:4,-z_hifi,'d','MarkerSize',10,'Color','magenta')
+                xlim([0.5,4.5])
+                ylim([2,7])
+                xticks([1,2,3,4])
+                xticklabels({'z_1','z_2','z_3','z_4'})
+                xlabel(' ')
+                ylabel('Controller Magnitude')
+                legend({'Low-fidelity','Update','High-fidelity'})
+                set(gca, 'FontSize', 24);
+                if ~isempty(save_filename)
+                    print(save_filename, '-depsc');
+                end
             end
-            plot(1:4,-z_mean,'x','MarkerSize',10,'Color','black')
-            plot(1:4,-z_lofi,'s','MarkerSize',10,'Color','red')
-            plot(1:4,-z_hifi,'d','MarkerSize',10,'Color','magenta')
-            xlim([0,5])
         end
 
-        function [] = Plot_Ensemble_Set(this)
+        function [] = Plot_Ensemble_Set(this, save_filename)
+            if nargin < 2
+                save_filename = [];
+            end
+
             [sample_set, sample_weights] = this.Load_Sample_Data();
             ens_size = size(sample_set,1);
+            
             figure,
             hold on
-            for k = 1:ens_size
-                plot(sample_set(k,1), sample_set(k,2),'x','MarkerSize',10,'Color','black')
+            I = find(sample_weights<.6);
+            for k = 1:length(I)
+                plot(sample_set(I(k),1), sample_set(I(k),2),'x','MarkerSize',15,'Color','black')
             end
             I = find(sample_weights>.6);
             for k = 1:length(I)
-                plot(sample_set(I(k),1), sample_set(I(k),2),'x','MarkerSize',10,'Color','red')
+                plot(sample_set(I(k),1), sample_set(I(k),2),'d','MarkerSize',15,'Color','red')
             end
             xlim([.3,.9])
             ylim([.3,.9])
+            xticks([0,.2,.4,.6,.8,1])
+            yticks([0,.2,.4,.6,.8,1])
+            xlabel('x_1')
+            ylabel('x_2')
+            title('Low-fidelity')
+            axis square
+            set(gca, 'FontSize', 24);
+            if ~isempty(save_filename)
+                print(save_filename, '-depsc');
+            end
 
             [sample_set, sample_weights] = this.Load_Sample_Data_HiFi();
             figure,
             hold on
-            for k = 1:ens_size
-                plot(sample_set(k,1), sample_set(k,2),'x','MarkerSize',10,'Color','black')
+            I = find(sample_weights<.6);
+            for k = 1:length(I)
+                plot(sample_set(I(k),1), sample_set(I(k),2),'x','MarkerSize',15,'Color','black')
             end
             I = find(sample_weights>.6);
             for k = 1:length(I)
-                plot(sample_set(I(k),1), sample_set(I(k),2),'x','MarkerSize',10,'Color','red')
+                plot(sample_set(I(k),1), sample_set(I(k),2),'d','MarkerSize',15,'Color','red')
             end
             xlim([.3,.9])
             ylim([.3,.9])
+            xticks([0,.2,.4,.6,.8,1])
+            yticks([0,.2,.4,.6,.8,1])
+            xlabel('x_1')
+            ylabel('x_2')
+            title('High-fidelity')
+            axis square
+            set(gca, 'FontSize', 24);
+            if ~isempty(save_filename)
+                print([save_filename,'_hifi'], '-depsc');
+            end
+
         end
 
         function [] = Plot_Prior_Delta_z_opt(this, ens_id, sample_id, final_time)
