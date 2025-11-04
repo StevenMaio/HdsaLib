@@ -247,7 +247,7 @@ public:
     {
         if (write_exo_)
         {
-            std::string name = filename + ".exo";
+            std::string name = filename;
             postproc_->write_solution = true;
             postproc_->exodus_filename = name;
 
@@ -257,7 +257,7 @@ public:
                 {
                     for (int s = 0; s < evec->Number_of_Vectors(); s++)
                     {
-                        std::string name_s = filename + "_ens_" + std::to_string(s + 1) + ".exo";
+                        std::string name_s = filename + "_ens_" + std::to_string(s + 1);
                         Write_to_File((*evec)[s], name_s, is_state);
                     }
                 }
@@ -265,7 +265,8 @@ public:
                 {
                     std::vector<std::string> discretized_param_names = postproc_->params->discretized_param_names;
                     postproc_->params->discretized_param_names.clear();
-                    postproc_->setNewExodusFile(name);
+                    std::string name_exo = name + ".exo";
+                    postproc_->setNewExodusFile(name_exo);
                     std::vector<HDSA::Ptr<Tpetra::MultiVector<RealT>>> sol;
                     sol.resize(1);
                     RealT current_time = 0.0;

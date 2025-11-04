@@ -1,4 +1,4 @@
-cache_dir="/Users/joshart/software/results_cache"
+cache_dir="/Users/joshart/software/results_cache_with_corr"
 
 cp "$cache_dir/optimization/"* ./optimization/
 
