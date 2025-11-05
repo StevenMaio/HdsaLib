@@ -35,7 +35,7 @@ namespace HDSA
     std::vector<RealT> scalars_;
     std::vector<HDSA::Ptr<HDSA::Sparse_Matrix<RealT>>> W_u_acute_plus_scalar_M_u_;
     std::vector<HDSA::Ptr<HDSA::Sparse_Matrix_Solver<RealT>>> W_u_acute_plus_scalar_M_u_solver_;
-    std::vector<HDSA::Ptr<HDSA::Sparse_Matrix_Sqrt<RealT>>> W_u_acute_plus_scalar_M_u_inv_sqrt_;
+    std::vector<HDSA::Ptr<HDSA::Sparse_Matrix_Sqrt<RealT>>> W_u_acute_plus_scalar_M_u_sqrt_;
 
   public:
     void Apply_M_u(HDSA::Vector<RealT> &u_out, const HDSA::Vector<RealT> &u_in) const override
@@ -110,11 +110,13 @@ namespace HDSA
                                 "Error in HDSA::MD_Lumped_Mass_u_Prior_Interface::Sample_with_Covariance_W_u_Acute_Plus_scalar_M_u_Inverse: scalar has not been set by Precompute_W_u_Plus_scalar_M_u_Data" << std::endl);
       }
 
+      HDSA::Ptr<HDSA::Vector<RealT>> vec_rand = samples[0]->Clone();
       HDSA::Ptr<HDSA::Vector<RealT>> vec = samples[0]->Clone();
       for (int s = 0; s < samples.Number_of_Vectors(); s++)
       {
-        vec->Randomize_Standard_Normal();
-        W_u_acute_plus_scalar_M_u_inv_sqrt_[i]->Apply_Sqrt(*samples[s], *vec);
+        vec_rand->Randomize_Standard_Normal();
+        W_u_acute_plus_scalar_M_u_sqrt_[i]->Apply_Sqrt(*vec, *vec_rand);
+        Apply_W_u_Acute_Plus_scalar_M_u_Inverse(*samples[s],*vec, scalar);
       }
     }
 
@@ -131,8 +133,8 @@ namespace HDSA
       HDSA::Ptr<HDSA::Sparse_Matrix_Solver<RealT>> A_solver = HDSA::makePtr<HDSA::Sparse_Matrix_Solver<RealT>>(A);
       W_u_acute_plus_scalar_M_u_solver_.push_back(A_solver);
 
-      HDSA::Ptr<HDSA::Sparse_Matrix_Sqrt<RealT>> A_inv_sqrt = HDSA::makePtr<HDSA::Sparse_Matrix_Sqrt<RealT>>(A_solver);
-      W_u_acute_plus_scalar_M_u_inv_sqrt_.push_back(A_inv_sqrt);
+      HDSA::Ptr<HDSA::Sparse_Matrix_Sqrt<RealT>> A_sqrt = HDSA::makePtr<HDSA::Sparse_Matrix_Sqrt<RealT>>(A);
+      W_u_acute_plus_scalar_M_u_sqrt_.push_back(A_sqrt);
     }
 
     MD_Lumped_Mass_u_Prior_Interface(const HDSA::Ptr<HDSA::Sparse_Matrix<RealT>> &S, const HDSA::Ptr<HDSA::Sparse_Matrix<RealT>> &M, const HDSA::Ptr<HDSA::MD_Data_Interface<RealT>> &data_interface, const HDSA::Ptr<HDSA::MD_u_Hyperparameter_Interface<RealT>> &u_hyperparam_interface, const HDSA::Ptr<const HDSA::Comm<int>> &comm) : HDSA::MD_Scaled_u_Prior_Interface<RealT>(u_hyperparam_interface->Get_alpha_u()), S_(S), M_(M), data_interface_(data_interface), u_hyperparam_interface_(u_hyperparam_interface), comm_(comm), random_number_generator_(HDSA::makePtr<HDSA::Random_Number_Generator<RealT>>())
