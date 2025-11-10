@@ -96,7 +96,7 @@ public:
     veci_out[0] = solve->linalg->getNewVector(0);
     Teuchos::RCP<Tpetra::CrsMatrix<ScalarT, LO, GO, Node>> A_over = solve->linalg->getNewOverlappedMatrix(0);
 
-    assembler->assembleJacRes(0, 0, veci_out, veci_out, veci_out, veci_out, veci_out, veci_out, true, false, false,
+    assembler->assembleJacRes(0, 0, veci_out, veci_out, veci_out, veci_out, veci_out, veci_out, true, false, false, false, 0,
                               veci_out[0], A_over, false, 0, false, false, veci_out[0]->getGlobalLength(), veci_out[0], veci_out[0], false, 0.0);
     solve->linalg->fillComplete(A_over);
 
