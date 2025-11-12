@@ -53,28 +53,30 @@ namespace HDSA
     }
 
     // Multiply this*B (a matrix multiply) with options to transpose this and/or B
-    void Multiply(HDSA::Dense_Matrix<RealT> &C, const HDSA::Dense_Matrix<RealT> &B, bool A_Trans = false, bool B_Trans = false) const
+    int Multiply(HDSA::Dense_Matrix<RealT> &C, const HDSA::Dense_Matrix<RealT> &B, bool A_Trans = false, bool B_Trans = false) const
     {
+      int info;
       if (!A_Trans && !B_Trans)
       {
         // No transposes
-        C.Get_Teuchos_Matrix()->multiply(Teuchos::NO_TRANS, Teuchos::NO_TRANS, 1.0, *A_, *B.Get_Teuchos_Matrix(), 0.0);
+        info = C.Get_Teuchos_Matrix()->multiply(Teuchos::NO_TRANS, Teuchos::NO_TRANS, 1.0, *A_, *B.Get_Teuchos_Matrix(), 0.0);
       }
       else if (A_Trans && !B_Trans)
       {
         // Transpose A and not B
-        C.Get_Teuchos_Matrix()->multiply(Teuchos::TRANS, Teuchos::NO_TRANS, 1.0, *A_, *B.Get_Teuchos_Matrix(), 0.0);
+        info = C.Get_Teuchos_Matrix()->multiply(Teuchos::TRANS, Teuchos::NO_TRANS, 1.0, *A_, *B.Get_Teuchos_Matrix(), 0.0);
       }
       else if (!A_Trans && B_Trans)
       {
         // Transpose B and not A
-        C.Get_Teuchos_Matrix()->multiply(Teuchos::NO_TRANS, Teuchos::TRANS, 1.0, *A_, *B.Get_Teuchos_Matrix(), 0.0);
+        info = C.Get_Teuchos_Matrix()->multiply(Teuchos::NO_TRANS, Teuchos::TRANS, 1.0, *A_, *B.Get_Teuchos_Matrix(), 0.0);
       }
       else
       {
         // Transpose both A and B
-        C.Get_Teuchos_Matrix()->multiply(Teuchos::TRANS, Teuchos::TRANS, 1.0, *A_, *B.Get_Teuchos_Matrix(), 0.0);
+        info = C.Get_Teuchos_Matrix()->multiply(Teuchos::TRANS, Teuchos::TRANS, 1.0, *A_, *B.Get_Teuchos_Matrix(), 0.0);
       }
+      return info;
     }
 
     void Zeros(void)

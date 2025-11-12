@@ -60,7 +60,7 @@ namespace HDSA
       int i = -1;
       for (int k = 0; k < scalars_.size(); k++)
       {
-        if (std::abs(scalars_[k] - scalar) < 1.e-14)
+        if (std::abs(scalars_[k] - scalar) < 1.e-12)
         {
           i = k;
           break;
@@ -97,7 +97,7 @@ namespace HDSA
       int i = -1;
       for (int k = 0; k < scalars_.size(); k++)
       {
-        if (std::abs(scalars_[k] - scalar) < 1.e-14)
+        if (std::abs(scalars_[k] - scalar) < 1.e-12)
         {
           i = k;
           break;

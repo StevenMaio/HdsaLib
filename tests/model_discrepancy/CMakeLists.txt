@@ -10,6 +10,7 @@ add_subdirectory(synthetic_test_multi_state)
 add_subdirectory(synthetic_test_transient_multi_state)
 add_subdirectory(synthetic_test_OUU)
 add_subdirectory(synthetic_test_lumped_mass)
+add_subdirectory(lumped_mass_unit_test)
 
 # Define the source directory and the target directory
 set(SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR})
