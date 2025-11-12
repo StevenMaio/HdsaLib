@@ -1,0 +1,13 @@
+rm ./optimization/*.exo
+rm ./optimization/*.dat
+rm -rf ./optimization/RN_init_solution/
+rm -rf ./optimization/AVaR_init_solution/
+rm ./fwd_hifi_data_generation/*.exo
+rm ./fwd_hifi_data_generation/*.dat
+rm ./hdsa/*.exo
+rm ./hdsa/*.dat
+rm -r ./hdsa/hdsa_output*
+rm ./hifi_optimization/*.exo
+rm ./hifi_optimization/*.dat
+rm cvar_obj_compare/*.dat
+rm cvar_obj_compare/*.txt

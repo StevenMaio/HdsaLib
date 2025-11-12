@@ -1,0 +1,14 @@
+# Ensure that the MrHyDE executable has been linked to the current directory under the name "mrhyde"
+
+# Link output to hdsa_exo directory
+ln -s ../optimization/sample_set.dat .
+ln -s ../optimization/sample_weights.dat .
+
+for (( i=0; i<50; i++ ))
+do
+    ln -s "../optimization/output_lofi_opt_sample_${i}.exo" "."
+    ln -s "../fwd_hifi_data_generation/output_hifi_sample_${i}.exo" "."
+done
+
+# Compute HDSA update
+./mrhyde 

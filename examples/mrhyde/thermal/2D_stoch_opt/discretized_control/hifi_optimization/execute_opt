@@ -1,0 +1,12 @@
+# Ensure that the MrHyDE executable has been linked to the current directory under the name "mrhyde"
+
+ln -s ../optimization/sample_set.dat ./sample_set_lofi.dat
+ln -s ../optimization/final_params_.dat ./final_params_load_.dat
+cp final_params_load_.dat final_params_load_.txt 
+sed -i '' '1,2d' final_params_load_.txt
+
+# Solve the risk neutral optimization problem
+./mrhyde 
+
+# Remove unneeded files
+#mv output.exo final_params_hifi.exo

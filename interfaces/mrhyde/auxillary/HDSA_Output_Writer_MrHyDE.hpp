@@ -293,9 +293,10 @@ public:
             {
                 if (const HDSA::Ptr<HDSA::Tpetra_Vector<RealT>> evec = HDSA::dynamicPtrCast<HDSA::Tpetra_Vector<RealT>>(vec))
                 {
-                    postproc_->mesh->setupOptimizationExodusFile(name);
+                    std::string name_exo = name + ".exo";
+                    postproc_->mesh->setupOptimizationExodusFile(name_exo);
                     postproc_->params->updateParams(evec->getVector());
-                    postproc_->writeOptimizationSolution(name);
+                    postproc_->writeOptimizationSolution(name_exo);
                 }
                 else if (const HDSA::Ptr<HDSA::Std_Vector<RealT>> evec = HDSA::dynamicPtrCast<HDSA::Std_Vector<RealT>>(vec))
                 {

@@ -1,0 +1,65 @@
+%YAML 1.1
+---
+ANONYMOUS:
+  debug level: 0
+  Mesh:
+    dimension: 2
+    element type: tri
+    xmin: 0.0
+    xmax: 1.0
+    ymin: 0.0
+    ymax: 1.0
+    NX: 20
+    NY: 20
+  Physics: 
+    modules: thermal
+    include advection: true
+    Initial conditions:
+      T: '0.0'
+    Neumann conditions:
+      T:
+        left: thermal_boundary_control
+        right: thermal_boundary_control
+        top: '0.0'
+        bottom: '0.0'
+  Discretization:
+    order:
+      T: 1
+    quadrature: 2
+  Parameters input file: input_params.yaml
+  Analysis input file: input_sol.yaml
+  Solver:
+    workset size: 1
+    solver: transient
+    nonlinear TOL: 1.0e-10
+    linear TOL: 1.0e-13
+    max nonlinear iters: 4
+    final time: 1.0
+    number of steps: 10
+  Postprocess: 
+    response type: pointwise
+    compute objective: true
+    write solution: true
+    Objective functions:
+      obj0:
+        type: integrated control
+        function: '(T-targ)^2*(t>0.99)'
+        weight: 0.5
+        Regularization functions:
+          breg0:
+            type: integrated
+            location: boundary
+            boundary name: left
+            function: 'thermal_boundary_control^2'
+            weight: 0.5e-5
+          breg1:
+            type: integrated
+            location: boundary
+            boundary name: right
+            function: 'thermal_boundary_control^2'
+            weight: 0.5e-5
+  Functions: 
+    targ: '0.0'
+    thermal source: exp(-1.0*t)*1000*exp(-100*(x-thermal_source_x(0))^2 - 100*(y-thermal_source_y(0))^2)
+    advection x: '1.0'
+...

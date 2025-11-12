@@ -1,0 +1,31 @@
+# Ensure that the MrHyDE executable has been linked to the current directory under the name "mrhyde"
+
+ln -s ../optimization/sample_set.dat ./sample_set_lofi.dat
+
+# Generate objective values for lofi solution
+ln -s ../optimization/final_params_.dat ./final_params_load_.dat
+cp final_params_load_.dat final_params_load_.txt 
+sed -i '' '1,2d' final_params_load_.txt
+./mrhyde 
+rm *.exo
+mv sample_obj_vals.dat sample_obj_vals_lofi.dat
+rm final_params_load_.dat
+
+# Generate objective values for mean update solution
+ln -s ../hdsa/hdsa_output/posterior/z_update/mean.exo ./z_update_mean.exo
+python3 extract_hdsa_z_data.py
+./mrhyde 
+rm *.exo
+mv sample_obj_vals.dat sample_obj_vals_mean_update.dat
+rm final_params_load_.dat
+
+# Generate objective values for hifi solution
+ln -s ../hifi_optimization/final_params_.dat ./final_params_load_.dat
+cp final_params_load_.dat final_params_load_.txt 
+sed -i '' '1,2d' final_params_load_.txt
+./mrhyde 
+rm *.exo
+mv sample_obj_vals.dat sample_obj_vals_hifi.dat
+rm final_params_load_.dat
+
+python3 Compare_Objectives.py
