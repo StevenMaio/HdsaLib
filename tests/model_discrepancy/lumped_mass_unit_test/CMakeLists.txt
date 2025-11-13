@@ -22,5 +22,12 @@ add_custom_command(TARGET lumped_mass_unit_test_example_sensitivity.exe POST_BUI
     COMMAND ${CMAKE_COMMAND} -E copy
         ${SOURCE_DIR}/random_numbers.txt
         ${TARGET_DIR}/random_numbers.txt
+    COMMAND ${CMAKE_COMMAND} -E copy
+        ${SOURCE_DIR}/run_test.py 
+        ${TARGET_DIR}/run_test.py 
+    # Copy the specified files from the reference_output directory
+    COMMAND ${CMAKE_COMMAND} -E copy
+        ${SOURCE_DIR}/reference_output/diffs.txt
+        ${TARGET_DIR}/reference_output/diffs.txt
     COMMENT "Copying files to the output directory"
 )

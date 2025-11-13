@@ -71,6 +71,8 @@ int main(int argc, char *argv[])
   HDSA::Ptr<HDSA::Dense_Matrix<RealT>> M_u = assemble_time_op->Kronecker(M_t, M_s);
   HDSA::Ptr<HDSA::Dense_Matrix<RealT>> W_u = assemble_time_op->Kronecker(W_t, W_s);
   HDSA::Ptr<HDSA::Dense_Matrix<RealT>> W_u_inv = assemble_time_op->Kronecker(W_t_inv, W_s_inv);
+
+  std::vector<RealT> diffs;
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   ////////////////////////////////////////////////////// Test W_t ////////////////////////////////////////////////////////////
@@ -89,7 +91,7 @@ int main(int argc, char *argv[])
   tmp_t->Multiply(*test_t, *MV, false, true);
   RealT local_diff = assemble_time_op->Matrix_Difference(test_t, W_t);
   local_diff = std::sqrt(local_diff);
-  std::cout << "Local diff = " << local_diff << std::endl;
+  diffs.push_back(local_diff);
 
   ////////////////////////////////////////////////////// Test M_u ////////////////////////////////////////////////////////////
   HDSA::Ptr<HDSA::Vector<RealT>> u_hdsa = data_interface->Get_u_opt()->Clone();
@@ -111,7 +113,7 @@ int main(int argc, char *argv[])
   u_prior_interface->Apply_M_u(*u_tmp, *u_hdsa);
   RealT val_test = u_hdsa->Dot(*u_tmp);
   local_diff = std::abs(val_test - 1.0 / 9.0);
-  std::cout << "Local diff = " << local_diff << std::endl;
+  diffs.push_back(local_diff);
 
   HDSA::Ptr<HDSA::Dense_Matrix<RealT>> u_mat_tmp = HDSA::makePtr<HDSA::Dense_Matrix<RealT>>(n_t * n_y, 1);
   M_u->Multiply(*u_mat_tmp, *u_mat);
@@ -119,7 +121,7 @@ int main(int argc, char *argv[])
   u_mat_tmp->Multiply(*val_tmp, *u_mat, true, false);
   val_test = (*val_tmp)(0, 0);
   local_diff = std::abs(val_test - 1.0 / 9.0);
-  std::cout << "Local diff = " << local_diff << std::endl;
+  diffs.push_back(local_diff);
 
   ////////////////////////////////////////////////////// Test W_u_inv ////////////////////////////////////////////////////////////
   u_hdsa->Randomize_Standard_Normal();
@@ -143,7 +145,7 @@ int main(int argc, char *argv[])
   u_mat_tmp->Multiply(*val_tmp, *u_mat, true, false);
   RealT val_test2 = (*val_tmp)(0, 0);
   local_diff = std::abs(val_test1 - val_test2);
-  std::cout << "Local diff = " << local_diff << std::endl;
+  diffs.push_back(local_diff);
 
   ////////////////////////////////////////////////////// Test W_u_Plus_scalar_M_u_inv ////////////////////////////////////////////////////////////
   u_hdsa->Randomize_Standard_Normal();
@@ -179,7 +181,7 @@ int main(int argc, char *argv[])
   u_mat_tmp->Multiply(*val_tmp, *u_mat, true, false);
   val_test2 = (*val_tmp)(0, 0);
   local_diff = std::abs(val_test1 - val_test2);
-  std::cout << "Local diff = " << local_diff << std::endl;
+  diffs.push_back(local_diff);
 
   ////////////////////////////////////////////////////// Test Sample_with_Covariance_W_u_Inverse ////////////////////////////////////////////////////////////
 
@@ -230,7 +232,7 @@ int main(int argc, char *argv[])
 
   local_diff = assemble_spatial_op->Matrix_Difference(W_u_inv, tmp);
   local_diff = std::sqrt(local_diff);
-  std::cout << "Local diff = " << local_diff << std::endl;
+  diffs.push_back(local_diff);
 
   HDSA::Ptr<HDSA::Dense_Matrix<RealT>> omega = HDSA::makePtr<HDSA::Dense_Matrix<RealT>>(n_t * n_y, 1);
   for (int i = 0; i < n_t * n_y; i++)
@@ -259,7 +261,7 @@ int main(int argc, char *argv[])
     }
   }
   local_diff = std::sqrt(running_diff / normalize);
-  std::cout << "Local diff = " << local_diff << std::endl;
+  diffs.push_back(local_diff);
 
   ////////////////////////////////////////////////////// Test Sample_with_Covariance_W_u_Plus_scalar_M_u_Inverse ////////////////////////////////////////////////////////////
 
@@ -312,7 +314,18 @@ int main(int argc, char *argv[])
     }
   }
   local_diff = std::sqrt(running_diff / normalize);
-  std::cout << "Local diff = " << local_diff << std::endl;
+  diffs.push_back(local_diff);
+
+  ////////////////////////////////////////////////////// Write diffs to file ////////////////////////////////////////////////////////////
+  int dim = diffs.size();
+  std::string name = "diffs.txt";
+  std::ofstream fout;
+  fout.open(name);
+  for (int i = 0; i < dim; i++)
+  {
+    fout << std::setprecision(16) << diffs[i] << std::endl;
+  }
+  fout.close();
 
   return 0;
 }
