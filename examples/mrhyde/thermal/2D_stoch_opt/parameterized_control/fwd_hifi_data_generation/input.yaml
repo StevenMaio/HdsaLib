@@ -1,0 +1,56 @@
+%YAML 1.1
+---
+ANONYMOUS:
+  debug level: 0
+  Mesh:
+    dimension: 2
+    element type: tri
+    xmin: 0.0
+    xmax: 1.0
+    ymin: 0.0
+    ymax: 1.0
+    NX: 20
+    NY: 20
+  Functions: 
+    targ: '0.0'
+    thermal source: exp(-1.0*t)*1000*exp(-100*(x-thermal_source_x(0))^2 - 100*(y-thermal_source_y(0))^2)
+    advection x: '1.0'
+  Physics: 
+    modules: thermal
+    include advection: true
+    Initial conditions:
+      T: '0.0'
+    Neumann conditions:
+      T:
+        left: -(thermal_source_left_1(0) * exp(-400*(y-0.3)^2) + thermal_source_left_2(0) * exp(-400*(y-0.4)^2) + thermal_source_left_3(0) * exp(-400*(y-0.5)^2) + thermal_source_left_4(0) * exp(-400*(y-0.6)^2) + thermal_source_left_5(0) * exp(-400*(y-0.7)^2))
+        right: -(thermal_source_right_1(0) * exp(-400*(y-0.3)^2) + thermal_source_right_2(0) * exp(-400*(y-0.4)^2) + thermal_source_right_3(0) * exp(-400*(y-0.5)^2) + thermal_source_right_4(0) * exp(-400*(y-0.6)^2) + thermal_source_right_5(0) * exp(-400*(y-0.7)^2))
+        top: -(thermal_source_top_1(0) * exp(-400*(x-0.3)^2) + thermal_source_top_2(0) * exp(-400*(x-0.4)^2) + thermal_source_top_3(0) * exp(-400*(x-0.5)^2) + thermal_source_top_4(0) * exp(-400*(x-0.6)^2) + thermal_source_top_5(0) * exp(-400*(x-0.7)^2))
+        bottom: -(thermal_source_bottom_1(0) * exp(-400*(x-0.3)^2) + thermal_source_bottom_2(0) * exp(-400*(x-0.4)^2) + thermal_source_bottom_3(0) * exp(-400*(x-0.5)^2) + thermal_source_bottom_4(0) * exp(-400*(x-0.6)^2) + thermal_source_bottom_5(0) * exp(-400*(x-0.7)^2))
+  Discretization:
+    order:
+      T: 1
+    quadrature: 2
+  Parameters input file: input_params.yaml
+  Analysis input file: input_readExo.yaml
+  Solver:
+    workset size: 1
+    solver: transient
+    nonlinear TOL: 1.0e-10
+    linear TOL: 1.0e-13
+    max nonlinear iters: 4
+    final time: 1.0
+    number of steps: 10
+  Postprocess: 
+    response type: pointwise
+    compute objective: true
+    write solution: true
+    Objective functions:
+      obj0:
+        type: integrated control
+        function: '(T-targ)^2*(t>0.99)'
+        weight: 0.5
+        Regularization functions:
+          reg0:
+            type: l2 norm squared
+            weight: 5.0E-6
+...

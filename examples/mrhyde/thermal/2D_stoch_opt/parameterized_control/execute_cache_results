@@ -1,0 +1,16 @@
+cache_dir="/Users/joshart/software/results_cache_with_corr"
+
+./remove_symbolic_links
+mkdir "$cache_dir"
+
+cp -r optimization "$cache_dir"
+
+cp -r fwd_hifi_data_generation "$cache_dir"
+
+cp -r hdsa "$cache_dir"
+
+cp -r hifi_optimization "$cache_dir"
+
+cp -r cvar_obj_compare "$cache_dir"
+
+./execute_clean

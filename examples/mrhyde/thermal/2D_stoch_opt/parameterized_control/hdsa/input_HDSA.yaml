@@ -1,0 +1,37 @@
+%YAML 1.1
+---
+ANONYMOUS:
+  Analysis: 
+    analysis type: HDSA
+    HDSA:
+      Configuration:
+        num_prior_samples: 50
+        num_posterior_samples: 50
+        execute_prior_discrepancy_sampling: true
+        execute_posterior_discrepancy_sampling: true
+        execute_optimal_solution_update: true
+        use_lumped_mass_prior: false
+        verbosity: 2
+      HyperParameters:
+        T:
+          beta_u: 0.01
+          beta_t: 0.1
+        z:
+          #alpha_z: 0.001
+        OUU:
+          assume_independent_ensembles: false
+        hessian_num_eig_vals: 3
+        hessian_oversampling: 3
+        center_data: false
+        adapt_time_variance: true
+      DataLoadParameters:
+        Ensemble Size: 50
+        OptimalSolutionExoFile: "output_lofi_opt_sample_"
+        OptimalSolutionTxtFileZ: "final_params_.dat"
+        StateVariableName: "T"
+        NumHifi: 1
+        HifiExoFile1: "output_hifi_sample_"
+        TxtFileZ1: "final_params_.dat"
+        Sample Set File: "sample_set.dat"
+        Sample Weight File: "sample_weights.dat"
+...

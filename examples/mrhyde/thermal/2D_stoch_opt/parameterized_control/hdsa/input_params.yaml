@@ -1,0 +1,110 @@
+%YAML 1.1
+---
+ANONYMOUS:
+  Parameters: 
+    thermal_diff: 
+      type: scalar
+      value: 1.0
+      usage: inactive
+    thermal_source_x:
+      type: scalar
+      value: 0.5 
+      usage: stochastic
+      SOL:
+        Distribution:
+            Name: Uniform
+            Uniform:
+              Lower Bound: 0.4 
+              Upper Bound: 0.8 
+    thermal_source_y:
+      type: scalar
+      value: 0.5 
+      usage: stochastic
+      SOL:
+        Distribution:
+            Name: Uniform
+            Uniform:
+              Lower Bound: 0.4
+              Upper Bound: 0.8 
+    thermal_source_left_1: 
+      type: scalar
+      value: 0.0
+      usage: active
+    thermal_source_left_2: 
+      type: scalar
+      value: 0.0
+      usage: active
+    thermal_source_left_3: 
+      type: scalar
+      value: 0.0
+      usage: active
+    thermal_source_left_4: 
+      type: scalar
+      value: 0.0
+      usage: active
+    thermal_source_left_5: 
+      type: scalar
+      value: 0.0
+      usage: active
+    thermal_source_right_1: 
+      type: scalar
+      value: 0.0
+      usage: active
+    thermal_source_right_2: 
+      type: scalar
+      value: 0.0
+      usage: active
+    thermal_source_right_3: 
+      type: scalar
+      value: 0.0
+      usage: active
+    thermal_source_right_4: 
+      type: scalar
+      value: 0.0
+      usage: active
+    thermal_source_right_5: 
+      type: scalar
+      value: 0.0
+      usage: active
+    thermal_source_top_1: 
+      type: scalar
+      value: 0.0
+      usage: active
+    thermal_source_top_2: 
+      type: scalar
+      value: 0.0
+      usage: active
+    thermal_source_top_3: 
+      type: scalar
+      value: 0.0
+      usage: active
+    thermal_source_top_4: 
+      type: scalar
+      value: 0.0
+      usage: active
+    thermal_source_top_5: 
+      type: scalar
+      value: 0.0
+      usage: active
+    thermal_source_bottom_1: 
+      type: scalar
+      value: 0.0
+      usage: active
+    thermal_source_bottom_2: 
+      type: scalar
+      value: 0.0
+      usage: active
+    thermal_source_bottom_3: 
+      type: scalar
+      value: 0.0
+      usage: active
+    thermal_source_bottom_4: 
+      type: scalar
+      value: 0.0
+      usage: active
+    thermal_source_bottom_5: 
+      type: scalar
+      value: 0.0
+      usage: active
+
+...
