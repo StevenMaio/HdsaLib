@@ -1,4 +1,4 @@
-cache_dir="/Users/joshart/software/results_cache_with_corr"
+cache_dir="/Users/joshart/software/results_cache"
 
 ./remove_symbolic_links
 mkdir "$cache_dir"

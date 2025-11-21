@@ -20,7 +20,7 @@ ANONYMOUS:
           #alpha_z: 0.001
         OUU:
           assume_independent_ensembles: false
-        hessian_num_eig_vals: 3
+        hessian_num_eig_vals: 1
         hessian_oversampling: 3
         center_data: false
         adapt_time_variance: true

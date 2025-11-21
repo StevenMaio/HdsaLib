@@ -71,15 +71,55 @@ classdef Plot_Results < handle
             end
         end
 
-        function [] = Plot_State(this, T, final_time)
+        function [] = Plot_State_Comparison(this,num_ens, save_filename)
+            if nargin < 3
+                save_filename = [];
+            end
+
+            e = zeros(num_ens,11);
+            for k = 1:num_ens
+                d = this.Load_Discrepancy(k); 
+                e(k,:) = vecnorm(d,2);
+            end
+            [~,i] = min(abs(e(:,end)-median(e(:,end))));
+
+            [cmin_hifi,cmax_hifi] = this.Plot_HiFi_Opt_State(i,true);
+            [cmin_lofi,cmax_lofi] = this.Plot_LoFi_Opt_State(i,true);
+
+            cmin = min(cmin_lofi,cmin_hifi);
+            cmax = max(cmax_lofi,cmax_hifi);
+
+            clim([cmin,cmax])
+            xlabel('x_1')
+            ylabel('x_2')
+            title('Low-fidelity State Solution $\tilde{S}(\tilde{z})$','Interpreter','latex')
+            set(gca, 'FontSize', 24);
+            pause(.1)
+            if ~isempty(save_filename)
+                print([save_filename,'_lofi'], '-depsc');
+            end
+
+            this.Plot_HiFi_Opt_State(i,true);
+            clim([cmin,cmax])
+            xlabel('x_1')
+            ylabel('x_2')
+            title('High-fidelity State Solution $S(\tilde{z})$','Interpreter','latex')
+            set(gca, 'FontSize', 24);
+            if ~isempty(save_filename)
+                print([save_filename,'_hifi'], '-depsc');
+            end
+
+        end
+
+        function [cmin,cmax] = Plot_State(this, T, final_time)
             if nargin < 3
                 final_time = false;
             end
 
-            cmin = min(T(:));
-            cmax = max(T(:));
-
             if ~final_time
+
+                cmin = min(T(:));
+                cmax = max(T(:));
 
                 figure,
                 for k = 1:this.m
@@ -90,10 +130,14 @@ classdef Plot_Results < handle
                     clim([cmin,cmax]);
                     shading interp
                     colorbar();
+                    %axis equal;
                     pause(.5);
                 end
 
             else
+
+                cmin = min(T(:,end));
+                cmax = max(T(:,end));
 
                 figure,
                 Z = reshape(T(:,end),this.n,this.n);
@@ -102,15 +146,30 @@ classdef Plot_Results < handle
                 title(['Time = ',num2str(this.time_steps(end))]);
                 clim([cmin,cmax]);
                 shading interp
+                axis square
+                xticks([0,.2,.4,.6,.8,1])
+                yticks([0,.2,.4,.6,.8,1])
+                xlim([0,1])
+                ylim([0,1])
                 colorbar();
-                pause(.5);
 
             end
         end
 
-        function [] = Plot_LoFi_Opt_State(this,ens_id)
+        function [cmin,cmax] = Plot_HiFi_Opt_State(this,ens_id, final_time)
+            if nargin < 3
+                final_time = false;
+            end
+            T = this.Load_HiFi_State(ens_id);
+            [cmin,cmax] = this.Plot_State(T, final_time);
+        end
+
+        function [cmin,cmax] = Plot_LoFi_Opt_State(this,ens_id, final_time)
+            if nargin < 3
+                final_time = false;
+            end
             T = this.Load_LoFi_State(ens_id);
-            this.Plot_State(T);
+            [cmin,cmax] = this.Plot_State(T, final_time);
         end
 
         function [] = Plot_Discrepancy(this,ens_id)
