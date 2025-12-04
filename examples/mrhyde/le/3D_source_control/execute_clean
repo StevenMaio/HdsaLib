@@ -1,0 +1,14 @@
+rm ./optimization/output_lofi_opt.exo*
+rm ./optimization/ROL_out.txt
+rm ./optimization/*.dat
+rm ./fwd_hifi_data_generation/output_lofi_opt.exo*
+rm ./fwd_hifi_data_generation/*.dat
+rm ./fwd_hifi_data_generation/output_hifi_1.exo*
+rm fwd_hifi_data_generation/hifi_obj_lofi_z_val.txt
+rm ./hdsa/output_lofi_opt.exo*
+rm ./hdsa/output_hifi_1.exo*
+rm ./hdsa/*.dat
+rm -r ./hdsa/hdsa_output*
+rm hifi_obj_eval/hifi_obj_hdsa_z_val.txt
+rm hifi_obj_eval/mean.txt
+rm hifi_obj_eval/output.exo
