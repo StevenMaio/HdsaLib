@@ -1,0 +1,62 @@
+%YAML 1.1
+---
+ANONYMOUS:
+  verbosity: 2
+  debug level: 0
+  Mesh: 
+    blocknames: block_1
+    dimension: 2
+    source: Exodus
+    mesh file: urbancanyon_2D.e
+  Parameters input file: input_params.yaml
+  Functions:
+    xvel: '0.5'
+    yvel: '1.0'
+    reaction: '0.0'
+    #source: '0.0'
+    source: 'exp(-0.0001*(x+10.0)*(x + 10.0)- 0.0001*(y + 330.0)*(y +330.0))'
+    diffusion: '3.0'
+    SUPG tau: '1.0'
+  Physics:
+    modules: 'cdr'
+    Initial conditions:
+      #c: '100.0*exp(-0.001*(x+10.0)*(x + 10.0)- 0.001*(y + 330.0)*(y +330.0))'
+      c: '0.0'
+  Dirichlet conditions:
+      c:
+        left : '0.0'
+        front : '0.0'
+        right: '0.0'
+        buildings : '0.0'
+     Neumann conditions:
+      c:
+        back: '0.0'
+  Discretization:
+     order:
+      c: 1
+    quadrature: 2
+  Solver:
+    solver: transient
+    workset size: 100
+    nonlinear TOL: 1.0e-07
+    max nonlinear iters: 30
+    final time: 400.0
+    number of steps: 100
+    use strong DBCs: true
+  Analysis:
+    analysis type: forward
+  Postprocess:
+    write solution: true 
+    response type: pointwise
+    compute objective: true
+    Objective functions:
+      obj0:
+        type: integrated control
+        weight: 1.0
+        Regularization functions:
+          reg0:
+            type: integrated
+            location: volume
+            function: source2^2
+            weight: 5.0E-6
+ 
