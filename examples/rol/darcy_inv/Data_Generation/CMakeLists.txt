@@ -31,6 +31,9 @@ add_custom_command(TARGET darcy_inv_example_data_generation.exe POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy
         ${SOURCE_DIR}/Design_Forcing.m
         ${TARGET_DIR}/Design_Forcing.m
+    COMMAND ${CMAKE_COMMAND} -E copy
+        ${SOURCE_DIR}/input.xml
+        ${TARGET_DIR}/input.xml
     COMMENT "Copying files to the output directory"
 )
 

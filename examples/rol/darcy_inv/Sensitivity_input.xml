@@ -7,9 +7,9 @@
     <Parameter name="print_cg_iter" type="bool" value="false" />
     <Parameter name="rank" type="int" value="0" />
     <Parameter name="oversampling" type="int" value="5" />
-    <Parameter name="N_fe" type="int" value="9" />
-    <Parameter name="N_me" type="int" value="9" />
-    <Parameter name="CG Tolerance" type="double" value="1.e-4" />
+    <Parameter name="N_fe" type="int" value="0" />
+    <Parameter name="N_me" type="int" value="3" />
+    <Parameter name="CG Tolerance" type="double" value="1.e-2" />
     <Parameter name="Maximum CG Iterations" type="int" value="3000" />
     <Parameter name="Finite Difference Check" type="bool" value="false" />
     <Parameter name="Use Block Update" type="bool" value="true" />

@@ -2,7 +2,7 @@ import xml.etree.ElementTree as ET
 import subprocess
 
 # Define the command and arguments
-command = ["./ROL_example_rol_darcy_inv_example_inversion.exe"] 
+command = ["./darcy_inv_example_inversion.exe"] 
 # Open a file to write the output
 with open('optimization.txt', 'w') as output_file:
     # Start the process
@@ -13,7 +13,7 @@ with open('optimization.txt', 'w') as output_file:
     print("Output written to optimization.txt")
 
 # Define the command and arguments
-command = ["./ROL_example_rol_darcy_inv_example_perturbed_inversion.exe"]
+command = ["./darcy_inv_example_perturbed_inversion.exe"]
 # Open a file to write the output
 with open('perturbed_optimization.txt', 'w') as output_file:
     # Start the process
@@ -35,7 +35,7 @@ for i in range(1, 9):
     # Save the changes back to the XML file
     tree.write('Sensitivity_input.xml')  # Save the changes to the same file
     
-    command = ["./ROL_example_rol_darcy_inv_example_sensitivity.exe"]  
+    command = ["./darcy_inv_example_sensitivity.exe"]  
     result = subprocess.run(command, check=True, capture_output=True, text=True)
     print("Completed sensitivity computation with tolerance 1.e-"+str(i))
 
