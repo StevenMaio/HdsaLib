@@ -27,15 +27,17 @@ with open('perturbed_optimization.txt', 'w') as output_file:
 tree = ET.parse('Sensitivity_input.xml')  
 root = tree.getroot()
 
+root.find(".//Parameter[@name='Gradient Tolerance']").set('value','1.e-8') 
+root.find(".//Parameter[@name='CG Tolerance']").set('value','1.e-2') 
+root.find(".//Parameter[@name='use_qn_prec']").set('value','false') 
+root.find(".//Parameter[@name='Use Block Update']").set('value','false') 
+tree.write('Sensitivity_input.xml')  
+
 # Loop from 2 to 9
 for i in range(2, 10):
-    n_fe_param = root.find(".//Parameter[@name='N_fe']")  # Use XPath to find the element
-    if n_fe_param is not None:
-        n_fe_param.set('value', str(i))  # Update the value attribute with the current loop index
-    n_me_param = root.find(".//Parameter[@name='N_me']")  # Use XPath to find the element
-    if n_me_param is not None:
-        n_me_param.set('value', str(i))  # Update the value attribute with the current loop index
-    # Save the changes back to the XML file
+    
+    root.find(".//Parameter[@name='N_fe']").set('value', str(i)) 
+    root.find(".//Parameter[@name='N_me']").set('value', str(i))  
     tree.write('Sensitivity_input.xml')  # Save the changes to the same file
     
     command = ["./darcy_inv_example_sensitivity.exe"]  
@@ -49,3 +51,24 @@ for i in range(2, 10):
     new_file_name = 'Modified_Euler_Cost_Report_'+str(i)+'.txt'
     subprocess.run(['mv', current_file_name, new_file_name], check=True)
 
+root.find(".//Parameter[@name='use_qn_prec']").set('value','true') 
+root.find(".//Parameter[@name='Use Block Update']").set('value','true') 
+tree.write('Sensitivity_input.xml')  
+
+# Loop from 2 to 9
+for i in range(2, 10):
+    
+    root.find(".//Parameter[@name='N_fe']").set('value', str(i)) 
+    root.find(".//Parameter[@name='N_me']").set('value', str(i))  
+    tree.write('Sensitivity_input.xml')  # Save the changes to the same file
+    
+    command = ["./darcy_inv_example_sensitivity.exe"]  
+    result = subprocess.run(command, check=True, capture_output=True, text=True)
+    print("Completed sensitivity computation with "+str(i)+" time steps")
+
+    current_file_name = 'Forward_Euler_Cost_Report.txt'
+    new_file_name = 'Preconditioned_Forward_Euler_Cost_Report_'+str(i)+'.txt'
+    subprocess.run(['mv', current_file_name, new_file_name], check=True)
+    current_file_name = 'Modified_Euler_Cost_Report.txt'
+    new_file_name = 'Preconditioned_Modified_Euler_Cost_Report_'+str(i)+'.txt'
+    subprocess.run(['mv', current_file_name, new_file_name], check=True)

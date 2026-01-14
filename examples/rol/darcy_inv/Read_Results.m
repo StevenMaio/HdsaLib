@@ -24,7 +24,7 @@ while ~feof(fileID)
         results.num_gradient_evaluations = str2double(extractAfter(line, ': '));
     elseif contains(line, 'Number of vectors stored for preconditioner:')
         results.num_vectors_stored = str2double(extractAfter(line, ': '));
-    elseif contains(line, 'Solution gradient norm =')
+    elseif contains(line, 'Solution gradient Norm =')
         results.solution_gradient_norm = str2double(extractAfter(line, '= '));
     end
 end

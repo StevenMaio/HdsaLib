@@ -1,6 +1,7 @@
 clear
 clc
 close all
+rng(12342)
 
 adj = load('cell_to_node_quad.txt') + 1;  %% load node adjacency table, increment by 1 for 1-based indexing
 
@@ -10,8 +11,8 @@ data_obj = importdata('true_u.txt', ' ', 2);  %% we need to skip the first two l
 true_u = data_obj.data;
 
 obs_locations = [];
-xobs = .1:.2:.9;
-yobs = .1:.2:.9;
+xobs = .2:.3:.8;
+yobs = .2:.3:.8;
 
 noise_level = 0.02;
 
@@ -33,7 +34,7 @@ axis square
 title('State')
 hold on
 for k = 1:length(obs_locations)
-    scatter3(nodes(obs_locations(k),1),nodes(obs_locations(k),2),10,36,'black','filled')
+    scatter3(nodes(obs_locations(k),1),nodes(obs_locations(k),2),20,36,'black','filled')
 end
 
 m_coarse = 51;

@@ -23,6 +23,7 @@ namespace HDSA
 		bool print_cg_iter_;
 		RealT cg_tol_;
 		int max_cg_iter_;
+		int max_extra_newton_;
 
 	protected:
 		virtual int Apply_Inverse_Hessian(HDSA::Vector<RealT> &z_out, const HDSA::Vector<RealT> &z_in, const HDSA::Vector<RealT> &z, const HDSA::Vector<RealT> &theta, RealT &cg_tol) const
@@ -82,6 +83,7 @@ namespace HDSA
 									const HDSA::Ptr<HDSA::PC_Sensitivity_Operator_Interface<RealT>> &sen_op_interface, const HDSA::Ptr<HDSA::PC_Quasi_Newton_Preconditioner<RealT>> &qn_prec,
 									const RealT grad_tol = 1.e-7, const bool use_qn_prec = true, const bool print_cg_output = true, const bool print_cg_iter = false, const RealT cg_tol = 1.e-5, const int max_cg_iter = 100) : z_bar_(z_bar), theta_bar_(theta_bar), sen_op_interface_(sen_op_interface), qn_prec_(qn_prec), grad_tol_(grad_tol), use_qn_prec_(use_qn_prec), print_cg_output_(print_cg_output), print_cg_iter_(print_cg_iter), cg_tol_(cg_tol), max_cg_iter_(max_cg_iter)
 		{
+			max_extra_newton_ = 10;
 		}
 
 		virtual ~PC_Pseudo_Time_Continuation()
@@ -125,9 +127,14 @@ namespace HDSA
 
 			for (int k = 0; k < N; k++)
 			{
+				RealT sol_grad_Norm = grad_current->Norm();
+				if (sol_grad_Norm > grad_tol_)
+				{
+					std::cout << "Failed to converge!" << std::endl;
+					break;
+				}
 				std::cout << "-----------------------------------------------------" << std::endl;
-				std::cout << "The gradient Norm after step: " << k << " is " << grad_current->Norm() << std::endl;
-
+				std::cout << "The gradient Norm after step: " << k << " is " << sol_grad_Norm << std::endl;
 				std::cout << "Beginning B matvec at time step " << k + 1 << std::endl;
 				sen_op_interface_->Apply_B(*z_tmp, *d_theta, *z_current, *theta_current);
 				num_Bvecs += 1;
@@ -159,7 +166,7 @@ namespace HDSA
 					y->Plus(*grad_current);
 					qn_prec_->Add_Parametric_Quasi_Newton_Data(*s, *y);
 				}
-				RealT sol_grad_Norm = grad_current->Norm();
+				sol_grad_Norm = grad_current->Norm();
 
 				if (sol_grad_Norm > grad_tol_)
 				{
@@ -179,7 +186,8 @@ namespace HDSA
 				}
 
 				RealT variable_cg_tol = cg_tol_;
-				while (sol_grad_Norm > grad_tol_)
+				int num_extra_newton = 0;
+				while (sol_grad_Norm > grad_tol_ && num_extra_newton < max_extra_newton_)
 				{
 					std::cout << "Taking an extra Newton iteration at step " << k + 1 << std::endl;
 					std::cout << "The current gradient Norm = " << sol_grad_Norm << std::endl;
@@ -190,6 +198,7 @@ namespace HDSA
 					num_grads += 1;
 					sol_grad_Norm = grad_current->Norm();
 					variable_cg_tol = (1.e-1) * variable_cg_tol;
+					num_extra_newton += 1;
 				}
 			}
 
@@ -251,6 +260,12 @@ namespace HDSA
 
 			for (int k = 0; k < N; k++)
 			{
+				RealT sol_grad_Norm = grad_current->Norm();
+				if (sol_grad_Norm > grad_tol_)
+				{
+					std::cout << "Failed to converge!" << std::endl;
+					break;
+				}
 				std::cout << "-----------------------------------------------------" << std::endl;
 				std::cout << "The gradient Norm after step: " << k << " is " << grad_current->Norm() << std::endl;
 
@@ -322,7 +337,7 @@ namespace HDSA
 					y->Plus(*grad_current);
 					qn_prec_->Add_Parametric_Quasi_Newton_Data(*s, *y);
 				}
-				RealT sol_grad_Norm = grad_current->Norm();
+				sol_grad_Norm = grad_current->Norm();
 
 				if (sol_grad_Norm > grad_tol_)
 				{
@@ -344,7 +359,8 @@ namespace HDSA
 				}
 
 				RealT variable_cg_tol = cg_tol_;
-				while (sol_grad_Norm > grad_tol_)
+				int num_extra_newton = 0;
+				while (sol_grad_Norm > grad_tol_ && num_extra_newton < max_extra_newton_)
 				{
 					std::cout << "Taking an extra Newton iteration at step " << k + 1 << std::endl;
 					std::cout << "The current gradient Norm = " << sol_grad_Norm << std::endl;
@@ -355,6 +371,7 @@ namespace HDSA
 					num_grads += 1;
 					sol_grad_Norm = grad_current->Norm();
 					variable_cg_tol = (1.e-1) * variable_cg_tol;
+					num_extra_newton += 1;
 				}
 			}
 			z_star.Set(*z_current);
