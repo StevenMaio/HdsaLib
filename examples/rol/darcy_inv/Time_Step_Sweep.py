@@ -28,7 +28,7 @@ tree = ET.parse('Sensitivity_input.xml')
 root = tree.getroot()
 
 root.find(".//Parameter[@name='Gradient Tolerance']").set('value','1.e-8') 
-root.find(".//Parameter[@name='CG Tolerance']").set('value','1.e-2') 
+root.find(".//Parameter[@name='CG Tolerance']").set('value','1.e-4') 
 root.find(".//Parameter[@name='use_qn_prec']").set('value','false') 
 root.find(".//Parameter[@name='Use Block Update']").set('value','false') 
 tree.write('Sensitivity_input.xml')  

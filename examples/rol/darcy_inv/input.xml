@@ -6,7 +6,7 @@
     <Parameter name="alpha"       type="double"  value="1.e-3"   />
     <Parameter name="State Cost"                 type="double"  value="1.0"   />
     <Parameter name="Order of FE discretization" type="int"     value="1"     />
-    <Parameter name="Number of Observations"     type="int"      value="9" />
+    <Parameter name="Number of Observations"     type="int"      value="25" />
     <Parameter name="Uncertain Modes per Dimension" type="int"     value="3"     />
   </ParameterList>
 
