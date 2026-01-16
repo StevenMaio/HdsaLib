@@ -37,10 +37,10 @@ colors = lines(2);
 
 figure,
 hold on
-plot(steps,pre_fe_cost,'LineWidth',3,'Color',colors(1,:))
-plot(steps,pre_me_cost,'LineWidth',3,'Color',colors(2,:))
-plot(steps,fe_cost,'--','LineWidth',3,'Color',colors(1,:))
-plot(steps,me_cost,'--','LineWidth',3,'Color',colors(2,:))
+plot(steps,pre_fe_cost, 'Marker', 'o','LineWidth',3,'Color',colors(1,:))
+plot(steps,pre_me_cost, 'Marker', 'o','LineWidth',3,'Color',colors(2,:))
+plot(steps,fe_cost,'--o','LineWidth',3,'Color',colors(1,:))
+plot(steps,me_cost,'--o','LineWidth',3,'Color',colors(2,:))
 %xlim([3,9])
 %ylim([200,600])
 xlabel('Number of Time Steps')

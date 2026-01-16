@@ -34,8 +34,8 @@ root.find(".//Parameter[@name='use_qn_prec']").set('value','false')
 root.find(".//Parameter[@name='Use Block Update']").set('value','false') 
 tree.write('Sensitivity_input.xml')  
 
-# Loop from 1 to 8
-for i in range(1, 9):
+# Loop from 2 to 8
+for i in range(2, 9):
     n_fe_param = root.find(".//Parameter[@name='CG Tolerance']")  # Use XPath to find the element
     if n_fe_param is not None:
         n_fe_param.set('value', '1.e-'+str(i))  # Update the value attribute with the current loop index
@@ -61,8 +61,8 @@ root.find(".//Parameter[@name='use_qn_prec']").set('value','true')
 root.find(".//Parameter[@name='Use Block Update']").set('value','true') 
 tree.write('Sensitivity_input.xml')  
 
-# Loop from 1 to 8
-for i in range(1, 9):
+# Loop from 2 to 8
+for i in range(2, 9):
     n_fe_param = root.find(".//Parameter[@name='CG Tolerance']")  # Use XPath to find the element
     if n_fe_param is not None:
         n_fe_param.set('value', '1.e-'+str(i))  # Update the value attribute with the current loop index

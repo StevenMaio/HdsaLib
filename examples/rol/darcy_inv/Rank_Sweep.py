@@ -27,16 +27,19 @@ with open('perturbed_optimization.txt', 'w') as output_file:
 tree = ET.parse('Sensitivity_input.xml')  
 root = tree.getroot()
 
+root.find(".//Parameter[@name='Gradient Tolerance']").set('value','1.e-8') 
+root.find(".//Parameter[@name='CG Tolerance']").set('value','1.e-2') 
+root.find(".//Parameter[@name='N_fe']").set('value', '0') 
+root.find(".//Parameter[@name='N_me']").set('value', '3')  
+root.find(".//Parameter[@name='use_qn_prec']").set('value','true') 
+root.find(".//Parameter[@name='Use Block Update']").set('value','true') 
+tree.write('Sensitivity_input.xml')  
+
 # Loop from 2 to 9
 for i in range(0, 25, 5):
     for j in range(0, 25, 5):
-        rank_param = root.find(".//Parameter[@name='rank']")  # Use XPath to find the element
-        if rank_param is not None:
-            rank_param.set('value', str(i))  # Update the value attribute with the current loop index
-        update_param = root.find(".//Parameter[@name='Maximum Block Update Storage']")  # Use XPath to find the element
-        if update_param is not None:
-            update_param.set('value', str(j))  # Update the value attribute with the current loop index
-        # Save the changes back to the XML file
+        rank_param = root.find(".//Parameter[@name='rank']").set('value', str(i))
+        update_param = root.find(".//Parameter[@name='Maximum Block Update Storage']").set('value', str(j))   
         tree.write('Sensitivity_input.xml')  # Save the changes to the same file
         
         command = ["./darcy_inv_example_sensitivity.exe"]  

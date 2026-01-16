@@ -12,7 +12,7 @@ true_u = data_obj.data;
 
 obs_locations = [];
 xobs = .1:.2:.9;
-yobs = .2:.2:.9;
+yobs = .1:.2:.9;
 
 noise_level = 0.02;
 

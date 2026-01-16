@@ -4,7 +4,7 @@ clc
 
 reopt_cost = Compute_Cost_of_Reoptimization('perturbed_optimization.txt');
 
-steps = 1:8;
+steps = 2:8;
 fe_cost = 0*steps';
 me_cost = 0*steps';
 fe_grad = 0*steps';
@@ -34,14 +34,14 @@ end
 colors = lines(2);
 
 figure,
-semilogx(10.^(-steps),pre_fe_cost,'LineWidth',3,'Color',colors(1,:))
+semilogx(10.^(-steps),pre_fe_cost, 'Marker', 'o','LineWidth',3,'Color',colors(1,:))
 hold on
-semilogx(10.^(-steps),pre_me_cost,'LineWidth',3,'Color',colors(2,:))
-semilogx(10.^(-steps),fe_cost,'--','LineWidth',3,'Color',colors(1,:))
-semilogx(10.^(-steps),me_cost,'--','LineWidth',3,'Color',colors(2,:))
+semilogx(10.^(-steps),pre_me_cost, 'Marker', 'o','LineWidth',3,'Color',colors(2,:))
+semilogx(10.^(-steps),fe_cost,'--o','LineWidth',3,'Color',colors(1,:))
+semilogx(10.^(-steps),me_cost,'--o','LineWidth',3,'Color',colors(2,:))
 xlabel('CG Tolerance')
 ylabel('Number of PDE Solves')
-xlim(10.^[-8,-2])
+%xlim(10.^[-8,-2])
 legend({'Preconditioned Forward Euler','Preconditioned Modified Euler','Forward Euler','Modified Euler'},'Position',[0.5759    0.1869    0.3125    0.1905],'FontSize',20)
 set(gca, 'fontsize', 20);
 %saveas(gcf,'vary_tolerance_cost_comparison','epsc')
