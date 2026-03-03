@@ -22,10 +22,13 @@ for k = storage
     storage_count = storage_count + 1;
 end
 
+colors = orderedcolors("glow");
+I = [1:4,6:7]; colors = colors(I,:);
+
 figure,
 hold on
 for k = 1:length(rank)
-    plot(storage,me_cost(:,k),'LineWidth',3)
+    plot(storage,me_cost(:,k),'LineWidth',3, 'Marker', 'o','Color',colors(k,:))
 end
 xlabel('Maximum Update Rank')
 ylabel('Number of PDE Solves')
@@ -36,7 +39,7 @@ saveas(gcf,'vary_rank_cost_comparison','epsc')
 figure,
 hold on
 for k = 1:length(rank)
-    plot(storage,me_storage(:,k),'LineWidth',3)
+    plot(storage,me_storage(:,k),'LineWidth',3, 'Marker', 'o','Color',colors(k,:))
 end
 xlabel('Maximum Update Rank')
 ylabel('Number of Vectors Stored')

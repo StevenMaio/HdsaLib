@@ -65,6 +65,27 @@ add_custom_command(TARGET darcy_inv_example_sensitivity.exe POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy
         ${SOURCE_DIR}/Plot_cost_per_timestep_comparison.m
         ${TARGET_DIR}/Plot_cost_per_timestep_comparison.m
+    COMMAND ${CMAKE_COMMAND} -E copy
+        ${SOURCE_DIR}/Compute_Cost_of_Reoptimization.m
+        ${TARGET_DIR}/Compute_Cost_of_Reoptimization.m
+    COMMAND ${CMAKE_COMMAND} -E copy
+        ${SOURCE_DIR}/Plot_cost_per_mesh.m
+        ${TARGET_DIR}/Plot_cost_per_mesh.m
+    COMMAND ${CMAKE_COMMAND} -E copy
+        ${SOURCE_DIR}/Plot_cost_per_rank_and_storage.m
+        ${TARGET_DIR}/Plot_cost_per_rank_and_storage.m
+    COMMAND ${CMAKE_COMMAND} -E copy
+        ${SOURCE_DIR}/Plot_cost_per_tolerance.m
+        ${TARGET_DIR}/Plot_cost_per_tolerance.m
+    COMMAND ${CMAKE_COMMAND} -E copy
+        ${SOURCE_DIR}/Rank_Sweep.py
+        ${TARGET_DIR}/Rank_Sweep.py
+    COMMAND ${CMAKE_COMMAND} -E copy
+        ${SOURCE_DIR}/Time_Step_Sweep.py
+        ${TARGET_DIR}/Time_Step_Sweep.py
+    COMMAND ${CMAKE_COMMAND} -E copy
+        ${SOURCE_DIR}/Tolerance_Sweep.py
+        ${TARGET_DIR}/Tolerance_Sweep.py
     COMMENT "Copying files to the output directory"
 )
 
