@@ -1,0 +1,74 @@
+%YAML 1.1
+---
+ANONYMOUS:
+  verbosity: 0
+  debug level: 0
+  Mesh:
+    dimension: 2
+    element type: quad
+    xmin: 0.0
+    xmax: 1.0
+    ymin: 0.0
+    ymax: 1.0
+    NX: 40
+    NY: 40
+  Parameters input file: input_params.yaml
+  Functions:
+    xvel: '15.0'
+    yvel: '0.0'
+    reaction: '10.0*c*c2'
+    reaction2: '10.0*c*c2'
+    bubble: '-10.0*(x-0.2)*(x-0.2)- 10.0*(y-0.5)*(y-0.5)'
+    #source2: 'source2'
+    source2: 'coeff(0)*exp(-2.0*(x-0.2)*(x-0.2)- 2.0*(y-0.2)*(y-0.2) + exp(t)) + 
+              coeff(1)*exp(-2.0*(x-0.4)*(x-0.4)- 2.0*(y-0.2)*(y-0.2) + exp(t)) +
+              coeff(2)*exp(-2.0*(x-0.6)*(x-0.6)- 2.0*(y-0.2)*(y-0.2) + exp(t)) +    
+              coeff(3)*exp(-2.0*(x-0.8)*(x-0.8)- 2.0*(y-0.2)*(y-0.2) + exp(t)) +
+              coeff(4)*exp(-2.0*(x-0.2)*(x-0.2)- 2.0*(y-0.4)*(y-0.4) + exp(t)) + 
+              coeff(5)*exp(-2.0*(x-0.4)*(x-0.4)- 2.0*(y-0.4)*(y-0.4) + exp(t)) +
+              coeff(6)*exp(-2.0*(x-0.6)*(x-0.6)- 2.0*(y-0.4)*(y-0.4) + exp(t)) +    
+              coeff(7)*exp(-2.0*(x-0.8)*(x-0.8)- 2.0*(y-0.4)*(y-0.4) + exp(t)) +
+              coeff(8)*exp(-2.0*(x-0.2)*(x-0.2)- 2.0*(y-0.6)*(y-0.6) + exp(t)) + 
+              coeff(9)*exp(-2.0*(x-0.4)*(x-0.4)- 2.0*(y-0.6)*(y-0.6) + exp(t)) +
+              coeff(10)*exp(-2.0*(x-0.6)*(x-0.6)- 2.0*(y-0.6)*(y-0.6) + exp(t)) +    
+              coeff(11)*exp(-2.0*(x-0.8)*(x-0.8)- 2.0*(y-0.6)*(y-0.6) + exp(t)) +
+              coeff(12)*exp(-2.0*(x-0.2)*(x-0.2)- 2.0*(y-0.8)*(y-0.8) + exp(t)) + 
+              coeff(13)*exp(-2.0*(x-0.4)*(x-0.4)- 2.0*(y-0.8)*(y-0.8) + exp(t)) +
+              coeff(14)*exp(-2.0*(x-0.6)*(x-0.6)- 2.0*(y-0.8)*(y-0.8) + exp(t)) +    
+              coeff(15)*exp(-2.0*(x-0.8)*(x-0.8)- 2.0*(y-0.8)*(y-0.8) + exp(t))'
+  Physics:
+    modules: 'cdr, cdr2'
+    assemble boundary terms: true
+    Initial conditions:
+      c: 'exp(bubble)'
+      c2: '0.0'
+  Discretization:
+    order:
+      c: 1
+      c2: 1
+    quadrature: 2
+  Solver:
+    solver: transient
+    workset size: 100
+    nonlinear TOL: 1.0e-07
+    max nonlinear iters: 10
+    final time: 1.0e-1
+    number of steps: 10
+    use strong DBCs: true
+  Analysis input file: input_rol2.yaml
+  Postprocess:
+    write solution: true 
+    response type: pointwise
+    compute objective: true
+    Objective functions:
+      obj0:
+        type: integrated control
+        function: '(c*((x-0.7)^2+(y-0.2)^2-0.2))^2'
+        weight: 1.0
+        Regularization functions:
+          reg0:
+            type: integrated
+            location: volume
+            function: source2^2
+            weight: 5.0E-6
+ 

@@ -1,0 +1,11 @@
+%YAML 1.1
+---
+ANONYMOUS:
+  Analysis: 
+    analysis type: readExo+forward
+    readExo+forward:
+      DataLoadParameters:
+        ExoFile: "hifi_z1.exo"
+        StateVariableName: "c"
+        OptVariableName: "source2"
+...
