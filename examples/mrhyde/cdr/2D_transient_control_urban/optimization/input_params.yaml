@@ -4,30 +4,30 @@ ANONYMOUS:
   Parameters: 
     coef1: 
       type: scalar
-      value: 1.0
+      value: 0.0
       usage: active
       dynamic: true
-      lower_bound: 0.0
-      upper_bound: 5.0
+      #lower_bound: 0.0
+      #upper_bound: 0.5
     coef2: 
       type: scalar
-      value: 1.0
+      value: 0.0
       usage: active
       dynamic: true
-      lower_bound: 0.0
-      upper_bound: 5.0
+      #lower_bound: 0.0
+      #upper_bound: 0.5
     coef3: 
       type: scalar
-      value: 1.0
+      value: 0.0
       usage: active
       dynamic: true
-      lower_bound: 0.0
-      upper_bound: 5.0
+      #lower_bound: 0.0
+      #upper_bound: 0.5
     coef4: 
       type: scalar
-      value: 1.0
+      value: 0.0
       usage: active
       dynamic: true
-      lower_bound: 0.0
-      upper_bound: 5.0
+      #lower_bound: 0.0
+      ##upper_bound: 0.5
 ...
