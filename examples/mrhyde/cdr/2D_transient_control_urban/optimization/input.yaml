@@ -1,7 +1,7 @@
 %YAML 1.1
 ---
 ANONYMOUS:
-  verbosity: 0
+  verbosity: 2
   debug level: 0
   Mesh: 
     blocknames: block_1
@@ -56,9 +56,9 @@ ANONYMOUS:
     final time: 400.0
     number of steps: 100
     use strong DBCs: true
-  Analysis input file: input_rol2.yaml
-  #Analysis:
-  #  analysis type: forward
+  #Analysis input file: input_rol2.yaml
+  Analysis:
+    analysis type: forward
   Postprocess:
     write solution: true 
     response type: pointwise
