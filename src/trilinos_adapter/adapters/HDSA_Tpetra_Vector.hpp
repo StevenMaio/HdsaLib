@@ -1,6 +1,8 @@
 #ifndef HDSA_TPETRA_VECTOR_HPP
 #define HDSA_TPETRA_VECTOR_HPP
 
+#include "HDSA_Vector.hpp"
+#include "HDSA_Random_Number_Generator.hpp"
 #include "Tpetra_MultiVector.hpp"
 #include "Tpetra_Map.hpp"
 #include "MatrixMarket_Tpetra.hpp"

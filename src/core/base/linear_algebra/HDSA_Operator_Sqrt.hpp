@@ -25,7 +25,39 @@ namespace HDSA
 
     virtual void Apply(HDSA::Vector<RealT> &vec_out, const HDSA::Vector<RealT> &vec_in) const = 0;
 
-    void Apply_Sqrt(HDSA::Vector<RealT> &vec_out, const HDSA::Vector<RealT> &vec_in)
+    virtual void Preconditioner_Apply(HDSA::Vector<RealT> &vec_out, const HDSA::Vector<RealT> &vec_in) const 
+    {
+      vec_out.Set(vec_in);
+    }
+
+    virtual void Preconditioner_Transpose_Apply(HDSA::Vector<RealT> &vec_out, const HDSA::Vector<RealT> &vec_in) const 
+    {
+      vec_out.Set(vec_in);
+    }
+
+    virtual void Preconditioner_Inverse_Apply(HDSA::Vector<RealT> &vec_out, const HDSA::Vector<RealT> &vec_in) const 
+    {
+      vec_out.Set(vec_in);
+    }
+
+    void Operator_Apply(HDSA::Vector<RealT> &vec_out, const HDSA::Vector<RealT> &vec_in) const 
+    {
+      HDSA::Ptr<HDSA::Vector<RealT>> vec_tmp1 = vec_out.Clone();
+      Preconditioner_Transpose_Apply(*vec_tmp1, vec_in);
+      HDSA::Ptr<HDSA::Vector<RealT>> vec_tmp2 = vec_out.Clone();
+      Apply(*vec_tmp2, *vec_tmp1);
+      Preconditioner_Apply(vec_out, *vec_tmp2);
+    }
+
+    std::vector<RealT> Apply_Sqrt(HDSA::Vector<RealT> &vec_out, const HDSA::Vector<RealT> &vec_in)
+    {
+      HDSA::Ptr<HDSA::Vector<RealT>> vec_tmp = vec_out.Clone();
+      std::vector<RealT> rel_res = Krylov_Sqrt(*vec_tmp, vec_in);
+      Preconditioner_Inverse_Apply(vec_out,*vec_tmp);
+      return rel_res;
+    }
+
+    std::vector<RealT> Krylov_Sqrt(HDSA::Vector<RealT> &vec_out, const HDSA::Vector<RealT> &vec_in)
     {
       RealT Norm_in = vec_in.Norm();
 
@@ -49,7 +81,7 @@ namespace HDSA
         V.push_back(v_push);
 
         HDSA::Ptr<HDSA::Vector<RealT>> w_j = vec_in.Clone();
-        Apply(*w_j, *v_j);
+        Operator_Apply(*w_j, *v_j);
         alpha = w_j->Dot(*v_j);
         w_j->Scaled_Plus(-alpha, *v_j);
         if (j > 0)
@@ -145,6 +177,8 @@ namespace HDSA
       {
         vec_out.Scaled_Plus(yk[i], *V[i]);
       }
+
+      return rel_res;
     }
   };
 
