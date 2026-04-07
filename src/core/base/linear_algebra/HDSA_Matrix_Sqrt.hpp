@@ -1,5 +1,5 @@
-#ifndef HDSA_OPERATOR_SQRT_HPP
-#define HDSA_OPERATOR_SQRT_HPP
+#ifndef HDSA_MATRIX_SQRT_HPP
+#define HDSA_MATRIX_SQRT_HPP
 
 #include "HDSA_Dense_Matrix.hpp"
 #include "HDSA_Linear_Algebra.hpp"
@@ -8,18 +8,18 @@ namespace HDSA
 {
 
   template <class RealT>
-  class Operator_Sqrt
+  class Matrix_Sqrt
   {
   private:
     int max_iter_;
     RealT tol_;
 
   public:
-    Operator_Sqrt(int max_iter = 1000, RealT tol = 1.e-8) : max_iter_(max_iter), tol_(tol)
+    Matrix_Sqrt(int max_iter = 1000, RealT tol = 1.e-8) : max_iter_(max_iter), tol_(tol)
     {
     }
 
-    virtual ~Operator_Sqrt()
+    virtual ~Matrix_Sqrt()
     {
     }
 
@@ -40,7 +40,7 @@ namespace HDSA
       vec_out.Set(vec_in);
     }
 
-    void Operator_Apply(HDSA::Vector<RealT> &vec_out, const HDSA::Vector<RealT> &vec_in) const 
+    void Matrix_Apply(HDSA::Vector<RealT> &vec_out, const HDSA::Vector<RealT> &vec_in) const 
     {
       HDSA::Ptr<HDSA::Vector<RealT>> vec_tmp1 = vec_out.Clone();
       Preconditioner_Transpose_Apply(*vec_tmp1, vec_in);
@@ -49,7 +49,11 @@ namespace HDSA
       Preconditioner_Apply(vec_out, *vec_tmp2);
     }
 
-    std::vector<RealT> Apply_Sqrt(HDSA::Vector<RealT> &vec_out, const HDSA::Vector<RealT> &vec_in)
+    // Note that the preconditioner implies that
+    // Matrix_Sqrt_Apply(Matrix_Sqrt_Apply(v)) ~= Matrix_Apply(v)
+    // because the preconditioned system is a factor, i.e., A=S*S^T, but not a square root
+
+    std::vector<RealT> Matrix_Sqrt_Apply(HDSA::Vector<RealT> &vec_out, const HDSA::Vector<RealT> &vec_in)
     {
       HDSA::Ptr<HDSA::Vector<RealT>> vec_tmp = vec_out.Clone();
       std::vector<RealT> rel_res = Krylov_Sqrt(*vec_tmp, vec_in);
@@ -81,7 +85,7 @@ namespace HDSA
         V.push_back(v_push);
 
         HDSA::Ptr<HDSA::Vector<RealT>> w_j = vec_in.Clone();
-        Operator_Apply(*w_j, *v_j);
+        Matrix_Apply(*w_j, *v_j);
         alpha = w_j->Dot(*v_j);
         w_j->Scaled_Plus(-alpha, *v_j);
         if (j > 0)

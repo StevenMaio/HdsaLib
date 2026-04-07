@@ -56,7 +56,7 @@ int main(int argc, char *argv[])
   HDSA::Ptr<HDSA::Vector<RealT>> vec_in = HDSA::makePtr<HDSA::Tpetra_Vector<RealT>>(tpetra_vec, random_number_generator);
   HDSA::Ptr<HDSA::Vector<RealT>> vec_out = vec_in->Clone();
  
-  std::vector<RealT> rel_res = mat_sqrt->Apply_Sqrt(*vec_out, *vec_in);
+  std::vector<RealT> rel_res = mat_sqrt->Matrix_Sqrt_Apply(*vec_out, *vec_in);
   if( (std::abs(vec_out->Norm() - 0.576038) > 1.e-5) || (rel_res.size()>2) )
   {
     std::cout << "Test failed" << std::endl;

@@ -2,14 +2,14 @@
 #define HDSA_SPARSE_MATRIX_SQRT_HPP
 
 #include "HDSA_Linear_Operator.hpp"
-#include "HDSA_Operator_Sqrt.hpp"
+#include "HDSA_Matrix_Sqrt.hpp"
 #include "HDSA_Incomplete_Chol_Factor.hpp"
 
 namespace HDSA
 {
 
   template <class RealT>
-  class Sparse_Matrix_Sqrt : public HDSA::Operator_Sqrt<RealT>
+  class Sparse_Matrix_Sqrt : public HDSA::Matrix_Sqrt<RealT>
   {
   private:
     const HDSA::Ptr<HDSA::Sparse_Matrix<RealT>> A_;

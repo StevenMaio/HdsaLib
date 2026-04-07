@@ -1,11 +1,11 @@
-#ifndef OPERATOR_SQRT_TEST_HPP
-#define OPERATOR_SQRT_TEST_HPP
+#ifndef MATRIX_SQRT_TEST_HPP
+#define MATRIX_SQRT_TEST_HPP
 
-#include "HDSA_Operator_Sqrt.hpp"
+#include "HDSA_Matrix_Sqrt.hpp"
 #include "HDSA_Std_Vector.hpp"
 
 template <class RealT>
-class Operator_Sqrt_test : public HDSA::Operator_Sqrt<RealT>
+class Matrix_Sqrt_test : public HDSA::Matrix_Sqrt<RealT>
 {
 
 private:
@@ -13,7 +13,7 @@ private:
   HDSA::Ptr<HDSA::Dense_Matrix<RealT>> M_;
 
 public:
-  Operator_Sqrt_test(int m) : m_(m)
+  Matrix_Sqrt_test(int m) : m_(m)
   {
     RealT h = 1.0 / static_cast<RealT>(m_ - 1);
 

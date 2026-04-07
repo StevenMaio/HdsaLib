@@ -115,7 +115,7 @@ namespace HDSA
       for (int s = 0; s < samples.Number_of_Vectors(); s++)
       {
         vec_rand->Randomize_Standard_Normal();
-        W_u_acute_plus_scalar_M_u_sqrt_[i]->Apply_Sqrt(*vec, *vec_rand);
+        W_u_acute_plus_scalar_M_u_sqrt_[i]->Matrix_Sqrt_Apply(*vec, *vec_rand);
         Apply_W_u_Acute_Plus_scalar_M_u_Inverse(*samples[s],*vec, scalar);
       }
     }

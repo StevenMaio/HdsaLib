@@ -8,7 +8,7 @@
 #include "HDSA_MD_u_Prior_Interface.hpp"
 #include "HDSA_MD_z_Hyperparameter_Interface.hpp"
 #include "HDSA_MD_Determine_z_Hyperparameters_Decl.hpp"
-#include "HDSA_Operator_Sqrt.hpp"
+#include "HDSA_Matrix_Sqrt.hpp"
 
 namespace HDSA
 {
@@ -54,7 +54,7 @@ namespace HDSA
         HDSA::Ptr<HDSA::Vector<RealT>> omega = samples[k]->Clone();
         omega->Randomize_Standard_Normal();
         HDSA::Ptr<HDSA::Vector<RealT>> vec = samples[k]->Clone();
-        M_sqrt->Apply_Sqrt(*vec, *omega);
+        M_sqrt->Matrix_Sqrt_Apply(*vec, *omega);
         Apply_E_z_Inverse(*samples[k], *vec);
       }
     }
@@ -108,7 +108,7 @@ namespace HDSA
     }
 
     template <class ScalarType>
-    class M_z_Sqrt : public HDSA::Operator_Sqrt<ScalarType>
+    class M_z_Sqrt : public HDSA::Matrix_Sqrt<ScalarType>
     {
     private:
       const HDSA::Ptr<HDSA::Sparse_Matrix<RealT>> M_;
