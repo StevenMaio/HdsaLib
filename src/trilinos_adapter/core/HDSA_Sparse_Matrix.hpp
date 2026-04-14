@@ -16,6 +16,7 @@ namespace HDSA
 
     private:
         HDSA::Ptr<Tpetra::CrsMatrix<RealT, LO, GO, Node>> A_;
+        bool is_symmetric_;
 
     public:
         // Null constructor
@@ -23,12 +24,22 @@ namespace HDSA
         {
         }
 
-        Sparse_Matrix(HDSA::Ptr<Tpetra::CrsMatrix<RealT, LO, GO, Node>> &A) : A_(A)
+        Sparse_Matrix(HDSA::Ptr<Tpetra::CrsMatrix<RealT, LO, GO, Node>> &A, bool is_symmetric = false) : A_(A), is_symmetric_(is_symmetric)
         {
         }
 
         ~Sparse_Matrix()
         {
+        }
+
+        void Set_Symmetric(void)
+        {
+            is_symmetric_ = true;
+        }
+
+        bool Is_Symmetric(void) const
+        {
+            return is_symmetric_;
         }
 
         HDSA::Ptr<HDSA::Sparse_Matrix<RealT>> Clone(int max_entries_per_row = 0) const
@@ -170,7 +181,7 @@ namespace HDSA
             return A_->getGlobalMaxNumRowEntries();
         }
 
-        bool Is_Row_Owned(int row) const 
+        bool Is_Row_Owned(int row) const
         {
             return A_->getRowMap()->isNodeGlobalElement(row);
         }

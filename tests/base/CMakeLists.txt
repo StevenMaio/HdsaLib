@@ -1,3 +1,4 @@
 add_subdirectory(operator_sqrt_test)
 add_subdirectory(sparse_matrix_sqrt_test)
+add_subdirectory(sparse_matrix_solver_test)
 add_subdirectory(randomized_GEVP_test)

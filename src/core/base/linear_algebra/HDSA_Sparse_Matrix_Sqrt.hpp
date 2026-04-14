@@ -17,17 +17,24 @@ namespace HDSA
     bool use_incomplete_factorization_;
 
   public:
-    Sparse_Matrix_Sqrt(const HDSA::Ptr<HDSA::Sparse_Matrix<RealT>> &A, bool use_incomplete_factorization = false) : A_(A)
+    Sparse_Matrix_Sqrt(const HDSA::Ptr<HDSA::Sparse_Matrix<RealT>> &A) : A_(A)
     {
-      if (use_incomplete_factorization)
-      {
-        L_ = HDSA::makePtr<HDSA::Incomplete_Chol_Factor<RealT>>(A_); 
-      }
-      use_incomplete_factorization_ = use_incomplete_factorization;
+      use_incomplete_factorization_ = false;
     }
 
     virtual ~Sparse_Matrix_Sqrt()
     {
+    }
+
+    void Set_Incomplete_Factor(HDSA::Ptr<HDSA::Incomplete_Chol_Factor<RealT>> &L)
+    {
+      L_ = L;
+      use_incomplete_factorization_ = true;
+    }
+
+    void Disable_Incomplete_Factorization(void)
+    {
+      use_incomplete_factorization_ = false;
     }
 
     void Preconditioner_Apply(HDSA::Vector<RealT> &vec_out, const HDSA::Vector<RealT> &vec_in) const

@@ -116,7 +116,7 @@ namespace HDSA
       {
         vec_rand->Randomize_Standard_Normal();
         W_u_acute_plus_scalar_M_u_sqrt_[i]->Matrix_Sqrt_Apply(*vec, *vec_rand);
-        Apply_W_u_Acute_Plus_scalar_M_u_Inverse(*samples[s],*vec, scalar);
+        Apply_W_u_Acute_Plus_scalar_M_u_Inverse(*samples[s], *vec, scalar);
       }
     }
 
@@ -128,12 +128,18 @@ namespace HDSA
       HDSA::Ptr<HDSA::Sparse_Matrix<RealT>> A = W_u_acute_->Clone();
       A->Set(*W_u_acute_);
       A->Scaled_Plus(scalar_shift, *M_);
+      A->Set_Symmetric();
       W_u_acute_plus_scalar_M_u_.push_back(A);
 
-      HDSA::Ptr<HDSA::Sparse_Matrix_Solver<RealT>> A_solver = HDSA::makePtr<HDSA::Sparse_Matrix_Solver<RealT>>(A);
+      HDSA::Ptr<HDSA::Incomplete_Chol_Factor<RealT>> L = HDSA::makePtr<HDSA::Incomplete_Chol_Factor<RealT>>(A);
+
+      // HDSA::Ptr<HDSA::Sparse_Matrix_Solver<RealT>> A_solver = HDSA::makePtr<HDSA::Sparse_Matrix_Solver<RealT>>(A);
+      HDSA::Ptr<HDSA::Sparse_Matrix_Solver<RealT>> A_solver = HDSA::makePtr<HDSA::Sparse_Matrix_Solver<RealT>>(A, false);
+      A_solver->Set_Incomplete_Factor(L);
       W_u_acute_plus_scalar_M_u_solver_.push_back(A_solver);
 
       HDSA::Ptr<HDSA::Sparse_Matrix_Sqrt<RealT>> A_sqrt = HDSA::makePtr<HDSA::Sparse_Matrix_Sqrt<RealT>>(A);
+      A_sqrt->Set_Incomplete_Factor(L);
       W_u_acute_plus_scalar_M_u_sqrt_.push_back(A_sqrt);
     }
 
@@ -158,6 +164,14 @@ namespace HDSA
     void Set_Verbosity(int verbosity)
     {
       verbosity_ = verbosity;
+    }
+
+    void Disable_Sampling_Preconditioner(void)
+    {
+      for (int k = 0; k < W_u_acute_plus_scalar_M_u_sqrt_.size(); k++)
+      {
+        W_u_acute_plus_scalar_M_u_sqrt_[k]->Disable_Incomplete_Factorization();
+      }
     }
 
     void Auxillary_Constructor()
@@ -203,7 +217,12 @@ namespace HDSA
       beta_u_ = beta_u_new;
       E_u_->Set(*M_);
       E_u_->Scaled_Plus(beta_u_new, *S_);
-      E_u_solver_ = HDSA::makePtr<HDSA::Sparse_Matrix_Solver<RealT>>(E_u_);
+
+      // E_u_solver_ = HDSA::makePtr<HDSA::Sparse_Matrix_Solver<RealT>>(E_u_);
+      E_u_->Set_Symmetric();
+      HDSA::Ptr<HDSA::Incomplete_Chol_Factor<RealT>> L = HDSA::makePtr<HDSA::Incomplete_Chol_Factor<RealT>>(E_u_);
+      E_u_solver_ = HDSA::makePtr<HDSA::Sparse_Matrix_Solver<RealT>>(E_u_, false, false);
+      E_u_solver_->Set_Incomplete_Factor(L);
       Assemble_W_u_Acute();
     }
 

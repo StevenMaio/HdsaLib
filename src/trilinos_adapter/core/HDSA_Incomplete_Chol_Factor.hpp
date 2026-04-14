@@ -25,25 +25,33 @@ namespace HDSA
   public:
     Incomplete_Chol_Factor(const HDSA::Ptr<HDSA::Sparse_Matrix<RealT>> &A) : A_(A)
     {
-      riluk_prec = HDSA::makePtr<Ifpack2::RILUK<Tpetra::RowMatrix<>>>(HDSA::dynamicPtrCast<const Tpetra::RowMatrix<>>(A->Get_Tpetra_Matrix()));
-      riluk_prec->initialize();
-      riluk_prec->compute();
+      if (A->Is_Symmetric())
+      {
+        riluk_prec = HDSA::makePtr<Ifpack2::RILUK<Tpetra::RowMatrix<>>>(HDSA::dynamicPtrCast<const Tpetra::RowMatrix<>>(A->Get_Tpetra_Matrix()));
+        riluk_prec->initialize();
+        riluk_prec->compute();
 
-      L_ = HDSA::makePtrFromRef(riluk_prec->getL());
-      L_solver_ = HDSA::makePtr<Ifpack2::LocalSparseTriangularSolver<Tpetra::RowMatrix<>>>();
-      L_solver_->setObjectLabel("lower");
-      L_solver_->setMatrix(L_);
-      L_solver_->initialize();
-      L_solver_->compute();
+        L_ = HDSA::makePtrFromRef(riluk_prec->getL());
+        L_solver_ = HDSA::makePtr<Ifpack2::LocalSparseTriangularSolver<Tpetra::RowMatrix<>>>();
+        L_solver_->setObjectLabel("lower");
+        L_solver_->setMatrix(L_);
+        L_solver_->initialize();
+        L_solver_->compute();
 
-      U_ = HDSA::makePtrFromRef(riluk_prec->getU());
-      U_solver_ = HDSA::makePtr<Ifpack2::LocalSparseTriangularSolver<Tpetra::RowMatrix<>>>();
-      U_solver_->setObjectLabel("upper");
-      U_solver_->setMatrix(U_);
-      U_solver_->initialize();
-      U_solver_->compute();
+        U_ = HDSA::makePtrFromRef(riluk_prec->getU());
+        U_solver_ = HDSA::makePtr<Ifpack2::LocalSparseTriangularSolver<Tpetra::RowMatrix<>>>();
+        U_solver_->setObjectLabel("upper");
+        U_solver_->setMatrix(U_);
+        U_solver_->initialize();
+        U_solver_->compute();
 
-      D_ = HDSA::makePtrFromRef(riluk_prec->getD());
+        D_ = HDSA::makePtrFromRef(riluk_prec->getD());
+      }
+      else
+      {
+        HDSA_TEST_FOR_EXCEPTION(true, std::logic_error,
+                                "Error in HDSA::Incomplete_Chol_Factor: input matrix must be symmetric" << std::endl);
+      }
     }
 
     virtual ~Incomplete_Chol_Factor()
@@ -93,7 +101,7 @@ namespace HDSA
 
       HDSA::Ptr<HDSA::Vector<RealT>> vec = vec_in.Clone();
       HDSA::Tpetra_Vector<RealT> &evec = dynamic_cast<HDSA::Tpetra_Vector<RealT> &>(*vec);
-      
+
       // Scaling by square root of the diagonal
       vec->Set(vec_in);
       Teuchos::ArrayRCP<const RealT> vec_data = evec.getVector()->getData(0);

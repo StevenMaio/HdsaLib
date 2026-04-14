@@ -298,6 +298,8 @@ int main(int argc, char *argv[])
   S_mat_2->Multiply(*sample_test, *omega);
 
   samples->Zeros();
+  HDSA::Ptr<HDSA::MD_Lumped_Mass_u_Prior_Interface<RealT>> spatial_u_prior_interface_cast = HDSA::dynamicPtrCast<HDSA::MD_Lumped_Mass_u_Prior_Interface<RealT>>(spatial_u_prior_interface);
+  spatial_u_prior_interface_cast->Disable_Sampling_Preconditioner();
   u_prior_interface->Sample_with_Covariance_W_u_Plus_scalar_M_u_Inverse(*samples, scalar);
 
   running_diff = 0.0;

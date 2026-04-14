@@ -13,6 +13,7 @@
 #include "Teuchos_SerialSpdDenseSolver.hpp"
 
 #include "HDSA_Linear_Operator.hpp"
+#include "HDSA_Dense_Matrix.hpp"
 #include "HDSA_Vector.hpp"
 #include "HDSA_Belos_Adapter.hpp"
 

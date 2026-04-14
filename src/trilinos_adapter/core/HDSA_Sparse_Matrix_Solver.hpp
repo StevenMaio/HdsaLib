@@ -3,6 +3,9 @@
 
 #include "Tpetra_CrsMatrix_decl.hpp"
 #include "Amesos2_Factory.hpp"
+#include "HDSA_Sparse_Matrix.hpp"
+#include "HDSA_Incomplete_Chol_Factor.hpp"
+#include "HDSA_Linear_Algebra.hpp"
 
 namespace HDSA
 {
@@ -17,9 +20,12 @@ namespace HDSA
     const HDSA::Ptr<HDSA::Sparse_Matrix<RealT>> A_;
     bool use_direct_;
     HDSA::Ptr<Amesos2::Solver<Tpetra::CrsMatrix<>, Tpetra::MultiVector<>>> solver_;
+    HDSA::Ptr<HDSA::Incomplete_Chol_Factor<RealT>> L_;
+    bool use_incomplete_factorization_;
+    bool verbose_;
 
   public:
-    Sparse_Matrix_Solver(const HDSA::Ptr<HDSA::Sparse_Matrix<RealT>> &A, bool use_direct = true) : A_(A), use_direct_(use_direct)
+    Sparse_Matrix_Solver(const HDSA::Ptr<HDSA::Sparse_Matrix<RealT>> &A, bool use_direct = true, bool verbose = false) : A_(A), use_direct_(use_direct)
     {
       if (use_direct_)
       {
@@ -27,10 +33,28 @@ namespace HDSA
         solver_->symbolicFactorization();
         solver_->numericFactorization();
       }
+      use_incomplete_factorization_ = false;
+      verbose_ = verbose;
     }
 
     virtual ~Sparse_Matrix_Solver()
     {
+    }
+
+    void Set_Incomplete_Factor(HDSA::Ptr<HDSA::Incomplete_Chol_Factor<RealT>> &L)
+    {
+      if (use_direct_)
+      {
+        HDSA_TEST_FOR_EXCEPTION(true, std::logic_error,
+                                "Error in HDSA::Sparse_Matrix_Solver: An incomplete factorization was set but the solver is configured for sparse direct solves" << std::endl);
+      }
+      L_ = L;
+      use_incomplete_factorization_ = true;
+    }
+
+    bool Use_Incomplete_Factor(void) const
+    {
+      return use_incomplete_factorization_;
     }
 
     void Apply_A_Inverse(HDSA::Vector<RealT> &x, const HDSA::Vector<RealT> &b)
@@ -46,10 +70,24 @@ namespace HDSA
       else
       {
         RealT tol = 1.0E-10;
-        std::string solver = "CG";
-        bool verbose = false;
+        std::string solver = "GMRES";
+        if (A_->Is_Symmetric())
+        {
+          solver = "CG";
+        }
         HDSA::Ptr<A_Operator<RealT>> A_op = HDSA::makePtr<A_Operator<RealT>>(this);
-        HDSA::Linear_Algebra::Iterative_Linear_Solve<RealT>(x, b, *A_op, tol, solver, verbose);
+        if (use_incomplete_factorization_)
+        {
+          HDSA::Ptr<HDSA::Vector<RealT>> b_prec = b.Clone();
+          HDSA::Ptr<HDSA::Vector<RealT>> x_prec = x.Clone();
+          L_->Apply_Inverse(*b_prec, b);
+          HDSA::Linear_Algebra::Iterative_Linear_Solve<RealT>(*x_prec, *b_prec, *A_op, tol, solver, verbose_);
+          L_->Apply_Inverse_Transpose(x, *x_prec);
+        }
+        else
+        {
+          HDSA::Linear_Algebra::Iterative_Linear_Solve<RealT>(x, b, *A_op, tol, solver, verbose_);
+        }
       }
     }
 
@@ -70,7 +108,18 @@ namespace HDSA
 
       void Apply(HDSA::Vector<ScalarType> &y, const HDSA::Vector<ScalarType> &x) const
       {
-        A_invert_->A_->Apply(y, x);
+        if (A_invert_->Use_Incomplete_Factor())
+        {
+          HDSA::Ptr<HDSA::Vector<RealT>> vec_tmp1 = y.Clone();
+          A_invert_->L_->Apply_Inverse_Transpose(*vec_tmp1, x);
+          HDSA::Ptr<HDSA::Vector<RealT>> vec_tmp2 = y.Clone();
+          A_invert_->A_->Apply(*vec_tmp2, *vec_tmp1);
+          A_invert_->L_->Apply_Inverse(y, *vec_tmp2);
+        }
+        else
+        {
+          A_invert_->A_->Apply(y, x);
+        }
       }
     };
   };
