@@ -10,12 +10,12 @@ target_link_libraries(rosenbrock_test_example_sensitivity.exe HdsaLib ${Trilinos
 
 # Set the output directory for the executable
 set_target_properties(rosenbrock_test_example_sensitivity.exe PROPERTIES
-    RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/tests/parametric_continuation/rosenbrock_test
+    RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/tests/pseudo_time_continuation/rosenbrock_test
 )
 
 # Define the source directory and the target directory
 set(SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR})
-set(TARGET_DIR ${CMAKE_BINARY_DIR}/tests/parametric_continuation/rosenbrock_test)
+set(TARGET_DIR ${CMAKE_BINARY_DIR}/tests/pseudo_time_continuation/rosenbrock_test)
 
 # Copy the required files to the output directory
 add_custom_command(TARGET rosenbrock_test_example_sensitivity.exe POST_BUILD

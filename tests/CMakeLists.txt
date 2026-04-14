@@ -1,3 +1,3 @@
 add_subdirectory(base)
 add_subdirectory(model_discrepancy)
-add_subdirectory(parametric_continuation)
+add_subdirectory(pseudo_time_continuation)

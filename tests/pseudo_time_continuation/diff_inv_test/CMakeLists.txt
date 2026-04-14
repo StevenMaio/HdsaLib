@@ -10,12 +10,12 @@ target_link_libraries(diff_inv_test_example_sensitivity.exe HdsaLib ${Trilinos_L
 
 # Set the output directory for the executable
 set_target_properties(diff_inv_test_example_sensitivity.exe PROPERTIES
-    RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/tests/parametric_continuation/diff_inv_test
+    RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/tests/pseudo_time_continuation/diff_inv_test
 )
 
 # Define the source directory and the target directory
 set(SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR})
-set(TARGET_DIR ${CMAKE_BINARY_DIR}/tests/parametric_continuation/diff_inv_test)
+set(TARGET_DIR ${CMAKE_BINARY_DIR}/tests/pseudo_time_continuation/diff_inv_test)
 
 # Copy the required files to the output directory
 add_custom_command(TARGET diff_inv_test_example_sensitivity.exe POST_BUILD
