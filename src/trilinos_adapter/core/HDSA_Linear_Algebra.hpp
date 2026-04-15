@@ -26,7 +26,7 @@ namespace HDSA
     // Solve the linear system A*x = b
     template <class RealT>
     void Iterative_Linear_Solve(HDSA::Vector<RealT> &x, const HDSA::Vector<RealT> &b, const HDSA::Linear_Operator<RealT> &A,
-                                RealT tol, std::string solver = "CG", bool verbose = false)
+                                RealT tol, std::string solver = "CG", int verbosity = 0)
     {
       // Build the problem matrix
       HDSA::Ptr<HDSA::Belos_Operator<RealT>> A_Belos = HDSA::makePtr<HDSA::Belos_Operator<RealT>>(&A);
@@ -34,6 +34,11 @@ namespace HDSA
       int frequency = 1; // how often residuals are printed by solver
       int blocksize = 1;
       int numrhs = 1;
+      bool verbose = false;
+      if (verbosity > 3)
+      {
+        verbose = true;
+      }
 
       Teuchos::CommandLineProcessor cmdp(false, true);
       cmdp.setOption("verbose", "quiet", &verbose, "Print messages and results.");
@@ -106,10 +111,11 @@ namespace HDSA
         x.Scale(rhs_Norm);
 
         // Test achievedTol output
-        RealT ach_tol = belos_solver->achievedTol();
-        if (verbose)
+        if (verbosity > 2)
         {
-          std::cout << "Achieved tol : " << ach_tol << std::endl;
+          RealT ach_tol = belos_solver->achievedTol();
+          int num_iter = belos_solver->getNumIters();
+          std::cout << "Iterative_Linear_Solve achieved the tolerance " << ach_tol << " with " << num_iter << " iterations" << std::endl;
         }
       }
       else

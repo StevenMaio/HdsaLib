@@ -1,0 +1,34 @@
+%YAML 1.1
+---
+ANONYMOUS:
+  Analysis: 
+    analysis type: HDSA
+    HDSA:
+      Configuration:
+        num_prior_samples: 10
+        num_posterior_samples: 5
+        execute_prior_discrepancy_sampling: true
+        execute_posterior_discrepancy_sampling: true
+        execute_optimal_solution_update: false
+        verbosity: 3
+        use_lumped_mass_prior: true
+        use_incomplete_prec: true
+      HyperParameters:
+        T:
+          alpha_u: 0.25
+          beta_u: 1.0E-2
+          alpha_d: 1.0E-5
+          #prior_num_sing_vals: 200
+          #prior_oversampling: 0
+          #prior_num_subspace_iter: 1
+        z:
+          alpha_z: .111111111
+          beta_z: 1.0E-3
+        hessian_num_eig_vals: 10
+        hessian_oversampling: 10
+      DataLoadParameters:
+        OptimalSolutionExoFile: "output_lofi_opt.exo"
+        NumHifi: 2
+        HifiExoFile1: "output_hifi_1.exo"
+        HifiExoFile2: "output_hifi_2.exo"
+...

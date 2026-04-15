@@ -1,0 +1,11 @@
+%YAML 1.1
+---
+ANONYMOUS:
+  Analysis: 
+    analysis type: readExo+forward
+    readExo+forward:
+      DataLoadParameters:
+        ExoFile: "hifi_z2.exo"
+        StateVariableName: "T"
+        OptVariableName: "thermal_source"
+...

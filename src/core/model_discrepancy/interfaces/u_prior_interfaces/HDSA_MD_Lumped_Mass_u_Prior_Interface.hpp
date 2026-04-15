@@ -25,7 +25,9 @@ namespace HDSA
     const HDSA::Ptr<HDSA::MD_u_Hyperparameter_Interface<RealT>> u_hyperparam_interface_;
     const HDSA::Ptr<const HDSA::Comm<int>> comm_;
     const HDSA::Ptr<HDSA::Random_Number_Generator<RealT>> random_number_generator_;
+    bool use_direct_solvers_;
     int verbosity_;
+    bool use_incomplete_prec_;
     HDSA::Ptr<HDSA::MD_Determine_u_Hyperparameters<RealT>> determine_u_hyperparams_;
     RealT beta_u_;
     HDSA::Ptr<HDSA::Vector<RealT>> M_lumped_;
@@ -115,7 +117,11 @@ namespace HDSA
       for (int s = 0; s < samples.Number_of_Vectors(); s++)
       {
         vec_rand->Randomize_Standard_Normal();
-        W_u_acute_plus_scalar_M_u_sqrt_[i]->Matrix_Sqrt_Apply(*vec, *vec_rand);
+        std::vector<RealT> rel_res = W_u_acute_plus_scalar_M_u_sqrt_[i]->Matrix_Sqrt_Apply(*vec, *vec_rand);
+        if (verbosity_ > 2)
+        {
+          std::cout << "Matrix_Sqrt_Apply() achieved the tolerance " << rel_res.back() << " with " << rel_res.size() - 1 << " iterations" << std::endl;
+        }
         Apply_W_u_Acute_Plus_scalar_M_u_Inverse(*samples[s], *vec, scalar);
       }
     }
@@ -131,39 +137,33 @@ namespace HDSA
       A->Set_Symmetric();
       W_u_acute_plus_scalar_M_u_.push_back(A);
 
-      HDSA::Ptr<HDSA::Incomplete_Chol_Factor<RealT>> L = HDSA::makePtr<HDSA::Incomplete_Chol_Factor<RealT>>(A);
-
-      // HDSA::Ptr<HDSA::Sparse_Matrix_Solver<RealT>> A_solver = HDSA::makePtr<HDSA::Sparse_Matrix_Solver<RealT>>(A);
-      HDSA::Ptr<HDSA::Sparse_Matrix_Solver<RealT>> A_solver = HDSA::makePtr<HDSA::Sparse_Matrix_Solver<RealT>>(A, false);
-      A_solver->Set_Incomplete_Factor(L);
-      W_u_acute_plus_scalar_M_u_solver_.push_back(A_solver);
-
+      HDSA::Ptr<HDSA::Sparse_Matrix_Solver<RealT>> A_solver = HDSA::makePtr<HDSA::Sparse_Matrix_Solver<RealT>>(A, use_direct_solvers_, verbosity_);
       HDSA::Ptr<HDSA::Sparse_Matrix_Sqrt<RealT>> A_sqrt = HDSA::makePtr<HDSA::Sparse_Matrix_Sqrt<RealT>>(A);
-      A_sqrt->Set_Incomplete_Factor(L);
+
+      if (use_incomplete_prec_)
+      {
+        HDSA::Ptr<HDSA::Incomplete_Chol_Factor<RealT>> L = HDSA::makePtr<HDSA::Incomplete_Chol_Factor<RealT>>(A);
+        A_solver->Set_Incomplete_Factor(L);
+        A_sqrt->Set_Incomplete_Factor(L);
+      }
+
+      W_u_acute_plus_scalar_M_u_solver_.push_back(A_solver);
       W_u_acute_plus_scalar_M_u_sqrt_.push_back(A_sqrt);
     }
 
-    MD_Lumped_Mass_u_Prior_Interface(const HDSA::Ptr<HDSA::Sparse_Matrix<RealT>> &S, const HDSA::Ptr<HDSA::Sparse_Matrix<RealT>> &M, const HDSA::Ptr<HDSA::MD_Data_Interface<RealT>> &data_interface, const HDSA::Ptr<HDSA::MD_u_Hyperparameter_Interface<RealT>> &u_hyperparam_interface, const HDSA::Ptr<const HDSA::Comm<int>> &comm) : HDSA::MD_Scaled_u_Prior_Interface<RealT>(u_hyperparam_interface->Get_alpha_u()), S_(S), M_(M), data_interface_(data_interface), u_hyperparam_interface_(u_hyperparam_interface), comm_(comm), random_number_generator_(HDSA::makePtr<HDSA::Random_Number_Generator<RealT>>())
+    MD_Lumped_Mass_u_Prior_Interface(const HDSA::Ptr<HDSA::Sparse_Matrix<RealT>> &S, const HDSA::Ptr<HDSA::Sparse_Matrix<RealT>> &M, const HDSA::Ptr<HDSA::MD_Data_Interface<RealT>> &data_interface, const HDSA::Ptr<HDSA::MD_u_Hyperparameter_Interface<RealT>> &u_hyperparam_interface, const HDSA::Ptr<const HDSA::Comm<int>> &comm, const bool use_direct_solvers = false, const int verbosity = 0, bool use_incomplete_prec = true) : HDSA::MD_Scaled_u_Prior_Interface<RealT>(u_hyperparam_interface->Get_alpha_u()), S_(S), M_(M), data_interface_(data_interface), u_hyperparam_interface_(u_hyperparam_interface), comm_(comm), random_number_generator_(HDSA::makePtr<HDSA::Random_Number_Generator<RealT>>()), use_direct_solvers_(use_direct_solvers), verbosity_(verbosity), use_incomplete_prec_(use_incomplete_prec)
     {
-      verbosity_ = 0;
       Auxillary_Constructor();
     }
 
-    MD_Lumped_Mass_u_Prior_Interface(const HDSA::Ptr<HDSA::Sparse_Matrix<RealT>> &S, const HDSA::Ptr<HDSA::Sparse_Matrix<RealT>> &M, const HDSA::Ptr<HDSA::MD_Data_Interface<RealT>> &data_interface, const HDSA::Ptr<HDSA::MD_u_Hyperparameter_Interface<RealT>> &u_hyperparam_interface, const HDSA::Ptr<const HDSA::Comm<int>> &comm, int seed) : HDSA::MD_Scaled_u_Prior_Interface<RealT>(u_hyperparam_interface->Get_alpha_u()), S_(S), M_(M), data_interface_(data_interface), u_hyperparam_interface_(u_hyperparam_interface), comm_(comm), random_number_generator_(HDSA::makePtr<HDSA::Random_Number_Generator<RealT>>(seed))
+    MD_Lumped_Mass_u_Prior_Interface(const HDSA::Ptr<HDSA::Sparse_Matrix<RealT>> &S, const HDSA::Ptr<HDSA::Sparse_Matrix<RealT>> &M, const HDSA::Ptr<HDSA::MD_Data_Interface<RealT>> &data_interface, const HDSA::Ptr<HDSA::MD_u_Hyperparameter_Interface<RealT>> &u_hyperparam_interface, const HDSA::Ptr<const HDSA::Comm<int>> &comm, int seed, const bool use_direct_solvers = false, const int verbosity = 0, bool use_incomplete_prec = true) : HDSA::MD_Scaled_u_Prior_Interface<RealT>(u_hyperparam_interface->Get_alpha_u()), S_(S), M_(M), data_interface_(data_interface), u_hyperparam_interface_(u_hyperparam_interface), comm_(comm), random_number_generator_(HDSA::makePtr<HDSA::Random_Number_Generator<RealT>>(seed)), use_direct_solvers_(use_direct_solvers), verbosity_(verbosity), use_incomplete_prec_(use_incomplete_prec)
     {
-      verbosity_ = 0;
       Auxillary_Constructor();
     }
 
-    MD_Lumped_Mass_u_Prior_Interface(const HDSA::Ptr<HDSA::Sparse_Matrix<RealT>> &S, const HDSA::Ptr<HDSA::Sparse_Matrix<RealT>> &M, const HDSA::Ptr<HDSA::MD_Data_Interface<RealT>> &data_interface, const HDSA::Ptr<HDSA::MD_u_Hyperparameter_Interface<RealT>> &u_hyperparam_interface, const HDSA::Ptr<const HDSA::Comm<int>> &comm, const HDSA::Ptr<HDSA::Random_Number_Generator<RealT>> &random_number_generator) : HDSA::MD_Scaled_u_Prior_Interface<RealT>(u_hyperparam_interface->Get_alpha_u()), S_(S), M_(M), data_interface_(data_interface), u_hyperparam_interface_(u_hyperparam_interface), comm_(comm), random_number_generator_(random_number_generator)
+    MD_Lumped_Mass_u_Prior_Interface(const HDSA::Ptr<HDSA::Sparse_Matrix<RealT>> &S, const HDSA::Ptr<HDSA::Sparse_Matrix<RealT>> &M, const HDSA::Ptr<HDSA::MD_Data_Interface<RealT>> &data_interface, const HDSA::Ptr<HDSA::MD_u_Hyperparameter_Interface<RealT>> &u_hyperparam_interface, const HDSA::Ptr<const HDSA::Comm<int>> &comm, const HDSA::Ptr<HDSA::Random_Number_Generator<RealT>> &random_number_generator, const bool use_direct_solvers = false, const int verbosity = 0, bool use_incomplete_prec = true) : HDSA::MD_Scaled_u_Prior_Interface<RealT>(u_hyperparam_interface->Get_alpha_u()), S_(S), M_(M), data_interface_(data_interface), u_hyperparam_interface_(u_hyperparam_interface), comm_(comm), random_number_generator_(random_number_generator), use_direct_solvers_(use_direct_solvers), verbosity_(verbosity), use_incomplete_prec_(use_incomplete_prec)
     {
-      verbosity_ = 0;
       Auxillary_Constructor();
-    }
-
-    void Set_Verbosity(int verbosity)
-    {
-      verbosity_ = verbosity;
     }
 
     void Disable_Sampling_Preconditioner(void)
@@ -218,11 +218,13 @@ namespace HDSA
       E_u_->Set(*M_);
       E_u_->Scaled_Plus(beta_u_new, *S_);
 
-      // E_u_solver_ = HDSA::makePtr<HDSA::Sparse_Matrix_Solver<RealT>>(E_u_);
       E_u_->Set_Symmetric();
-      HDSA::Ptr<HDSA::Incomplete_Chol_Factor<RealT>> L = HDSA::makePtr<HDSA::Incomplete_Chol_Factor<RealT>>(E_u_);
-      E_u_solver_ = HDSA::makePtr<HDSA::Sparse_Matrix_Solver<RealT>>(E_u_, false, false);
-      E_u_solver_->Set_Incomplete_Factor(L);
+      E_u_solver_ = HDSA::makePtr<HDSA::Sparse_Matrix_Solver<RealT>>(E_u_, use_direct_solvers_, verbosity_ - 8);
+      if (use_incomplete_prec_)
+      {
+        HDSA::Ptr<HDSA::Incomplete_Chol_Factor<RealT>> L = HDSA::makePtr<HDSA::Incomplete_Chol_Factor<RealT>>(E_u_);
+        E_u_solver_->Set_Incomplete_Factor(L);
+      }
       Assemble_W_u_Acute();
     }
 
