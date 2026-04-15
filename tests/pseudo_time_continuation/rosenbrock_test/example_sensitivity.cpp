@@ -29,7 +29,7 @@ int main(int argc, char *argv[])
 
   HDSA::Ptr<HDSA::PC_Sensitivity_Operator_Interface<RealT>> sen_op = HDSA::makePtr<PC_Sensitivity_Operator_Interface_Rosenbrock<RealT>>(rosenbrock);
   HDSA::Ptr<HDSA::PC_Quasi_Newton_Preconditioner<RealT>> qn_prec = HDSA::makePtr<HDSA::PC_Quasi_Newton_Preconditioner<RealT>>();
-  HDSA::Ptr<HDSA::PC_Pseudo_Time_Continuation<RealT>> sen = HDSA::makePtr<HDSA::PC_Pseudo_Time_Continuation<RealT>>(z_bar, theta_bar, sen_op, qn_prec);
+  HDSA::Ptr<HDSA::PC_Pseudo_Time_Continuation<RealT>> sen = HDSA::makePtr<HDSA::PC_Pseudo_Time_Continuation<RealT>>(z_bar, sen_op, qn_prec);
 
   HDSA::Ptr<HDSA::Vector<RealT>> theta_star = theta_bar->Clone();
   theta_star->Set_Scalar(1.2);
@@ -37,7 +37,8 @@ int main(int argc, char *argv[])
   HDSA::Ptr<HDSA::Vector<RealT>> z_star = z_bar->Clone();
   HDSA::Ptr<HDSA::Vector<RealT>> grad_star = z_bar->Clone();
   int N = 30;
-  sen->Pseudo_Time_Continuation_Modified_Euler(*z_star, *grad_star, *theta_star, N);
+  HDSA::Ptr<HDSA::PC_Auxillary_Parameter_Trajectory<RealT>> theta_traj = HDSA::makePtr<HDSA::PC_Euclidean_Auxillary_Parameter_Trajectory<RealT>>(N, theta_bar, theta_star);
+  sen->Pseudo_Time_Continuation_Modified_Euler(*z_star, *grad_star, *theta_traj);
 
   std::string name = "z_star.txt";
   z_star->Write_to_File(name);

@@ -71,7 +71,7 @@ int main(int argc, char *argv[])
   HDSA::Ptr<HDSA::PC_Sensitivity_Operator_Interface<RealT>> sen_op_interface = HDSA::makePtr<PC_Sensitivity_Operator_Interface_Adv_Diff<RealT>>(obj);
   HDSA::Ptr<HDSA::PC_LIS_Interface<RealT>> lis_interface = HDSA::makePtr<PC_LIS_Interface_Adv_Diff<RealT>>(obj);
   HDSA::Ptr<HDSA::PC_Quasi_Newton_Preconditioner_LIS<RealT>> qn_prec = HDSA::makePtr<HDSA::PC_Quasi_Newton_Preconditioner_LIS<RealT>>(z_bar, theta_bar, lis_interface);
-  HDSA::Ptr<HDSA::PC_Pseudo_Time_Continuation<RealT>> sen = HDSA::makePtr<HDSA::PC_Pseudo_Time_Continuation<RealT>>(z_bar, theta_bar, sen_op_interface, qn_prec);
+  HDSA::Ptr<HDSA::PC_Pseudo_Time_Continuation<RealT>> sen = HDSA::makePtr<HDSA::PC_Pseudo_Time_Continuation<RealT>>(z_bar, sen_op_interface, qn_prec);
 
   int rank = 8;
   int oversampling = 10;
@@ -100,7 +100,8 @@ int main(int argc, char *argv[])
   }
 
   int N_fe = 15;
-  sen->Pseudo_Time_Continuation_Forward_Euler(*z_star, *grad_star, *theta_star, N_fe);
+  HDSA::Ptr<HDSA::PC_Auxillary_Parameter_Trajectory<RealT>> theta_traj_fe = HDSA::makePtr<HDSA::PC_Euclidean_Auxillary_Parameter_Trajectory<RealT>>(N_fe, theta_bar, theta_star);
+  sen->Pseudo_Time_Continuation_Forward_Euler(*z_star, *grad_star, *theta_traj_fe);
   std::string name = "z_star_fe.txt";
   z_star->Write_to_File(name);
   name = "grad_star_fe.txt";
@@ -109,7 +110,8 @@ int main(int argc, char *argv[])
   z_star->Zeros();
   grad_star->Zeros();
   int N_me = 10;
-  sen->Pseudo_Time_Continuation_Modified_Euler(*z_star, *grad_star, *theta_star, N_me);
+  HDSA::Ptr<HDSA::PC_Auxillary_Parameter_Trajectory<RealT>> theta_traj_me = HDSA::makePtr<HDSA::PC_Euclidean_Auxillary_Parameter_Trajectory<RealT>>(N_me, theta_bar, theta_star);
+  sen->Pseudo_Time_Continuation_Modified_Euler(*z_star, *grad_star, *theta_traj_me);
   name = "z_star_me.txt";
   z_star->Write_to_File(name);
   name = "grad_star_me.txt";

@@ -2,9 +2,10 @@
 #define HDSA_PC_SENSITIVITY_OPERATOR_INTERFACE_ROSENBROCK_HPP
 
 #include "HDSA_Std_Vector.hpp"
+#include "HDSA_PC_Euclidean_Sensitivity_Operator_Interface.hpp"
 
 template <class RealT>
-class PC_Sensitivity_Operator_Interface_Rosenbrock : public HDSA::PC_Sensitivity_Operator_Interface<RealT>
+class PC_Sensitivity_Operator_Interface_Rosenbrock : public HDSA::PC_Euclidean_Sensitivity_Operator_Interface<RealT>
 {
 
 private:
@@ -19,7 +20,7 @@ public:
   {
   }
 
-  void Gradient(HDSA::Vector<RealT> &grad, const HDSA::Vector<RealT> &z, const HDSA::Vector<RealT> &theta) const
+  void Euclidean_Gradient(HDSA::Vector<RealT> &grad, const HDSA::Vector<RealT> &z, const HDSA::Vector<RealT> &theta) const
   {
     const HDSA::Std_Vector<RealT> &z_std = dynamic_cast<const HDSA::Std_Vector<RealT> &>(z);
     const HDSA::Std_Vector<RealT> &theta_std = dynamic_cast<const HDSA::Std_Vector<RealT> &>(theta);
@@ -42,7 +43,7 @@ public:
     }
   }
 
-  void Apply_Hessian(HDSA::Vector<RealT> &z_out, const HDSA::Vector<RealT> &z_in, const HDSA::Vector<RealT> &z, const HDSA::Vector<RealT> &theta) const
+  void Euclidean_Apply_Hessian(HDSA::Vector<RealT> &z_out, const HDSA::Vector<RealT> &z_in, const HDSA::Vector<RealT> &z, const HDSA::Vector<RealT> &theta) const
   {
     const HDSA::Std_Vector<RealT> &z_std = dynamic_cast<const HDSA::Std_Vector<RealT> &>(z);
     const HDSA::Std_Vector<RealT> &theta_std = dynamic_cast<const HDSA::Std_Vector<RealT> &>(theta);
@@ -71,7 +72,7 @@ public:
     }
   }
 
-  void Apply_B(HDSA::Vector<RealT> &z_out, const HDSA::Vector<RealT> &theta_in, const HDSA::Vector<RealT> &z, const HDSA::Vector<RealT> &theta) const
+  void Euclidean_Apply_B(HDSA::Vector<RealT> &z_out, const HDSA::Vector<RealT> &theta_in, const HDSA::Vector<RealT> &z, const HDSA::Vector<RealT> &theta) const
   {
     const HDSA::Std_Vector<RealT> &theta_in_std = dynamic_cast<const HDSA::Std_Vector<RealT> &>(theta_in);
     HDSA::Std_Vector<RealT> &z_out_std = dynamic_cast<HDSA::Std_Vector<RealT> &>(z_out);

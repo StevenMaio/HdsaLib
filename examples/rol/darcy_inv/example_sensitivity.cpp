@@ -19,6 +19,7 @@
 #include "HDSA_Comm.hpp"
 #include "HDSA_Ptr.hpp"
 #include "HDSA_ParameterList.hpp"
+#include "HDSA_PC_Euclidean_Auxillary_Parameter_Trajectory.hpp"
 #include "HDSA_PC_Quasi_Newton_Preconditioner_LIS.hpp"
 #include "HDSA_PC_Pseudo_Time_Continuation.hpp"
 #include "../../../../Trilinos/packages/rol/example/PDE-OPT/TOOLS/solver.cpp"
@@ -251,7 +252,7 @@ int main(int argc, char *argv[])
   HDSA::Ptr<HDSA::PC_Quasi_Newton_Preconditioner_LIS<RealT>> qn_prec = HDSA::makePtr<HDSA::PC_Quasi_Newton_Preconditioner_LIS<RealT>>(z_bar, theta_bar, lis_interface, use_block_update, tau, max_storage);
 
   HDSA::Ptr<HDSA::PC_Pseudo_Time_Continuation<RealT>> sen =
-      HDSA::makePtr<HDSA::PC_Pseudo_Time_Continuation<RealT>>(z_bar, theta_bar, sen_op_interface, qn_prec, grad_tol, use_qn_prec, print_cg_output, print_cg_iter, cg_tol, max_cg_iter);
+      HDSA::makePtr<HDSA::PC_Pseudo_Time_Continuation<RealT>>(z_bar, sen_op_interface, qn_prec, grad_tol, use_qn_prec, print_cg_output, print_cg_iter, cg_tol, max_cg_iter);
 
   if (rank > 0)
   {
@@ -269,13 +270,15 @@ int main(int argc, char *argv[])
 
   if (N_fe > 0)
   {
-    sen->Pseudo_Time_Continuation_Forward_Euler(*z_star, *grad_star, *theta_star, N_fe);
+    HDSA::Ptr<HDSA::PC_Auxillary_Parameter_Trajectory<RealT>> theta_traj_fe = HDSA::makePtr<HDSA::PC_Euclidean_Auxillary_Parameter_Trajectory<RealT>>(N_fe, theta_bar, theta_star);
+    sen->Pseudo_Time_Continuation_Forward_Euler(*z_star, *grad_star, *theta_traj_fe);
     pdecon->outputTpetraVector(z_star_ptr, "z_star_fe.txt");
   }
 
   if (N_me > 0)
   {
-    sen->Pseudo_Time_Continuation_Modified_Euler(*z_star, *grad_star, *theta_star, N_me);
+    HDSA::Ptr<HDSA::PC_Auxillary_Parameter_Trajectory<RealT>> theta_traj_me = HDSA::makePtr<HDSA::PC_Euclidean_Auxillary_Parameter_Trajectory<RealT>>(N_me, theta_bar, theta_star);
+    sen->Pseudo_Time_Continuation_Modified_Euler(*z_star, *grad_star, *theta_traj_me);
     pdecon->outputTpetraVector(z_star_ptr, "z_star_me.txt");
   }
 

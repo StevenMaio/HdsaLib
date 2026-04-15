@@ -3,9 +3,10 @@
 
 #include "HDSA_ROL_Vector.hpp"
 #include "HDSA_Std_Vector.hpp"
+#include "HDSA_PC_Euclidean_Sensitivity_Operator_Interface.hpp"
 
 template <class RealT>
-class PC_Sensitivity_Operator_Interface_darcy_flow : public HDSA::PC_Sensitivity_Operator_Interface<RealT>
+class PC_Sensitivity_Operator_Interface_darcy_flow : public HDSA::PC_Euclidean_Sensitivity_Operator_Interface<RealT>
 {
 
 private:
@@ -70,7 +71,7 @@ public:
     }
   }
 
-  void Gradient(HDSA::Vector<RealT> &grad, const HDSA::Vector<RealT> &z, const HDSA::Vector<RealT> &theta) const
+  void Euclidean_Gradient(HDSA::Vector<RealT> &grad, const HDSA::Vector<RealT> &z, const HDSA::Vector<RealT> &theta) const
   {
     RealT tol = 1.e-14;
     const HDSA::ROL_Vector<RealT> &z_rol = dynamic_cast<const HDSA::ROL_Vector<RealT> &>(z);
@@ -84,7 +85,7 @@ public:
     grad_rol.rol_vec->plus(*z_tmp);
   }
 
-  void Apply_Hessian(HDSA::Vector<RealT> &z_out, const HDSA::Vector<RealT> &z_in, const HDSA::Vector<RealT> &z, const HDSA::Vector<RealT> &theta) const
+  void Euclidean_Apply_Hessian(HDSA::Vector<RealT> &z_out, const HDSA::Vector<RealT> &z_in, const HDSA::Vector<RealT> &z, const HDSA::Vector<RealT> &theta) const
   {
 
     RealT tol = 1.e-14;
@@ -120,7 +121,7 @@ public:
     z_out_rol.rol_vec->plus(*z_tmp);
   }
 
-  void Apply_B(HDSA::Vector<RealT> &z_out, const HDSA::Vector<RealT> &theta_in, const HDSA::Vector<RealT> &z, const HDSA::Vector<RealT> &theta) const
+  void Euclidean_Apply_B(HDSA::Vector<RealT> &z_out, const HDSA::Vector<RealT> &theta_in, const HDSA::Vector<RealT> &z, const HDSA::Vector<RealT> &theta) const
   {
     RealT tol = 1.e-14;
     const HDSA::ROL_Vector<RealT> &z_rol = dynamic_cast<const HDSA::ROL_Vector<RealT> &>(z);
@@ -166,7 +167,7 @@ public:
     HDSA::Ptr<HDSA::Vector<RealT>> dz = z.Clone();
     dz->Randomize_Standard_Normal();
     HDSA::Ptr<HDSA::Vector<RealT>> grad = z.Clone();
-    Gradient(*grad, z, theta);
+    Euclidean_Gradient(*grad, z, theta);
     RealT true_grad = grad->Dot(*dz);
     HDSA::Ptr<HDSA::Vector<RealT>> z_pert = z.Clone();
     int n = 6;
@@ -191,8 +192,8 @@ public:
     v->Randomize_Standard_Normal();
 
     HDSA::Ptr<HDSA::Vector<RealT>> grad = z.Clone();
-    Gradient(*grad, z, theta);
-    Apply_Hessian(*hv, *v, z, theta);
+    Euclidean_Gradient(*grad, z, theta);
+    Euclidean_Apply_Hessian(*hv, *v, z, theta);
 
     HDSA::Ptr<HDSA::Vector<RealT>> z_pert = z.Clone();
     HDSA::Ptr<HDSA::Vector<RealT>> grad_pert = z.Clone();
@@ -204,7 +205,7 @@ public:
       z_pert->Set(z);
       z_pert->Scaled_Plus(h, *v);
       grad_pert->Set_Scalar(0.0);
-      Gradient(*grad_pert, *z_pert, theta);
+      Euclidean_Gradient(*grad_pert, *z_pert, theta);
       grad_pert->Scaled_Plus(-1.0, *grad);
       fd_error[k] = grad_pert->Norm();
       std::cout << "Step size = " << h << " and Hessian FD error = " << fd_error[k] << std::endl;
@@ -218,8 +219,8 @@ public:
     v->Randomize_Standard_Normal();
 
     HDSA::Ptr<HDSA::Vector<RealT>> grad = z.Clone();
-    Gradient(*grad, z, theta);
-    Apply_B(*hv, *v, z, theta);
+    Euclidean_Gradient(*grad, z, theta);
+    Euclidean_Apply_B(*hv, *v, z, theta);
 
     HDSA::Ptr<HDSA::Vector<RealT>> theta_pert = theta.Clone();
     HDSA::Ptr<HDSA::Vector<RealT>> grad_pert = z.Clone();
@@ -231,7 +232,7 @@ public:
       theta_pert->Set(theta);
       theta_pert->Scaled_Plus(h, *v);
       grad_pert->Set_Scalar(0.0);
-      Gradient(*grad_pert, z, *theta_pert);
+      Euclidean_Gradient(*grad_pert, z, *theta_pert);
       grad_pert->Scaled_Plus(-1.0, *grad);
       fd_error[k] = grad_pert->Norm();
       std::cout << "Step size = " << h << " and B FD error = " << fd_error[k] << std::endl;

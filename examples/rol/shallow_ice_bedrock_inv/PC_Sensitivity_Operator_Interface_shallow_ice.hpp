@@ -3,9 +3,10 @@
 
 #include "HDSA_Std_Vector.hpp"
 #include "HDSA_ROL_Vector.hpp"
+#include "HDSA_PC_Euclidean_Sensitivity_Operator_Interface.hpp"
 
 template <class RealT>
-class PC_Sensitivity_Operator_Interface_shallow_ice : public HDSA::PC_Sensitivity_Operator_Interface<RealT>
+class PC_Sensitivity_Operator_Interface_shallow_ice : public HDSA::PC_Euclidean_Sensitivity_Operator_Interface<RealT>
 {
 
 private:
@@ -42,7 +43,7 @@ public:
     }
   }
 
-  void Gradient(HDSA::Vector<RealT> &grad, const HDSA::Vector<RealT> &z, const HDSA::Vector<RealT> &theta) const
+  void Euclidean_Gradient(HDSA::Vector<RealT> &grad, const HDSA::Vector<RealT> &z, const HDSA::Vector<RealT> &theta) const
   {
 
     RealT tol = 1.e-8;
@@ -53,7 +54,7 @@ public:
     robj_->gradient(*grad_rol.rol_vec, *z_rol.rol_vec, tol);
   }
 
-  void Apply_Hessian(HDSA::Vector<RealT> &z_out, const HDSA::Vector<RealT> &z_in, const HDSA::Vector<RealT> &z, const HDSA::Vector<RealT> &theta) const
+  void Euclidean_Apply_Hessian(HDSA::Vector<RealT> &z_out, const HDSA::Vector<RealT> &z_in, const HDSA::Vector<RealT> &z, const HDSA::Vector<RealT> &theta) const
   {
     // auto start = std::chrono::high_resolution_clock::now();
 
@@ -70,7 +71,7 @@ public:
     // std::cout << "Time taken by Apply_Hessian: " << duration.count() / 1000.0 << " seconds" << std::endl;
   }
 
-  void Apply_B(HDSA::Vector<RealT> &z_out, const HDSA::Vector<RealT> &theta_in, const HDSA::Vector<RealT> &z, const HDSA::Vector<RealT> &theta) const
+  void Euclidean_Apply_B(HDSA::Vector<RealT> &z_out, const HDSA::Vector<RealT> &theta_in, const HDSA::Vector<RealT> &z, const HDSA::Vector<RealT> &theta) const
   {
     // auto start = std::chrono::high_resolution_clock::now();
 
