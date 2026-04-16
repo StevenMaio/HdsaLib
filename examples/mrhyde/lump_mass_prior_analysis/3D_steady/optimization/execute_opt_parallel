@@ -1,0 +1,18 @@
+# Ensure that the MrHyDE executable has been linked to the current directory under the name "mrhyde"
+
+#!/bin/bash
+
+# Number of processors
+NPROCS=20
+
+# Solve optimization problem
+mpiexec -n "$NPROCS" mrhyde
+
+# Change file names
+for ((i=0; i<10; i++)); do
+    mv "output.exo.${NPROCS}.0${i}" "output_lofi_opt.exo.${NPROCS}.${i}"
+done
+
+for ((i=10; i<NPROCS; i++)); do
+    mv "output.exo.${NPROCS}.${i}" "output_lofi_opt.exo.${NPROCS}.${i}"
+done
