@@ -3,7 +3,7 @@
 #!/bin/bash
 
 # Number of processors
-NPROCS=4
+NPROCS=2
 
 # Solve optimization problem
 mpiexec -n "$NPROCS" mrhyde

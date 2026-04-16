@@ -23,9 +23,10 @@ namespace HDSA
     HDSA::Ptr<HDSA::Incomplete_Chol_Factor<RealT>> L_;
     bool use_incomplete_factorization_;
     int verbosity_;
+    std::ostream& out_stream_;
 
   public:
-    Sparse_Matrix_Solver(const HDSA::Ptr<HDSA::Sparse_Matrix<RealT>> &A, bool use_direct = true, int verbosity = 0) : A_(A), use_direct_(use_direct), verbosity_(verbosity)
+    Sparse_Matrix_Solver(const HDSA::Ptr<HDSA::Sparse_Matrix<RealT>> &A, bool use_direct = true, int verbosity = 0, std::ostream& out_stream = std::cout) : A_(A), use_direct_(use_direct), verbosity_(verbosity), out_stream_(out_stream)
     {
       if (use_direct_)
       {
@@ -80,12 +81,12 @@ namespace HDSA
           HDSA::Ptr<HDSA::Vector<RealT>> b_prec = b.Clone();
           HDSA::Ptr<HDSA::Vector<RealT>> x_prec = x.Clone();
           L_->Apply_Inverse(*b_prec, b);
-          HDSA::Linear_Algebra::Iterative_Linear_Solve<RealT>(*x_prec, *b_prec, *A_op, tol, solver, verbosity_);
+          HDSA::Linear_Algebra::Iterative_Linear_Solve<RealT>(*x_prec, *b_prec, *A_op, tol, solver, verbosity_, out_stream_);
           L_->Apply_Inverse_Transpose(x, *x_prec);
         }
         else
         {
-          HDSA::Linear_Algebra::Iterative_Linear_Solve<RealT>(x, b, *A_op, tol, solver, verbosity_);
+          HDSA::Linear_Algebra::Iterative_Linear_Solve<RealT>(x, b, *A_op, tol, solver, verbosity_, out_stream_);
         }
       }
     }

@@ -5,13 +5,13 @@ ANONYMOUS:
   verbosity: 0
   Mesh:
     dimension: 2
-    element type: tri
+    element type: quad
     xmin: 0.0
     xmax: 1.0
     ymin: 0.0
     ymax: 1.0
-    NX: 50
-    NY: 50
+    NX: 99
+    NY: 99
   Physics: 
     modules: thermal
     include advection: false

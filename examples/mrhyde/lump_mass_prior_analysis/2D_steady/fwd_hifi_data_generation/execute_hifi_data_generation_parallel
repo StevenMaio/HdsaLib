@@ -3,7 +3,7 @@
 #!/bin/bash
 
 # Number of processors
-NPROCS=4
+NPROCS=2
 
 # Set links to optimization solution
 for ((i=0; i<NPROCS; i++)); do

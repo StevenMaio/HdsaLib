@@ -32,6 +32,11 @@ namespace HDSA
         {
         }
 
+        HDSA::Ptr<const Teuchos::Comm<int>> Get_Comm(void) const 
+        {
+            return A_->getComm();
+        }
+
         void Set_Symmetric(void)
         {
             is_symmetric_ = true;

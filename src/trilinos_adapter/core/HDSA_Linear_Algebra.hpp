@@ -26,7 +26,7 @@ namespace HDSA
     // Solve the linear system A*x = b
     template <class RealT>
     void Iterative_Linear_Solve(HDSA::Vector<RealT> &x, const HDSA::Vector<RealT> &b, const HDSA::Linear_Operator<RealT> &A,
-                                RealT tol, std::string solver = "CG", int verbosity = 0)
+                                RealT tol, std::string solver = "CG", int verbosity = 0, std::ostream& out_stream = std::cout)
     {
       // Build the problem matrix
       HDSA::Ptr<HDSA::Belos_Operator<RealT>> A_Belos = HDSA::makePtr<HDSA::Belos_Operator<RealT>>(&A);
@@ -104,7 +104,7 @@ namespace HDSA
 
         if (ret != Belos::Converged)
         {
-          std::cout << "Belos solver did not converge for linear solve" << std::endl;
+          out_stream << "Belos solver did not converge for linear solve" << std::endl;
         }
 
         x.Set(*soln->vec[0]);
@@ -115,7 +115,7 @@ namespace HDSA
         {
           RealT ach_tol = belos_solver->achievedTol();
           int num_iter = belos_solver->getNumIters();
-          std::cout << "Iterative_Linear_Solve achieved the tolerance " << ach_tol << " with " << num_iter << " iterations" << std::endl;
+          out_stream << "Iterative_Linear_Solve achieved the tolerance " << ach_tol << " with " << num_iter << " iterations" << std::endl;
         }
       }
       else
