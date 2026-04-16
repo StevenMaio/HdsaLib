@@ -26,6 +26,7 @@ namespace HDSA
 
     void Start_Timer(void)
     {
+      timer_->reset();
       timer_->start();
     }
 

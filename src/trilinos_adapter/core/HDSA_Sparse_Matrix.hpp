@@ -2,6 +2,7 @@
 #define HDSA_SPARSE_MATRIX_HPP
 
 #include "Tpetra_CrsMatrix_decl.hpp"
+#include "TpetraExt_MatrixMatrix.hpp"
 #include "HDSA_Tpetra_Vector.hpp"
 
 namespace HDSA
@@ -28,11 +29,35 @@ namespace HDSA
         {
         }
 
+        Sparse_Matrix(HDSA::Vector<RealT> &vec, bool reciprocate_diag)
+        {
+            HDSA::Tpetra_Vector<RealT> tpetra_vec = dynamic_cast<HDSA::Tpetra_Vector<RealT> &>(vec);
+            HDSA::Ptr<Tpetra::MultiVector<RealT, LO, GO, Node>> d = tpetra_vec.getVector();
+
+            HDSA::Ptr<const Tpetra::Map<LO, GO, Node>> map = d->getMap();
+            A_ = HDSA::makePtr<Tpetra::CrsMatrix<RealT, LO, GO, Node>>(map, 1);
+
+            auto sLocal = d->getLocalViewHost(Tpetra::Access::ReadOnly);
+            const size_t localNum = map->getLocalNumElements();
+            for (size_t i = 0; i < localNum; ++i)
+            {
+                GO gid = map->getGlobalElement(i);
+                RealT val = sLocal(i, 0);
+                if (reciprocate_diag)
+                {
+                    val = Teuchos::ScalarTraits<RealT>::one() / val;
+                }
+                A_->insertGlobalValues(gid, Teuchos::tuple(gid), Teuchos::tuple(val));
+            }
+
+            A_->fillComplete(map, map);
+        }
+
         ~Sparse_Matrix()
         {
         }
 
-        HDSA::Ptr<const Teuchos::Comm<int>> Get_Comm(void) const 
+        HDSA::Ptr<const Teuchos::Comm<int>> Get_Comm(void) const
         {
             return A_->getComm();
         }
@@ -57,6 +82,14 @@ namespace HDSA
             HDSA::Ptr<HDSA::Sparse_Matrix<RealT>> B_sm = HDSA::makePtr<HDSA::Sparse_Matrix<RealT>>(B);
             B_sm->Scale(0.0);
             return B_sm;
+        }
+
+        // Compute C = this * B, with options for transposes
+        void Matrix_Matrix_Multiply(HDSA::Sparse_Matrix<RealT> &C, const HDSA::Sparse_Matrix<RealT> &B, bool A_trans = false, bool B_trans = false) const
+        {
+            HDSA::Ptr<Tpetra::CrsMatrix<RealT, LO, GO, Node>> B_tpetra = B.Get_Tpetra_Matrix();
+            HDSA::Ptr<Tpetra::CrsMatrix<RealT, LO, GO, Node>> C_tpetra = C.Get_Tpetra_Matrix();
+            Tpetra::MatrixMatrix::Multiply(*A_, A_trans, *B_tpetra, B_trans, *C_tpetra);
         }
 
         RealT Frobenius_Norm(void) const

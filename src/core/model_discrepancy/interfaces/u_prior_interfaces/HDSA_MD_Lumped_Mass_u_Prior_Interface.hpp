@@ -29,7 +29,7 @@ namespace HDSA
     bool use_direct_solvers_;
     int verbosity_;
     bool use_incomplete_prec_;
-    std::ostream& out_stream_;
+    std::ostream &out_stream_;
     HDSA::Ptr<HDSA::MD_Determine_u_Hyperparameters<RealT>> determine_u_hyperparams_;
     RealT beta_u_;
     HDSA::Ptr<HDSA::Vector<RealT>> M_lumped_;
@@ -78,7 +78,15 @@ namespace HDSA
                                 "Error in HDSA::MD_Lumped_Mass_u_Prior_Interface::Apply_W_u_Acute_Plus_scalar_M_u_Inverse: scalar has not been set by Precompute_W_u_Plus_scalar_M_u_Data" << std::endl);
       }
 
+      if (verbosity_ > 2)
+      {
+        timer_->Start_Timer();
+      }
       W_u_acute_plus_scalar_M_u_solver_[i]->Apply_A_Inverse(u_out, u_in);
+      if (verbosity_ > 2)
+      {
+        timer_->End_Timer("Apply_W_u_Acute_Plus_scalar_M_u_Inverse");
+      }
     }
 
     void Sample_with_Covariance_W_u_Acute_Inverse(HDSA::MultiVector<RealT> &samples) const override
@@ -120,10 +128,15 @@ namespace HDSA
       for (int s = 0; s < samples.Number_of_Vectors(); s++)
       {
         vec_rand->Randomize_Standard_Normal();
+        if (verbosity_ > 2)
+        {
+          timer_->Start_Timer();
+        }
         std::vector<RealT> rel_res = W_u_acute_plus_scalar_M_u_sqrt_[i]->Matrix_Sqrt_Apply(*vec, *vec_rand);
         if (verbosity_ > 2)
         {
           out_stream_ << "Matrix_Sqrt_Apply() achieved the tolerance " << rel_res.back() << " with " << rel_res.size() - 1 << " iterations" << std::endl;
+          timer_->End_Timer("Matrix_Sqrt_Apply()");
         }
         Apply_W_u_Acute_Plus_scalar_M_u_Inverse(*samples[s], *vec, scalar);
       }
@@ -145,26 +158,34 @@ namespace HDSA
 
       if (use_incomplete_prec_)
       {
+        if (verbosity_ > 2)
+        {
+          timer_->Start_Timer();
+        }
         HDSA::Ptr<HDSA::Incomplete_Chol_Factor<RealT>> L = HDSA::makePtr<HDSA::Incomplete_Chol_Factor<RealT>>(A);
         A_solver->Set_Incomplete_Factor(L);
         A_sqrt->Set_Incomplete_Factor(L);
+        if (verbosity_ > 2)
+        {
+          timer_->End_Timer("Shifted W_u_acute incomplete factorization");
+        }
       }
 
       W_u_acute_plus_scalar_M_u_solver_.push_back(A_solver);
       W_u_acute_plus_scalar_M_u_sqrt_.push_back(A_sqrt);
     }
 
-    MD_Lumped_Mass_u_Prior_Interface(const HDSA::Ptr<HDSA::Sparse_Matrix<RealT>> &S, const HDSA::Ptr<HDSA::Sparse_Matrix<RealT>> &M, const HDSA::Ptr<HDSA::MD_Data_Interface<RealT>> &data_interface, const HDSA::Ptr<HDSA::MD_u_Hyperparameter_Interface<RealT>> &u_hyperparam_interface, const HDSA::Ptr<const HDSA::Comm<int>> &comm, const bool use_direct_solvers = false, const int verbosity = 0, const bool use_incomplete_prec = true, std::ostream& out_stream = std::cout) : HDSA::MD_Scaled_u_Prior_Interface<RealT>(u_hyperparam_interface->Get_alpha_u()), S_(S), M_(M), data_interface_(data_interface), u_hyperparam_interface_(u_hyperparam_interface), comm_(comm), random_number_generator_(HDSA::makePtr<HDSA::Random_Number_Generator<RealT>>()), use_direct_solvers_(use_direct_solvers), verbosity_(verbosity), use_incomplete_prec_(use_incomplete_prec), out_stream_(out_stream)
+    MD_Lumped_Mass_u_Prior_Interface(const HDSA::Ptr<HDSA::Sparse_Matrix<RealT>> &S, const HDSA::Ptr<HDSA::Sparse_Matrix<RealT>> &M, const HDSA::Ptr<HDSA::MD_Data_Interface<RealT>> &data_interface, const HDSA::Ptr<HDSA::MD_u_Hyperparameter_Interface<RealT>> &u_hyperparam_interface, const HDSA::Ptr<const HDSA::Comm<int>> &comm, const bool use_direct_solvers = false, const int verbosity = 0, const bool use_incomplete_prec = true, std::ostream &out_stream = std::cout) : HDSA::MD_Scaled_u_Prior_Interface<RealT>(u_hyperparam_interface->Get_alpha_u()), S_(S), M_(M), data_interface_(data_interface), u_hyperparam_interface_(u_hyperparam_interface), comm_(comm), random_number_generator_(HDSA::makePtr<HDSA::Random_Number_Generator<RealT>>()), use_direct_solvers_(use_direct_solvers), verbosity_(verbosity), use_incomplete_prec_(use_incomplete_prec), out_stream_(out_stream)
     {
       Auxillary_Constructor();
     }
 
-    MD_Lumped_Mass_u_Prior_Interface(const HDSA::Ptr<HDSA::Sparse_Matrix<RealT>> &S, const HDSA::Ptr<HDSA::Sparse_Matrix<RealT>> &M, const HDSA::Ptr<HDSA::MD_Data_Interface<RealT>> &data_interface, const HDSA::Ptr<HDSA::MD_u_Hyperparameter_Interface<RealT>> &u_hyperparam_interface, const HDSA::Ptr<const HDSA::Comm<int>> &comm, int seed, const bool use_direct_solvers = false, const int verbosity = 0, bool use_incomplete_prec = true, std::ostream& out_stream = std::cout) : HDSA::MD_Scaled_u_Prior_Interface<RealT>(u_hyperparam_interface->Get_alpha_u()), S_(S), M_(M), data_interface_(data_interface), u_hyperparam_interface_(u_hyperparam_interface), comm_(comm), random_number_generator_(HDSA::makePtr<HDSA::Random_Number_Generator<RealT>>(seed)), use_direct_solvers_(use_direct_solvers), verbosity_(verbosity), use_incomplete_prec_(use_incomplete_prec), out_stream_(out_stream)
+    MD_Lumped_Mass_u_Prior_Interface(const HDSA::Ptr<HDSA::Sparse_Matrix<RealT>> &S, const HDSA::Ptr<HDSA::Sparse_Matrix<RealT>> &M, const HDSA::Ptr<HDSA::MD_Data_Interface<RealT>> &data_interface, const HDSA::Ptr<HDSA::MD_u_Hyperparameter_Interface<RealT>> &u_hyperparam_interface, const HDSA::Ptr<const HDSA::Comm<int>> &comm, int seed, const bool use_direct_solvers = false, const int verbosity = 0, bool use_incomplete_prec = true, std::ostream &out_stream = std::cout) : HDSA::MD_Scaled_u_Prior_Interface<RealT>(u_hyperparam_interface->Get_alpha_u()), S_(S), M_(M), data_interface_(data_interface), u_hyperparam_interface_(u_hyperparam_interface), comm_(comm), random_number_generator_(HDSA::makePtr<HDSA::Random_Number_Generator<RealT>>(seed)), use_direct_solvers_(use_direct_solvers), verbosity_(verbosity), use_incomplete_prec_(use_incomplete_prec), out_stream_(out_stream)
     {
       Auxillary_Constructor();
     }
 
-    MD_Lumped_Mass_u_Prior_Interface(const HDSA::Ptr<HDSA::Sparse_Matrix<RealT>> &S, const HDSA::Ptr<HDSA::Sparse_Matrix<RealT>> &M, const HDSA::Ptr<HDSA::MD_Data_Interface<RealT>> &data_interface, const HDSA::Ptr<HDSA::MD_u_Hyperparameter_Interface<RealT>> &u_hyperparam_interface, const HDSA::Ptr<const HDSA::Comm<int>> &comm, const HDSA::Ptr<HDSA::Random_Number_Generator<RealT>> &random_number_generator, const bool use_direct_solvers = false, const int verbosity = 0, bool use_incomplete_prec = true, std::ostream& out_stream = std::cout) : HDSA::MD_Scaled_u_Prior_Interface<RealT>(u_hyperparam_interface->Get_alpha_u()), S_(S), M_(M), data_interface_(data_interface), u_hyperparam_interface_(u_hyperparam_interface), comm_(comm), random_number_generator_(random_number_generator), use_direct_solvers_(use_direct_solvers), verbosity_(verbosity), use_incomplete_prec_(use_incomplete_prec), out_stream_(out_stream)
+    MD_Lumped_Mass_u_Prior_Interface(const HDSA::Ptr<HDSA::Sparse_Matrix<RealT>> &S, const HDSA::Ptr<HDSA::Sparse_Matrix<RealT>> &M, const HDSA::Ptr<HDSA::MD_Data_Interface<RealT>> &data_interface, const HDSA::Ptr<HDSA::MD_u_Hyperparameter_Interface<RealT>> &u_hyperparam_interface, const HDSA::Ptr<const HDSA::Comm<int>> &comm, const HDSA::Ptr<HDSA::Random_Number_Generator<RealT>> &random_number_generator, const bool use_direct_solvers = false, const int verbosity = 0, bool use_incomplete_prec = true, std::ostream &out_stream = std::cout) : HDSA::MD_Scaled_u_Prior_Interface<RealT>(u_hyperparam_interface->Get_alpha_u()), S_(S), M_(M), data_interface_(data_interface), u_hyperparam_interface_(u_hyperparam_interface), comm_(comm), random_number_generator_(random_number_generator), use_direct_solvers_(use_direct_solvers), verbosity_(verbosity), use_incomplete_prec_(use_incomplete_prec), out_stream_(out_stream)
     {
       Auxillary_Constructor();
     }
@@ -227,14 +248,18 @@ namespace HDSA
       E_u_solver_ = HDSA::makePtr<HDSA::Sparse_Matrix_Solver<RealT>>(E_u_, use_direct_solvers_, verbosity_ - 8, out_stream_);
       if (use_incomplete_prec_)
       {
+        if (verbosity_ > 2)
+        {
+          timer_->Start_Timer();
+        }
         HDSA::Ptr<HDSA::Incomplete_Chol_Factor<RealT>> L = HDSA::makePtr<HDSA::Incomplete_Chol_Factor<RealT>>(E_u_);
-        timer_->Start_Timer();
         E_u_solver_->Set_Incomplete_Factor(L);
-        timer_->End_Timer("Laplacian like operator incomplete factorization");
+        if (verbosity_ > 2)
+        {
+          timer_->End_Timer("Laplacian like operator incomplete factorization");
+        }
       }
-      timer_->Start_Timer();
       Assemble_W_u_Acute();
-      timer_->End_Timer("Assemble_W_u_Acute");
     }
 
     void Apply_E_u_Inverse(HDSA::Vector<RealT> &u_out, const HDSA::Vector<RealT> &u_in) const
@@ -244,132 +269,14 @@ namespace HDSA
 
     void Assemble_W_u_Acute(void)
     {
-      int max_nonzeros_per_row = E_u_->Get_Max_Nonzeros_Per_Row();
-      W_u_acute_ = M_->Clone(3 * max_nonzeros_per_row); // This may fail in spatial dimensions > 2. Need to test this and possibly modify.
-      int n = W_u_acute_->Get_Number_of_Rows();
+      int max_entries_per_row = 3 * E_u_->Get_Max_Nonzeros_Per_Row(); // This may fail in spatial dimensions > 2. Need to test this and possibly modify.
 
-      W_u_acute_->Begin_Fill();
+      HDSA::Ptr<HDSA::Sparse_Matrix<RealT>> D_sm = HDSA::makePtr<HDSA::Sparse_Matrix<RealT>>(*M_lumped_, true);
+      HDSA::Ptr<HDSA::Sparse_Matrix<RealT>> tmp = E_u_->Clone(max_entries_per_row);
+      W_u_acute_ = E_u_->Clone(max_entries_per_row);
 
-      std::vector<std::vector<int>> column_indices;
-      column_indices.resize(n);
-      std::vector<std::vector<RealT>> vals;
-      vals.resize(n);
-      for (int i = 0; i < n; i++)
-      {
-        E_u_->Get_Global_Row(i, column_indices[i], vals[i]);
-      }
-
-      for (int i = 0; i < n; i++)
-      {
-        std::vector<int> column_indices_i = column_indices[i];
-        std::vector<RealT> vals_i = vals[i];
-        int i_owner_rank = Get_Row_Owner_Rank(i);
-
-        int col_indices_i_dim = column_indices_i.size();
-        char *i_dim_buff = (char *)(&col_indices_i_dim);
-        comm_->broadcast(i_owner_rank, 4, i_dim_buff);
-
-        std::vector<int> col_indices_i;
-        col_indices_i.resize(col_indices_i_dim);
-        if (comm_->getRank() == i_owner_rank)
-        {
-          for (int ii = 0; ii < col_indices_i_dim; ii++)
-          {
-            col_indices_i[ii] = column_indices_i[ii];
-          }
-        }
-        char *i_vals_buff = (char *)(&col_indices_i[0]);
-        comm_->broadcast(i_owner_rank, 4 * col_indices_i_dim, i_vals_buff);
-
-        std::vector<RealT> weights = std::vector<RealT>(col_indices_i_dim);
-        for (int ii = 0; ii < col_indices_i_dim; ii++)
-        {
-          RealT weight_i = M_lumped_->Get_Entry(col_indices_i[ii]);
-          char *send_buff = (char *)(&weight_i);
-          std::vector<RealT> recv_vec = std::vector<RealT>(comm_->getSize(), 0.0);
-          char *recv_buff = (char *)(&recv_vec[0]);
-          comm_->gatherAll(8, send_buff, comm_->getSize() * 8, recv_buff);
-          weights[ii] = std::accumulate(recv_vec.begin(), recv_vec.end(), 0.0);
-        }
-
-        for (int j = 0; j < n; j++)
-        {
-          std::vector<int> col_indices_j = column_indices[j];
-          std::vector<RealT> vals_j = vals[j];
-          int j_owner_rank = Get_Row_Owner_Rank(j);
-
-          if (comm_->getRank() == j_owner_rank)
-          {
-            int dim = vals_j.size();
-            char *dim_send_buff = (char *)(&dim);
-            comm_->send(4, dim_send_buff, i_owner_rank);
-            char *indices_send_buff = (char *)(&col_indices_j[0]);
-            comm_->send(4 * dim, indices_send_buff, i_owner_rank);
-            char *vals_send_buff = (char *)(&vals_j[0]);
-            comm_->send(8 * dim, vals_send_buff, i_owner_rank);
-          }
-
-          if (comm_->getRank() == i_owner_rank)
-          {
-            int dim = 0;
-            char *dim_recv_buff = (char *)(&dim);
-            comm_->receive(j_owner_rank, 4, dim_recv_buff);
-            col_indices_j.resize(dim);
-            vals_j.resize(dim);
-            char *indices_recv_buff = (char *)(&col_indices_j[0]);
-            comm_->receive(j_owner_rank, 4 * dim, indices_recv_buff);
-            char *val_recv_buff = (char *)(&vals_j[0]);
-            comm_->receive(j_owner_rank, 8 * dim, val_recv_buff);
-          }
-
-          RealT val = 0.0;
-
-          if (comm_->getRank() == i_owner_rank)
-          {
-            for (int ii = 0; ii < col_indices_i.size(); ii++)
-            {
-              for (int jj = 0; jj < col_indices_j.size(); jj++)
-              {
-                if (col_indices_i[ii] == col_indices_j[jj])
-                {
-                  val += vals_i[ii] * vals_j[jj] / weights[ii];
-                  break;
-                }
-              }
-            }
-          }
-
-          if (val != 0.0)
-          {
-            W_u_acute_->Set_Entry(i, j, val);
-          }
-        }
-      }
-      W_u_acute_->End_Fill();
-    }
-
-    int Get_Row_Owner_Rank(int i)
-    {
-      bool is_i_owned = E_u_->Is_Row_Owned(i);
-      int i_owner_rank = 0;
-      int send_int = 0;
-      if (is_i_owned)
-      {
-        i_owner_rank = comm_->getRank();
-        send_int = i_owner_rank;
-      }
-      char *send_buff = (char *)(&send_int);
-      std::vector<int> recv_vec = std::vector<int>(comm_->getSize(), 0.0);
-      char *recv_buff = (char *)(&recv_vec[0]);
-      comm_->gatherAll(4, send_buff, comm_->getSize() * 4, recv_buff);
-      if (!is_i_owned)
-      {
-        for (int j = 0; j < comm_->getSize(); j++)
-        {
-          i_owner_rank += recv_vec[j];
-        }
-      }
-      return i_owner_rank;
+      E_u_->Matrix_Matrix_Multiply(*tmp, *D_sm, true, false);
+      tmp->Matrix_Matrix_Multiply(*W_u_acute_, *E_u_, false, false);
     }
   };
 }
