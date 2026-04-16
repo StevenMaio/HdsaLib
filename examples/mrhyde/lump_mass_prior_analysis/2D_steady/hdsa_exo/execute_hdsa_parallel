@@ -1,0 +1,18 @@
+# Ensure that the MrHyDE executable has been linked to the current directory under the name "mrhyde"
+
+#!/bin/bash
+
+# Number of processors
+NPROCS=4
+
+# Link output to hdsa_exo directory
+for ((i=0; i<NPROCS; i++)); do
+    ln -s "../optimization/output_lofi_opt.exo.${NPROCS}.${i}" .
+done
+
+for ((i=0; i<NPROCS; i++)); do
+    ln -s "../fwd_hifi_data_generation/output_hifi_1.exo.${NPROCS}.${i}" .
+done
+
+# Compute HDSA update
+mpiexec -n "$NPROCS" mrhyde
