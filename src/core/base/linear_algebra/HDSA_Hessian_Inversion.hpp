@@ -1,3 +1,9 @@
+/***********************************************************************
+ HdsaLib - A library for Hyper-differential Sensitivity Analysis
+ 
+ Questions? Contact Joseph Hart (joshart@sandia.gov)
+************************************************************************/
+
 #ifndef HDSA_HESSIAN_INVERSION_HPP
 #define HDSA_HESSIAN_INVERSION_HPP
 

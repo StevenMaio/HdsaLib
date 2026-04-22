@@ -1,3 +1,9 @@
+/***********************************************************************
+ HdsaLib - A library for Hyper-differential Sensitivity Analysis
+ 
+ Questions? Contact Joseph Hart (joshart@sandia.gov)
+************************************************************************/
+
 #ifndef PC_SENSITIVITY_OPERATOR_INTERFACE_ADV_DIFF_HPP
 #define PC_SENSITIVITY_OPERATOR_INTERFACE_ADV_DIFF_HPP
 

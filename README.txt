@@ -1,1 +1,0 @@
-Example configuration scripts are in hdsalib/scripts to demonstrates how hdsalib is configured using an existing Trilinos installation, and how MrHyDE is configured to use HdsaLib.

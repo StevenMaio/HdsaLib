@@ -1,3 +1,9 @@
+/***********************************************************************
+ HdsaLib - A library for Hyper-differential Sensitivity Analysis
+ 
+ Questions? Contact Joseph Hart (joshart@sandia.gov)
+************************************************************************/
+
 #ifndef SIMOPT_TEST_PROBLEM_HPP
 #define SIMOPT_TEST_PROBLEM_HPP
 

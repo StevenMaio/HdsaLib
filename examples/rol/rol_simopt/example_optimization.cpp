@@ -1,3 +1,9 @@
+/***********************************************************************
+ HdsaLib - A library for Hyper-differential Sensitivity Analysis
+ 
+ Questions? Contact Joseph Hart (joshart@sandia.gov)
+************************************************************************/
+
 #include "rol_simopt_test_problem.hpp"
 #include "ROL_Algorithm.hpp"
 #include "ROL_TrustRegionStep.hpp"

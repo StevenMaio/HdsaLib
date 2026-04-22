@@ -1,3 +1,9 @@
+/***********************************************************************
+ HdsaLib - A library for Hyper-differential Sensitivity Analysis
+ 
+ Questions? Contact Joseph Hart (joshart@sandia.gov)
+************************************************************************/
+
 #ifndef HDSA_PC_EUCLIDEAN_AUXILLARY_PARAMETER_TRAJECTORY_HPP
 #define HDSA_PC_EUCLIDEAN_AUXILLARY_PARAMETER_TRAJECTORY_HPP
 

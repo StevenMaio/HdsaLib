@@ -1,3 +1,9 @@
+/***********************************************************************
+ HdsaLib - A library for Hyper-differential Sensitivity Analysis
+ 
+ Questions? Contact Joseph Hart (joshart@sandia.gov)
+************************************************************************/
+
 #ifndef RANDOMIZED_GEVP_TEST_HPP
 #define RANDOMIZED_GEVP_TEST_HPP
 
