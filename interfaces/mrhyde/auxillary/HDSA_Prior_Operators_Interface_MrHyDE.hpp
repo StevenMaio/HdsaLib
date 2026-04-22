@@ -1,6 +1,6 @@
 /***********************************************************************
  HdsaLib - A library for Hyper-differential Sensitivity Analysis
- 
+
  Questions? Contact Joseph Hart (joshart@sandia.gov)
 ************************************************************************/
 
@@ -97,20 +97,33 @@ public:
     Kokkos::fence();
     comm->barrier();
 
-    std::vector<HDSA::Ptr<Tpetra::MultiVector<RealT, LO, GO, Node>>> veci_out;
-    veci_out.resize(1);
-    veci_out[0] = solve->linalg->getNewVector(0);
-    Teuchos::RCP<Tpetra::CrsMatrix<ScalarT, LO, GO, Node>> A_over = solve->linalg->getNewOverlappedMatrix(0);
+    int set = 0;
+    int stage = 0;
 
-    assembler->assembleJacRes(0, 0, veci_out, veci_out, veci_out, veci_out, veci_out, veci_out, true, false, false, false, 0,
-                              veci_out[0], A_over, false, 0, false, false, veci_out[0]->getGlobalLength(), veci_out[0], veci_out[0], false, 0.0);
-    solve->linalg->fillComplete(A_over);
+    HDSA::Ptr<Tpetra::MultiVector<RealT, LO, GO, Node>> current_res, current_res_over;
+    current_res = solve->linalg->getNewVector(set);
+    current_res_over = solve->linalg->getNewOverlappedVector(set);
 
-    Teuchos::RCP<Tpetra::CrsMatrix<ScalarT, LO, GO, Node>> A = solve->linalg->getNewMatrix(0);
-    A->resumeFill();
-    solve->linalg->exportMatrixFromOverlapped(0, A, A_over);
-    solve->linalg->fillComplete(A);
-    return A;
+    Teuchos::RCP<Tpetra::CrsMatrix<ScalarT, LO, GO, Node>> J, J_over;
+    J = solve->linalg->getNewMatrix(set);
+    J_over = solve->linalg->getNewOverlappedMatrix(set);
+    solve->linalg->fillComplete(J_over);
+    J_over->resumeFill();
+    J_over->setAllToScalar(0.0);
+
+    auto paramvec = params->getDiscretizedParamsOver();
+    auto paramdot = params->getDiscretizedParamsDotOver();
+
+    std::vector<HDSA::Ptr<Tpetra::MultiVector<RealT, LO, GO, Node>>> zero_soln;
+    assembler->assembleJacRes(set, stage, zero_soln, zero_soln, zero_soln, zero_soln, zero_soln, zero_soln, true, false, false, false, 0,
+                              current_res_over, J_over, false, 0.0, false, false,
+                              params->num_active_params, paramvec, paramdot, false, 0.0);
+    solve->linalg->fillComplete(J_over);
+    J->resumeFill();
+    solve->linalg->exportMatrixFromOverlapped(set, J, J_over);
+    solve->linalg->fillComplete(J);
+
+    return J;
   }
 };
 #endif

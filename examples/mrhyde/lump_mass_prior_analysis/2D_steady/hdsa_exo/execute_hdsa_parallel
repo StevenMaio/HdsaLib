@@ -3,7 +3,7 @@
 #!/bin/bash
 
 # Number of processors
-NPROCS=2
+NPROCS=4
 
 # Link output to hdsa_exo directory
 for ((i=0; i<NPROCS; i++)); do
