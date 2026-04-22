@@ -1,3 +1,1 @@
 add_subdirectory(rol_simopt)
-add_subdirectory(shallow_ice_bedrock_inv)
-add_subdirectory(darcy_inv)

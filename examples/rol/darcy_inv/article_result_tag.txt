@@ -1,4 +1,0 @@
-The results presented in the article "Preconditioned Pseudo-time Continuation for Parameterized Inverse Problems" were computed with the following repository commits:
-
-hdsalib: 8d15a7848141e1dfe2aa1c48bdeae5127f48eab2
-Trilinos: 8b5d31a8439d395a68b07eef8baa5c8b74b9d08c
