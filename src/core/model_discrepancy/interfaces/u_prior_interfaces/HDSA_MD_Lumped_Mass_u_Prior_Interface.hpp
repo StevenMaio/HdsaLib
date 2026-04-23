@@ -262,7 +262,7 @@ namespace HDSA
         E_u_solver_->Set_Incomplete_Factor(L);
         if (verbosity_ > 2)
         {
-          timer_->End_Timer("Laplacian like operator incomplete factorization");
+          timer_->End_Timer("E_u incomplete factorization");
         }
       }
       Assemble_W_u_Acute();
