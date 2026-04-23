@@ -44,12 +44,30 @@ namespace HDSA
   public:
     void Apply_E_z_Inverse(HDSA::Vector<RealT> &z_out, const HDSA::Vector<RealT> &z_in) const
     {
-      E_z_solver_->Apply_A_Inverse(z_out, z_in);
+      if (verbosity_ > 3)
+      {
+        timer_->Start_Timer();
+      }
+      std::string output_message = E_z_solver_->Apply_A_Inverse(z_out, z_in);
+      if (verbosity_ > 3)
+      {
+        RealT elapsed_time = timer_->End_Timer();
+        std::cout << output_message << " in " << elapsed_time << " seconds." << std::endl;
+      }
     }
 
     void Apply_E_z_Inverse_Transpose(HDSA::Vector<RealT> &z_out, const HDSA::Vector<RealT> &z_in) const
     {
-      E_z_solver_->Apply_A_Inverse(z_out, z_in);
+      if (verbosity_ > 3)
+      {
+        timer_->Start_Timer();
+      }
+      std::string output_message = E_z_solver_->Apply_A_Inverse(z_out, z_in);
+      if (verbosity_ > 3)
+      {
+        RealT elapsed_time = timer_->End_Timer();
+        std::cout << output_message << " in " << elapsed_time << " seconds." << std::endl;
+      }
     }
 
     void Apply_M_z(HDSA::Vector<RealT> &z_out, const HDSA::Vector<RealT> &z_in) const
@@ -65,7 +83,13 @@ namespace HDSA
         HDSA::Ptr<HDSA::Vector<RealT>> omega = samples[k]->Clone();
         omega->Randomize_Standard_Normal();
         HDSA::Ptr<HDSA::Vector<RealT>> vec = samples[k]->Clone();
-        M_z_sqrt_->Matrix_Sqrt_Apply(*vec, *omega);
+        std::string output_message = M_z_sqrt_->Matrix_Sqrt_Apply(*vec, *omega);
+        if (verbosity_ > 3)
+        {
+          RealT elapsed_time = timer_->End_Timer();
+          std::cout << output_message << " in " << elapsed_time << " seconds." << std::endl;
+        }
+
         Apply_E_z_Inverse(*samples[k], *vec);
       }
     }
@@ -82,7 +106,16 @@ namespace HDSA
 
     virtual void Apply_M_z_Inverse(HDSA::Vector<RealT> &z_out, const HDSA::Vector<RealT> &z_in) const
     {
-      M_z_solver_->Apply_A_Inverse(z_out, z_in);
+      if (verbosity_ > 3)
+      {
+        timer_->Start_Timer();
+      }
+      std::string output_message = M_z_solver_->Apply_A_Inverse(z_out, z_in);
+      if (verbosity_ > 3)
+      {
+        RealT elapsed_time = timer_->End_Timer();
+        std::cout << output_message << " in " << elapsed_time << " seconds." << std::endl;
+      }
     }
 
     MD_Numeric_Laplacian_z_Prior_Interface(const HDSA::Ptr<HDSA::Sparse_Matrix<RealT>> &S, const HDSA::Ptr<HDSA::Sparse_Matrix<RealT>> &M, const HDSA::Ptr<HDSA::MD_Data_Interface<RealT>> &data_interface, const HDSA::Ptr<HDSA::MD_z_Hyperparameter_Interface<RealT>> &z_hyperparam_interface, const HDSA::Ptr<HDSA::MD_u_Prior_Interface<RealT>> &u_prior_interface, const bool use_direct_solvers = true, const int verbosity = 0, const bool use_incomplete_prec = false, std::ostream &out_stream = std::cout) : HDSA::MD_Elliptic_z_Prior_Interface<RealT>(z_hyperparam_interface->Get_alpha_z()), S_(S), M_(M), data_interface_(data_interface), z_hyperparam_interface_(z_hyperparam_interface), u_prior_interface_(u_prior_interface), use_direct_solvers_(use_direct_solvers), verbosity_(verbosity), use_incomplete_prec_(use_incomplete_prec), out_stream_(out_stream)
@@ -92,20 +125,23 @@ namespace HDSA
       determine_z_hyperparams_ = HDSA::makePtr<HDSA::MD_Determine_z_Hyperparameters<RealT>>(data_interface_, z_hyperparam_interface_, u_prior_interface_);
 
       M_->Set_Symmetric();
-      M_z_solver_ = HDSA::makePtr<HDSA::Sparse_Matrix_Solver<RealT>>(M_, use_direct_solvers_, verbosity_, out_stream_);
-      M_z_sqrt_ = HDSA::makePtr<HDSA::Sparse_Matrix_Sqrt<RealT>>(M_);
+      std::string A_solver_message = "M_z_Inverse";
+      M_z_solver_ = HDSA::makePtr<HDSA::Sparse_Matrix_Solver<RealT>>(M_, use_direct_solvers_, verbosity_, out_stream_, A_solver_message);
+      std::string A_sqrt_solver_message = "M_z_Sqrt";
+      M_z_sqrt_ = HDSA::makePtr<HDSA::Sparse_Matrix_Sqrt<RealT>>(M_, A_sqrt_solver_message);
       if (use_incomplete_prec_)
       {
-        if (verbosity_ > 2)
+        if (verbosity_ > 3)
         {
           timer_->Start_Timer();
         }
         HDSA::Ptr<HDSA::Incomplete_Chol_Factor<RealT>> L = HDSA::makePtr<HDSA::Incomplete_Chol_Factor<RealT>>(M_);
         M_z_solver_->Set_Incomplete_Factor(L);
         M_z_sqrt_->Set_Incomplete_Factor(L);
-        if (verbosity_ > 2)
+        if (verbosity_ > 3)
         {
-          timer_->End_Timer("M_z incomplete factorization");
+          RealT elaped_time = timer_->End_Timer();
+          out_stream_ << "M_z incomplete factorization took " << elaped_time << " seconds." << std::endl;
         }
       }
 
@@ -133,18 +169,20 @@ namespace HDSA
       E_z_->Scaled_Plus(beta_z_new, *S_);
       beta_z_ = beta_z_new;
       E_z_->Set_Symmetric();
-      E_z_solver_ = HDSA::makePtr<HDSA::Sparse_Matrix_Solver<RealT>>(E_z_, use_direct_solvers_, verbosity_, out_stream_);
+      std::string A_solver_message = "E_z_Inverse";
+      E_z_solver_ = HDSA::makePtr<HDSA::Sparse_Matrix_Solver<RealT>>(E_z_, use_direct_solvers_, verbosity_, out_stream_, A_solver_message);
       if (use_incomplete_prec_)
       {
-        if (verbosity_ > 2)
+        if (verbosity_ > 3)
         {
           timer_->Start_Timer();
         }
         HDSA::Ptr<HDSA::Incomplete_Chol_Factor<RealT>> L = HDSA::makePtr<HDSA::Incomplete_Chol_Factor<RealT>>(E_z_);
         E_z_solver_->Set_Incomplete_Factor(L);
-        if (verbosity_ > 2)
+        if (verbosity_ > 3)
         {
-          timer_->End_Timer("E_z incomplete factorization");
+          RealT elaped_time = timer_->End_Timer();
+          out_stream_ << "E_z incomplete factorization took " << elaped_time << " seconds." << std::endl;
         }
       }
     }

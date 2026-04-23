@@ -1,6 +1,6 @@
 /***********************************************************************
  HdsaLib - A library for Hyper-differential Sensitivity Analysis
- 
+
  Questions? Contact Joseph Hart (joshart@sandia.gov)
 ************************************************************************/
 
@@ -31,9 +31,10 @@ namespace HDSA
 
     // Solve the linear system A*x = b
     template <class RealT>
-    void Iterative_Linear_Solve(HDSA::Vector<RealT> &x, const HDSA::Vector<RealT> &b, const HDSA::Linear_Operator<RealT> &A,
-                                RealT tol, std::string solver = "CG", int verbosity = 0, std::ostream& out_stream = std::cout)
+    std::string Iterative_Linear_Solve(HDSA::Vector<RealT> &x, const HDSA::Vector<RealT> &b, const HDSA::Linear_Operator<RealT> &A,
+                                       RealT tol, std::string solver = "CG", int verbosity = 0, std::ostream &out_stream = std::cout)
     {
+      std::string output_message;
       // Build the problem matrix
       HDSA::Ptr<HDSA::Belos_Operator<RealT>> A_Belos = HDSA::makePtr<HDSA::Belos_Operator<RealT>>(&A);
 
@@ -41,7 +42,7 @@ namespace HDSA
       int blocksize = 1;
       int numrhs = 1;
       bool verbose = false;
-      if (verbosity > 3)
+      if (verbosity > 10)
       {
         verbose = true;
       }
@@ -121,13 +122,18 @@ namespace HDSA
         {
           RealT ach_tol = belos_solver->achievedTol();
           int num_iter = belos_solver->getNumIters();
-          out_stream << "Iterative_Linear_Solve achieved the tolerance " << ach_tol << " with " << num_iter << " iterations" << std::endl;
+          std::ostringstream oss;
+          oss << std::scientific << ach_tol;
+          std::string tol = oss.str();
+          output_message = "Iterative_Linear_Solve achieved the tolerance " + tol + " with " + std::to_string(num_iter) + " iterations";
         }
       }
       else
       {
         x.Zeros();
+        output_message = "Iterative_Linear_Solve returned the null solution";
       }
+      return output_message;
     }
 
     // Compute the SVD of A=U*S*V^T where U and V are orthogonal matrix and S is a diagaonal matrix, stored as a nx1 matrix

@@ -1,6 +1,6 @@
 /***********************************************************************
  HdsaLib - A library for Hyper-differential Sensitivity Analysis
- 
+
  Questions? Contact Joseph Hart (joshart@sandia.gov)
 ************************************************************************/
 
@@ -17,11 +17,12 @@ namespace HDSA
   class Matrix_Sqrt
   {
   private:
+    const std::string solver_type_message_;
     int max_iter_;
     RealT tol_;
 
   public:
-    Matrix_Sqrt(int max_iter = 1000, RealT tol = 1.e-8) : max_iter_(max_iter), tol_(tol)
+    Matrix_Sqrt(const std::string solver_type_message = "", int max_iter = 1000, RealT tol = 1.e-8) : solver_type_message_(solver_type_message), max_iter_(max_iter), tol_(tol)
     {
     }
 
@@ -31,22 +32,22 @@ namespace HDSA
 
     virtual void Apply(HDSA::Vector<RealT> &vec_out, const HDSA::Vector<RealT> &vec_in) const = 0;
 
-    virtual void Preconditioner_Apply(HDSA::Vector<RealT> &vec_out, const HDSA::Vector<RealT> &vec_in) const 
+    virtual void Preconditioner_Apply(HDSA::Vector<RealT> &vec_out, const HDSA::Vector<RealT> &vec_in) const
     {
       vec_out.Set(vec_in);
     }
 
-    virtual void Preconditioner_Transpose_Apply(HDSA::Vector<RealT> &vec_out, const HDSA::Vector<RealT> &vec_in) const 
+    virtual void Preconditioner_Transpose_Apply(HDSA::Vector<RealT> &vec_out, const HDSA::Vector<RealT> &vec_in) const
     {
       vec_out.Set(vec_in);
     }
 
-    virtual void Preconditioner_Inverse_Apply(HDSA::Vector<RealT> &vec_out, const HDSA::Vector<RealT> &vec_in) const 
+    virtual void Preconditioner_Inverse_Apply(HDSA::Vector<RealT> &vec_out, const HDSA::Vector<RealT> &vec_in) const
     {
       vec_out.Set(vec_in);
     }
 
-    void Matrix_Apply(HDSA::Vector<RealT> &vec_out, const HDSA::Vector<RealT> &vec_in) const 
+    void Matrix_Apply(HDSA::Vector<RealT> &vec_out, const HDSA::Vector<RealT> &vec_in) const
     {
       HDSA::Ptr<HDSA::Vector<RealT>> vec_tmp1 = vec_out.Clone();
       Preconditioner_Transpose_Apply(*vec_tmp1, vec_in);
@@ -59,12 +60,19 @@ namespace HDSA
     // Matrix_Sqrt_Apply(Matrix_Sqrt_Apply(v)) ~= Matrix_Apply(v)
     // because the preconditioned system is a factor, i.e., A=S*S^T, but not a square root
 
-    std::vector<RealT> Matrix_Sqrt_Apply(HDSA::Vector<RealT> &vec_out, const HDSA::Vector<RealT> &vec_in)
+    std::string Matrix_Sqrt_Apply(HDSA::Vector<RealT> &vec_out, const HDSA::Vector<RealT> &vec_in)
     {
       HDSA::Ptr<HDSA::Vector<RealT>> vec_tmp = vec_out.Clone();
       std::vector<RealT> rel_res = Krylov_Sqrt(*vec_tmp, vec_in);
-      Preconditioner_Inverse_Apply(vec_out,*vec_tmp);
-      return rel_res;
+      Preconditioner_Inverse_Apply(vec_out, *vec_tmp);
+
+      RealT ach_tol = rel_res.back();
+      int num_iter = rel_res.size() - 1;
+      std::ostringstream oss;
+      oss << std::scientific << ach_tol;
+      std::string tol = oss.str();
+      std::string output_message = solver_type_message_ + "::" + "Matrix_Sqrt_Apply achieved the tolerance " + tol + " with " + std::to_string(num_iter) + " iterations";
+      return output_message;
     }
 
     std::vector<RealT> Krylov_Sqrt(HDSA::Vector<RealT> &vec_out, const HDSA::Vector<RealT> &vec_in)

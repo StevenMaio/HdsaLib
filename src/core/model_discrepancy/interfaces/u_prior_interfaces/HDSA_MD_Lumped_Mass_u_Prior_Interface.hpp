@@ -1,6 +1,6 @@
 /***********************************************************************
  HdsaLib - A library for Hyper-differential Sensitivity Analysis
- 
+
  Questions? Contact Joseph Hart (joshart@sandia.gov)
 ************************************************************************/
 
@@ -88,10 +88,11 @@ namespace HDSA
       {
         timer_->Start_Timer();
       }
-      W_u_acute_plus_scalar_M_u_solver_[i]->Apply_A_Inverse(u_out, u_in);
+      std::string output_message = W_u_acute_plus_scalar_M_u_solver_[i]->Apply_A_Inverse(u_out, u_in);
       if (verbosity_ > 2)
       {
-        timer_->End_Timer("Apply_W_u_Acute_Plus_scalar_M_u_Inverse");
+        RealT elapsed_time = timer_->End_Timer();
+        std::cout << output_message << " in " << elapsed_time << " seconds." << std::endl;
       }
     }
 
@@ -138,11 +139,11 @@ namespace HDSA
         {
           timer_->Start_Timer();
         }
-        std::vector<RealT> rel_res = W_u_acute_plus_scalar_M_u_sqrt_[i]->Matrix_Sqrt_Apply(*vec, *vec_rand);
+        std::string output_message = W_u_acute_plus_scalar_M_u_sqrt_[i]->Matrix_Sqrt_Apply(*vec, *vec_rand);
         if (verbosity_ > 2)
         {
-          out_stream_ << "Matrix_Sqrt_Apply() achieved the tolerance " << rel_res.back() << " with " << rel_res.size() - 1 << " iterations" << std::endl;
-          timer_->End_Timer("Matrix_Sqrt_Apply()");
+          RealT elapsed_time = timer_->End_Timer();
+          std::cout << output_message << " in " << elapsed_time << " seconds." << std::endl;
         }
         Apply_W_u_Acute_Plus_scalar_M_u_Inverse(*samples[s], *vec, scalar);
       }
@@ -159,8 +160,10 @@ namespace HDSA
       A->Set_Symmetric();
       W_u_acute_plus_scalar_M_u_.push_back(A);
 
-      HDSA::Ptr<HDSA::Sparse_Matrix_Solver<RealT>> A_solver = HDSA::makePtr<HDSA::Sparse_Matrix_Solver<RealT>>(A, use_direct_solvers_, verbosity_, out_stream_);
-      HDSA::Ptr<HDSA::Sparse_Matrix_Sqrt<RealT>> A_sqrt = HDSA::makePtr<HDSA::Sparse_Matrix_Sqrt<RealT>>(A);
+      std::string A_solver_message = "W_u_acute_plus_scalar_M_u_Inverse";
+      HDSA::Ptr<HDSA::Sparse_Matrix_Solver<RealT>> A_solver = HDSA::makePtr<HDSA::Sparse_Matrix_Solver<RealT>>(A, use_direct_solvers_, verbosity_, out_stream_, A_solver_message);
+      std::string A_sqrt_solver_message = "W_u_acute_plus_scalar_M_u_Sqrt";
+      HDSA::Ptr<HDSA::Sparse_Matrix_Sqrt<RealT>> A_sqrt = HDSA::makePtr<HDSA::Sparse_Matrix_Sqrt<RealT>>(A, A_sqrt_solver_message);
 
       if (use_incomplete_prec_)
       {
@@ -173,7 +176,8 @@ namespace HDSA
         A_sqrt->Set_Incomplete_Factor(L);
         if (verbosity_ > 2)
         {
-          timer_->End_Timer("Shifted W_u_acute incomplete factorization");
+          RealT elaped_time = timer_->End_Timer();
+          out_stream_ << "Shifted W_u_acute incomplete factorization took " << elaped_time << " seconds." << std::endl;
         }
       }
 
@@ -251,18 +255,20 @@ namespace HDSA
       E_u_->Scaled_Plus(beta_u_new, *S_);
 
       E_u_->Set_Symmetric();
-      E_u_solver_ = HDSA::makePtr<HDSA::Sparse_Matrix_Solver<RealT>>(E_u_, use_direct_solvers_, verbosity_ - 8, out_stream_);
+      std::string A_solver_message = "E_u_Inverse";
+      E_u_solver_ = HDSA::makePtr<HDSA::Sparse_Matrix_Solver<RealT>>(E_u_, use_direct_solvers_, verbosity_, out_stream_, A_solver_message);
       if (use_incomplete_prec_)
       {
-        if (verbosity_ > 2)
+        if (verbosity_ > 3)
         {
           timer_->Start_Timer();
         }
         HDSA::Ptr<HDSA::Incomplete_Chol_Factor<RealT>> L = HDSA::makePtr<HDSA::Incomplete_Chol_Factor<RealT>>(E_u_);
         E_u_solver_->Set_Incomplete_Factor(L);
-        if (verbosity_ > 2)
+        if (verbosity_ > 3)
         {
-          timer_->End_Timer("E_u incomplete factorization");
+          RealT elaped_time = timer_->End_Timer();
+          out_stream_ << "E_u incomplete factorization took " << elaped_time << " seconds." << std::endl;
         }
       }
       Assemble_W_u_Acute();
@@ -270,7 +276,16 @@ namespace HDSA
 
     void Apply_E_u_Inverse(HDSA::Vector<RealT> &u_out, const HDSA::Vector<RealT> &u_in) const
     {
-      E_u_solver_->Apply_A_Inverse(u_out, u_in);
+      if (verbosity_ > 3)
+      {
+        timer_->Start_Timer();
+      }
+      std::string output_message = E_u_solver_->Apply_A_Inverse(u_out, u_in);
+      if (verbosity_ > 3)
+      {
+        RealT elapsed_time = timer_->End_Timer();
+        std::cout << output_message << " in " << elapsed_time << " seconds." << std::endl;
+      }
     }
 
     void Assemble_W_u_Acute(void)

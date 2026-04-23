@@ -36,10 +36,11 @@ namespace HDSA
       timer_->start();
     }
 
-    void End_Timer(const std::string & code_description)
+    RealT End_Timer(void)
     {
       timer_->stop();
-      out_stream_ << code_description << " took " << timer_->totalElapsedTime() << " seconds to execute" << std::endl;
+      RealT elapsed_time = timer_->totalElapsedTime();
+      return elapsed_time;
     }
 
    

@@ -23,7 +23,7 @@ namespace HDSA
     bool use_incomplete_factorization_;
 
   public:
-    Sparse_Matrix_Sqrt(const HDSA::Ptr<HDSA::Sparse_Matrix<RealT>> &A) : A_(A)
+    Sparse_Matrix_Sqrt(const HDSA::Ptr<HDSA::Sparse_Matrix<RealT>> &A, const std::string solver_type_message = "") : HDSA::Matrix_Sqrt<RealT>(solver_type_message), A_(A)
     {
       use_incomplete_factorization_ = false;
     }

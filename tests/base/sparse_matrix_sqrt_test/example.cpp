@@ -65,16 +65,17 @@ int main(int argc, char *argv[])
   HDSA::Ptr<HDSA::Vector<RealT>> vec_in = HDSA::makePtr<HDSA::Tpetra_Vector<RealT>>(tpetra_vec, random_number_generator);
   HDSA::Ptr<HDSA::Vector<RealT>> vec_out = vec_in->Clone();
  
-  std::vector<RealT> rel_res = mat_sqrt->Matrix_Sqrt_Apply(*vec_out, *vec_in);
-  if( (std::abs(vec_out->Norm() - 0.576038) > 1.e-5) || (rel_res.size()>2) )
+  std::string output_message = mat_sqrt->Matrix_Sqrt_Apply(*vec_out, *vec_in);
+  if( std::abs(vec_out->Norm() - 0.576038) > 1.e-5 )
   {
     std::cout << "Test failed" << std::endl;
-    std::cout << "Number of iterations = " << rel_res.size() << std::endl;
+    std::cout << output_message << std::endl;
     std::cout << "vec_out->Norm() = " << vec_out->Norm() << std::endl;
   }
   else
   {
     std::cout << "Test passed" << std::endl;
+    std::cout << output_message << std::endl;
   }
 
   return 0;

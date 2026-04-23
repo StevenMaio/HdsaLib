@@ -18,9 +18,6 @@ ANONYMOUS:
           alpha_u: 0.25
           beta_u: 1.0E-2
           alpha_d: 1.0E-5
-          #prior_num_sing_vals: 200
-          #prior_oversampling: 0
-          #prior_num_subspace_iter: 1
         z:
           alpha_z: .111111111
           beta_z: 1.0E-3
