@@ -26,6 +26,7 @@ def main():
     subdirectories = [
         'PDE_Test_Problem',
         'synthetic_test',
+        'synthetic_test_bilaplacian',
         'synthetic_test_elliptic_prior',
         'synthetic_test_hessian_gevp',
         'synthetic_test_hyperparam_1D',

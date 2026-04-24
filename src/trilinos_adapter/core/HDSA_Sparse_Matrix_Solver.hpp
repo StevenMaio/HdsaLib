@@ -24,6 +24,7 @@ namespace HDSA
 
   private:
     const HDSA::Ptr<HDSA::Sparse_Matrix<RealT>> A_;
+    const HDSA::Ptr<HDSA::Linear_Operator<RealT>> A_op_;
     bool use_direct_;
     HDSA::Ptr<Amesos2::Solver<Tpetra::CrsMatrix<>, Tpetra::MultiVector<>>> solver_;
     HDSA::Ptr<HDSA::Incomplete_Chol_Factor<RealT>> L_;
@@ -31,9 +32,10 @@ namespace HDSA
     int verbosity_;
     std::ostream &out_stream_;
     const std::string solver_type_message_;
+    bool use_op_;
 
   public:
-    Sparse_Matrix_Solver(const HDSA::Ptr<HDSA::Sparse_Matrix<RealT>> &A, bool use_direct = true, int verbosity = 0, std::ostream &out_stream = std::cout, const std::string solver_type_message = "") : A_(A), use_direct_(use_direct), verbosity_(verbosity), out_stream_(out_stream), solver_type_message_(solver_type_message)
+    Sparse_Matrix_Solver(const HDSA::Ptr<HDSA::Sparse_Matrix<RealT>> &A, bool use_direct = true, int verbosity = 0, std::ostream &out_stream = std::cout, const std::string solver_type_message = "") : A_(A), A_op_(nullptr), use_direct_(use_direct), verbosity_(verbosity), out_stream_(out_stream), solver_type_message_(solver_type_message)
     {
       if (use_direct_)
       {
@@ -42,6 +44,13 @@ namespace HDSA
         solver_->numericFactorization();
       }
       use_incomplete_factorization_ = false;
+      use_op_ = false;
+    }
+
+    Sparse_Matrix_Solver(const HDSA::Ptr<HDSA::Linear_Operator<RealT>> &A_op, int verbosity = 0, std::ostream &out_stream = std::cout, const std::string solver_type_message = "") : A_(nullptr), A_op_(A_op), use_direct_(false), verbosity_(verbosity), out_stream_(out_stream), solver_type_message_(solver_type_message)
+    {
+      use_incomplete_factorization_ = false;
+      use_op_ = true;
     }
 
     virtual ~Sparse_Matrix_Solver()
@@ -64,6 +73,11 @@ namespace HDSA
       return use_incomplete_factorization_;
     }
 
+    bool Use_Operator(void) const
+    {
+      return use_op_;
+    }
+
     std::string Apply_A_Inverse(HDSA::Vector<RealT> &x, const HDSA::Vector<RealT> &b)
     {
       std::string output_message;
@@ -80,7 +94,7 @@ namespace HDSA
       {
         RealT tol = 1.0E-10;
         std::string solver = "GMRES";
-        if (A_->Is_Symmetric())
+        if ((A_ && A_->Is_Symmetric()) || (A_op_ && A_op_->Is_Symmetric())) 
         {
           solver = "CG";
         }
@@ -120,17 +134,32 @@ namespace HDSA
 
       void Apply(HDSA::Vector<ScalarType> &y, const HDSA::Vector<ScalarType> &x) const
       {
+
         if (A_invert_->Use_Incomplete_Factor())
         {
           HDSA::Ptr<HDSA::Vector<RealT>> vec_tmp1 = y.Clone();
           A_invert_->L_->Apply_Inverse_Transpose(*vec_tmp1, x);
           HDSA::Ptr<HDSA::Vector<RealT>> vec_tmp2 = y.Clone();
-          A_invert_->A_->Apply(*vec_tmp2, *vec_tmp1);
+          if (A_invert_->Use_Operator())
+          {
+            A_invert_->A_op_->Apply(*vec_tmp2, *vec_tmp1);
+          }
+          else
+          {
+            A_invert_->A_->Apply(*vec_tmp2, *vec_tmp1);
+          }
           A_invert_->L_->Apply_Inverse(y, *vec_tmp2);
         }
         else
         {
-          A_invert_->A_->Apply(y, x);
+          if (A_invert_->Use_Operator())
+          {
+            A_invert_->A_op_->Apply(y, x);
+          }
+          else
+          {
+            A_invert_->A_->Apply(y, x);
+          }
         }
       }
     };
