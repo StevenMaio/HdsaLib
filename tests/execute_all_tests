@@ -1,0 +1,11 @@
+cd base
+python3 run_tests.py
+cd ..
+
+cd model_discrepancy
+python3 run_tests.py
+cd ..
+
+cd pseudo_time_continuation
+python3 run_tests.py
+cd ..

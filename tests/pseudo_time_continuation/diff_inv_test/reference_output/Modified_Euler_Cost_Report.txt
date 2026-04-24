@@ -1,0 +1,5 @@
+Number of B-vector products: 80
+Number of H-vector products: 400
+Number of gradient evaluations: 121
+Number of vectors stored for preconditioner: 1524
+Solution gradient Norm = 1.25141e-08

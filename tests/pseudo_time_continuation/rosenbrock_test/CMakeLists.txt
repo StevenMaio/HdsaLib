@@ -22,5 +22,14 @@ add_custom_command(TARGET rosenbrock_test_example_sensitivity.exe POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy
         ${SOURCE_DIR}/Plotting_Script.m
         ${TARGET_DIR}/Plotting_Script.m
+    COMMAND ${CMAKE_COMMAND} -E copy
+        ${SOURCE_DIR}/run_test.py
+        ${TARGET_DIR}/run_test.py
+    COMMAND ${CMAKE_COMMAND} -E copy
+        ${SOURCE_DIR}/reference_output/z_star.txt
+        ${TARGET_DIR}/reference_output/z_star.txt
+    COMMAND ${CMAKE_COMMAND} -E copy
+        ${SOURCE_DIR}/reference_output/Modified_Euler_Cost_Report.txt
+        ${TARGET_DIR}/reference_output/Modified_Euler_Cost_Report.txt
     COMMENT "Copying files to the output directory"
 )

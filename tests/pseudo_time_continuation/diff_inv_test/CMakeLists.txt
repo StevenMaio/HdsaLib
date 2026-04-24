@@ -37,5 +37,29 @@ add_custom_command(TARGET diff_inv_test_example_sensitivity.exe POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy
         ${SOURCE_DIR}/random_numbers.txt 
         ${TARGET_DIR}/random_numbers.txt 
+    COMMAND ${CMAKE_COMMAND} -E copy
+        ${SOURCE_DIR}/run_test.py
+        ${TARGET_DIR}/run_test.py
+    COMMAND ${CMAKE_COMMAND} -E copy
+        ${SOURCE_DIR}/reference_output/Forward_Euler_Cost_Report.txt
+        ${TARGET_DIR}/reference_output/Forward_Euler_Cost_Report.txt
+    COMMAND ${CMAKE_COMMAND} -E copy
+        ${SOURCE_DIR}/reference_output/Modified_Euler_Cost_Report.txt
+        ${TARGET_DIR}/reference_output/Modified_Euler_Cost_Report.txt
+    COMMAND ${CMAKE_COMMAND} -E copy
+        ${SOURCE_DIR}/reference_output/grad_star_fe.txt
+        ${TARGET_DIR}/reference_output/grad_star_fe.txt
+    COMMAND ${CMAKE_COMMAND} -E copy
+        ${SOURCE_DIR}/reference_output/grad_star_me.txt
+        ${TARGET_DIR}/reference_output/grad_star_me.txt
+    COMMAND ${CMAKE_COMMAND} -E copy
+        ${SOURCE_DIR}/reference_output/hessian_evals.txt
+        ${TARGET_DIR}/reference_output/hessian_evals.txt
+    COMMAND ${CMAKE_COMMAND} -E copy
+        ${SOURCE_DIR}/reference_output/z_star_fe.txt
+        ${TARGET_DIR}/reference_output/z_star_fe.txt
+    COMMAND ${CMAKE_COMMAND} -E copy
+        ${SOURCE_DIR}/reference_output/z_star_me.txt
+        ${TARGET_DIR}/reference_output/z_star_me.txt
     COMMENT "Copying files to the output directory"
 )
