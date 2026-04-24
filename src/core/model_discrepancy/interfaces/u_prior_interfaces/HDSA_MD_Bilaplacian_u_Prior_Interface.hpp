@@ -90,7 +90,7 @@ namespace HDSA
       if (verbosity_ > 2)
       {
         RealT elapsed_time = timer_->End_Timer();
-        std::cout << output_message << " in " << elapsed_time << " seconds." << std::endl;
+        out_stream_ << output_message << " in " << elapsed_time << " seconds." << std::endl;
       }
     }
 
@@ -106,7 +106,7 @@ namespace HDSA
         if (verbosity_ > 3)
         {
           RealT elapsed_time = timer_->End_Timer();
-          std::cout << output_message << " in " << elapsed_time << " seconds." << std::endl;
+          out_stream_ << output_message << " in " << elapsed_time << " seconds." << std::endl;
         }
         Apply_E_u_Inverse(*samples[k], *vec);
       }
@@ -143,7 +143,7 @@ namespace HDSA
         if (verbosity_ > 2)
         {
           RealT elapsed_time = timer_->End_Timer();
-          std::cout << output_message << " in " << elapsed_time << " seconds." << std::endl;
+          out_stream_ << output_message << " in " << elapsed_time << " seconds." << std::endl;
         }
         Apply_W_u_Acute_Plus_scalar_M_u_Inverse(*samples[s], *vec, scalar);
       }
@@ -297,7 +297,7 @@ namespace HDSA
       if (verbosity_ > 3)
       {
         RealT elapsed_time = timer_->End_Timer();
-        std::cout << output_message << " in " << elapsed_time << " seconds." << std::endl;
+        out_stream_ << output_message << " in " << elapsed_time << " seconds." << std::endl;
       }
     }
 

@@ -13,6 +13,7 @@ ANONYMOUS:
         verbosity: 3
       Prior Computation:
         State Prior: "Bilaplacian"
+        #State Prior: "Lumped_Mass"
         use_incomplete_prec: true
       HyperParameters:
         T:

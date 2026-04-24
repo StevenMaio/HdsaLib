@@ -9,4 +9,5 @@ fwd_hifi_data_generation/*.txt
 hdsa_exo/mrhyde
 hdsa_exo/dmrhyde
 hdsa_exo/*exo*
+hdsa_exo/*.txt
 hdsa_exo/hdsa_output/
