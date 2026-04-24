@@ -13,3 +13,16 @@ set_target_properties(sparse_matrix_sqrt_test_example.exe PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/tests/base/sparse_matrix_sqrt_test
 )
 
+# Define the source directory and the target directory
+set(SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR})
+set(TARGET_DIR ${CMAKE_BINARY_DIR}/tests/base/sparse_matrix_sqrt_test)
+
+# Copy the required files to the output directory
+add_custom_command(TARGET sparse_matrix_sqrt_test_example.exe POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy
+        ${SOURCE_DIR}/run_test.py 
+        ${TARGET_DIR}/run_test.py 
+    COMMAND ${CMAKE_COMMAND} -E copy
+        ${SOURCE_DIR}/reference_output/error.txt
+        ${TARGET_DIR}/reference_output/error.txt
+)

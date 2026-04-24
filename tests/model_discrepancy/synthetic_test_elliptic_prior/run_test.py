@@ -6,7 +6,7 @@ import shutil
 def execute_executable(executable_path):
     """Execute the specified executable file."""
     try:
-        subprocess.run(executable_path, check=True)
+        subprocess.run(executable_path, check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         #print(f"Executed {executable_path} successfully.")
     except subprocess.CalledProcessError as e:
         print(f"Error executing {executable_path}: {e}")

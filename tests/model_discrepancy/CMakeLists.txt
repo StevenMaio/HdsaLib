@@ -26,4 +26,4 @@ add_custom_command(OUTPUT ${TARGET_DIR}/run_tests.py
 )
 
 # Ensure the custom command runs after the subdirectories are processed
-add_custom_target(copy_run_tests ALL DEPENDS ${TARGET_DIR}/run_tests.py)
+add_custom_target(copy_run_tests_model_discrepancy ALL DEPENDS ${TARGET_DIR}/run_tests.py)

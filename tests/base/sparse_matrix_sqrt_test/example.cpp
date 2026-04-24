@@ -1,6 +1,6 @@
 /***********************************************************************
  HdsaLib - A library for Hyper-differential Sensitivity Analysis
- 
+
  Questions? Contact Joseph Hart (joshart@sandia.gov)
 ************************************************************************/
 
@@ -64,9 +64,20 @@ int main(int argc, char *argv[])
   }
   HDSA::Ptr<HDSA::Vector<RealT>> vec_in = HDSA::makePtr<HDSA::Tpetra_Vector<RealT>>(tpetra_vec, random_number_generator);
   HDSA::Ptr<HDSA::Vector<RealT>> vec_out = vec_in->Clone();
- 
+
   std::string output_message = mat_sqrt->Matrix_Sqrt_Apply(*vec_out, *vec_in);
-  if( std::abs(vec_out->Norm() - 0.576038) > 1.e-5 )
+
+  std::vector<RealT> error = std::vector<RealT>(1);
+  error[0] = std::abs(vec_out->Norm() - 0.576038);
+
+  std::ofstream out("error.txt");
+  for (const RealT &x : error)
+  {
+    out << x << '\n';
+  }
+  out.close();
+
+  if (error[0] > 1.e-5)
   {
     std::cout << "Test failed" << std::endl;
     std::cout << output_message << std::endl;

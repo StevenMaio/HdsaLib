@@ -25,7 +25,7 @@ def compare_files(file1, file2):
 
 def main():
     # Define paths
-    executable_path = './synthetic_test_bilaplacian_example_sensitivity.exe'
+    executable_path = './sparse_matrix_solver_test_example.exe'
     output_directory = '.'  # Assuming the .exe outputs files in the current directory and subdirectories
     reference_directory = 'reference_output'
 
@@ -50,7 +50,7 @@ def main():
             print(f"Reference file {reference_file} does not exist.")
 
     # Define the command to execute
-    command = 'rm -rf diffs.txt'
+    command = 'rm -rf error.txt'
 
     # Execute the command
     try:
