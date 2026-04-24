@@ -21,6 +21,7 @@
 #include "HDSA_Prior_Operators_Interface_MrHyDE.hpp"
 #include "HDSA_MD_u_Prior_Interface.hpp"
 #include "HDSA_MD_Numeric_Laplacian_u_Prior_Interface.hpp"
+#include "HDSA_MD_Bilaplacian_u_Prior_Interface.hpp"
 #include "HDSA_MD_Lumped_Mass_u_Prior_Interface.hpp"
 #include "HDSA_MD_Multi_State_u_Prior_Interface.hpp"
 #include "HDSA_MD_z_Prior_Interface.hpp"
@@ -99,15 +100,15 @@ public:
     int num_posterior_samples = HDSAsettings.sublist("Configuration").get<int>("num_posterior_samples", 0);
     int prior_num_state_solves = HDSAsettings.sublist("Configuration").get<int>("prior_num_state_solves", 0);
     int hdsa_verbosity = HDSAsettings.sublist("Configuration").get<int>("verbosity", 0);
-    bool use_lumped_mass_prior = HDSAsettings.sublist("Configuration").get<bool>("use_lumped_mass_prior", false);
-    bool use_direct_solvers = HDSAsettings.sublist("Configuration").get<bool>("use_direct_solvers", false);
-    bool use_incomplete_prec = HDSAsettings.sublist("Configuration").get<bool>("use_incomplete_prec", true);
     bool execute_prior_discrepancy_sampling = HDSAsettings.sublist("Configuration").get<bool>("execute_prior_discrepancy_sampling", false);
     bool execute_posterior_discrepancy_sampling = HDSAsettings.sublist("Configuration").get<bool>("execute_posterior_discrepancy_sampling", false);
     bool execute_optimal_solution_update = HDSAsettings.sublist("Configuration").get<bool>("execute_optimal_solution_update", false);
 
-    int num_states = solver_->varlist[0][0].size();
+    std::string prior_computation = HDSAsettings.sublist("Prior Computation").get<std::string>("State Prior", "Numeric_Laplacian");
+    bool use_direct_solvers = HDSAsettings.sublist("Prior Computation").get<bool>("use_direct_solvers", false);
+    bool use_incomplete_prec = HDSAsettings.sublist("Prior Computation").get<bool>("use_incomplete_prec", true);
 
+    int num_states = solver_->varlist[0][0].size();
     std::vector<ScalarT> alpha_u = std::vector<ScalarT>(num_states, 0.0);
     std::vector<ScalarT> beta_u = std::vector<ScalarT>(num_states, 0.0);
     std::vector<ScalarT> beta_t = std::vector<ScalarT>(num_states, 0.0);
@@ -298,9 +299,13 @@ public:
         {
           HDSA::Ptr<HDSA::MD_OUU_Data_Interface<ScalarT>> ouu_data_interface = Teuchos::rcp_dynamic_cast<HDSA::MD_OUU_Data_Interface<ScalarT>>(data_interface);
           HDSA::Ptr<HDSA::MD_OUU_Hyperparameter_Data_Interface<ScalarT>> data_interface_hyperparam = HDSA::makePtr<HDSA::MD_OUU_Hyperparameter_Data_Interface<ScalarT>>(ouu_data_interface);
-          if (use_lumped_mass_prior)
+          if (prior_computation == "Lumped_Mass")
           {
             spatial_u_prior_interface_k = HDSA::makePtr<HDSA::MD_Lumped_Mass_u_Prior_Interface<ScalarT>>(S, M, data_interface_hyperparam, u_hyperparam_interface_std[k], hdsa_comm, random_number_generator, use_direct_solvers, hdsa_verbosity, use_incomplete_prec, *outStream);
+          }
+          else if (prior_computation == "Bilaplacian")
+          {
+            spatial_u_prior_interface_k = HDSA::makePtr<HDSA::MD_Bilaplacian_u_Prior_Interface<ScalarT>>(S, M, data_interface_hyperparam, u_hyperparam_interface_std[k], hdsa_comm, random_number_generator, use_direct_solvers, hdsa_verbosity, use_incomplete_prec, *outStream);
           }
           else
           {
@@ -312,9 +317,13 @@ public:
         else
         {
           int n_y = data_interface->Get_u_opt()->Dimension() / n_t;
-          if (use_lumped_mass_prior)
+          if (prior_computation == "Lumped_Mass")
           {
             spatial_u_prior_interface_k = HDSA::makePtr<HDSA::MD_Lumped_Mass_u_Prior_Interface<ScalarT>>(S, M, data_interface, u_hyperparam_interface_std[k], hdsa_comm, random_number_generator, use_direct_solvers, hdsa_verbosity, use_incomplete_prec, *outStream);
+          }
+          if (prior_computation == "Bilaplacian")
+          {
+            spatial_u_prior_interface_k = HDSA::makePtr<HDSA::MD_Bilaplacian_u_Prior_Interface<ScalarT>>(S, M, data_interface, u_hyperparam_interface_std[k], hdsa_comm, random_number_generator, use_direct_solvers, hdsa_verbosity, use_incomplete_prec, *outStream);
           }
           else
           {
@@ -331,9 +340,13 @@ public:
         {
           HDSA::Ptr<HDSA::MD_OUU_Data_Interface<ScalarT>> ouu_data_interface = Teuchos::rcp_dynamic_cast<HDSA::MD_OUU_Data_Interface<ScalarT>>(data_interface);
           HDSA::Ptr<HDSA::MD_OUU_Hyperparameter_Data_Interface<ScalarT>> data_interface_hyperparam = HDSA::makePtr<HDSA::MD_OUU_Hyperparameter_Data_Interface<ScalarT>>(ouu_data_interface);
-          if (use_lumped_mass_prior)
+          if (prior_computation == "Lumped_Mass")
           {
             u_prior_interface_std[k] = HDSA::makePtr<HDSA::MD_Lumped_Mass_u_Prior_Interface<ScalarT>>(S, M, data_interface_hyperparam, u_hyperparam_interface_std[k], hdsa_comm, random_number_generator, use_direct_solvers, hdsa_verbosity, use_incomplete_prec, *outStream);
+          }
+          else if (prior_computation == "Bilaplacian")
+          {
+            u_prior_interface_std[k] = HDSA::makePtr<HDSA::MD_Bilaplacian_u_Prior_Interface<ScalarT>>(S, M, data_interface_hyperparam, u_hyperparam_interface_std[k], hdsa_comm, random_number_generator, use_direct_solvers, hdsa_verbosity, use_incomplete_prec, *outStream);
           }
           else
           {
@@ -342,9 +355,13 @@ public:
         }
         else
         {
-          if (use_lumped_mass_prior)
+          if (prior_computation == "Lumped_Mass")
           {
             u_prior_interface_std[k] = HDSA::makePtr<HDSA::MD_Lumped_Mass_u_Prior_Interface<ScalarT>>(S, M, data_interface, u_hyperparam_interface_std[k], hdsa_comm, random_number_generator, use_direct_solvers, hdsa_verbosity, use_incomplete_prec, *outStream);
+          }
+          else if (prior_computation == "Bilaplacian")
+          {
+            u_prior_interface_std[k] = HDSA::makePtr<HDSA::MD_Bilaplacian_u_Prior_Interface<ScalarT>>(S, M, data_interface, u_hyperparam_interface_std[k], hdsa_comm, random_number_generator, use_direct_solvers, hdsa_verbosity, use_incomplete_prec, *outStream);
           }
           else
           {

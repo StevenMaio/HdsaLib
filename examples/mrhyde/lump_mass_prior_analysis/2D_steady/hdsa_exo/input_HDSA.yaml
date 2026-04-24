@@ -11,7 +11,8 @@ ANONYMOUS:
         execute_posterior_discrepancy_sampling: true
         execute_optimal_solution_update: false
         verbosity: 3
-        use_lumped_mass_prior: true
+      Prior Computation:
+        State Prior: "Bilaplacian"
         use_incomplete_prec: true
       HyperParameters:
         T:
