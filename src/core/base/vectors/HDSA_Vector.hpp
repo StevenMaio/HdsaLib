@@ -8,6 +8,7 @@
 #define HDSA_VECTOR_HPP
 
 #include "HDSA_Stack_Trace.hpp"
+#include "HDSA_Ptr.hpp"
 
 namespace HDSA
 {
