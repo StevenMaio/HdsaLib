@@ -93,17 +93,17 @@ target_include_directories(HdsaLib INTERFACE
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/core/model_discrepancy/interfaces/z_prior_interfaces>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/core/model_discrepancy/analysis/prior>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/core/model_discrepancy/analysis/posterior>
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/core/model_discrepancy/analysis/auxillary>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/core/model_discrepancy/analysis/auxiliary>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/core/pseudo_time_continuation/interfaces>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/core/pseudo_time_continuation/analysis>
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/core/base/auxillary>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/core/base/auxiliary>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/core/base/linear_algebra>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/core/base/vectors>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/trilinos_adapter/adapters>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/trilinos_adapter/core>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/interfaces/rol>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/interfaces/mrhyde/md_interfaces>
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/interfaces/mrhyde/auxillary>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/interfaces/mrhyde/auxiliary>
     $<INSTALL_INTERFACE:include>
 )
 
