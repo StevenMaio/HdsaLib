@@ -5,9 +5,9 @@ TRILINOS_HOME='/Users/joshart/software/Trilinos'
  
 TRILINOS_INSTALL='/Users/joshart/software/Trilinos/trilinos-clang'
  
-HDSALIB_HOME='/Users/joshart/software/hdsalib'
+HDSALIB_HOME='/Users/joshart/software/HdsaLib'
  
-HDSALIB_INSTALL='/Users/joshart/software/hdsalib/install'
+HDSALIB_INSTALL='/Users/joshart/software/HdsaLib/install'
  
 cmake \
 -GNinja \

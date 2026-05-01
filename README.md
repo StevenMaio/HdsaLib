@@ -8,6 +8,7 @@ This C++ library implements various Hyper-differential Sensitivity Analysis algo
 - [**examples/**](./examples/): Applications / examples with real physics.
 - [**tests/**](./tests/): Unit tests and toy examples for verification.
 - [**scripts/**](./scripts/): Example scripts for configuration
+- [**docs/**](./docs/): Documentation.
 
 ### Installation
 

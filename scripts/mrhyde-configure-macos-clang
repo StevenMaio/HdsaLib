@@ -1,9 +1,5 @@
 EXTRA_ARGS=$@
 
-# Machine name: s1060545
-# Machine type: mac laptop OS Monterey
-# Build type: serial
-# Compiler: clang-14
 # Modules installed using Homebrew: open-mpi, boost, hdf5-mpi, netcdf, cmake, ninja
 # May also need to use Homebrew to install: zlib, pnetcdf, libx11
  
@@ -14,7 +10,7 @@ TRILINOS_HOME='/Users/joshart/software/Trilinos'
  
 TRILINOS_INSTALL='/Users/joshart/software/Trilinos/trilinos-clang'
 
-HDSALIB_HOME='/Users/joshart/software/hdsalib' 
+HDSALIB_HOME='/Users/joshart/software/HdsaLib' 
  
 MRHYDE_HOME='/Users/joshart/software/MrHyDE'
  
