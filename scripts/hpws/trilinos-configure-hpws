@@ -1,0 +1,58 @@
+rm CMakeCache.txt
+rm -rf CMakeFiles/
+
+WORKSPACE=/ascldap/users/joshart/software
+
+INSTALL_DIR=/ascldap/users/joshart/software/Trilinos/build_opt_hpws/install-opt
+
+EXTRA_ARGS=$@
+
+cmake \
+-GNinja \
+-D CMAKE_CXX_FLAGS:STRING=" -O3 -DNDEBUG" \
+-D TPL_ENABLE_MPI:BOOL=ON \
+-D CMAKE_BUILD_TYPE:STRING=RELEASE \
+-D Trilinos_ENABLE_CHECKED_STL:BOOL=OFF \
+-D Trilinos_ENABLE_EXPLICIT_INSTANTIATION:BOOL=ON \
+-D Trilinos_ENABLE_INSTALL_CMAKE_CONFIG_FILES:BOOL=ON \
+-D Trilinos_SKIP_FORTRANCINTERFACE_VERIFY_TEST:BOOL=ON \
+-D Trilinos_ENABLE_EXAMPLES:BOOL=OFF \
+-D Trilinos_ENABLE_TESTS:BOOL=OFF \
+-D Trilinos_ENABLE_ALL_PACKAGES:BOOL=OFF \
+-D Trilinos_ENABLE_ALL_OPTIONAL_PACKAGES:BOOL=OFF \
+-D Trilinos_ENABLE_Belos:BOOL=ON \
+-D Trilinos_ENABLE_ROL:BOOL=ON \
+-D Trilinos_ENABLE_PanzerCore=ON \
+-D Trilinos_ENABLE_PanzerDofMgr=ON \
+-D Trilinos_ENABLE_PanzerMiniEM=OFF \
+-D Trilinos_ENABLE_PanzerAdaptersSTK=ON \
+-D Trilinos_ENABLE_PanzerAdaptersIOSS=ON \
+-D Trilinos_ENABLE_Intrepid:BOOL=ON \
+-D Trilinos_ENABLE_Intrepid2:BOOL=ON \
+-D Trilinos_ENABLE_Shards:BOOL=ON \
+-D Trilinos_ENABLE_Amesos2:BOOL=ON \
+-D Trilinos_ENABLE_Belos:BOOL=ON \
+-D Trilinos_ENABLE_MueLu:BOOL=ON \
+-D Trilinos_ENABLE_Percept:BOOL=OFF \
+-D Trilinos_ENABLE_Compadre:BOOL=ON \
+-D PanzerAdaptersSTK_ENABLE_EXAMPLES=OFF \
+-D PanzerAdaptersSTK_ENABLE_TESTS=OFF \
+-D TPL_ENABLE_Matio=OFF \
+-D STK_ENABLE_TESTS:BOOL=OFF \
+-D Panzer_ENABLE_TESTS:BOOL=OFF \
+-D Panzer_ENABLE_EXAMPLES:BOOL=OFF \
+-D Panzer_ENABLE_EXPLICIT_INSTANTIATION:BOOL=ON \
+-D PANZER_HAVE_PERCEPT:BOOL=OFF \
+-D ROL_ENABLE_TESTS:BOOL=OFF \
+-D ROL_ENABLE_EXAMPLES:BOOL=OFF \
+-D CMAKE_INSTALL_PREFIX:PATH=${INSTALL_DIR} \
+-D TPL_ENABLE_Boost:BOOL=ON \
+-D TPL_ENABLE_BoostLib:BOOL=ON \
+-D TPL_ENABLE_Netcdf:BOOL=ON \
+-D TPL_ENABLE_HDF5=ON \
+-D HDF5_LIBRARY_DIRS='/projects/aue/modules/cee/x86_64/rhel8/aue/hdf5/' \
+-D SEACASExodus_ENABLE_MPI:BOOL=OFF \
+-D TPL_ENABLE_GLM=OFF \
+-D Kokkos_ENABLE_SERIAL=ON \
+$EXTRA_ARGS \
+$WORKSPACE/Trilinos

@@ -1,0 +1,28 @@
+EXTRA_ARGS=$@
+
+rm CMakeCache.txt
+rm -rf CMakeFiles/
+ 
+TRILINOS_HOME=/ascldap/users/joshart/software/Trilinos
+ 
+TRILINOS_INSTALL=/ascldap/users/joshart/software/Trilinos/build_opt_hpws/install-opt/lib64/cmake/Trilinos
+ 
+MRHYDE_HOME=/ascldap/users/joshart/software/MrHyDE
+ 
+MRHYDE_INSTALL=/ascldap/users/joshart/software/MrHyDE/build_opt_hpws/install-opt
+
+HDSALIB_HOME=/ascldap/users/joshart/software/HdsaLib
+
+cmake \
+-GNinja \
+-D Trilinos_SRC_DIR=${TRILINOS_HOME} \
+-D Trilinos_INSTALL_DIR=${TRILINOS_INSTALL} \
+-D HdsaLib_SRC_DIR=${HDSALIB_HOME} \
+-D CMAKE_INSTALL_PREFIX:PATH=${MRHYDE_INSTALL} \
+-D CMAKE_CXX_FLAGS:STRING="-Wall -std=c++20" \
+-D MrHyDE_ENABLE_SANDBOX=ON \
+-D MrHyDE_MAX_DERIVS=64 \
+-D MrHyDE_BUILD_DOXYGEN=false \
+-D MrHyDE_ENABLE_HDSA=ON \
+${EXTRA-ARGS} \
+${MRHYDE_HOME}

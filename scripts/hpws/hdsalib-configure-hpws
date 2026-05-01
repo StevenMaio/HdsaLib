@@ -1,0 +1,18 @@
+rm CMakeCache.txt
+rm -rf CMakeFiles/
+ 
+TRILINOS_HOME=/ascldap/users/joshart/software/Trilinos
+ 
+TRILINOS_INSTALL=/ascldap/users/joshart/software/Trilinos/build_opt_hpws/install-opt/lib64/cmake/Trilinos
+ 
+HDSALIB_HOME=/ascldap/users/joshart/software/HdsaLib
+ 
+HDSALIB_INSTALL=/ascldap/users/joshart/software/HdsaLib/install
+ 
+cmake \
+-GNinja \
+-D Trilinos_SRC_DIR=${TRILINOS_HOME} \
+-D Trilinos_INSTALL_DIR=${TRILINOS_INSTALL} \
+-D CMAKE_INSTALL_PREFIX:PATH=${HDSALIB_INSTALL} \
+-D CMAKE_CXX_FLAGS:STRING="-Wall" \
+${HDSALIB_HOME}
