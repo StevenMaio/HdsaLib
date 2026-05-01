@@ -11,6 +11,8 @@
 #include <cstdlib>
 #include <random>
 #include "HDSA_Stack_Trace.hpp"
+#include "HDSA_Comm.hpp"
+#include "HDSA_Ptr.hpp"
 
 namespace HDSA
 {
