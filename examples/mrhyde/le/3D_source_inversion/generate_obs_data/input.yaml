@@ -21,8 +21,11 @@ ANONYMOUS:
     save sensor data: true
   Parameters input file: input_params.yaml
   Physics:
+    #modules: thermal, linearelasticity
     modules: linearelasticity
     Dirichlet conditions:
+      T:
+        front: '1000.0*exp(-100*((x-.5)^2+(y-.5)^2))' 
       dx:
         left: '0.0'
         right: '0.0'
@@ -39,11 +42,14 @@ ANONYMOUS:
     source dx: '0.0'
     source dy: '0.0'
     source dz: '0.0'
+    thermal diffusion: '10.0'
+    alpha_T: '1.e2'
   Discretization:
     order:
       dx: 1
       dy: 1
       dz: 1
+      T: 1
     quadrature: 2
   Solver:
     solver: steady-state
@@ -52,29 +58,4 @@ ANONYMOUS:
     linear TOL: 1.0e-10
   Postprocess: 
     write solution: true 
-    response type: pointwise
-    # compute objective: true
-    # write objective to file: true
-    # Objective functions:
-    #   val_dx:
-    #     type: sensors
-    #     sensor points file: sensor_points.dat
-    #     save sensor data: true
-    #     sensor data file: sensor_data_dx.dat
-    #     response: 'dx'
-    #     weight: 1.0
-    #   val_dy:
-    #     type: sensors
-    #     sensor points file: sensor_points.dat
-    #     save sensor data: true
-    #     sensor data file: sensor_data_dy.dat
-    #     response: 'dy'
-    #     weight: 1.0
-    #   val_dz:
-    #     type: sensors
-    #     sensor points file: sensor_points.dat
-    #     save sensor data: true
-    #     sensor data file: sensor_data_dz.dat
-    #     response: 'dz'
-    #     weight: 1.0
 ...
