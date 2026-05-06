@@ -1,0 +1,80 @@
+%YAML 1.1
+---
+ANONYMOUS:
+  verbosity: 0
+  debug level: 0
+  Mesh:
+    dimension: 3
+    element type: hex
+    xmin: 0.0
+    xmax: 1.0
+    ymin: 0.0
+    ymax: 1.0
+    zmin: 0.0
+    zmax: 0.3
+    NX: 50
+    NY: 50
+    NZ: 15
+  Analysis:
+    analysis type: forward
+    have sensor data: false
+    save sensor data: true
+  Parameters input file: input_params.yaml
+  Physics:
+    modules: linearelasticity
+    Dirichlet conditions:
+      dx:
+        left: '0.0'
+        right: '0.0'
+      dy:
+        left: '0.0'
+        right: '0.0'
+      dz:
+        left: '0.0'
+        right: '0.0'
+    Neumann conditions:
+      dz:
+        front: '-exp(-100*((x-.5)^2+(y-.5)^2))' 
+  Functions:
+    source dx: '0.0'
+    source dy: '0.0'
+    source dz: '0.0'
+  Discretization:
+    order:
+      dx: 1
+      dy: 1
+      dz: 1
+    quadrature: 2
+  Solver:
+    solver: steady-state
+    workset size: 1
+    max nonlinear iters: 2
+    linear TOL: 1.0e-10
+  Postprocess: 
+    write solution: true 
+    response type: pointwise
+    # compute objective: true
+    # write objective to file: true
+    # Objective functions:
+    #   val_dx:
+    #     type: sensors
+    #     sensor points file: sensor_points.dat
+    #     save sensor data: true
+    #     sensor data file: sensor_data_dx.dat
+    #     response: 'dx'
+    #     weight: 1.0
+    #   val_dy:
+    #     type: sensors
+    #     sensor points file: sensor_points.dat
+    #     save sensor data: true
+    #     sensor data file: sensor_data_dy.dat
+    #     response: 'dy'
+    #     weight: 1.0
+    #   val_dz:
+    #     type: sensors
+    #     sensor points file: sensor_points.dat
+    #     save sensor data: true
+    #     sensor data file: sensor_data_dz.dat
+    #     response: 'dz'
+    #     weight: 1.0
+...
