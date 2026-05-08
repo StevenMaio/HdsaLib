@@ -1,14 +1,14 @@
 import numpy as np
 
 # Number of sensor points
-num_sensors = 10
+num_sensors = 100
 
-# Generate random points in (0,1)^2
 xy = np.random.rand(num_sensors, 2)
-
-# Append z = 0 for every point
-z = np.zeros((num_sensors, 1))
-points = np.hstack((xy, z))
+xy[:,1] = .4 * xy[:,1]
+z = np.ones((num_sensors, 1))
+points0 = np.hstack((xy, 0*z))
+points1 = np.hstack((xy, .1*z))
+points = np.vstack((points0,points1))
 
 # Write to file
 np.savetxt("sensor_points.dat", points, fmt="%.8f")

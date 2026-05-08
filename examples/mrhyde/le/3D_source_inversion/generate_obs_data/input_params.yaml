@@ -2,12 +2,14 @@
 ---
 ANONYMOUS:
   Parameters: 
-    lambda: 
-      type: scalar
-      value: 4.64e+10
-      usage: inactive
-    mu: 
-      type: scalar
-      value: 4.10e+10
-      usage: inactive
+    mufield: 
+      type: HGRAD
+      order: 1
+      usage: discretized
+      initial_value: 1.0
+    lambdafield: 
+      type: HGRAD
+      order: 1
+      usage: discretized
+      initial_value: 1.0
 ...
