@@ -30,9 +30,9 @@ ANONYMOUS:
           Barzilai-Borwein Type: 1
         Krylov:
           Type: Conjugate Gradients
-          Absolute Tolerance: 1.0e-6
-          Relative Tolerance: 1.0e-4
-          Iteration Limit: 20
+          Absolute Tolerance: 1.0e-8
+          Relative Tolerance: 1.0e-8
+          Iteration Limit: 200
       Step:
         Line Search:
           Function Evaluation Limit: 20
@@ -57,7 +57,7 @@ ANONYMOUS:
               Upper Bound on Path Length: 1.0
         Trust Region:
           Subproblem Solver: Truncated CG
-          Initial Radius: 1.0e+02
+          Initial Radius: 1.0e+05
           Maximum Radius: 5.0e+18
           Step Acceptance Threshold: 5.0e-02
           Radius Shrinking Threshold: 5.0e-02
@@ -124,7 +124,7 @@ ANONYMOUS:
           Cutting Plane Tolerance: 1.0e-8
           Cutting Plane Iteration Limit: 1000
       Status Test:
-        Gradient Tolerance: 1.0e-9
+        Gradient Tolerance: 1.0e-8
         Constraint Tolerance: 1.0e-9
         Step Tolerance: 1.0e-12
         Iteration Limit: 100

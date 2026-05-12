@@ -12,9 +12,9 @@ ANONYMOUS:
     ymax: 1.0
     zmin: 0.0
     zmax: 1.0
-    NX: 49
-    NY: 49
-    NZ: 49
+    NX: 99
+    NY: 99
+    NZ: 99
   Physics: 
     modules: thermal
     include advection: true
@@ -28,11 +28,12 @@ ANONYMOUS:
   Parameters input file: input_params.yaml
   Analysis input file: input_readExo.yaml
   Solver:
-    workset size: 5
+    workset size: 100
     solver: steady-state
     nonlineam TOL: 1.0e-9
-    linear TOL: 1.0e-13
+    linear TOL: 1.0e-10
     max nonlinear iters: 4
+    max linear iters: 1000
   Postprocess: 
     response type: pointwise
     compute objective: true
