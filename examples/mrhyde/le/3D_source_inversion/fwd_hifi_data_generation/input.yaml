@@ -17,7 +17,7 @@ ANONYMOUS:
     NZ: 10
   Physics: 
     modules: thermal, linearelasticity
-    alpha_T: 0.0
+    alpha_T: 0.25
     Dirichlet conditions:
       T:
         top: 0.0
@@ -55,4 +55,4 @@ ANONYMOUS:
   Functions:
     mu: '1.0'
     lambda: lambdafield 
-    thermal source: 0.0 * exp(-50.0 * ( (x-0.5)^2 + (y-0.2)^2 + (z-0.02)^2 ) )
+    thermal source: 100.0 * exp(-50.0 * ( (x-0.5)^2 + (y-0.2)^2 + (z-0.02)^2 ) )

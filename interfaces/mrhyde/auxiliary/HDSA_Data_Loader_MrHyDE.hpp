@@ -163,7 +163,7 @@ public:
     for (int k = 0; k < n_list.size(); k++)
     {
       int n = n_list[k];
-      int n_var = n;
+      int n_var = k;
       if (!load_state)
       {
         n_var = 0;
