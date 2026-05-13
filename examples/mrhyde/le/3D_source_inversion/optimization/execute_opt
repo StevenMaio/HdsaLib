@@ -4,6 +4,3 @@ cp ../generate_obs_data/sensor_* .
 
 # Solve forward problem
 mpiexec -n 16 mrhyde 
-
-# Change file name
-mv output.exo output_lofi_opt.exo

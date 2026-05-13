@@ -2,11 +2,6 @@
 ---
 ANONYMOUS:
   Parameters: 
-    mufield: 
-      type: HGRAD
-      order: 1
-      usage: discretized
-      initial_value: 1.0
     lambdafield: 
       type: HGRAD
       order: 1

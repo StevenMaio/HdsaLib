@@ -34,7 +34,7 @@ ANONYMOUS:
       dz: 1
     quadrature: 2
   Solver:
-    workset size: 50
+    workset size: 100
     solver: steady-state
     linear TOL: 1.0e-12
     max linear iters: 1000
@@ -45,41 +45,9 @@ ANONYMOUS:
     compute response: false
     compute objective: true
     write solution: true
-    Objective functions:
-      val_dx:
-        type: sensors
-        sensor points file: sensor_points.dat
-        save sensor data: true
-        sensor data file: sensor_data_dx.dat
-        response: 'dx'
-        weight: 1.0
-      val_dy:
-        type: sensors
-        sensor points file: sensor_points.dat
-        save sensor data: true
-        sensor data file: sensor_data_dy.dat
-        response: 'dy'
-        weight: 1.0
-      val_dz:
-        type: sensors
-        sensor points file: sensor_points.dat
-        save sensor data: true
-        sensor data file: sensor_data_dz.dat
-        response: 'dz'
-        weight: 1.0
-      regv0:
-        type: integrated
-        location: volume
-        function: 'grad(mufield)[x]*grad(mufield)[x] + grad(mufield)[y]*grad(mufield)[y] + grad(mufield)[z]*grad(mufield)[z]'
-        weight: 1.0e-3
-      regv1:
-        type: integrated
-        location: volume
-        function: 'grad(lambdafield)[x]*grad(lambdafield)[x] + grad(lambdafield)[y]*grad(lambdafield)[y] + grad(lambdafield)[z]*grad(lambdafield)[z]'
-        weight: 1.0e-3
   Parameters input file: input_params.yaml
   Analysis:
     analysis type: forward
   Functions:
-    mu: 1 + 0.3 * sin(2.0*pi*x) * sin(2.0*pi*y/0.4) * sin(2.0*pi*z/0.1)
+    mu: '1.0'
     lambda: 1 + 0.3 * sin(2.0*pi*x) * sin(2.0*pi*y/0.4) * sin(2.0*pi*z/0.1)

@@ -1,9 +1,25 @@
 # Ensure that the MrHyDE executable has been linked to the current directory under the name "mrhyde"
 
-# Link output to hdsa_exo directory
-ln -s ../optimization/output_lofi_opt.exo .
-ln -s ../optimization/final_params_.dat .
-ln -s ../fwd_hifi_data_generation/output_hifi_1.exo .
+NPROCS=16
 
-# Compute HDSA update
-./mrhyde 
+# Set links to optimization solution
+for ((i=0; i<10; i++)); do
+    cp "../optimization/output_lofi_opt.exo.${NPROCS}.0${i}" "./output_lofi_opt.exo.${NPROCS}.${i}"
+done
+
+for ((i=10; i<NPROCS; i++)); do
+    cp "../optimization/output_lofi_opt.exo.${NPROCS}.${i}" .
+done
+
+# Set links to optimization solution
+for ((i=0; i<10; i++)); do
+    cp "../fwd_hifi_data_generation/output_hifi_1.exo.${NPROCS}.0${i}" "./output_hifi_1.exo.${NPROCS}.${i}"
+done
+
+for ((i=10; i<NPROCS; i++)); do
+    cp "../fwd_hifi_data_generation/output_hifi_1.exo.${NPROCS}.${i}" .
+done
+
+cp ../optimization/*.dat .
+
+mpiexec -n ${NPROCS} mrhyde

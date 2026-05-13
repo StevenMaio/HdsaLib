@@ -9,31 +9,24 @@ ANONYMOUS:
     xmin: 0.0
     xmax: 1.0
     ymin: 0.0
-    ymax: 1.0
+    ymax: 0.4
     zmin: 0.0
-    zmax: 1.0
-    NX: 10
+    zmax: 0.1
+    NX: 20
     NY: 10
     NZ: 10
-  Analysis input file: input_HDSA.yaml
-  Parameters input file: input_params.yaml
-  Physics:
+  Physics: 
     modules: linearelasticity
     Dirichlet conditions:
       dx:
-        left: '0.0'
+        top: 0.0
+        bottom: 0.0
       dy:
-        bottom: '0.0'
+        left: 0.2*cos(pi*y/.4)
+        right: -0.2*cos(pi*y/.4)
       dz:
-        back: '0.0'
-    Neumann conditions:
-      dx:
-        right: '-0.1'
-      dy:
-        top: '-z1 * exp(-100*((x-.35)^2+(z-.35)^2)) - z2 * exp(-100*((x-.7)^2+(z-.35)^2)) - z3 * exp(-100*((x-.35)^2+(z-.7)^2)) - z4 * exp(-100*((x-.7)^2+(z-.7)^2))'
-  Functions:
-    source dx: '0.0'
-    source dy: '0.0'
+        left: 0.2*cos(pi*y/.4)
+        right: -0.2*cos(pi*y/.4)
   Discretization:
     order:
       dx: 1
@@ -41,23 +34,47 @@ ANONYMOUS:
       dz: 1
     quadrature: 2
   Solver:
+    workset size: 100
     solver: steady-state
-    workset size: 1
-    max nonlinear iters: 2
-    linear TOL: 1.0e-10
+    linear TOL: 1.0e-12
+    max linear iters: 1000
+    nonlinear TOL: 1.0e-08
+    max nonlinear iters: 10
   Postprocess: 
-    write solution: true 
+    output file: output_lofi_opt
     response type: pointwise
+    compute response: false
     compute objective: true
+    write solution: true
     Objective functions:
-      obj0:
-        type: integrated control
-        function: '0.5*dx^2'
-        weight: 1.e4
-      Regularization functions:
-          reg0:
-            type: integrated
-            location: volume
-            function: '0.0'
-            weight: 1.e-2
-...
+      val_dx:
+        type: sensors
+        sensor points file: sensor_points.dat
+        save sensor data: true
+        sensor data file: sensor_data_dx.dat
+        response: 'dx'
+        weight: 1.0
+      val_dy:
+        type: sensors
+        sensor points file: sensor_points.dat
+        save sensor data: true
+        sensor data file: sensor_data_dy.dat
+        response: 'dy'
+        weight: 1.0
+      val_dz:
+        type: sensors
+        sensor points file: sensor_points.dat
+        save sensor data: true
+        sensor data file: sensor_data_dz.dat
+        response: 'dz'
+        weight: 1.0
+      regv1:
+        type: integrated
+        location: volume
+        function: 'grad(lambdafield)[x]*grad(lambdafield)[x] + grad(lambdafield)[y]*grad(lambdafield)[y] + grad(lambdafield)[z]*grad(lambdafield)[z]'
+        weight: 1.0e-3
+  Parameters input file: input_params.yaml
+  Analysis input file: input_HDSA.yaml
+  Functions:
+    mu: '1.0'
+    lambda: lambdafield 
