@@ -68,13 +68,19 @@ ANONYMOUS:
         sensor data file: sensor_data_dz.dat
         response: 'dz'
         weight: 1.0
-      regv1:
-        type: integrated
-        location: volume
-        function: 'grad(lambdafield)[x]*grad(lambdafield)[x] + grad(lambdafield)[y]*grad(lambdafield)[y] + grad(lambdafield)[z]*grad(lambdafield)[z]'
-        weight: 1.0e-3
+        Regularization functions:
+          regv0:
+            type: integrated
+            location: volume
+            function: (lambdafield-10.0)^2
+            weight: 1.e-7
+          regv1:
+            type: integrated
+            location: volume
+            function: 'grad(lambdafield)[x]*grad(lambdafield)[x] + grad(lambdafield)[y]*grad(lambdafield)[y] + grad(lambdafield)[z]*grad(lambdafield)[z]'
+            weight: 1.e-8
   Parameters input file: input_params.yaml
   Analysis input file: input_HDSA.yaml
   Functions:
-    mu: '1.0'
+    mu: '8.0'
     lambda: lambdafield 

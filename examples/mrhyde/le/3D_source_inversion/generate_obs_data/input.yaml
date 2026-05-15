@@ -16,8 +16,11 @@ ANONYMOUS:
     NY: 10
     NZ: 10
   Physics: 
-    modules: linearelasticity
+    modules: thermal, linearelasticity
+    alpha_T: 0.0
     Dirichlet conditions:
+      T:
+        top: 0.0
       dx:
         top: 0.0
         bottom: 0.0
@@ -29,6 +32,7 @@ ANONYMOUS:
         right: -0.2*cos(pi*y/.4)
   Discretization:
     order:
+      T: 1
       dx: 1
       dy: 1
       dz: 1
@@ -49,5 +53,6 @@ ANONYMOUS:
   Analysis:
     analysis type: forward
   Functions:
-    mu: '1.0'
-    lambda: 1 + 0.3 * sin(2.0*pi*x) * sin(2.0*pi*y/0.4) * sin(2.0*pi*z/0.1)
+    mu: '8.0'
+    lambda: 10.0 + 3.0 * sin(2.0*pi*x) * sin(2.0*pi*y/0.4) * sin(2.0*pi*z/0.1)
+    thermal source: 100.0 * exp(-50.0 * ( (x-0.5)^2 + (y-0.2)^2 + (z-0.02)^2 ) )

@@ -23,7 +23,7 @@ ANONYMOUS:
           Type: Limited-Memory BFGS
           Use as Preconditioner: false
           Use as Hessian: false
-          Maximum Storage: 10
+          Maximum Storage: 50
           Barzilai-Borwein Type: 1
         Krylov:
           Type: Conjugate Gradients
@@ -121,8 +121,8 @@ ANONYMOUS:
           Cutting Plane Tolerance: 1.0e-8
           Cutting Plane Iteration Limit: 1000
       Status Test:
-        Gradient Tolerance: 1.0e-6
+        Gradient Tolerance: 1.0e-8
         Constraint Tolerance: 1.0e-8
         Step Tolerance: 1.0e-12
-        Iteration Limit: 20
+        Iteration Limit: 500
 ...

@@ -5,5 +5,5 @@ ANONYMOUS:
     analysis type: readExo+forward
     readExo+forward:
       DataLoadParameters:
-        TxtFile: "mean.txt"
+        ExoFile: "mean.exo"
 ...
