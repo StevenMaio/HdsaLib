@@ -21,6 +21,9 @@ ANONYMOUS:
           beta_u: 1.0E-3
         dz:
           beta_u: 1.0E-3
+        z:
+          alpha_z: .1
+          beta_z: 1.0E-3
         hessian_num_eig_vals: 4
         hessian_oversampling: 0
       DataLoadParameters:

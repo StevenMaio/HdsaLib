@@ -91,6 +91,15 @@ namespace HDSA
         }
       }
     }
+
+    void Precompute_W_u_Plus_scalar_M_u_Data(RealT &scalar) override
+    {
+      for (int k = 0; k < num_components_; k++)
+      {
+        u_prior_interface_std_[k]->Precompute_W_u_Plus_scalar_M_u_Data(scalar);
+      }
+    }
+
   };
 
 }

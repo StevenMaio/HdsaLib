@@ -214,11 +214,11 @@ namespace HDSA
 
       if (HDSA::Ptr<const HDSA::Transient_Vector<RealT>> u_opt_trans = HDSA::dynamicPtrCast<const HDSA::Transient_Vector<RealT>>(data_interface_->Get_u_opt()))
       {
-        M_lumped_ = (*u_opt_trans)[0]->Clone();
+        M_lumped_ = data_interface_->Extract_State_Component(*(*u_opt_trans)[0], u_hyperparam_interface_->Get_Component_ID())->Clone();
       }
       else
       {
-        M_lumped_ = data_interface_->Get_u_opt()->Clone();
+        M_lumped_ = data_interface_->Extract_State_Component(*data_interface_->Get_u_opt(), u_hyperparam_interface_->Get_Component_ID())->Clone();
       }
       HDSA::Ptr<HDSA::Vector<RealT>> u_tmp = M_lumped_->Clone();
       u_tmp->Set_Scalar(1.0);
@@ -241,6 +241,11 @@ namespace HDSA
           determine_u_hyperparams_->Determine_alpha_u(this);
         }
         this->Set_alpha_u(u_hyperparam_interface_->Get_alpha_u());
+      }
+
+      if (u_hyperparam_interface_->Get_alpha_d() == 0.0)
+      {
+        determine_u_hyperparams_->Determine_alpha_d(this);
       }
     }
 
