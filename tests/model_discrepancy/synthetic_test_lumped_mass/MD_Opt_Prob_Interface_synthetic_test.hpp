@@ -1,6 +1,6 @@
 /***********************************************************************
  HdsaLib - A library for Hyper-differential Sensitivity Analysis
- 
+
  Questions? Contact Joseph Hart (joshart@sandia.gov)
 ************************************************************************/
 
@@ -19,6 +19,7 @@ private:
   HDSA::Ptr<HDSA::Dense_Matrix<RealT>> M_; // Mass matrix
   HDSA::Ptr<HDSA::Sparse_Matrix<RealT>> M_sm_;
   HDSA::Ptr<HDSA::Sparse_Matrix<RealT>> S_sm_;
+  Teuchos::RCP<const Tpetra::Map<Tpetra::Map<>::local_ordinal_type, Tpetra::Map<>::global_ordinal_type>> map_;
 
 public:
   MD_Opt_Prob_Interface_synthetic_test(HDSA::Ptr<const HDSA::Comm<int>> &comm)
@@ -44,9 +45,9 @@ public:
     M_->Set_Entry(m_ - 1, m_ - 1, (1.0 / 3.0) * h);
 
     const int m = m_;
-    auto map = Tpetra::createUniformContigMap<Tpetra::Map<>::local_ordinal_type, Tpetra::Map<>::global_ordinal_type>(m, comm->Get_Teuchos_Communicator());
-    HDSA::Ptr<Tpetra::CrsMatrix<RealT, Tpetra::Map<>::local_ordinal_type, Tpetra::Map<>::global_ordinal_type>> M = HDSA::makePtr<Tpetra::CrsMatrix<RealT, Tpetra::Map<>::local_ordinal_type, Tpetra::Map<>::global_ordinal_type>>(map, 3); // 3 is the maximum number of non-zero entries per row
-    HDSA::Ptr<Tpetra::CrsMatrix<RealT, Tpetra::Map<>::local_ordinal_type, Tpetra::Map<>::global_ordinal_type>> S = HDSA::makePtr<Tpetra::CrsMatrix<RealT, Tpetra::Map<>::local_ordinal_type, Tpetra::Map<>::global_ordinal_type>>(map, 3); // 3 is the maximum number of non-zero entries per row
+    map_ = Tpetra::createUniformContigMap<Tpetra::Map<>::local_ordinal_type, Tpetra::Map<>::global_ordinal_type>(m, comm->Get_Teuchos_Communicator());
+    HDSA::Ptr<Tpetra::CrsMatrix<RealT, Tpetra::Map<>::local_ordinal_type, Tpetra::Map<>::global_ordinal_type>> M = HDSA::makePtr<Tpetra::CrsMatrix<RealT, Tpetra::Map<>::local_ordinal_type, Tpetra::Map<>::global_ordinal_type>>(map_, 3); // 3 is the maximum number of non-zero entries per row
+    HDSA::Ptr<Tpetra::CrsMatrix<RealT, Tpetra::Map<>::local_ordinal_type, Tpetra::Map<>::global_ordinal_type>> S = HDSA::makePtr<Tpetra::CrsMatrix<RealT, Tpetra::Map<>::local_ordinal_type, Tpetra::Map<>::global_ordinal_type>>(map_, 3); // 3 is the maximum number of non-zero entries per row
     Teuchos::Array<Tpetra::Map<>::global_ordinal_type> cols0 = {0, 1};
     Teuchos::Array<RealT> vals0_M = {h / 3.0, h / 6.0};
     Teuchos::Array<RealT> vals0_S = {1.0 / h, -1.0 / h};
@@ -98,8 +99,12 @@ public:
     Teuchos::ArrayRCP<const RealT> u_in_view = u_in_tpetra.getVector()->get1dView();
     for (int k = 0; k < m_; k++)
     {
-      RealT val = 3.0 * std::pow(z_view[k], 2.0) * u_in_view[k];
-      z_out_tpetra.getVector()->replaceGlobalValue(k, 0, val);
+      if (map_->isNodeGlobalElement(k))
+      {
+        Tpetra::Map<>::local_ordinal_type i = map_->getLocalElement(k);
+        RealT val = 3.0 * std::pow(z_view[i], 2.0) * u_in_view[i];
+        z_out_tpetra.getVector()->replaceGlobalValue(k, 0, val);
+      }
     }
   }
 
@@ -119,14 +124,22 @@ public:
 
     for (int k = 0; k < m_; k++)
     {
-      RealT val = 9.0 * (z_in_view[k] * std::pow(z_view[k], 2.0));
-      z_tmp1_tpetra.getVector()->replaceGlobalValue(k, 0, val);
+      if (map_->isNodeGlobalElement(k))
+      {
+        Tpetra::Map<>::local_ordinal_type i = map_->getLocalElement(k);
+        RealT val = 9.0 * (z_in_view[i] * std::pow(z_view[i], 2.0));
+        z_tmp1_tpetra.getVector()->replaceGlobalValue(k, 0, val);
+      }
     }
     M_sm_->Apply(*z_tmp2, *z_tmp1);
     for (int k = 0; k < m_; k++)
     {
-      RealT val = z_tmp2_view[k] * std::pow(z_view[k], 2.0);
-      z_out_tpetra.getVector()->replaceGlobalValue(k, 0, val);
+      if (map_->isNodeGlobalElement(k))
+      {
+        Tpetra::Map<>::local_ordinal_type i = map_->getLocalElement(k);
+        RealT val = z_tmp2_view[i] * std::pow(z_view[i], 2.0);
+        z_out_tpetra.getVector()->replaceGlobalValue(k, 0, val);
+      }
     }
   }
 
@@ -138,8 +151,12 @@ public:
     Teuchos::ArrayRCP<const RealT> u_view = u_tpetra.getVector()->get1dView();
     for (int k = 0; k < m_; k++)
     {
-      RealT val = u_view[k] - std::pow((*x_)(k, 0) + 1.0, 3.0);
-      u_tmp1_tpetra.getVector()->replaceGlobalValue(k, 0, val);
+      if (map_->isNodeGlobalElement(k))
+      {
+        Tpetra::Map<>::local_ordinal_type i = map_->getLocalElement(k);
+        RealT val = u_view[i] - std::pow((*x_)(k, 0) + 1.0, 3.0);
+        u_tmp1_tpetra.getVector()->replaceGlobalValue(k, 0, val);
+      }
     }
     M_sm_->Apply(u_grad, *u_tmp1);
   }

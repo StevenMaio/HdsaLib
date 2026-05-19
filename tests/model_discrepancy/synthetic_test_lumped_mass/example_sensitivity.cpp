@@ -1,6 +1,6 @@
 /***********************************************************************
  HdsaLib - A library for Hyper-differential Sensitivity Analysis
- 
+
  Questions? Contact Joseph Hart (joshart@sandia.gov)
 ************************************************************************/
 
@@ -56,6 +56,14 @@ int main(int argc, char *argv[])
 
   HDSA::Ptr<HDSA::MD_Lumped_Mass_u_Prior_Interface<RealT>> u_prior_interface = HDSA::makePtr<HDSA::MD_Lumped_Mass_u_Prior_Interface<RealT>>(S, M, data_interface, u_hyperparam_interface, comm, random_number_generator);
   HDSA::Ptr<HDSA::MD_Numeric_Laplacian_z_Prior_Interface<RealT>> z_prior_interface = HDSA::makePtr<HDSA::MD_Numeric_Laplacian_z_Prior_Interface<RealT>>(S, M, data_interface, z_hyperparam_interface, u_prior_interface);
+
+  // This block of code is necessary to synchronize the hyperparameters when running in parallel
+  // because the random number stream causes differences in the hyperparameters on difference processors.
+  // The issue is that reading the random numbers from a text file is not compatiable with parallel executation.
+  // u_hyperparam_interface->Set_alpha_u(0.05058967788039152);
+  // z_hyperparam_interface->Set_alpha_z(4.231621091754468);
+  // u_prior_interface->Set_alpha_u(0.05058967788039152);
+  // z_prior_interface->Set_alpha_z(4.231621091754468);
 
   HDSA::Ptr<HDSA::MD_Prior_Sampling<RealT>> prior_sampling = HDSA::makePtr<HDSA::MD_Prior_Sampling<RealT>>(data_interface, u_prior_interface, z_prior_interface);
 
