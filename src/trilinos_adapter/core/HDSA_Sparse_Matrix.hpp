@@ -1,6 +1,6 @@
 /***********************************************************************
  HdsaLib - A library for Hyper-differential Sensitivity Analysis
- 
+
  Questions? Contact Joseph Hart (joshart@sandia.gov)
 ************************************************************************/
 
@@ -140,6 +140,39 @@ namespace HDSA
                     B.Get_Tpetra_Matrix()->getGlobalRowCopy(row, indices, values, numEntries);
                     // Replace the entries in A with those from B
                     A_->insertGlobalValues(row, numEntries, &values[0], &indices[0]);
+                }
+            }
+
+            // Complete the fill process
+            A_->fillComplete();
+        }
+
+        void Set_Diagonal(HDSA::Vector<RealT> &vec, bool reciprocate_diag)
+        {
+            HDSA::Tpetra_Vector<RealT> tpetra_vec = dynamic_cast<HDSA::Tpetra_Vector<RealT> &>(vec);
+            HDSA::Ptr<Tpetra::MultiVector<RealT, LO, GO, Node>> d = tpetra_vec.getVector();
+            auto view = d->getLocalViewHost(Tpetra::Access::ReadOnly);
+
+            A_->resumeFill();
+            for (Tpetra::global_size_t row = 0; row < A_->getGlobalNumRows(); ++row)
+            {
+                if (A_->getRowMap()->isNodeGlobalElement(row))
+                {
+                    typename Tpetra::CrsMatrix<>::nonconst_global_inds_host_view_type indices;
+                    typename Tpetra::CrsMatrix<>::nonconst_values_host_view_type values;
+                    Kokkos::resize(indices, 1);
+                    Kokkos::resize(values, 1);
+                    indices[0] = row;
+                    LO i = d->getMap()->getLocalElement(row);
+                    if (reciprocate_diag)
+                    {
+                        values[0] = 1.0 / view(i,0);
+                    }
+                    else
+                    {
+                        values[0] = view(i,0);
+                    }
+                    A_->insertGlobalValues(row, 1, &values[0], &indices[0]);
                 }
             }
 

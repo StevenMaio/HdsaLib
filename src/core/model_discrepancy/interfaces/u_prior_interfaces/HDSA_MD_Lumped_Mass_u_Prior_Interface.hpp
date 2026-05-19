@@ -297,7 +297,8 @@ namespace HDSA
     {
       int max_entries_per_row = 3 * E_u_->Get_Max_Nonzeros_Per_Row(); // This may fail in spatial dimensions > 2. Need to test this and possibly modify.
 
-      HDSA::Ptr<HDSA::Sparse_Matrix<RealT>> D_sm = HDSA::makePtr<HDSA::Sparse_Matrix<RealT>>(*M_lumped_, true);
+      HDSA::Ptr<HDSA::Sparse_Matrix<RealT>> D_sm = E_u_->Clone(1);
+      D_sm->Set_Diagonal(*M_lumped_, true);
       HDSA::Ptr<HDSA::Sparse_Matrix<RealT>> tmp = E_u_->Clone(max_entries_per_row);
       W_u_acute_ = E_u_->Clone(max_entries_per_row);
 
