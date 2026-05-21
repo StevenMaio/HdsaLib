@@ -1,6 +1,6 @@
 /***********************************************************************
  HdsaLib - A library for Hyper-differential Sensitivity Analysis
- 
+
  Questions? Contact Joseph Hart (joshart@sandia.gov)
 ************************************************************************/
 
@@ -76,9 +76,12 @@ public:
                         outfile << "beta_t: " << u_hyperparam_interface_multistate->Get_Hyperparameter_Interface_k(k)->Get_beta_t() << std::endl;
                     }
                     outfile << "alpha_d: " << u_hyperparam_interface_multistate->Get_Hyperparameter_Interface_k(k)->Get_alpha_d() << std::endl;
-                    outfile << "gsvd_num_sing_vals: " << u_hyperparam_interface_multistate->Get_Hyperparameter_Interface_k(k)->Get_gsvd_num_sing_vals() << std::endl;
-                    outfile << "gsvd_oversampling: " << u_hyperparam_interface_multistate->Get_Hyperparameter_Interface_k(k)->Get_gsvd_oversampling() << std::endl;
-                    outfile << "gsvd_num_subspace_iter: " << u_hyperparam_interface_multistate->Get_Hyperparameter_Interface_k(k)->Get_gsvd_num_subspace_iter() << std::endl;
+                    if (u_hyperparam_interface_multistate->Get_Hyperparameter_Interface_k(k)->Get_gsvd_num_sing_vals() > 0)
+                    {
+                        outfile << "gsvd_num_sing_vals: " << u_hyperparam_interface_multistate->Get_Hyperparameter_Interface_k(k)->Get_gsvd_num_sing_vals() << std::endl;
+                        outfile << "gsvd_oversampling: " << u_hyperparam_interface_multistate->Get_Hyperparameter_Interface_k(k)->Get_gsvd_oversampling() << std::endl;
+                        outfile << "gsvd_num_subspace_iter: " << u_hyperparam_interface_multistate->Get_Hyperparameter_Interface_k(k)->Get_gsvd_num_subspace_iter() << std::endl;
+                    }
                     outfile << "Center Data: " << u_hyperparam_interface_multistate->Get_Hyperparameter_Interface_k(k)->Center_Data() << std::endl;
                     if (u_hyperparam_interface_multistate->Get_Hyperparameter_Interface_k(k)->Is_Transient())
                     {
@@ -102,9 +105,12 @@ public:
                     outfile << "beta_t: " << u_hyperparam_interface->Get_beta_t() << std::endl;
                 }
                 outfile << "alpha_d: " << u_hyperparam_interface->Get_alpha_d() << std::endl;
-                outfile << "gsvd_num_sing_vals: " << u_hyperparam_interface->Get_gsvd_num_sing_vals() << std::endl;
-                outfile << "gsvd_oversampling: " << u_hyperparam_interface->Get_gsvd_oversampling() << std::endl;
-                outfile << "gsvd_num_subspace_iter: " << u_hyperparam_interface->Get_gsvd_num_subspace_iter() << std::endl;
+                if (u_hyperparam_interface->Get_gsvd_num_sing_vals() > 0)
+                {
+                    outfile << "gsvd_num_sing_vals: " << u_hyperparam_interface->Get_gsvd_num_sing_vals() << std::endl;
+                    outfile << "gsvd_oversampling: " << u_hyperparam_interface->Get_gsvd_oversampling() << std::endl;
+                    outfile << "gsvd_num_subspace_iter: " << u_hyperparam_interface->Get_gsvd_num_subspace_iter() << std::endl;
+                }
                 outfile << "Center Data: " << u_hyperparam_interface->Center_Data() << std::endl;
                 if (u_hyperparam_interface->Is_Transient())
                 {
@@ -115,8 +121,14 @@ public:
             outfile << " " << std::endl;
             // z hyperparameters
             outfile << "alpha_z: " << z_hyperparam_interface->Get_alpha_z() << std::endl;
-            outfile << "beta_z: " << z_hyperparam_interface->Get_beta_z() << std::endl;
-            outfile << "beta_t: " << z_hyperparam_interface->Get_beta_t() << std::endl;
+            if (z_hyperparam_interface->Get_beta_z() > 0)
+            {
+                outfile << "beta_z: " << z_hyperparam_interface->Get_beta_z() << std::endl;
+            }
+            if (z_hyperparam_interface->Get_beta_t() > 0)
+            {
+                outfile << "beta_t: " << z_hyperparam_interface->Get_beta_t() << std::endl;
+            }
 
             // Close the file
             outfile.close();
@@ -272,6 +284,7 @@ public:
                     std::vector<std::string> discretized_param_names = postproc_->params->discretized_param_names;
                     postproc_->params->discretized_param_names.clear();
                     std::string name_exo = name + ".exo";
+                    postproc_->exodus_filename = name_exo;
                     postproc_->setNewExodusFile(name_exo);
                     std::vector<HDSA::Ptr<Tpetra::MultiVector<RealT>>> sol;
                     sol.resize(1);
@@ -300,6 +313,7 @@ public:
                 if (const HDSA::Ptr<HDSA::Tpetra_Vector<RealT>> evec = HDSA::dynamicPtrCast<HDSA::Tpetra_Vector<RealT>>(vec))
                 {
                     std::string name_exo = name + ".exo";
+                    postproc_->exodus_filename = name_exo;
                     postproc_->mesh->setupOptimizationExodusFile(name_exo);
                     postproc_->params->updateParams(evec->getVector());
                     postproc_->writeOptimizationSolution(name_exo);

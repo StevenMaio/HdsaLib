@@ -286,7 +286,10 @@ public:
       u_hyperparam_interface_std[k]->Set_alpha_u(alpha_u[k]);
       u_hyperparam_interface_std[k]->Set_beta_u(beta_u[k]);
       u_hyperparam_interface_std[k]->Set_beta_t(beta_t[k]);
-      u_hyperparam_interface_std[k]->Set_GSVD_Hyperparameters(prior_num_sing_vals[k], prior_oversampling[k], prior_num_subspace_iter[k]);
+      if ((prior_computation != "Lumped_Mass") && (prior_computation != "Bilaplacian"))
+      {
+        u_hyperparam_interface_std[k]->Set_GSVD_Hyperparameters(prior_num_sing_vals[k], prior_oversampling[k], prior_num_subspace_iter[k]);
+      }
 
       if (is_transient)
       {
