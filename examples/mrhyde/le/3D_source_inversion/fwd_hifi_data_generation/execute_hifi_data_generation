@@ -2,14 +2,7 @@
 
 NPROCS=16
 
-# Set links to optimization solution
-for ((i=0; i<10; i++)); do
-    cp "../optimization/output_lofi_opt.exo.${NPROCS}.0${i}" "./output_lofi_opt.exo.${NPROCS}.${i}"
-done
-
-for ((i=10; i<NPROCS; i++)); do
-    cp "../optimization/output_lofi_opt.exo.${NPROCS}.${i}" .
-done
+ln -s ../optimization/output_lofi_opt.exo* .
 
 mpiexec -n ${NPROCS} mrhyde
 

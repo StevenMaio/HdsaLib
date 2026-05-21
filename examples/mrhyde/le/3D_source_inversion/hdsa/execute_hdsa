@@ -2,24 +2,8 @@
 
 NPROCS=16
 
-# Set links to optimization solution
-for ((i=0; i<10; i++)); do
-    cp "../optimization/output_lofi_opt.exo.${NPROCS}.0${i}" "./output_lofi_opt.exo.${NPROCS}.${i}"
-done
-
-for ((i=10; i<NPROCS; i++)); do
-    cp "../optimization/output_lofi_opt.exo.${NPROCS}.${i}" .
-done
-
-# Set links to optimization solution
-for ((i=0; i<10; i++)); do
-    cp "../fwd_hifi_data_generation/output_hifi_1.exo.${NPROCS}.0${i}" "./output_hifi_1.exo.${NPROCS}.${i}"
-done
-
-for ((i=10; i<NPROCS; i++)); do
-    cp "../fwd_hifi_data_generation/output_hifi_1.exo.${NPROCS}.${i}" .
-done
-
-cp ../optimization/*.dat .
+ln -s ../optimization/output_lofi_opt.exo* .
+ln -s ../fwd_hifi_data_generation/output_hifi_1.exo* .
+ln -s ../optimization/*.dat .
 
 mpiexec -n ${NPROCS} mrhyde

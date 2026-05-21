@@ -1,6 +1,6 @@
 /***********************************************************************
  HdsaLib - A library for Hyper-differential Sensitivity Analysis
- 
+
  Questions? Contact Joseph Hart (joshart@sandia.gov)
 ************************************************************************/
 
@@ -49,6 +49,10 @@ public:
       ssPID << comm_->getRank();
       string strProc = ssProc.str();
       string strPID = ssPID.str();
+      if ((comm_->getSize() > 9) && (comm_->getSize() < 100) && comm_->getRank() < 10)
+      {
+        strPID.insert(strPID.begin(), '0');
+      }
       // this section may need tweaking if the input exodus mesh is
       // spread across 10's, 100's, or 1000's (etc) of processors
       fname = exofile + "." + strProc + "." + strPID;
@@ -224,6 +228,10 @@ public:
       ssPID << comm_->getRank();
       string strProc = ssProc.str();
       string strPID = ssPID.str();
+      if ((comm_->getSize() > 9) && (comm_->getSize() < 100) && comm_->getRank() < 10)
+      {
+        strPID.insert(strPID.begin(), '0');
+      }
       // this section may need tweaking if the input exodus mesh is
       // spread across 10's, 100's, or 1000's (etc) of processors
       fname = exofile + "." + strProc + "." + strPID;
