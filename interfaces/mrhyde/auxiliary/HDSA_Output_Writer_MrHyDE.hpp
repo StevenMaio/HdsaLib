@@ -285,7 +285,7 @@ public:
                     postproc_->params->discretized_param_names.clear();
                     std::string name_exo = name + ".exo";
                     postproc_->exodus_filename = name_exo;
-                    postproc_->setNewExodusFile(name_exo);
+                    postproc_->mesh->setupExodusFile(name_exo);
                     std::vector<HDSA::Ptr<Tpetra::MultiVector<RealT>>> sol;
                     sol.resize(1);
                     RealT current_time = 0.0;
@@ -295,14 +295,16 @@ public:
                         for (int i = 0; i < n_t; i++)
                         {
                             HDSA::Tpetra_Vector<RealT> &evec_i = dynamic_cast<HDSA::Tpetra_Vector<RealT> &>(*(*evec)[i]);
-                            sol[0] = evec_i.getVector();
+                            sol[0] = solver_->linalg->getNewOverlappedVector(0);
+                            solver_->linalg->importVectorToOverlapped(0, sol[0], evec_i.getVector());
                             postproc_->writeSolution(sol, current_time);
                             current_time = current_time + solver_->deltat;
                         }
                     }
                     else if (const HDSA::Ptr<HDSA::Tpetra_Vector<RealT>> evec = HDSA::dynamicPtrCast<HDSA::Tpetra_Vector<RealT>>(vec))
                     {
-                        sol[0] = evec->getVector();
+                        sol[0] = solver_->linalg->getNewOverlappedVector(0);
+                        solver_->linalg->importVectorToOverlapped(0, sol[0], evec->getVector());
                         postproc_->writeSolution(sol, current_time);
                     }
                     postproc_->params->discretized_param_names = discretized_param_names;
@@ -314,9 +316,13 @@ public:
                 {
                     std::string name_exo = name + ".exo";
                     postproc_->exodus_filename = name_exo;
-                    postproc_->mesh->setupOptimizationExodusFile(name_exo);
+                    postproc_->mesh->setupExodusFile(name_exo);
                     postproc_->params->updateParams(evec->getVector());
-                    postproc_->writeOptimizationSolution(name_exo);
+                    std::vector<HDSA::Ptr<Tpetra::MultiVector<RealT>>> sol;
+                    sol.resize(1);
+                    sol[0] = solver_->linalg->getNewOverlappedVector(0);
+                    RealT current_time = 0.0;
+                    postproc_->writeSolution(sol,current_time);
                 }
                 else if (const HDSA::Ptr<HDSA::Std_Vector<RealT>> evec = HDSA::dynamicPtrCast<HDSA::Std_Vector<RealT>>(vec))
                 {
