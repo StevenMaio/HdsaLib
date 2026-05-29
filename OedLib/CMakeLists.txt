@@ -14,4 +14,10 @@ add_library(OedLib INTERFACE
         src/core/algorithms/Lazy_Eval_Data.hpp
         src/core/base/oed/OED_Design_Criterion.hpp
         src/core/bayesian_inversion/OED_Bayesian_Inversion_Interface.hpp
-        src/core/base/linear_algebra/OED_Dense_Matrix.hpp)
+        src/core/base/linear_algebra/OED_Dense_Matrix.hpp
+        tests/impl/base/vectors/OED_Test_Vector.hpp
+        tests/impl/base/linear_algebra/Test_Linear_Operator.hpp
+        tests/poisson/Poisson_Constraint.hpp
+        tests/poisson/Poisson_Prior.hpp
+        tests/impl/base/bayesian_inversion/Test_Bayesian_Inversion.hpp
+)
