@@ -13,31 +13,31 @@ namespace OED_TEST
   class Test_Bayesian_Inversion : public OED::Bayesian_Inversion_Interface<double>
   {
   public:
-    Test_Bayesian_Inversion(OED::Likelihood_Model<double> &likelihood, OED::Prior_Model<double> &prior, OED::Constraint<double> &constraint)
+    Test_Bayesian_Inversion(
+        std::shared_ptr<OED::Likelihood_Model<double>> likelihood,
+        std::shared_ptr<OED::Prior_Model<double>> prior,
+        std::shared_ptr<OED::Constraint<double>> constraint
+    )
       : Bayesian_Inversion_Interface(likelihood, prior, constraint) {}
 
-    // TODO: will deal with this typing issue later
-    Vector<double> *Get_Empty_Parameter_Vector() override
+    std::shared_ptr<Vector<double>> Get_Empty_Parameter_Vector() override
     {
-      int param_dim = this->Prior().Param_Dimension();
-      // I KNOW I'M COMMITTING A CRIME HERE
-      auto *m = new Test_Vector<double>(param_dim);
+      int param_dim = this->Prior()->Param_Dimension();
+      std::shared_ptr<Test_Vector<double>> m = std::make_shared<Test_Vector<double>>(param_dim);
       return m;
     };
 
-    Vector<double> *Get_Empty_State_Vector() override
+    std::shared_ptr<Vector<double>> Get_Empty_State_Vector() override
     {
-      int state_dim = this->Constraint().State_Dimension();
-      // I KNOW I'M COMMITTING A CRIME HERE
-      auto *u = new Test_Vector<double>(state_dim);
+      int state_dim = this->Constraint()->State_Dimension();
+      std::shared_ptr<Test_Vector<double>> u = std::make_shared<Test_Vector<double>>(state_dim);
       return u;
     };
 
-    Vector<double> *Get_Empty_Data_Vector() override
+    std::shared_ptr<Vector<double>> Get_Empty_Data_Vector() override
     {
-      int data_dim = this->Likelihood().Data_Dimension();
-      // I KNOW I'M COMMITTING A CRIME HERE
-      auto *d = new Test_Vector<double>(data_dim);
+      int data_dim = this->Likelihood()->Data_Dimension();
+      std::shared_ptr<Test_Vector<double>> d = std::make_shared<Test_Vector<double>>(data_dim);
       return d;
     };
   };
