@@ -29,9 +29,9 @@ namespace OED_TEST
     double norm_scale_;
     double grad_scale_;
   public:
-    Poisson_Prior(Poisson_Constraint &constraint, double norm_scale, double grad_scale)
-      : param_dim_(constraint.Param_Dimension()), M_(constraint.M()), M_inv_(this->param_dim_, this->param_dim_),
-        S_(constraint.S()), L_(param_dim_, param_dim_), L_inv_(param_dim_, param_dim_),
+    Poisson_Prior(std::shared_ptr<Poisson_Constraint> &constraint, double norm_scale, double grad_scale)
+      : param_dim_(constraint->Param_Dimension()), M_(constraint->M()), M_inv_(this->param_dim_, this->param_dim_),
+        S_(constraint->S()), L_(param_dim_, param_dim_), L_inv_(param_dim_, param_dim_),
         norm_scale_(norm_scale), grad_scale_(grad_scale)
 
     {
