@@ -7,9 +7,9 @@
 
 #include <memory>
 
-#include "OED_Likelihood_Model.hpp"
+#include "OED_Likelihood_Interface.hpp"
 #include "OED_Prior_Model.hpp"
-#include "../optimization/OED_Constraint.hpp"
+#include "OED_Constraint_Interface.hpp"
 
 namespace OED
 {
@@ -17,30 +17,30 @@ namespace OED
   class Bayesian_Inversion_Interface
   {
   private:
-    std::shared_ptr<Likelihood_Model<RealT>> likelihood_;
-    std::shared_ptr<Prior_Model<RealT>> prior_;
-    std::shared_ptr<Constraint<RealT>> constraint_;
+    std::shared_ptr<Likelihood_Interface<RealT>> likelihood_;
+    std::shared_ptr<Prior_Interface<RealT>> prior_;
+    std::shared_ptr<Constraint_Interface<RealT>> constraint_;
 
   public:
 
     Bayesian_Inversion_Interface(
-        std::shared_ptr<Likelihood_Model<RealT>> &likelihood,
-        std::shared_ptr<Prior_Model<RealT>> &prior,
-        std::shared_ptr<Constraint<RealT>> &constraint
+        std::shared_ptr<Likelihood_Interface<RealT>> &likelihood,
+        std::shared_ptr<Prior_Interface<RealT>> &prior,
+        std::shared_ptr<Constraint_Interface<RealT>> &constraint
     )
       : likelihood_(likelihood), prior_(prior), constraint_(constraint) {}
 
-    std::shared_ptr<Likelihood_Model<RealT>> &Likelihood()
+    std::shared_ptr<Likelihood_Interface<RealT>> &Likelihood()
     {
       return likelihood_;
     }
 
-    std::shared_ptr<Prior_Model<RealT>> &Prior()
+    std::shared_ptr<Prior_Interface<RealT>> &Prior()
     {
       return prior_;
     }
 
-    std::shared_ptr<Constraint<RealT>> &Constraint()
+    std::shared_ptr<Constraint_Interface<RealT>> &Constraint()
     {
       return constraint_;
     }

@@ -12,10 +12,10 @@ using OED::Vector;
 namespace OED
 {
   template<class RealT>
-  class Likelihood_Model
+  class Likelihood_Interface
   {
   public:
-    virtual ~Likelihood_Model()
+    virtual ~Likelihood_Interface()
     {
     }
 

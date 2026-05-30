@@ -14,9 +14,9 @@ namespace OED_TEST
   {
   public:
     Test_Bayesian_Inversion(
-        std::shared_ptr<OED::Likelihood_Model<double>> likelihood,
-        std::shared_ptr<OED::Prior_Model<double>> prior,
-        std::shared_ptr<OED::Constraint<double>> constraint
+        std::shared_ptr<OED::Likelihood_Interface<double>> likelihood,
+        std::shared_ptr<OED::Prior_Interface<double>> prior,
+        std::shared_ptr<OED::Constraint_Interface<double>> constraint
     )
       : Bayesian_Inversion_Interface(likelihood, prior, constraint) {}
 

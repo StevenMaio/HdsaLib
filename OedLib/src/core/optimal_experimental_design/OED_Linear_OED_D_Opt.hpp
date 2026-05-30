@@ -61,9 +61,9 @@ namespace OED
     void Construct_Forward_Covariance()
     {
       auto &inversion_problem = this->inversion_problem_;
-      std::shared_ptr<Likelihood_Model<RealT>> &likelihood = inversion_problem->Likelihood();
-      std::shared_ptr<Constraint<RealT>> &constraint = inversion_problem->Constraint();
-      std::shared_ptr<Prior_Model<RealT>> &prior = inversion_problem->Prior();
+      std::shared_ptr<Likelihood_Interface<RealT>> &likelihood = inversion_problem->Likelihood();
+      std::shared_ptr<Constraint_Interface<RealT>> &constraint = inversion_problem->Constraint();
+      std::shared_ptr<Prior_Interface<RealT>> &prior = inversion_problem->Prior();
       int data_dim = likelihood->Data_Dimension();
 
       std::shared_ptr<Vector<RealT>> temp = inversion_problem->Get_Empty_Data_Vector(); // This is only usable because we have a linear inverse problem
@@ -93,7 +93,7 @@ namespace OED
     inline void Construct_Noise_Covariance()
     {
       auto &inversion_problem = this->inversion_problem_;
-      std::shared_ptr<Likelihood_Model<RealT>> &likelihood = inversion_problem->Likelihood();
+      std::shared_ptr<Likelihood_Interface<RealT>> &likelihood = inversion_problem->Likelihood();
       std::shared_ptr<Vector<RealT>> row = inversion_problem->Get_Empty_State_Vector();
       int data_dim = likelihood->Data_Dimension();
 

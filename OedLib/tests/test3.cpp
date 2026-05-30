@@ -4,7 +4,6 @@
 #include <iostream>
 #include <vector>
 #include <Eigen/Dense>
-#include <math.h>
 
 #include "impl/base/bayesian_inversion/Test_Bayesian_Inversion.hpp"
 #include "../src/core/algorithms/OED_Lazy_Greedy.hpp"

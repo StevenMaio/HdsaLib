@@ -7,15 +7,15 @@
 
 #include <iterator>
 
-#include "../../src/core/bayesian_inversion/OED_Likelihood_Model.hpp"
+#include "../../src/core/bayesian_inversion/OED_Likelihood_Interface.hpp"
 #include "../impl/base/vectors/OED_Test_Vector.hpp"
 
 #include <vector>
-using OED::Likelihood_Model;
+using OED::Likelihood_Interface;
 
 namespace OED_TEST
 {
-  class Poisson_Likelihood : public Likelihood_Model<double>
+  class Poisson_Likelihood : public Likelihood_Interface<double>
   {
   private:
     double noise_std_;
