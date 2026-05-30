@@ -5,16 +5,16 @@
 #ifndef OEDLIB_PRIOR_MODEL_HPP
 #define OEDLIB_PRIOR_MODEL_HPP
 
-#include "OED_Likelihood_Model.hpp"
+#include "OED_Likelihood_Interface.hpp"
 #include "../base/vectors/OED_Vector.hpp"
 
 namespace OED
 {
   template <class RealT>
-  class Prior_Model
+  class Prior_Interface
   {
   public:
-    virtual ~Prior_Model() {}
+    virtual ~Prior_Interface() {}
 
     virtual void Prior_Precision_Apply(Vector<RealT> &z_out, Vector<RealT> &z_in) = 0;
     virtual void Prior_Covariance_Apply(Vector<RealT> &z_out, Vector<RealT> &z_in) = 0;

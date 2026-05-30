@@ -17,7 +17,7 @@ using Eigen::FullPivLU;
 namespace OED_TEST
 {
 
-  class Poisson_Prior : public OED::Prior_Model<double>
+  class Poisson_Prior : public OED::Prior_Interface<double>
   {
   private:
     int param_dim_;

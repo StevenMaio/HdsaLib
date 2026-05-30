@@ -6,14 +6,14 @@
 #define OEDLIB_POISSON_CONSTRAINT_HPP
 #include <Eigen/src/Core/Matrix.h>
 
-#include "../../src/core/optimization/OED_Constraint.hpp"
+#include "../../src/core/bayesian_inversion/OED_Constraint_Interface.hpp"
 
 using Eigen::MatrixXd;
 using OED_TEST::Test_Vector;
 
 namespace OED_TEST
 {
-  class Poisson_Constraint : public OED::Constraint<double>
+  class Poisson_Constraint : public OED::Constraint_Interface<double>
   {
   public:
 
