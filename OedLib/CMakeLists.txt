@@ -5,7 +5,7 @@ set(CMAKE_CXX_STANDARD 20)
 
 add_library(OedLib INTERFACE
         src/core/bayesian_inversion/OED_Constraint_Interface.hpp
-        src/core/bayesian_inversion/OED_Prior_Model.hpp
+        src/core/bayesian_inversion/OED_Prior_Interface.hpp
         src/core/bayesian_inversion/OED_Likelihood_Interface.hpp
         src/core/optimal_experimental_design/OED_Linear_OED_D_Opt.hpp
         src/core/base/oed/OED_Design.hpp

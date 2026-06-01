@@ -8,7 +8,7 @@
 #include <memory>
 
 #include "OED_Likelihood_Interface.hpp"
-#include "OED_Prior_Model.hpp"
+#include "OED_Prior_Interface.hpp"
 #include "OED_Constraint_Interface.hpp"
 
 namespace OED

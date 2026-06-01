@@ -7,7 +7,7 @@
 
 #include <Eigen/Dense>
 
-#include "../../src/core/bayesian_inversion/OED_Prior_Model.hpp"
+#include "../../src/core/bayesian_inversion/OED_Prior_Interface.hpp"
 #include "../impl/base/vectors/OED_Test_Vector.hpp"
 #include "Poisson_Constraint.hpp"
 
