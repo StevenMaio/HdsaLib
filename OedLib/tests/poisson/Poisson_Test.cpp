@@ -5,13 +5,13 @@
 #include <vector>
 #include <Eigen/Dense>
 
-#include "impl/base/bayesian_inversion/Test_Bayesian_Inversion.hpp"
-#include "../src/core/algorithms/OED_Lazy_Greedy.hpp"
-#include "../src/core/optimal_experimental_design/OED_Linear_OED_D_Opt.hpp"
-#include "impl/base/vectors/OED_Test_Vector.hpp"
-#include "poisson/Poisson_Constraint.hpp"
-#include "poisson/Poisson_Likelihood.hpp"
-#include "poisson/Poisson_Prior.hpp"
+#include "../impl/base/bayesian_inversion/Test_Bayesian_Inversion.hpp"
+#include "../../src/core/algorithms/OED_Lazy_Greedy.hpp"
+#include "../../src/core/optimal_experimental_design/OED_Linear_OED_D_Opt.hpp"
+#include "../impl/base/vectors/OED_Test_Vector.hpp"
+#include "Poisson_Constraint.hpp"
+#include "Poisson_Likelihood.hpp"
+#include "Poisson_Prior.hpp"
 
 using Eigen::MatrixXd;
 using Eigen::VectorXd;
