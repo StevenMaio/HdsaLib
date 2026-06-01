@@ -14,8 +14,6 @@ namespace OED
   public:
     virtual void State_Solve(Vector<RealT> &u_out, Vector<RealT> &z) = 0;
 
-    virtual void Adjoint_Solve(Vector<RealT> &u_out, Vector<RealT> &z, Vector<RealT> &u) = 0;
-
     virtual void c_u_Transpose_Inverse_Apply(Vector<RealT> &u_out, Vector<RealT> &u_in, Vector<RealT> &u,
                                              Vector<RealT> &z) = 0;
 
