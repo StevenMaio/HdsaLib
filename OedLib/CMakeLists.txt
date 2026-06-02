@@ -1,23 +1,15 @@
-cmake_minimum_required(VERSION 4.2)
-project(OedLib)
+cmake_minimum_required(VERSION 3.6.1)
+project(OedLib) # some languages stuff?
 
 set(CMAKE_CXX_STANDARD 20)
 
-add_library(OedLib INTERFACE
-        src/core/bayesian_inversion/OED_Constraint_Interface.hpp
-        src/core/bayesian_inversion/OED_Prior_Interface.hpp
-        src/core/bayesian_inversion/OED_Likelihood_Interface.hpp
-        src/core/optimal_experimental_design/OED_Linear_OED_D_Opt.hpp
-        src/core/base/oed/OED_Design.hpp
-        src/core/base/oed/OED_Active_Sensors.hpp
-        src/core/algorithms/OED_Lazy_Greedy.hpp
-        src/core/algorithms/Lazy_Eval_Data.hpp
-        src/core/base/oed/OED_Design_Criterion.hpp
-        src/core/bayesian_inversion/OED_Bayesian_Inversion_Interface.hpp
-        src/core/base/linear_algebra/OED_Dense_Matrix.hpp
-        tests/impl/base/vectors/OED_Test_Vector.hpp
-        tests/impl/base/linear_algebra/Test_Linear_Operator.hpp
-        tests/poisson/Poisson_Constraint.hpp
-        tests/poisson/Poisson_Prior.hpp
-        tests/impl/base/bayesian_inversion/Test_Bayesian_Inversion.hpp
+add_library(OedLib INTERFACE)
+
+target_include_directories(OedLib INTERFACE
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/bayesian_inversion/
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/optimal_experimental_design/
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/base/oed/
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/algorithms/
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/base/linear_algebra/
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/base/vectors/
 )
