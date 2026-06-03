@@ -7,8 +7,8 @@
 
 #include <iterator>
 
-#include "../../src/core/bayesian_inversion/OED_Likelihood_Interface.hpp"
-#include "../impl/base/vectors/OED_Test_Vector.hpp"
+#include "OED_Likelihood_Interface.hpp"
+#include "OED_Test_Vector.hpp"
 
 #include <vector>
 using OED::Likelihood_Interface;

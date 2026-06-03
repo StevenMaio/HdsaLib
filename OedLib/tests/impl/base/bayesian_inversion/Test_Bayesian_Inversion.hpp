@@ -5,8 +5,8 @@
 #ifndef OEDLIB_TEST_BAYESIAN_INVERSION_HPP
 #define OEDLIB_TEST_BAYESIAN_INVERSION_HPP
 
-#include "../vectors/OED_Test_Vector.hpp"
-#include "../../../../src/core/bayesian_inversion/OED_Bayesian_Inversion_Interface.hpp"
+#include "OED_Test_Vector.hpp"
+#include "OED_Bayesian_Inversion_Interface.hpp"
 
 namespace OED_TEST
 {

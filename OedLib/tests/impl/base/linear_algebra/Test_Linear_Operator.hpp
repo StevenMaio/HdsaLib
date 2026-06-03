@@ -4,8 +4,8 @@
 
 #ifndef OEDLIB_TEST_LINEAR_OPERATOR_HPP
 #define OEDLIB_TEST_LINEAR_OPERATOR_HPP
-#include "../../../../src/core/base/linear_algebra/OED_Linear_Operator.hpp"
 
+#include "OED_Linear_Operator.hpp"
 #include <Eigen/src/SparseLU/SparseLU.h>
 
 namespace OED_TEST

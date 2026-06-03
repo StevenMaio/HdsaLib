@@ -7,8 +7,8 @@
 
 #include <Eigen/Dense>
 
-#include "../../../../src/core/bayesian_inversion/OED_Constraint_Interface.hpp"
-#include "../../../../src/core/base/vectors/OED_Vector.hpp"
+#include "OED_Constraint_Interface.hpp"
+#include "OED_Vector.hpp"
 
 using Eigen::VectorXd;
 

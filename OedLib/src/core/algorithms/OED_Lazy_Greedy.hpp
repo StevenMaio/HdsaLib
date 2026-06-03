@@ -9,9 +9,9 @@
 #include <queue>
 #include <math.h>
 
-#include "../base/oed/OED_Active_Sensors.hpp"
+#include "OED_Active_Sensors.hpp"
 #include "Lazy_Eval_Data.hpp"
-#include "../base/oed/OED_Discrete_Design_Criterion.hpp"
+#include "OED_Discrete_Design_Criterion.hpp"
 
 namespace OED
 {
