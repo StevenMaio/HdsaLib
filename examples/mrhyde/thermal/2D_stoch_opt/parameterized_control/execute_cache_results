@@ -1,4 +1,5 @@
-cache_dir="/Users/joshart/software/results_cache"
+[ "$(uname)" = "Darwin" ] && BASE_DIR="$HOME" || BASE_DIR="/Users/joshart"
+cache_dir="$BASE_DIR/software/results_cache"
 
 ./remove_symbolic_links
 mkdir "$cache_dir"
