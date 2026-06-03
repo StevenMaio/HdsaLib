@@ -20,9 +20,6 @@ set(TARGET_DIR ${CMAKE_BINARY_DIR}/tests/base/sparse_matrix_solver_test)
 # Copy the required files to the output directory
 add_custom_command(TARGET sparse_matrix_solver_test_example.exe POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy
-        ${SOURCE_DIR}/run_test.py 
-        ${TARGET_DIR}/run_test.py 
-    COMMAND ${CMAKE_COMMAND} -E copy
         ${SOURCE_DIR}/reference_output/error.txt
         ${TARGET_DIR}/reference_output/error.txt
 )

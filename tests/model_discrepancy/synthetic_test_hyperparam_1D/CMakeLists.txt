@@ -23,9 +23,6 @@ add_custom_command(TARGET synthetic_test_hyperparam_1D_example_sensitivity.exe P
         ${SOURCE_DIR}/Plotting_Script.m
         ${TARGET_DIR}/Plotting_Script.m
     COMMAND ${CMAKE_COMMAND} -E copy
-        ${SOURCE_DIR}/run_test.py 
-        ${TARGET_DIR}/run_test.py 
-    COMMAND ${CMAKE_COMMAND} -E copy
         ${SOURCE_DIR}/random_numbers.txt
         ${TARGET_DIR}/random_numbers.txt
     COMMAND ${CMAKE_COMMAND} -E copy

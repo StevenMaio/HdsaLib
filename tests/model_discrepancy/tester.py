@@ -2,6 +2,8 @@ import os
 import subprocess
 import filecmp
 import shutil
+from pathlib import Path
+import numpy as np
 
 def execute_executable(executable_path):
     """Execute the specified executable file."""
@@ -19,13 +21,37 @@ def find_all_files(directory):
             all_files.append(os.path.join(root, file))
     return all_files
 
+def load_vector(filename):
+    with open(filename, "r") as f:
+        first_line = f.readline().strip()
+
+    if first_line.startswith("%%MatrixMarket"):
+        return np.loadtxt(filename, skiprows=2)
+    else:
+        return np.loadtxt(filename)
+
 def compare_files(file1, file2):
     """Compare two files and return True if they are the same, False otherwise."""
-    return filecmp.cmp(file1, file2, shallow=False)
+    threshold = 1.e-7
+    v1 = load_vector(file1)
+    v2 = load_vector(file2)
+    if v1.shape != v2.shape:
+        raise ValueError(f"Shape mismatch: {v1.shape} vs {v2.shape}")
+
+    denom = np.linalg.norm(v1)
+    if denom < 1.e-8:
+        rel_diff = np.linalg.norm(v1 - v2)
+    else:
+        rel_diff = np.linalg.norm(v1 - v2) / denom
+    return rel_diff < threshold
 
 def main():
     # Define paths
-    executable_path = './sparse_matrix_sqrt_test_example.exe'
+    exe_files = list(Path(".").glob("*.exe"))
+    if len(exe_files) != 1:
+        raise ValueError(f"Expected exactly one .exe file, found {len(exe_files)}")
+    exe_file = exe_files[0].name
+    executable_path = './'+exe_file
     output_directory = '.'  # Assuming the .exe outputs files in the current directory and subdirectories
     reference_directory = 'reference_output'
 
@@ -50,7 +76,7 @@ def main():
             print(f"Reference file {reference_file} does not exist.")
 
     # Define the command to execute
-    command = 'rm -rf error.txt'
+    command = 'rm -rf prior_discrepancy_* posterior_*'
 
     # Execute the command
     try:

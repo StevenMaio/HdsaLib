@@ -13,10 +13,10 @@ def execute_script_in_subdirectories(base_directory, subdirectories):
             print(RESET + f"Executing in: {full_path}")
             try:
                 # Execute the command in the subdirectory
-                subprocess.run(['python3', 'run_test.py'], cwd=full_path, check=True)
+                subprocess.run(['python3', '../tester.py'], cwd=full_path, check=True)
                 #print(f"Successfully executed 'python3 run_test.py' in {full_path}")
             except subprocess.CalledProcessError as e:
-                print(f"Error executing 'python3 run_test.py' in {full_path}: {e}")
+                print(f"Error executing 'python3 tester.py' in {full_path}: {e}")
         else:
             print(f"Subdirectory {full_path} does not exist.")
 

@@ -20,9 +20,6 @@ set(TARGET_DIR ${CMAKE_BINARY_DIR}/tests/model_discrepancy/synthetic_test_bilapl
 # Copy the required files to the output directory
 add_custom_command(TARGET synthetic_test_bilaplacian_example_sensitivity.exe POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy
-        ${SOURCE_DIR}/run_test.py 
-        ${TARGET_DIR}/run_test.py 
-    COMMAND ${CMAKE_COMMAND} -E copy
         ${SOURCE_DIR}/random_numbers.txt
         ${TARGET_DIR}/random_numbers.txt
     COMMAND ${CMAKE_COMMAND} -E copy
