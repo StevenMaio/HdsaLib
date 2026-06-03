@@ -3,18 +3,19 @@ EXTRA_ARGS=$@
 # Modules installed using Homebrew: open-mpi, boost, hdf5-mpi, netcdf, cmake, ninja
 # May also need to use Homebrew to install: zlib, pnetcdf, libx11
  
+[ "$(uname)" = "Darwin" ] && BASE_DIR="$HOME" || BASE_DIR="/Users/joshart"
 rm CMakeCache.txt
 rm -rf CMakeFiles/
  
-TRILINOS_HOME='/Users/joshart/software/Trilinos'
+TRILINOS_HOME="$BASE_DIR/software/Trilinos"
  
-TRILINOS_INSTALL='/Users/joshart/software/Trilinos/trilinos-clang'
+TRILINOS_INSTALL="$BASE_DIR/software/Trilinos/trilinos-clang"
 
-HDSALIB_HOME='/Users/joshart/software/HdsaLib' 
+HDSALIB_HOME="$BASE_DIR/software/HdsaLib" 
  
-MRHYDE_HOME='/Users/joshart/software/MrHyDE'
+MRHYDE_HOME="$BASE_DIR/software/MrHyDE"
  
-MRHYDE_INSTALL='/Users/joshart/software/MrHyDE/install'
+MRHYDE_INSTALL="$BASE_DIR/software/MrHyDE/install"
  
 cmake \
 -GNinja \

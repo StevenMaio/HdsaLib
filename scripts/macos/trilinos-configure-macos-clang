@@ -1,4 +1,5 @@
 #!/bin/bash
+[ "$(uname)" = "Darwin" ] && BASE_DIR="$HOME" || BASE_DIR="/Users/joshart"
 rm -rf CMakeCache.txt
 rm -rf CMakeFiles
 
@@ -7,9 +8,9 @@ EXTRA_ARGS=$@
 # Modules installed using Homebrew: open-mpi, boost, hdf5-mpi, netcdf, cmake, ninja
 # May also need to use Homebrew to install: zlib, pnetcdf, libx11
 
-TRILINOS_HOME='/Users/joshart/software/Trilinos'
+TRILINOS_HOME="$BASE_DIR/software/Trilinos"
 
-INSTALL_DIR='/Users/joshart/software/Trilinos/trilinos-clang'
+INSTALL_DIR="$BASE_DIR/software/Trilinos/trilinos-clang"
 
 cmake \
 -GNinja \

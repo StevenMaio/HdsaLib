@@ -1,13 +1,14 @@
+[ "$(uname)" = "Darwin" ] && BASE_DIR="$HOME" || BASE_DIR="/Users/joshart"
 rm CMakeCache.txt
 rm -rf CMakeFiles/
  
-TRILINOS_HOME='/Users/joshart/software/Trilinos'
+TRILINOS_HOME="$BASE_DIR/software/Trilinos"
  
-TRILINOS_INSTALL='/Users/joshart/software/Trilinos/trilinos-clang'
+TRILINOS_INSTALL="$BASE_DIR/software/Trilinos/trilinos-clang"
  
-HDSALIB_HOME='/Users/joshart/software/HdsaLib'
+HDSALIB_HOME="$BASE_DIR/software/HdsaLib"
  
-HDSALIB_INSTALL='/Users/joshart/software/HdsaLib/install'
+HDSALIB_INSTALL="$BASE_DIR/software/HdsaLib/install"
  
 cmake \
 -GNinja \
