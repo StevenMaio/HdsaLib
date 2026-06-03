@@ -206,6 +206,19 @@ public:
         {
             std::string name = output_dir_name_ + "/posterior/posterior_delta_z_" + std::to_string(k + 1);
             std::filesystem::create_directory(name);
+
+            std::string summary_name = name + "/Discrepancy_Fit_Relative_Errors.txt";
+            std::ofstream fout;
+            fout.open(summary_name);
+            fout << "Mean fit relative error: " << std::setprecision(8) << post_delta[k]->ref_mean_diff << std::endl;
+            fout << " " << std::endl;
+            fout << "Samples fit relative errors:" << std::endl;
+            for (int i = 0; i < post_delta[k]->num_samples; i++)
+            {
+                fout << std::setprecision(8) << post_delta[k]->ref_samples_diff[i] << std::endl;
+            }
+            fout.close();
+
             std::string filename = name + "/posterior_mean";
             Write_to_File(post_delta[k]->mean, filename, true);
             name = name + "/posterior_samples";
@@ -322,7 +335,7 @@ public:
                     sol.resize(1);
                     sol[0] = solver_->linalg->getNewOverlappedVector(0);
                     RealT current_time = 0.0;
-                    postproc_->writeSolution(sol,current_time);
+                    postproc_->writeSolution(sol, current_time);
                 }
                 else if (const HDSA::Ptr<HDSA::Std_Vector<RealT>> evec = HDSA::dynamicPtrCast<HDSA::Std_Vector<RealT>>(vec))
                 {

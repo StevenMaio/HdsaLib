@@ -519,6 +519,29 @@ public:
         z_in[k] = (*data_interface->Get_Z())[k];
       }
       std::vector<HDSA::Ptr<HDSA::MD_Posterior_Vectors<ScalarT>>> post_delta = post_sampling->Posterior_Discrepancy_Samples(z_in);
+
+      for (int k = 0; k < N; k++)
+      {
+        HDSA::Ptr<HDSA::Vector<ScalarT>> dk = (*data_interface->Get_D())[k];
+        HDSA::Ptr<HDSA::Vector<ScalarT>> tmp1 = dk->Clone();
+        HDSA::Ptr<HDSA::Vector<ScalarT>> tmp2 = dk->Clone();
+
+        u_prior_interface->Apply_M_u(*tmp1, *dk);
+        RealT normalization = std::sqrt(dk->Dot(*tmp1));
+
+        tmp1->Set(*dk);
+        tmp1->Scaled_Plus(-1.0, *post_delta[k]->mean);
+        u_prior_interface->Apply_M_u(*tmp2, *tmp1);
+        post_delta[k]->ref_mean_diff = std::sqrt(tmp2->Dot(*tmp1)) / normalization;
+
+        for (int i = 0; i < num_posterior_samples; i++)
+        {
+          tmp1->Set(*dk);
+          tmp1->Scaled_Plus(-1.0, *(*post_delta[k]->samples)[i]);
+          u_prior_interface->Apply_M_u(*tmp2, *tmp1);
+          post_delta[k]->ref_samples_diff[i] = std::sqrt(tmp2->Dot(*tmp1)) / normalization;
+        }
+      }
       output_writer->Write_Posterior_Discrepancy_Samples(post_delta);
     }
 

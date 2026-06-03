@@ -18,12 +18,16 @@ namespace HDSA
     int num_samples;
     HDSA::Ptr<HDSA::Vector<RealT>> mean;
     HDSA::Ptr<HDSA::MultiVector<RealT>> samples;
+    RealT ref_mean_diff;
+    std::vector<RealT> ref_samples_diff;
 
   public:
     MD_Posterior_Vectors(const int num_samples_in, const HDSA::Vector<RealT> &vec) : num_samples(num_samples_in)
     {
       mean = vec.Clone();
       samples = HDSA::makePtr<HDSA::MultiVector<RealT>>(num_samples_in, vec);
+      ref_mean_diff = 0.0;
+      ref_samples_diff = std::vector<RealT>(num_samples_in);
     }
 
     virtual ~MD_Posterior_Vectors()
