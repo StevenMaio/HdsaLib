@@ -6,7 +6,7 @@
 #define OEDLIB_POISSON_CONSTRAINT_HPP
 #include <Eigen/src/Core/Matrix.h>
 
-#include "../../src/core/bayesian_inversion/OED_Constraint_Interface.hpp"
+#include "OED_Constraint_Interface.hpp"
 
 using Eigen::MatrixXd;
 using OED_TEST::Test_Vector;

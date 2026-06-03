@@ -5,7 +5,7 @@
 #ifndef OEDLIB_LIKELIHOOD_MODEL_HPP
 #define OEDLIB_LIKELIHOOD_MODEL_HPP
 
-#include "../base/vectors/OED_Vector.hpp"
+#include "OED_Vector.hpp"
 
 using OED::Vector;
 

@@ -3,7 +3,7 @@
 //
 #ifndef OEDLIB_CONSTRAINT_HPP
 #define OEDLIB_CONSTRAINT_HPP
-#include "../base/vectors/OED_Vector.hpp"
+#include "OED_Vector.hpp"
 
 
 namespace OED

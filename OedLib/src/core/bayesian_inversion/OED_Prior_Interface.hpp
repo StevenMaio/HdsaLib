@@ -6,7 +6,7 @@
 #define OEDLIB_PRIOR_MODEL_HPP
 
 #include "OED_Likelihood_Interface.hpp"
-#include "../base/vectors/OED_Vector.hpp"
+#include "OED_Vector.hpp"
 
 namespace OED
 {

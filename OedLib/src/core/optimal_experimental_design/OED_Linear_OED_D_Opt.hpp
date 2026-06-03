@@ -7,10 +7,10 @@
 
 #include <memory>
 
-#include "../bayesian_inversion/OED_Bayesian_Inversion_Interface.hpp"
-#include "../base/oed/OED_Discrete_Design_Criterion.hpp"
-#include "../base/vectors/OED_Vector.hpp"
-#include "../base/linear_algebra/OED_Dense_Matrix.hpp"
+#include "OED_Bayesian_Inversion_Interface.hpp"
+#include "OED_Discrete_Design_Criterion.hpp"
+#include "OED_Vector.hpp"
+#include "OED_Dense_Matrix.hpp"
 
 namespace OED
 {
