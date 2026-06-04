@@ -60,14 +60,14 @@ namespace HDSA
           u_op_trace += std::pow((*sing_vals)(k, 0), 2.0);
         }
       }
-      else if (HDSA::MD_Lumped_Mass_u_Prior_Interface<RealT> *u_lumped = dynamic_cast<HDSA::MD_Lumped_Mass_u_Prior_Interface<RealT> *>(&(*u_prior_interface)))
+      else if (HDSA::MD_Scaled_u_Prior_Interface<RealT> *u_scaled = dynamic_cast<HDSA::MD_Scaled_u_Prior_Interface<RealT> *>(&(*u_prior_interface)))
       {
         HDSA::Ptr<HDSA::MD_Laplacian_Like_Operator_Properties<RealT>> laplacian_op_prop = HDSA::makePtr<HDSA::MD_Laplacian_Like_Operator_Properties<RealT>>();
         int trace_estimator_sample_size = u_hyperparam_interface_->Get_trace_estimator_sample_size();
         if (trace_estimator_sample_size > 0)
         {
           HDSA::Ptr<HDSA::Vector<RealT>> u_vec = data_interface_->Get_u_opt()->Clone();
-          u_op_trace = laplacian_op_prop->Randomized_Inv_Operator_Trace_Estimation(*u_lumped, u_vec, trace_estimator_sample_size);
+          u_op_trace = laplacian_op_prop->Randomized_Inv_Operator_Trace_Estimation(*u_scaled, u_vec, trace_estimator_sample_size);
         }
         else
         {
@@ -100,14 +100,14 @@ namespace HDSA
           u_op_trace += std::pow((*sing_vals)(k, 0), 2.0);
         }
       }
-      else if (HDSA::MD_Lumped_Mass_u_Prior_Interface<RealT> *u_lumped = dynamic_cast<HDSA::MD_Lumped_Mass_u_Prior_Interface<RealT> *>(&(*u_prior_interface)))
+      else if (HDSA::MD_Scaled_u_Prior_Interface<RealT> *u_scaled = dynamic_cast<HDSA::MD_Scaled_u_Prior_Interface<RealT> *>(&(*u_prior_interface)))
       {
         HDSA::Ptr<HDSA::MD_Laplacian_Like_Operator_Properties<RealT>> laplacian_op_prop = HDSA::makePtr<HDSA::MD_Laplacian_Like_Operator_Properties<RealT>>();
         int trace_estimator_sample_size = u_hyperparam_interface_->Get_trace_estimator_sample_size();
         if (trace_estimator_sample_size > 0)
         {
           HDSA::Ptr<HDSA::Vector<RealT>> u_vec = data_interface_->Get_u_opt()->Clone();
-          u_op_trace = laplacian_op_prop->Randomized_Inv_Operator_Trace_Estimation(*u_lumped, u_vec, trace_estimator_sample_size);
+          u_op_trace = laplacian_op_prop->Randomized_Inv_Operator_Trace_Estimation(*u_scaled, u_vec, trace_estimator_sample_size);
         }
         else
         {

@@ -47,7 +47,7 @@ namespace HDSA
       return vec;
     }
 
-    MD_u_Hyperparameter_Interface(const bool &is_transient, const bool &center_data = false, const bool &adapt_time_variance = false, const int &component_id = 1) : is_transient_(is_transient), center_data_(center_data), adapt_time_variance_(adapt_time_variance), component_id_(component_id)
+    MD_u_Hyperparameter_Interface(const bool &is_transient, const bool &center_data = false, const bool &adapt_time_variance = false, const int &component_id = 0) : is_transient_(is_transient), center_data_(center_data), adapt_time_variance_(adapt_time_variance), component_id_(component_id)
     {
       is_multistate_interface_ = false;
       alpha_u_ = 0.0;

@@ -281,7 +281,7 @@ public:
     bool is_transient = solver_->isTransient;
     for (int k = 0; k < num_states; k++)
     {
-      u_hyperparam_interface_std[k] = HDSA::makePtr<MD_u_Hyperparameter_Interface_MrHyDE<ScalarT>>(comm_, data_interface, is_transient, center_data, adapt_time_variance);
+      u_hyperparam_interface_std[k] = HDSA::makePtr<MD_u_Hyperparameter_Interface_MrHyDE<ScalarT>>(comm_, data_interface, is_transient, center_data, adapt_time_variance, k);
       u_hyperparam_interface_std[k]->Set_alpha_d(alpha_d[k]);
       u_hyperparam_interface_std[k]->Set_alpha_u(alpha_u[k]);
       u_hyperparam_interface_std[k]->Set_beta_u(beta_u[k]);

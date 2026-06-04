@@ -59,7 +59,7 @@ public:
     return vec;
   }
 
-  MD_u_Hyperparameter_Interface_MrHyDE(const Teuchos::RCP<Teuchos::MpiComm<int>> &comm, const HDSA::Ptr<HDSA::MD_Data_Interface<RealT>> data_interface, const bool &is_transient, const bool &center_data = false, const bool &adapt_time_variance = false, const int &component_id = 1)
+  MD_u_Hyperparameter_Interface_MrHyDE(const Teuchos::RCP<Teuchos::MpiComm<int>> &comm, const HDSA::Ptr<HDSA::MD_Data_Interface<RealT>> data_interface, const bool &is_transient, const bool &center_data = false, const bool &adapt_time_variance = false, const int &component_id = 0)
       : HDSA::MD_u_Hyperparameter_Interface<RealT>(is_transient, center_data, adapt_time_variance, component_id)
   {
     comm_ = comm;

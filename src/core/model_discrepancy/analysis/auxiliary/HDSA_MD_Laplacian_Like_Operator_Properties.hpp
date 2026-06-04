@@ -7,7 +7,7 @@
 #ifndef HDSA_MD_LAPLACIAN_LIKE_OPERATOR_PROPERTIES_HPP
 #define HDSA_MD_LAPLACIAN_LIKE_OPERATOR_PROPERTIES_HPP
 
-#include "HDSA_MD_Lumped_Mass_u_Prior_Interface.hpp"
+#include "HDSA_MD_Scaled_u_Prior_Interface.hpp"
 
 namespace HDSA
 {
@@ -90,7 +90,7 @@ namespace HDSA
       return val;
     }
 
-    RealT Randomized_Inv_Operator_Trace_Estimation(const HDSA::MD_Lumped_Mass_u_Prior_Interface<RealT> &u_prior_interface, HDSA::Ptr<HDSA::Vector<RealT>> &u_vec, const int &num_samples)
+    RealT Randomized_Inv_Operator_Trace_Estimation(const HDSA::MD_Scaled_u_Prior_Interface<RealT> &u_prior_interface, HDSA::Ptr<HDSA::Vector<RealT>> &u_vec, const int &num_samples)
     {
       HDSA::Ptr<HDSA::MultiVector<RealT>> samples = HDSA::makePtr<HDSA::MultiVector<RealT>>(num_samples, *u_vec);
       u_prior_interface.Sample_with_Covariance_W_u_Acute_Inverse(*samples);
