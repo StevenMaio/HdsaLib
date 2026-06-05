@@ -7,14 +7,14 @@ ANONYMOUS:
     dimension: 3
     element type: hex
     xmin: 0.0
-    xmax: 1.0
+    xmax: 30.0
     ymin: 0.0
-    ymax: 0.4
+    ymax: 12.0
     zmin: 0.0
-    zmax: 0.1
-    NX: 20
-    NY: 10
-    NZ: 10
+    zmax: 3.0
+    NX: 90
+    NY: 36
+    NZ: 9
   Physics: 
     modules: thermal, linearelasticity
     alpha_T: 0.001
@@ -25,11 +25,11 @@ ANONYMOUS:
         top: 0.0
         bottom: 0.0
       dy:
-        left: 0.2*cos(pi*y/.4)
-        right: -0.2*cos(pi*y/.4)
+        left: 4.0*cos(pi*y/12.0)
+        right: -4.0*cos(pi*y/12.0)
       dz:
-        left: 0.2*cos(pi*y/.4)
-        right: -0.2*cos(pi*y/.4)
+        left: 1.0*cos(pi*y/12.0)
+        right: -1.0*cos(pi*y/12.0)
   Discretization:
     order:
       T: 1
@@ -55,4 +55,4 @@ ANONYMOUS:
   Functions:
     mu: '8.0'
     lambda: lambdafield 
-    thermal source: 100.0 * exp(-50.0 * ( (x-0.5)^2 + (y-0.2)^2 + (z-0.02)^2 ) )
+    thermal source: 100.0 * cos(2.0*pi*x/30.0)^2 * cos(2.0*pi*y/12.0)^2 * exp(-100.0 * ( (z-1.5)^2 ) )

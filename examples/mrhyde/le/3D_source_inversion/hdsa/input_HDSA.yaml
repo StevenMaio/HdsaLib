@@ -6,26 +6,26 @@ ANONYMOUS:
     HDSA:
       Configuration:
         num_prior_samples: 0
-        num_posterior_samples: 0
+        num_posterior_samples: 5
         execute_prior_discrepancy_sampling: true
         execute_posterior_discrepancy_sampling: true
         execute_optimal_solution_update: true
         verbosity: 1
       Prior Computation:
-        State Prior: "Lumped_Mass"
+        State Prior: "Bilaplacian"
         use_incomplete_prec: true
       HyperParameters:
         dx:
-          beta_u: 1.0E-3
+          beta_u: 1.0E-2
         dy:
-          beta_u: 1.0E-3
+          beta_u: 1.0E-2
         dz:
-          beta_u: 1.0E-3
+          beta_u: 1.0E-2
         z:
           alpha_z: .1
-          beta_z: 1.0E-3
-        hessian_num_eig_vals: 4
-        hessian_oversampling: 0
+          beta_z: 1.0E-2
+        hessian_num_eig_vals: 10
+        hessian_oversampling: 5
       DataLoadParameters:
         OptimalSolutionExoFile: "output_lofi_opt.exo"
         NumHifi: 1

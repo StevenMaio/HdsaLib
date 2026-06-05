@@ -1,1 +1,0 @@
-This example is currently under construction. Thus far, we have set up codes to generate data from the forward model, subsample it at sensor locations, and then solve the optimization problem to recover the source. Details of the problem formulation and optimization are still under development. Other folders in this directory are placeholders and are not operable at this time.
