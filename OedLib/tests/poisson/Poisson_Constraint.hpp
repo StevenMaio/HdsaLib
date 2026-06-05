@@ -4,7 +4,8 @@
 
 #ifndef OEDLIB_POISSON_CONSTRAINT_HPP
 #define OEDLIB_POISSON_CONSTRAINT_HPP
-#include <Eigen/src/Core/Matrix.h>
+
+#include "Eigen/Dense"
 
 #include "OED_Constraint_Interface.hpp"
 

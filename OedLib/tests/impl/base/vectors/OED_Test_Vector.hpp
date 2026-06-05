@@ -5,7 +5,7 @@
 #ifndef OEDLIB_OED_EIG_VECTOR_HPP
 #define OEDLIB_OED_EIG_VECTOR_HPP
 
-#include <Eigen/Dense>
+#include "Eigen/Dense"
 
 #include "OED_Constraint_Interface.hpp"
 #include "OED_Vector.hpp"

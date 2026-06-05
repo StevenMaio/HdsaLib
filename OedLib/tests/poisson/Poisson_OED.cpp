@@ -3,7 +3,7 @@
 //
 #include <iostream>
 #include <vector>
-#include <Eigen/Dense>
+#include "Eigen/Dense"
 
 #include "Test_Bayesian_Inversion.hpp"
 #include "OED_Lazy_Greedy.hpp"

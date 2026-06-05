@@ -6,7 +6,7 @@
 #define OEDLIB_TEST_LINEAR_OPERATOR_HPP
 
 #include "OED_Linear_Operator.hpp"
-#include <Eigen/src/SparseLU/SparseLU.h>
+#include "Eigen/src/SparseLU/SparseLU.h"
 
 namespace OED_TEST
 {

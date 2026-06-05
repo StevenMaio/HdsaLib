@@ -12,4 +12,5 @@ target_include_directories(OedLib INTERFACE
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/algorithms/
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/base/linear_algebra/
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/base/vectors/
+    ${CMAKE_CURRENT_SOURCE_DIR}/include
 )

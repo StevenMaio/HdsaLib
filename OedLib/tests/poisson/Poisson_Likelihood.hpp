@@ -11,6 +11,7 @@
 #include "OED_Test_Vector.hpp"
 
 #include <vector>
+
 using OED::Likelihood_Interface;
 
 namespace OED_TEST

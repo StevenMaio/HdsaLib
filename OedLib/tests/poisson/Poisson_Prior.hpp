@@ -5,7 +5,7 @@
 #ifndef OEDLIB_POISSON_PRIOR_HPP
 #define OEDLIB_POISSON_PRIOR_HPP
 
-#include <Eigen/Dense>
+#include "Eigen/Dense"
 
 #include "OED_Prior_Interface.hpp"
 #include "OED_Test_Vector.hpp"

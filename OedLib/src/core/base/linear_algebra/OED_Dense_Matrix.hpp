@@ -6,7 +6,7 @@
 #define OEDLIB_OED_DENSE_MATRIX_HPP
 
 #include <memory>
-#include <Eigen/Dense>
+#include "Eigen/Dense"
 
 using Eigen::MatrixXd;
 
