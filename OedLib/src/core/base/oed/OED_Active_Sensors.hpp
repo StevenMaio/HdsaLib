@@ -15,9 +15,9 @@ namespace OED
   {
   private:
     int total_sensors_;
+    std::vector<int> selected_sensors_;
 
   public:
-    std::vector<int> selected_sensors_; // make this private again later
     Active_Sensors(int total_sensors)
     {
       this->total_sensors_ = total_sensors;
