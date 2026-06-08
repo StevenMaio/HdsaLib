@@ -35,6 +35,7 @@ ANONYMOUS:
     max nonlinear iters: 4
     max linear iters: 1000
   Postprocess: 
+    output file: output_lofi_opt
     response type: pointwise
     compute objective: true
     write solution: true 

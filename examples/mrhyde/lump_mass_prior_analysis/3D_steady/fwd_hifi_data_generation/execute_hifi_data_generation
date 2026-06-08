@@ -1,11 +1,11 @@
 # Ensure that the MrHyDE executable has been linked to the current directory under the name "mrhyde"
 
-# Set link to optimization solution
-ln -s ../optimization/output_lofi_opt.exo .
+#!/bin/bash
 
-cp output_lofi_opt.exo hifi_z1.exo
+# Number of processors
+NPROCS=20
+
+ln -s ../optimization/output_lofi_opt.exo.* .
 
 # Solve forward problem
-./mrhyde 
-# Change file name
-mv output.exo output_hifi_1.exo
+mpiexec -n "$NPROCS" mrhyde
