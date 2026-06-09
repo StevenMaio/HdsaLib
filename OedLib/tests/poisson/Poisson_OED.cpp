@@ -5,7 +5,7 @@
 #include <vector>
 #include "Eigen/Dense"
 
-#include "Test_Bayesian_Inversion.hpp"
+#include "Test_Linear_Bayesian_Inversion.hpp"
 #include "OED_Lazy_Greedy.hpp"
 #include "OED_Linear_OED_D_Opt.hpp"
 #include "OED_Test_Vector.hpp"
@@ -60,7 +60,7 @@ int main()
   // Construct the rows of F
   auto prior = std::make_shared<OED_TEST::Poisson_Prior>(constraint, norm_scale, grad_scale);
   std::shared_ptr<OED::Bayesian_Inversion_Interface<double>> inversion_problem
-      = std::make_shared<OED_TEST::Test_Bayesian_Inversion>(likelihood, prior, constraint);
+      = std::make_shared<OED_TEST::Test_Linear_Bayesian_Inversion>(likelihood, prior, constraint);
 
   auto oed_problem = std::make_shared<OED::Linear_OED_D_Opt<double>>(inversion_problem);
   int budget = 5;

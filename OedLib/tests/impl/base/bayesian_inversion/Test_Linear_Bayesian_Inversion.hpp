@@ -2,18 +2,18 @@
 // Created by Steven Maio on 5/27/26.
 //
 
-#ifndef OEDLIB_TEST_BAYESIAN_INVERSION_HPP
-#define OEDLIB_TEST_BAYESIAN_INVERSION_HPP
+#ifndef OEDLIB_TEST_LINEAR_BAYESIAN_INVERSION_HPP
+#define OEDLIB_TEST_LINEAR_BAYESIAN_INVERSION_HPP
 
 #include "OED_Test_Vector.hpp"
 #include "OED_Bayesian_Inversion_Interface.hpp"
 
 namespace OED_TEST
 {
-  class Test_Bayesian_Inversion : public OED::Bayesian_Inversion_Interface<double>
+  class Test_Linear_Bayesian_Inversion : public OED::Bayesian_Inversion_Interface<double>
   {
   public:
-    Test_Bayesian_Inversion(
+    Test_Linear_Bayesian_Inversion(
         std::shared_ptr<OED::Likelihood_Interface<double>> likelihood,
         std::shared_ptr<OED::Prior_Interface<double>> prior,
         std::shared_ptr<OED::Constraint_Interface<double>> constraint
@@ -43,4 +43,4 @@ namespace OED_TEST
   };
 }
 
-#endif //OEDLIB_TEST_BAYESIAN_INVERSION_HPP
+#endif // OEDLIB_TEST_LINEAR_BAYESIAN_INVERSION_HPP
