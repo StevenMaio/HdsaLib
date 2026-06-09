@@ -12,6 +12,7 @@
 #include "Poisson_Constraint.hpp"
 
 using Eigen::MatrixXd;
+using Eigen::SelfAdjointEigenSolver;
 using Eigen::FullPivLU;
 
 namespace OED_TEST
@@ -22,22 +23,22 @@ namespace OED_TEST
   private:
     int param_dim_;
     MatrixXd &M_;
-    MatrixXd M_inv_;  // symmetric.. can use Cholesky?
+    SelfAdjointEigenSolver<MatrixXd> M_es_;
     MatrixXd &S_;
     MatrixXd L_;
-    MatrixXd L_inv_;
+    std::shared_ptr<FullPivLU<MatrixXd>> L_plu_;
     double norm_scale_;
     double grad_scale_;
+
   public:
     Poisson_Prior(std::shared_ptr<Poisson_Constraint> &constraint, double norm_scale, double grad_scale)
-      : param_dim_(constraint->Param_Dimension()), M_(constraint->M()), M_inv_(this->param_dim_, this->param_dim_),
-        S_(constraint->S()), L_(param_dim_, param_dim_), L_inv_(param_dim_, param_dim_),
+      : param_dim_(constraint->Param_Dimension()), M_(constraint->M()), M_es_(constraint->M()), 
+        S_(constraint->S()), L_(param_dim_, param_dim_), 
         norm_scale_(norm_scale), grad_scale_(grad_scale)
 
     {
-      this->M_inv_ = this->M_.inverse(); // TODO: I know this is bad
       this->L_ = norm_scale * this->M_ + grad_scale * this->S_;
-      this->L_inv_ = this->L_.inverse();  // TODO: I know this is also bad (just for now)
+      this->L_plu_ = std::make_shared<FullPivLU<MatrixXd>>(this->L_);
     }
 
     void Prior_Precision_Apply(Vector<double> &z_out, Vector<double> &z_in) override
@@ -60,30 +61,40 @@ namespace OED_TEST
     {
       auto &z_in_impl = dynamic_cast<Test_Vector<double> &>(z_in);
       auto &z_out_impl = dynamic_cast<Test_Vector<double> &>(z_out);
-      VectorXd v = this->M_ * z_in_impl.Vec();
-      v = this->L_inv_ * v;
-      z_out_impl.Vec() = v;
+      VectorXd &v = z_out_impl.Vec();
+      v = this->M_ * z_in_impl.Vec();
+      v = this->L_plu_->solve(v);
     };
 
     void Mass_Matrix_Apply(Vector<double> &z_out, Vector<double> &z_in) override
     {
       auto &z_in_impl = dynamic_cast<Test_Vector<double> &>(z_in);
       auto &z_out_impl = dynamic_cast<Test_Vector<double> &>(z_out);
-      VectorXd v = this->M_ * z_in_impl.Vec();
-      z_out_impl.Vec() = v;
+      auto &v = z_out_impl.Vec();
+      v = this->M_ * z_in_impl.Vec();
     };
 
     void Mass_Matrix_Inverse_Apply(Vector<double> &z_out, Vector<double> &z_in) override
     {
       auto &z_in_impl = dynamic_cast<Test_Vector<double> &>(z_in);
       auto &z_out_impl = dynamic_cast<Test_Vector<double> &>(z_out);
-      VectorXd v = this->M_inv_ * z_in_impl.Vec();
-      z_out_impl.Vec() = v;
+      auto &V = this->M_es_.eigenvectors();
+      auto &w = this->M_es_.eigenvalues();
+      // TODO: compute inverse
+      auto &x = z_out_impl.Vec();
+      x = V.transpose() * z_in_impl.Vec();
+      x = x.cwiseProduct(w.cwiseInverse());
+      x = V * x;
     }
 
     int Param_Dimension() override
     {
       return this->param_dim_;
+    }
+
+    std::shared_ptr<Vector<double>> Sample_Vector()
+    {
+      return nullptr;
     }
   };
 }

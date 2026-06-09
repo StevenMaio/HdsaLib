@@ -7,6 +7,9 @@
 #ifndef HDSA_VECTOR_HPP
 #define HDSA_VECTOR_HPP
 
+#include <fstream>
+#include <iomanip>
+
 namespace OED
 {
 
@@ -101,6 +104,17 @@ namespace OED
     {
       this->Scale(0.0);
       this->Scaled_Plus(1.0, x);
+    }
+
+    virtual void Write_To_File(const std::string& file_name)
+    {
+      std::ofstream fout;
+      fout.open(file_name);
+      for (int i = 0; i < this->Dimension(); i++)
+      {
+        fout << std::setprecision(16) << this->Get_Entry(i) << " ";
+      }
+      fout.close();
     }
 
     // Test vector implementation

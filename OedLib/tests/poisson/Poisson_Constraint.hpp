@@ -10,6 +10,7 @@
 #include "OED_Constraint_Interface.hpp"
 
 using Eigen::MatrixXd;
+using Eigen::FullPivLU;
 using OED_TEST::Test_Vector;
 
 namespace OED_TEST
@@ -25,12 +26,12 @@ namespace OED_TEST
     MatrixXd M0_;
     MatrixXd S_;
     MatrixXd A_;
-    MatrixXd A_inv_;
+    std::shared_ptr<FullPivLU<MatrixXd>> A_plu_;
 
   public:
     Poisson_Constraint(int dim) :
         dim_{dim}, M_{dim, dim}, M0_{dim, dim},
-        S_{dim, dim}, A_{dim, dim}, A_inv_{dim, dim}
+        S_{dim, dim}, A_{dim, dim}
     {
       this->h = 1.0 / (dim - 1);
       this->M_(0, 0) = 1.0 / 3.0 * h;
@@ -68,7 +69,7 @@ namespace OED_TEST
       this->A_(0, 1) = 0.0;
       this->A_(dim -1, dim - 2) = 0.0;
       this->A_(dim -1, dim - 1) = 1.0;
-      this->A_inv_ = this->A_.inverse();    // TODO: not good, but this isn't a serious implementation
+      this->A_plu_ = std::make_shared<FullPivLU<MatrixXd>>(this->A_);
     }
 
     MatrixXd &M()
@@ -101,7 +102,7 @@ namespace OED_TEST
       auto &z_impl = dynamic_cast<Test_Vector<double> &>(z);
       auto &u_out_impl = dynamic_cast<Test_Vector<double> &>(u_out);
       VectorXd rhs = this->M0_ * z_impl.Vec();
-      u_out_impl.Vec() = this->A_inv_ * rhs;
+      u_out_impl.Vec() = this->A_plu_->solve(rhs);
     };
 
     void c_u_Transpose_Inverse_Apply(OED::Vector<double> &u_out, OED::Vector<double> &u_in, OED::Vector<double> &u,
@@ -109,7 +110,7 @@ namespace OED_TEST
     {
       auto &u_in_impl = dynamic_cast<Test_Vector<double> &>(u_in);
       auto &u_out_impl = dynamic_cast<Test_Vector<double> &>(u_out);
-      VectorXd v = this->A_inv_.transpose() * u_in_impl.Vec();
+      VectorXd v = this->A_plu_->transpose().solve(u_in_impl.Vec());
       u_out_impl.Vec() = v;
     };
 
@@ -125,13 +126,13 @@ namespace OED_TEST
     void c_u_Inverse_Apply(OED::Vector<double> &u_out, OED::Vector<double> &u_in, OED::Vector<double> &u,
       OED::Vector<double> &z) override
     {
-
+      // TODO: implement this
     };
 
     void c_z_Apply(OED::Vector<double> &z_out, OED::Vector<double> &z_in, OED::Vector<double> &u,
       OED::Vector<double> &z) override
     {
-
+      // TODO: implement this
     };
   };
 

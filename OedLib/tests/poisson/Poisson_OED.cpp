@@ -30,14 +30,14 @@ int main()
     m(i) = 2.0;
   }
 
-  Test_Vector<double> param(dim);
-  Test_Vector<double> state(dim);
-  param.Vec() = m;
+  auto param = std::make_shared<Test_Vector<double>>(dim);
+  auto state = std::make_shared<Test_Vector<double>>(dim);
+  param->Vec() = m;
 
   auto constraint = std::make_shared<OED_TEST::Poisson_Constraint>(dim);
-  constraint->State_Solve(state, param);
+  constraint->State_Solve(*state, *param);
 
-  u = state.Vec();
+  u = state->Vec();
   std::cout << u << std::endl;
   std::vector<int> obs_vec;
   double noise_std = 1e-2;
@@ -48,13 +48,13 @@ int main()
   int data_dim = obs_vec.size();
 
   auto likelihood = std::make_shared<OED_TEST::Poisson_Likelihood>(dim, noise_std, obs_vec);
-  Test_Vector<double> data(data_dim);
-  likelihood->Observation_Operator_Apply(data, state);
-  std::cout << data.Vec() << std::endl;
+  auto data = std::make_shared<Test_Vector<double>>(data_dim);
+  likelihood->Observation_Operator_Apply(*data, *state);
+  std::cout << data->Vec() << std::endl;
 
   // test the noise precision apply -- looks good to me
   Test_Vector<double> test(data_dim);
-  likelihood->Noise_Precision_Apply(test, data);
+  likelihood->Noise_Precision_Apply(test, *data);
   std::cout << test.Vec() << std::endl;
 
   // Construct the rows of F

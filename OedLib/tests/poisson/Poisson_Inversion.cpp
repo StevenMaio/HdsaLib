@@ -51,4 +51,6 @@ int main()
       = std::make_shared<OED_TEST::Test_Linear_Bayesian_Inversion>(likelihood, prior, constraint);
 
   // TODO: need to do actual inversion
+  // TODO: create the forward map
+  // TODO: maybe do a weighted inner product decomposition?
 }

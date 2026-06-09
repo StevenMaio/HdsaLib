@@ -40,6 +40,11 @@ namespace OED_TEST
       std::shared_ptr<Test_Vector<double>> d = std::make_shared<Test_Vector<double>>(data_dim);
       return d;
     };
+
+    void Compute_MAP_Point(std::shared_ptr<Vector<double>> &m_out)
+    {
+      // TODO: need to build the linear equation I want to solve...
+    }
   };
 }
 
