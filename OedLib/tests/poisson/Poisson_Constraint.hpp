@@ -105,6 +105,14 @@ namespace OED_TEST
       u_out_impl.Vec() = this->A_plu_->solve(rhs);
     };
 
+    void Adjoint_Solve(OED::Vector<double> &u_out, OED::Vector<double> &z) override
+    {
+      auto &z_impl = dynamic_cast<Test_Vector<double> &>(z);
+      auto &u_out_impl = dynamic_cast<Test_Vector<double> &>(u_out);
+      VectorXd rhs = this->M0_ * z_impl.Vec();
+      u_out_impl.Vec() = this->A_plu_->solve(rhs);
+    };
+
     void c_u_Transpose_Inverse_Apply(OED::Vector<double> &u_out, OED::Vector<double> &u_in, OED::Vector<double> &u,
       OED::Vector<double> &z) override
     {
