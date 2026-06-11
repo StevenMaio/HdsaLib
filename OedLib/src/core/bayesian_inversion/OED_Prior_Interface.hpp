@@ -21,7 +21,7 @@ namespace OED
     virtual void Prior_Precision_Apply(Vector<RealT> &m_out, Vector<RealT> &m_in) = 0;
     virtual void Prior_Covariance_Apply(Vector<RealT> &m_out, Vector<RealT> &m_in) = 0;
     virtual void Get_Prior_Mean(Vector<RealT> &m_out) = 0;
-    virtual void Prior_Factor_Apply(Vector<RealT> &m_out, Vector<RealT> &m_in) = 0;
+    virtual void Prior_Covariance_Factor_Apply(Vector<RealT> &m_out, Vector<RealT> &m_in) = 0;
     virtual int Param_Dimension() = 0;
 
     // TODO: move this at some point to a potentially new class

@@ -47,10 +47,18 @@ int main()
 
   auto likelihood = std::make_shared<OED_TEST::Poisson_Likelihood>(dim, noise_std, obs_vec);
   auto prior = std::make_shared<OED_TEST::Poisson_Prior>(constraint, norm_scale, grad_scale);
-  std::shared_ptr<OED::Bayesian_Inversion_Interface<double>> inversion_problem
-      = std::make_shared<OED_TEST::Test_Linear_Bayesian_Inversion>(likelihood, prior, constraint);
+  auto inversion_problem = std::make_shared<OED_TEST::Test_Linear_Bayesian_Inversion>(likelihood, prior, constraint);
 
+  // create data and intialize map point
+  auto data = inversion_problem->Get_Empty_Data_Vector();
+  likelihood->Observation_Operator_Apply(*data, (OED::Vector<double> &) state);
+  inversion_problem->Set_Data(data);
+
+  auto map_estimate = inversion_problem->Get_Empty_Parameter_Vector();
+  inversion_problem->Compute_MAP_Point(map_estimate);
   // TODO: need to do actual inversion
+
   // TODO: create the forward map
+
   // TODO: maybe do a weighted inner product decomposition?
 }

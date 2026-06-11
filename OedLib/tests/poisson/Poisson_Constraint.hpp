@@ -5,51 +5,50 @@
 #ifndef OEDLIB_POISSON_CONSTRAINT_HPP
 #define OEDLIB_POISSON_CONSTRAINT_HPP
 
+#include <memory>
+
 #include "Eigen/Dense"
 
 #include "OED_Constraint_Interface.hpp"
+#include "OED_Dense_Mass_Matrix.hpp"
 
-using Eigen::MatrixXd;
-using Eigen::FullPivLU;
 using OED_TEST::Test_Vector;
 
 namespace OED_TEST
 {
-  class Poisson_Constraint : public OED::Constraint_Interface<double>
+  template <class RealT>
+  class Poisson_Constraint : public OED::Constraint_Interface<RealT>
   {
   public:
+    using Dense_Vector = Eigen::VectorXd;
+    using Dense_Matrix = Eigen::MatrixXd;
 
   private:
     int dim_;
     double h;
-    MatrixXd M_;
-    MatrixXd M0_;
-    MatrixXd S_;
-    MatrixXd A_;
-    std::shared_ptr<FullPivLU<MatrixXd>> A_plu_;
+    std::shared_ptr<Dense_Mass_Matrix<RealT>> M_;
+    Dense_Matrix S_;
+    Dense_Matrix A_;
+    std::shared_ptr<Eigen::FullPivLU<Dense_Matrix>> A_plu_;
 
   public:
     Poisson_Constraint(int dim) :
-        dim_{dim}, M_{dim, dim}, M0_{dim, dim},
-        S_{dim, dim}, A_{dim, dim}
+        dim_{dim}, S_{dim, dim}, A_{dim, dim}
     {
       this->h = 1.0 / (dim - 1);
-      this->M_(0, 0) = 1.0 / 3.0 * h;
-      this->M_(0, 1) = 1.0 / 6.0 * h;
+
+      Dense_Matrix M(dim, dim);
+      M(0, 0) = 1.0 / 3.0 * h;
+      M(0, 1) = 1.0 / 6.0 * h;
       for (int i = 1; i < dim - 1; i++)
       {
-        this->M_(i, i) = (2.0 / 3.0) * h;
-        this->M_(i, i - 1) = (1.0 / 6.0) * h;
-        this->M_(i, i + 1) = (1.0 / 6.0) * h;
+        M(i, i) = (2.0 / 3.0) * h;
+        M(i, i - 1) = (1.0 / 6.0) * h;
+        M(i, i + 1) = (1.0 / 6.0) * h;
       }
-      this->M_(dim - 1, dim - 2) = 1.0 / 6.0 * h;
-      this->M_(dim - 1, dim - 1) = 1.0 / 3.0 * h;
-      // Copy M and apply BCs
-      this->M0_ = this->M_;
-      this->M0_(0, 0) = 0;
-      this->M0_(0, 1) = 0;
-      this->M0_(dim - 1, dim - 2) = 0;
-      this->M0_(dim - 1, dim - 1) = 0;
+      M(dim - 1, dim - 2) = 1.0 / 6.0 * h;
+      M(dim - 1, dim - 1) = 1.0 / 3.0 * h;
+      this->M_ = std::make_shared<Dense_Mass_Matrix<RealT>>(M);
 
       this->S_(0, 0) = 1.0 / h;
       this->S_(0, 1) = -1.0 / h;
@@ -69,20 +68,20 @@ namespace OED_TEST
       this->A_(0, 1) = 0.0;
       this->A_(dim -1, dim - 2) = 0.0;
       this->A_(dim -1, dim - 1) = 1.0;
-      this->A_plu_ = std::make_shared<FullPivLU<MatrixXd>>(this->A_);
+      this->A_plu_ = std::make_shared<Eigen::FullPivLU<Dense_Matrix>>(this->A_);
     }
 
-    MatrixXd &M()
+    std::shared_ptr<Dense_Mass_Matrix<RealT>> &Mass_Matrix()
     {
       return this->M_;
     }
 
-    MatrixXd &S()
+    Dense_Matrix &S()
     {
       return this->S_;
     }
 
-    MatrixXd &A()
+    Dense_Matrix &A()
     {
       return this->A_;
     }
@@ -97,48 +96,60 @@ namespace OED_TEST
       return this->dim_;
     };
 
-    void State_Solve(OED::Vector<double> &u_out, OED::Vector<double> &z) override
+    void State_Solve(OED::Vector<RealT> &u_out, OED::Vector<RealT> &z_in) override
     {
-      auto &z_impl = dynamic_cast<Test_Vector<double> &>(z);
-      auto &u_out_impl = dynamic_cast<Test_Vector<double> &>(u_out);
-      VectorXd rhs = this->M0_ * z_impl.Vec();
-      u_out_impl.Vec() = this->A_plu_->solve(rhs);
+      auto &z = dynamic_cast<Test_Vector<RealT> &>(z_in);
+      auto &u = dynamic_cast<Test_Vector<RealT> &>(u_out);
+      Dense_Vector b = z.Vec();
+      Dense_Matrix &M = this->M_->M();
+      b = M * b;
+      b(0) = 0;
+      b(this->dim_ - 1) = 0;
+      Dense_Vector v = this->A_plu_->solve(b);
+      u.Set_Vec(v);
     };
 
-    void Adjoint_Solve(OED::Vector<double> &u_out, OED::Vector<double> &z) override
+    void State_Adjoint_Apply(OED::Vector<RealT> &m_out, OED::Vector<RealT> &u_in, OED::Vector<RealT> &m, OED::Vector<RealT> &u)
     {
-      auto &z_impl = dynamic_cast<Test_Vector<double> &>(z);
-      auto &u_out_impl = dynamic_cast<Test_Vector<double> &>(u_out);
-      VectorXd rhs = this->M0_ * z_impl.Vec();
-      u_out_impl.Vec() = this->A_plu_->solve(rhs);
+      auto &u_in_impl = dynamic_cast<Test_Vector<RealT> &>(u_in);
+      auto &m_out_impl = dynamic_cast<Test_Vector<RealT> &>(m_out);
+      Dense_Vector v = this->A_plu_->transpose().solve(u_in_impl.Vec());
+      m_out_impl.Set_Vec(v);
     };
 
-    void c_u_Transpose_Inverse_Apply(OED::Vector<double> &u_out, OED::Vector<double> &u_in, OED::Vector<double> &u,
-      OED::Vector<double> &z) override
+    void c_u_Transpose_Inverse_Apply(OED::Vector<RealT> &u_out, OED::Vector<RealT> &u_in, OED::Vector<RealT> &u,
+      OED::Vector<RealT> &z) override
     {
-      auto &u_in_impl = dynamic_cast<Test_Vector<double> &>(u_in);
-      auto &u_out_impl = dynamic_cast<Test_Vector<double> &>(u_out);
-      VectorXd v = this->A_plu_->transpose().solve(u_in_impl.Vec());
+      auto &u_in_impl = dynamic_cast<Test_Vector<RealT> &>(u_in);
+      auto &u_out_impl = dynamic_cast<Test_Vector<RealT> &>(u_out);
+      Dense_Vector v = this->A_plu_->transpose().solve(u_in_impl.Vec());
       u_out_impl.Vec() = v;
     };
 
-    void c_z_Transpose_Apply(OED::Vector<double> &z_out, OED::Vector<double> &z_in, OED::Vector<double> &u,
-      OED::Vector<double> &z) override
+    void c_z_Transpose_Apply(OED::Vector<RealT> &z_out, OED::Vector<RealT> &z_in, OED::Vector<RealT> &u,
+      OED::Vector<RealT> &z) override
     {
-      auto &z_in_impl = dynamic_cast<Test_Vector<double> &>(z_in);
-      auto &z_out_impl = dynamic_cast<Test_Vector<double> &>(z_out);
-      VectorXd v = -this->M0_.transpose() * z_in_impl.Vec();
-      z_out_impl.Vec() = v;
+      auto &z_in_impl = dynamic_cast<Test_Vector<RealT> &>(z_in);
+      auto &z_out_impl = dynamic_cast<Test_Vector<RealT> &>(z_out);
+      // TODO: Replace this with transpose of mass matrix apply and settings BCs to zero
+      Dense_Matrix &M = this->M_->M();
+      Dense_Vector v = -z_in_impl.Vec();
+      v(0) = 0;
+      v(this->dim_ - 1) = 0;
+      v = M * v;
+      z_out_impl.Set_Vec(v);
+      //z_out_impl.Set_Vec(v);
+      //this->M_->Apply(z_out, z_out);
     };
 
-    void c_u_Inverse_Apply(OED::Vector<double> &u_out, OED::Vector<double> &u_in, OED::Vector<double> &u,
-      OED::Vector<double> &z) override
+    void c_u_Inverse_Apply(OED::Vector<RealT> &u_out, OED::Vector<RealT> &u_in, OED::Vector<RealT> &u,
+      OED::Vector<RealT> &z) override
     {
       // TODO: implement this
     };
 
-    void c_z_Apply(OED::Vector<double> &z_out, OED::Vector<double> &z_in, OED::Vector<double> &u,
-      OED::Vector<double> &z) override
+    void c_z_Apply(OED::Vector<RealT> &z_out, OED::Vector<RealT> &z_in, OED::Vector<RealT> &u,
+      OED::Vector<RealT> &z) override
     {
       // TODO: implement this
     };

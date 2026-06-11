@@ -8,36 +8,45 @@
 #include "OED_Test_Vector.hpp"
 #include "OED_Bayesian_Inversion_Interface.hpp"
 
+using namespace OED;
+
 namespace OED_TEST
 {
-  class Test_Linear_Bayesian_Inversion : public OED::Bayesian_Inversion_Interface<double>
+  template <class RealT>
+  class Test_Linear_Bayesian_Inversion : public OED::Bayesian_Inversion_Interface<RealT>
   {
+  private:
+    std::shared_ptr<Vector<RealT>> data_;
+
   public:
     Test_Linear_Bayesian_Inversion(
-        std::shared_ptr<OED::Likelihood_Interface<double>> likelihood,
-        std::shared_ptr<OED::Prior_Interface<double>> prior,
-        std::shared_ptr<OED::Constraint_Interface<double>> constraint
+        std::shared_ptr<OED::Likelihood_Interface<RealT>> likelihood,
+        std::shared_ptr<OED::Prior_Interface<RealT>> prior,
+        std::shared_ptr<OED::Constraint_Interface<RealT>> constraint
     )
-      : Bayesian_Inversion_Interface(likelihood, prior, constraint) {}
+      : Bayesian_Inversion_Interface<RealT>(likelihood, prior, constraint)
+    {
+      this->data_ = this->Get_Empty_Data_Vector();
+    }
 
-    std::shared_ptr<Vector<double>> Get_Empty_Parameter_Vector() override
+    std::shared_ptr<Vector<RealT>> Get_Empty_Parameter_Vector() override
     {
       int param_dim = this->Prior()->Param_Dimension();
-      std::shared_ptr<Test_Vector<double>> m = std::make_shared<Test_Vector<double>>(param_dim);
+      std::shared_ptr<Test_Vector<RealT>> m = std::make_shared<Test_Vector<RealT>>(param_dim);
       return m;
     };
 
-    std::shared_ptr<Vector<double>> Get_Empty_State_Vector() override
+    std::shared_ptr<Vector<RealT>> Get_Empty_State_Vector() override
     {
       int state_dim = this->Constraint()->State_Dimension();
-      std::shared_ptr<Test_Vector<double>> u = std::make_shared<Test_Vector<double>>(state_dim);
+      std::shared_ptr<Test_Vector<RealT>> u = std::make_shared<Test_Vector<RealT>>(state_dim);
       return u;
     };
 
-    std::shared_ptr<Vector<double>> Get_Empty_Data_Vector() override
+    std::shared_ptr<Vector<RealT>> Get_Empty_Data_Vector() override
     {
       int data_dim = this->Likelihood()->Data_Dimension();
-      std::shared_ptr<Test_Vector<double>> d = std::make_shared<Test_Vector<double>>(data_dim);
+      std::shared_ptr<Test_Vector<RealT>> d = std::make_shared<Test_Vector<RealT>>(data_dim);
       return d;
     };
 

@@ -10,15 +10,14 @@
 #include "OED_Constraint_Interface.hpp"
 #include "OED_Vector.hpp"
 
-using Eigen::VectorXd;
-
 namespace OED_TEST
 {
   template<class RealT>
   class Test_Vector : public OED::Vector<RealT>
   {
   private:
-    VectorXd vec_;
+    using Dense_Vector = Eigen::Matrix<RealT, Eigen::Dynamic, 1>;
+    Dense_Vector vec_;
     int dim_;
 
   public:
@@ -75,12 +74,12 @@ namespace OED_TEST
       return this->vec_[k];
     }
 
-    VectorXd &Vec()
+    Dense_Vector  &Vec()
     {
       return this->vec_;
     }
 
-    void Set_Vec(const VectorXd &new_vec)
+    void Set_Vec(const Dense_Vector &new_vec)
     {
       this->vec_ = new_vec;
     }

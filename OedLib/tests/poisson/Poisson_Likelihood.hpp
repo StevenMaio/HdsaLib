@@ -16,7 +16,8 @@ using OED::Likelihood_Interface;
 
 namespace OED_TEST
 {
-  class Poisson_Likelihood : public Likelihood_Interface<double>
+  template <class RealT>
+  class Poisson_Likelihood : public Likelihood_Interface<RealT>
   {
   private:
     double noise_std_;
@@ -43,18 +44,18 @@ namespace OED_TEST
       return this->data_dim_;
     }
 
-    void Noise_Precision_Apply(Vector<double> &d_out, Vector<double> &d_in) override
+    void Noise_Precision_Apply(Vector<RealT> &d_out, Vector<RealT> &d_in) override
     {
-      auto &d_out_impl = dynamic_cast<Test_Vector<double> &>(d_out);
-      auto &d_in_impl = dynamic_cast<Test_Vector<double> &>(d_in);
+      auto &d_out_impl = dynamic_cast<Test_Vector<RealT> &>(d_out);
+      auto &d_in_impl = dynamic_cast<Test_Vector<RealT> &>(d_in);
       d_out_impl.Vec() = d_in_impl.Vec();
       d_out_impl.Scale(1 / (this->noise_std_ * this->noise_std_));
     }
 
-    void Observation_Operator_Apply(Vector<double> &d_out, Vector<double> &u_in) override
+    void Observation_Operator_Apply(Vector<RealT> &d_out, Vector<RealT> &u_in) override
     {
-      auto &u_in_impl = dynamic_cast<Test_Vector<double> &>(u_in);
-      auto &d_out_impl = dynamic_cast<Test_Vector<double> &>(d_out);
+      auto &u_in_impl = dynamic_cast<Test_Vector<RealT> &>(u_in);
+      auto &d_out_impl = dynamic_cast<Test_Vector<RealT> &>(d_out);
       for (int i = 0; i < this->observation_vec_.size(); ++i)
       {
         int j = this->observation_vec_[i];
@@ -62,10 +63,10 @@ namespace OED_TEST
       }
     }
 
-    void Observation_Operator_Transpose_Apply(Vector<double> &u_out, Vector<double> &d_in) override
+    void Observation_Operator_Transpose_Apply(Vector<RealT> &u_out, Vector<RealT> &d_in) override
     {
-      auto &u_out_impl = dynamic_cast<Test_Vector<double> &>(u_out);
-      auto &d_in_impl = dynamic_cast<Test_Vector<double> &>(d_in);
+      auto &u_out_impl = dynamic_cast<Test_Vector<RealT> &>(u_out);
+      auto &d_in_impl = dynamic_cast<Test_Vector<RealT> &>(d_in);
       for (int i = 0; i < this->observation_vec_.size(); ++i)
       {
         int j = this->observation_vec_[i];
@@ -73,14 +74,14 @@ namespace OED_TEST
       }
     }
 
-    void Get_Observed_Data(Vector<double> &d) override
+    void Get_Observed_Data(Vector<RealT> &d) override
     {
     }
 
-    void Noise_Covariance_Apply(Vector<double> &d_out, Vector<double> &d_in) override
+    void Noise_Covariance_Apply(Vector<RealT> &d_out, Vector<RealT> &d_in) override
     {
-      auto &d_out_impl = dynamic_cast<Test_Vector<double> &>(d_out);
-      auto &d_in_impl = dynamic_cast<Test_Vector<double> &>(d_in);
+      auto &d_out_impl = dynamic_cast<Test_Vector<RealT> &>(d_out);
+      auto &d_in_impl = dynamic_cast<Test_Vector<RealT> &>(d_in);
       d_out_impl.Vec() = d_in_impl.Vec();
       d_out_impl.Scale(this->noise_std_ * this->noise_std_);
     };
