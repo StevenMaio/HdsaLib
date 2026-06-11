@@ -12,13 +12,13 @@ ANONYMOUS:
         execute_optimal_solution_update: false
         verbosity: 3
       Prior Computation:
-        #State Prior: "Bilaplacian"
-        State Prior: "Lumped_Mass"
+        State Prior: "Bilaplacian"
+        #State Prior: "Lumped_Mass"
         use_incomplete_prec: true
       HyperParameters:
         T:
           alpha_u: 0.25
-          beta_u: 1.0E-2
+          beta_u: 0.04
           alpha_d: 1.0E-5
         z:
           alpha_z: .1
