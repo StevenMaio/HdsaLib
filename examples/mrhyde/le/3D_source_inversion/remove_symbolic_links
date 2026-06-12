@@ -18,7 +18,3 @@ rm mrhyde
 rm dmrhyde
 cd ../
 
-cd hifi_obj_eval
-rm mrhyde
-rm dmrhyde
-cd ../
