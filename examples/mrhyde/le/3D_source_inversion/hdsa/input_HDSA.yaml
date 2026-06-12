@@ -5,8 +5,8 @@ ANONYMOUS:
     analysis type: HDSA
     HDSA:
       Configuration:
-        num_prior_samples: 0
-        num_posterior_samples: 5
+        num_prior_samples: 10
+        num_posterior_samples: 10
         execute_prior_discrepancy_sampling: true
         execute_posterior_discrepancy_sampling: true
         execute_optimal_solution_update: true
@@ -16,15 +16,15 @@ ANONYMOUS:
         use_incomplete_prec: true
       HyperParameters:
         dx:
-          beta_u: 1.0E-2
+          beta_u: 4.0E-2
         dy:
-          beta_u: 1.0E-2
+          beta_u: 4.0E-2
         dz:
-          beta_u: 1.0E-2
+          beta_u: 4.0E-2
         z:
-          alpha_z: .1
-          beta_z: 1.0E-2
-        hessian_num_eig_vals: 10
+          alpha_z: 1.0E-3
+          beta_z: 4.0E-2
+        hessian_num_eig_vals: 20
         hessian_oversampling: 5
       DataLoadParameters:
         OptimalSolutionExoFile: "output_lofi_opt.exo"

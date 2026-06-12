@@ -2,10 +2,11 @@
 
 NPROCS=10
 
-ln -s ../optimization/output_lofi_opt.exo* .
+# Set link to optimization solution
+ln -s ../hdsa/hdsa_output/posterior/z_update/mean.exo* .
 ln -s ../optimization/*.dat .
 
 mpiexec -n ${NPROCS} mrhyde
 
 # Change file name
-mv obj_val.txt hifi_obj_lofi_z_val.txt
+mv obj_val.txt hifi_obj_hdsa_z_val.txt

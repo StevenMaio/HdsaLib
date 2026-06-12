@@ -1,0 +1,22 @@
+### Manually Entered:
+generate_obs_data/dmrhyde
+generate_obs_data/mrhyde
+generate_obs_data/*exo*
+generate_obs_data/*dat
+optimization/dmrhyde
+optimization/mrhyde
+optimization/*exo*
+optimization/*dat
+fwd_hifi_data_generation/dmrhyde
+fwd_hifi_data_generation/mrhyde
+fwd_hifi_data_generation/*exo*
+fwd_hifi_data_generation/*.txt
+fwd_hifi_data_generation/*.dat
+hdsa/mrhyde
+hdsa/dmrhyde
+hdsa/*exo*
+hdsa/*.dat
+hdsa_exo/hdsa_output/*
+hifi_obj_eval/*exo*
+hifi_obj_eval/*.dat
+hifi_obj_eval/*.txt
