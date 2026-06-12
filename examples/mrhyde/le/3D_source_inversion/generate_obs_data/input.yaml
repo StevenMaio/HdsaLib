@@ -17,7 +17,7 @@ ANONYMOUS:
     NZ: 9
   Physics: 
     modules: thermal, linearelasticity
-    alpha_T: 0.0 #0.01
+    alpha_T: 0.0001
     Dirichlet conditions:
       T:
         top: 0.0

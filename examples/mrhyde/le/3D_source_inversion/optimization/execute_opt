@@ -3,4 +3,4 @@
 cp ../generate_obs_data/sensor_* .
 
 # Solve forward problem
-mpiexec -n 16 mrhyde 
+mpiexec -n 10 mrhyde 

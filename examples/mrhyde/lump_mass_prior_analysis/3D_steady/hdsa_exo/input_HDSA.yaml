@@ -5,8 +5,8 @@ ANONYMOUS:
     analysis type: HDSA
     HDSA:
       Configuration:
-        num_prior_samples: 1
-        num_posterior_samples: 1
+        num_prior_samples: 10
+        num_posterior_samples: 10
         execute_prior_discrepancy_sampling: true
         execute_posterior_discrepancy_sampling: true
         execute_optimal_solution_update: false
@@ -14,15 +14,15 @@ ANONYMOUS:
       Prior Computation:
         State Prior: "Bilaplacian"
         #State Prior: "Lumped_Mass"
-        use_incomplete_prec: false #true
+        use_incomplete_prec: true
       HyperParameters:
         T:
           alpha_u: 0.25
-          beta_u: 1.0E-3
+          beta_u: 0.04
           alpha_d: 1.0E-5
         z:
-          alpha_z: .111111111
-          beta_z: 1.0E-3
+          alpha_z: .1
+          beta_z: 1.0E-2
         hessian_num_eig_vals: 10
         hessian_oversampling: 10
       DataLoadParameters:
