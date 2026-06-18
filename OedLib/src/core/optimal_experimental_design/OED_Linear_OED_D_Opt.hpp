@@ -24,10 +24,10 @@ namespace OED
     std::shared_ptr<Dense_Matrix<RealT>> noise_cov_;
 
     public:
-    Linear_OED_D_Opt(std::shared_ptr<Bayesian_Inversion_Interface<RealT>> &inversion_problem)
+    Linear_OED_D_Opt(std::shared_ptr<Bayesian_Inversion_Interface<RealT>> inversion_problem)
       : inversion_problem_(inversion_problem)
     {
-      int data_dim = inversion_problem->Likelihood()->Data_Dimension();
+      int data_dim = inversion_problem->Error_Model()->Data_Dimension();
       this->forward_cov_ = std::make_shared<Dense_Matrix<RealT>>(data_dim, data_dim);
       this->noise_cov_ = std::make_shared<Dense_Matrix<RealT>>(data_dim, data_dim);
 
@@ -56,36 +56,46 @@ namespace OED
       // TODO: implement this
       return 0;
     };
+
     private:
 
-    void Construct_Forward_Covariance()
+    inline void Construct_Forward_Covariance()
     {
-      auto &inversion_problem = this->inversion_problem_;
-      std::shared_ptr<Likelihood_Interface<RealT>> &likelihood = inversion_problem->Likelihood();
-      std::shared_ptr<Constraint_Interface<RealT>> &constraint = inversion_problem->Constraint();
+      std::shared_ptr<Bayesian_Inversion_Interface<RealT>> &inversion_problem = this->inversion_problem_;
+      std::shared_ptr<Model_Interface<RealT>> &model = inversion_problem->Model();
+      std::shared_ptr<Observation_Operator_Interface<RealT>> &obs_op = inversion_problem->Observation_Operator();
       std::shared_ptr<Prior_Interface<RealT>> &prior = inversion_problem->Prior();
-      int data_dim = likelihood->Data_Dimension();
+      std::shared_ptr<Error_Model_Interface<RealT>> &error_model = inversion_problem->Error_Model();
+      int data_dim = error_model->Data_Dimension();
 
-      std::shared_ptr<Vector<RealT>> temp = inversion_problem->Get_Empty_Data_Vector(); // This is only usable because we have a linear inverse problem
-      std::shared_ptr<Vector<RealT>> col = inversion_problem->Get_Empty_Data_Vector();
-      std::shared_ptr<Vector<RealT>> row = inversion_problem->Get_Empty_State_Vector();
+      // Required to use methods, but not actually used here
+      std::shared_ptr<Vector<RealT>> temp = inversion_problem->Get_Empty_Data_Vector();
+      std::shared_ptr<Vector<RealT>> d = inversion_problem->Get_Empty_Data_Vector();
+      std::shared_ptr<Vector<RealT>> u1 = inversion_problem->Get_Empty_State_Vector();
+      std::shared_ptr<Vector<RealT>> u2 = inversion_problem->Get_Empty_State_Vector();
+      std::shared_ptr<Vector<RealT>> m1 = inversion_problem->Get_Empty_Parameter_Vector();
+      std::shared_ptr<Vector<RealT>> m2 = inversion_problem->Get_Empty_Parameter_Vector();
+
       for (int i = 0; i < data_dim; i++)
       {
-        col->Set_Entry(i, 1.0);
-        likelihood->Observation_Operator_Transpose_Apply(*row, *col);
+        d->Set_Entry(i, 1.0);
+        obs_op->Observation_Operator_Transpose_Apply(*u1, *d);
         // TODO: maybe create some kind of Adjoint solve function
-        constraint->c_u_Transpose_Inverse_Apply(*row, *row, *temp, *temp);
-        constraint->c_z_Transpose_Apply(*row, *row, *temp, *temp);
-        prior->Mass_Matrix_Inverse_Apply(*row, *row);
-        prior->Prior_Covariance_Apply(*row, *row);
-        constraint->State_Solve(*row, *row);
-        likelihood->Observation_Operator_Apply(*col, *row);
+        model->c_u_Transpose_Inverse_Apply(*u2, *u1, *temp, *temp);
+        model->c_z_Transpose_Apply(*m1, *u2, *temp, *temp);
+        prior->Mass_Matrix_Inverse_Apply(*m2, *m1);
+        prior->Prior_Covariance_Apply(*m1, *m2);
+        model->State_Solve(*u1, *m1);
+        obs_op->Observation_Operator_Apply(*d, *u1);
         for (int j = 0; j < data_dim; j++)
         {
-          this->forward_cov_->Set_Entry(j, i, -col->Get_Entry(j));
+          this->forward_cov_->Set_Entry(j, i, -d->Get_Entry(j));
         }
-        row->Zeros();
-        col->Zeros();
+        d->Zeros();
+        u1->Zeros();
+        u2->Zeros();
+        m1->Zeros();
+        m2->Zeros();
       }
 
     }
@@ -93,19 +103,21 @@ namespace OED
     inline void Construct_Noise_Covariance()
     {
       auto &inversion_problem = this->inversion_problem_;
-      std::shared_ptr<Likelihood_Interface<RealT>> &likelihood = inversion_problem->Likelihood();
-      std::shared_ptr<Vector<RealT>> row = inversion_problem->Get_Empty_State_Vector();
-      int data_dim = likelihood->Data_Dimension();
+      std::shared_ptr<Error_Model_Interface<RealT>> &error_model = inversion_problem->Error_Model();
+      std::shared_ptr<Vector<RealT>> d_in = inversion_problem->Get_Empty_State_Vector();
+      std::shared_ptr<Vector<RealT>> d_out = inversion_problem->Get_Empty_State_Vector();
+      int data_dim = error_model->Data_Dimension();
 
       for (int i = 0; i < data_dim; i++)
       {
-        row->Set_Entry(i, 1.0);
-        likelihood->Noise_Covariance_Apply(*row, *row);
+        d_in->Set_Entry(i, 1.0);
+        error_model->Noise_Covariance_Apply(*d_out, *d_in);
         for (int j = 0; j < data_dim; j++)
         {
-          this->noise_cov_->Set_Entry(j, i, row->Get_Entry(j));
+          this->noise_cov_->Set_Entry(j, i, d_out->Get_Entry(j));
         }
-        row->Zeros();
+        d_in->Zeros();
+        d_out->Zeros();
       }
     }
   };

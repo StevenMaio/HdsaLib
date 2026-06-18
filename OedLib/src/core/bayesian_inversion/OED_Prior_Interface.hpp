@@ -7,7 +7,7 @@
 
 #include <memory>
 
-#include "OED_Likelihood_Interface.hpp"
+#include "OED_Error_Model_Interface.hpp"
 #include "OED_Vector.hpp"
 
 namespace OED

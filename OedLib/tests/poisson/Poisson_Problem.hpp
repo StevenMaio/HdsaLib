@@ -13,7 +13,7 @@ namespace OED_TEST
     {
     private:
         std::shared_ptr<Poisson_Constraint> constraint_;
-        std::shared_ptr<Poisson_Likelihood> likelihood_;
+        std::shared_ptr<Poisson_Error_Model> likelihood_;
         std::shared_ptr<Poisson_Prior> prior_;
         int param_dim_;
         int state_dim_;

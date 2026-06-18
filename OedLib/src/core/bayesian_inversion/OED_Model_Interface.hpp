@@ -9,7 +9,7 @@
 namespace OED
 {
   template<class RealT>
-  class Constraint_Interface
+  class Model_Interface
   {
   public:
     virtual void State_Solve(Vector<RealT> &u_out, Vector<RealT> &z) = 0;
@@ -26,7 +26,7 @@ namespace OED
     virtual int Param_Dimension() = 0;
     virtual int State_Dimension() = 0;
 
-    virtual ~Constraint_Interface()
+    virtual ~Model_Interface()
     {
     }
 

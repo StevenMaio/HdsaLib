@@ -7,9 +7,10 @@
 
 #include <memory>
 
-#include "OED_Likelihood_Interface.hpp"
+#include "OED_Error_Model_Interface.hpp"
 #include "OED_Prior_Interface.hpp"
-#include "OED_Constraint_Interface.hpp"
+#include "OED_Model_Interface.hpp"
+#include "OED_Observation_Operator_Interface.hpp"
 
 namespace OED
 {
@@ -17,32 +18,40 @@ namespace OED
   class Bayesian_Inversion_Interface
   {
   private:
-    std::shared_ptr<Likelihood_Interface<RealT>> likelihood_;
+    std::shared_ptr<Model_Interface<RealT>> model_;
+    std::shared_ptr<Observation_Operator_Interface<RealT>> obs_operator_;
     std::shared_ptr<Prior_Interface<RealT>> prior_;
-    std::shared_ptr<Constraint_Interface<RealT>> constraint_;
+    std::shared_ptr<Error_Model_Interface<RealT>> error_model_;
 
   public:
 
     Bayesian_Inversion_Interface(
-        std::shared_ptr<Likelihood_Interface<RealT>> &likelihood,
-        std::shared_ptr<Prior_Interface<RealT>> &prior,
-        std::shared_ptr<Constraint_Interface<RealT>> &constraint
+        std::shared_ptr<Model_Interface<RealT>> model,
+        std::shared_ptr<Observation_Operator_Interface<RealT>> obs_operator,
+        std::shared_ptr<Prior_Interface<RealT>> prior,
+        std::shared_ptr<Error_Model_Interface<RealT>> error_model
     )
-      : likelihood_(likelihood), prior_(prior), constraint_(constraint) {}
+      : model_(model), obs_operator_(obs_operator),
+        prior_(prior), error_model_(error_model) {}
 
-    std::shared_ptr<Likelihood_Interface<RealT>> &Likelihood()
+    std::shared_ptr<Error_Model_Interface<RealT>> &Error_Model()
     {
-      return likelihood_;
+      return this->error_model_;
     }
 
     std::shared_ptr<Prior_Interface<RealT>> &Prior()
     {
-      return prior_;
+      return this->prior_;
     }
 
-    std::shared_ptr<Constraint_Interface<RealT>> &Constraint()
+    std::shared_ptr<Model_Interface<RealT>> &Model()
     {
-      return constraint_;
+      return this->model_;
+    }
+
+    std::shared_ptr<Observation_Operator_Interface<RealT>> &Observation_Operator()
+    {
+      return this->obs_operator_;
     }
 
     virtual ~Bayesian_Inversion_Interface() {}
