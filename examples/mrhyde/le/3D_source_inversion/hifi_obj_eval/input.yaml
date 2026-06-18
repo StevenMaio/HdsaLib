@@ -16,8 +16,11 @@ ANONYMOUS:
     NY: 36
     NZ: 9
   Physics: 
-    modules: linearelasticity
+    modules: thermal, linearelasticity
+    alpha_T: 0.0001
     Dirichlet conditions:
+      T:
+        top: 0.0
       dx:
         top: 0.0
         bottom: 0.0
@@ -29,6 +32,7 @@ ANONYMOUS:
         right: -1.0*cos(pi*y/12.0)
   Discretization:
     order:
+      T: 1
       dx: 1
       dy: 1
       dz: 1
@@ -44,6 +48,7 @@ ANONYMOUS:
     response type: pointwise
     compute response: false
     compute objective: true
+    write solution: true
     Objective functions:
       val_dx:
         type: sensors
@@ -78,7 +83,8 @@ ANONYMOUS:
             function: 'grad(lambdafield)[x]*grad(lambdafield)[x] + grad(lambdafield)[y]*grad(lambdafield)[y] + grad(lambdafield)[z]*grad(lambdafield)[z]'
             weight: 1.e-3
   Parameters input file: input_params.yaml
-  Analysis input file: input_HDSA.yaml
+  Analysis input file: input_readExo.yaml
   Functions:
     mu: '8.0'
     lambda: lambdafield 
+    thermal source: 100.0 * cos(2.0*pi*x/30.0)^2 * cos(2.0*pi*y/12.0)^2 * exp(-100.0 * ( (z-1.5)^2 ) )
