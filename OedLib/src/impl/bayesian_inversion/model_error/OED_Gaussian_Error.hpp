@@ -3,14 +3,13 @@
 // Created by Steven Maio on 5/25/26.
 //
 
-#ifndef OEDLIB_POISSON_LIKELIHOOD_HPP
-#define OEDLIB_POISSON_LIKELIHOOD_HPP
+#ifndef OEDLIB_GAUSSIAN_HPP
+#define OEDLIB_GAUSSIAN_HPP
 
-#include <iterator>
+#include <vector>
 
 #include "OED_Error_Model_Interface.hpp"
 
-#include <vector>
 
 namespace OED
 {
@@ -45,4 +44,4 @@ namespace OED
 
 }
 
-#endif //OEDLIB_POISSON_LIKELIHOOD_HPP
+#endif // OEDLIB_GAUSSIAN_HPP
