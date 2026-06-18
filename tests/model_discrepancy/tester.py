@@ -27,9 +27,6 @@ def load_vector(filename):
 
     if first_line.startswith("%%MatrixMarket"):
         return np.loadtxt(filename, skiprows=2)
-    elif first_line.startswith("Number"): 
-        return np.array([0.0])
-        # return np.array([float(line.split()[-1]) for line in open(filename, "r")])
     else:
         return np.loadtxt(filename)
 
