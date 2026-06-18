@@ -5,6 +5,7 @@
 
 #include <memory>
 #include "Mass_Matrix.hpp"
+#include "OED_Std_Vector.hpp"
 
 namespace OED_TEST
 {
@@ -28,8 +29,8 @@ namespace OED_TEST
       void Apply(Vector<RealT> &y_out,
                  Vector<RealT> &x_in)
       {
-        auto &y = dynamic_cast<Test_Vector<RealT> &>(y_out);
-        auto &x = dynamic_cast<Test_Vector<RealT> &>(x_in);
+        auto &y = dynamic_cast<OED::Std_Vector<RealT> &>(y_out);
+        auto &x = dynamic_cast<OED::Std_Vector<RealT> &>(x_in);
         // TODO: implement this
         Dense_Vector v = (*this->M_) * x.Vec();
         y.Set_Vec(v);
@@ -38,8 +39,8 @@ namespace OED_TEST
       void Apply_Inverse(Vector<RealT> &y_out,
                          Vector<RealT> &x_in)
       {
-        auto &x = dynamic_cast<Test_Vector<RealT> &>(x_in);
-        auto &y = dynamic_cast<Test_Vector<RealT> &>(y_out);
+        auto &x = dynamic_cast<OED::Std_Vector<RealT> &>(x_in);
+        auto &y = dynamic_cast<OED::Std_Vector<RealT> &>(y_out);
         auto &V = this->M_eigensolver_.eigenvectors();
         auto &w = this->M_eigensolver_.eigenvalues();
         Dense_Vector v = V.transpose() * x.Vec();

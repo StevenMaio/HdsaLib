@@ -9,8 +9,8 @@
 
 #include "OED_Dense_Mass_Matrix.hpp"
 #include "OED_Prior_Interface.hpp"
-#include "OED_Test_Vector.hpp"
-#include "Poisson_Constraint.hpp"
+#include "OED_Std_Vector.hpp"
+#include "Poisson_Model.hpp"
 
 using Eigen::SelfAdjointEigenSolver;
 
@@ -35,7 +35,7 @@ namespace OED_TEST
     double grad_scale_;
 
   public:
-    Poisson_Prior(std::shared_ptr<Poisson_Constraint<RealT>> &constraint, double norm_scale, double grad_scale)
+    Poisson_Prior(std::shared_ptr<Poisson_Model<RealT>> &constraint, double norm_scale, double grad_scale)
       : param_dim_(constraint->Param_Dimension()),
         mass_matrix_(constraint->Mass_Matrix()),
         M_(constraint->Mass_Matrix()->M()),
@@ -65,8 +65,8 @@ namespace OED_TEST
 
     void Prior_Covariance_Factor_Apply(Vector<RealT> &z_out, Vector<RealT> &z_in) override
     {
-      auto &z_in_impl = dynamic_cast<Test_Vector<RealT> &>(z_in);
-      auto &z_out_impl = dynamic_cast<Test_Vector<RealT> &>(z_out);
+      auto &z_in_impl = dynamic_cast<Std_Vector<RealT> &>(z_in);
+      auto &z_out_impl = dynamic_cast<Std_Vector<RealT> &>(z_out);
       Dense_Vector &v = z_out_impl.Vec();
       v = this->M_ * z_in_impl.Vec();
       v = this->L_plu_->solve(v);
@@ -74,8 +74,8 @@ namespace OED_TEST
 
     void Mass_Matrix_Apply(Vector<RealT> &z_out, Vector<RealT> &z_in) override
     {
-      auto &z_in_impl = dynamic_cast<Test_Vector<RealT> &>(z_in);
-      auto &z_out_impl = dynamic_cast<Test_Vector<RealT> &>(z_out);
+      auto &z_in_impl = dynamic_cast<Std_Vector<RealT> &>(z_in);
+      auto &z_out_impl = dynamic_cast<Std_Vector<RealT> &>(z_out);
       auto &v = z_out_impl.Vec();
       v = this->M_ * z_in_impl.Vec();
     };
@@ -84,8 +84,8 @@ namespace OED_TEST
     {
       this->mass_matrix_->Apply_Inverse(z_out, z_in);
       /*
-      auto &z_in_impl = dynamic_cast<Test_Vector<double> &>(z_in);
-      auto &z_out_impl = dynamic_cast<Test_Vector<double> &>(z_out);
+      auto &z_in_impl = dynamic_cast<Std_Vector<double> &>(z_in);
+      auto &z_out_impl = dynamic_cast<Std_Vector<double> &>(z_out);
       auto &V = this->M_es_.eigenvectors();
       auto &w = this->M_es_.eigenvalues();
       // TODO: compute inverse
@@ -101,7 +101,7 @@ namespace OED_TEST
       return this->param_dim_;
     }
 
-    std::shared_ptr<Vector<RealT>> Sample_Vector()
+    std::shared_ptr<Vector<RealT>> Sample_Vector() override
     {
       return nullptr;
     }

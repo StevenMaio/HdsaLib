@@ -5,7 +5,7 @@
 #ifndef OEDLIB_TEST_LINEAR_BAYESIAN_INVERSION_HPP
 #define OEDLIB_TEST_LINEAR_BAYESIAN_INVERSION_HPP
 
-#include "OED_Test_Vector.hpp"
+#include "OED_Std_Vector.hpp"
 #include "OED_Bayesian_Inversion_Interface.hpp"
 
 using namespace OED;
@@ -22,9 +22,9 @@ namespace OED_TEST
     Test_Linear_Bayesian_Inversion(
         std::shared_ptr<OED::Likelihood_Interface<RealT>> likelihood,
         std::shared_ptr<OED::Prior_Interface<RealT>> prior,
-        std::shared_ptr<OED::Constraint_Interface<RealT>> constraint
+        std::shared_ptr<OED::Model_Interface<RealT>> model
     )
-      : Bayesian_Inversion_Interface<RealT>(likelihood, prior, constraint)
+      : Bayesian_Inversion_Interface<RealT>(likelihood, prior, model)
     {
       this->data_ = this->Get_Empty_Data_Vector();
     }
@@ -32,21 +32,21 @@ namespace OED_TEST
     std::shared_ptr<Vector<RealT>> Get_Empty_Parameter_Vector() override
     {
       int param_dim = this->Prior()->Param_Dimension();
-      std::shared_ptr<Test_Vector<RealT>> m = std::make_shared<Test_Vector<RealT>>(param_dim);
+      std::shared_ptr<Std_Vector<RealT>> m = std::make_shared<Std_Vector<RealT>>(param_dim);
       return m;
     };
 
     std::shared_ptr<Vector<RealT>> Get_Empty_State_Vector() override
     {
-      int state_dim = this->Constraint()->State_Dimension();
-      std::shared_ptr<Test_Vector<RealT>> u = std::make_shared<Test_Vector<RealT>>(state_dim);
+      int state_dim = this->Model()->State_Dimension();
+      std::shared_ptr<Std_Vector<RealT>> u = std::make_shared<Std_Vector<RealT>>(state_dim);
       return u;
     };
 
     std::shared_ptr<Vector<RealT>> Get_Empty_Data_Vector() override
     {
       int data_dim = this->Likelihood()->Data_Dimension();
-      std::shared_ptr<Test_Vector<RealT>> d = std::make_shared<Test_Vector<RealT>>(data_dim);
+      std::shared_ptr<Std_Vector<RealT>> d = std::make_shared<Std_Vector<RealT>>(data_dim);
       return d;
     };
 

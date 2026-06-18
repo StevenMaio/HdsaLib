@@ -5,14 +5,14 @@
 #include "Test_Linear_Bayesian_Inversion.hpp"
 #include "OED_Lazy_Greedy.hpp"
 #include "OED_Linear_OED_D_Opt.hpp"
-#include "OED_Test_Vector.hpp"
-#include "Poisson_Constraint.hpp"
+#include "OED_Std_Vector.hpp"
+#include "Poisson_Model.hpp"
 #include "Poisson_Likelihood.hpp"
 #include "Poisson_Prior.hpp"
 
 using Eigen::MatrixXd;
 using Eigen::VectorXd;
-using OED_TEST::Test_Vector;
+using OED::Std_Vector;
 
 int main()
 {
@@ -28,12 +28,12 @@ int main()
     m(i) = 2.0;
   }
 
-  Test_Vector<double> param(dim);
-  Test_Vector<double> state(dim);
+  Std_Vector<double> param(dim);
+  Std_Vector<double> state(dim);
   param.Vec() = m;
 
-  auto constraint = std::make_shared<OED_TEST::Poisson_Constraint>(dim);
-  constraint->State_Solve(state, param);
+  auto model = std::make_shared<OED_TEST::Poisson_Model<double>>(dim);
+  model->State_Solve(state, param);
 
   u = state.Vec();
   std::cout << u << std::endl;
@@ -45,14 +45,14 @@ int main()
   }
   int data_dim = obs_vec.size();
 
-  auto likelihood = std::make_shared<OED_TEST::Poisson_Likelihood>(dim, noise_std, obs_vec);
-  auto prior = std::make_shared<OED_TEST::Poisson_Prior>(constraint, norm_scale, grad_scale);
-  auto inversion_problem = std::make_shared<OED_TEST::Test_Linear_Bayesian_Inversion>(likelihood, prior, constraint);
+  auto likelihood = std::make_shared<OED_TEST::Poisson_Likelihood<double>>(dim, noise_std, obs_vec);
+  auto prior = std::make_shared<OED_TEST::Poisson_Prior<double>>(model, norm_scale, grad_scale);
+  auto inversion_problem = std::make_shared<OED_TEST::Test_Linear_Bayesian_Inversion<double>>(likelihood, prior, model);
 
   // create data and intialize map point
   auto data = inversion_problem->Get_Empty_Data_Vector();
   likelihood->Observation_Operator_Apply(*data, (OED::Vector<double> &) state);
-  inversion_problem->Set_Data(data);
+  // inversion_problem->Set_Data(data);
 
   auto map_estimate = inversion_problem->Get_Empty_Parameter_Vector();
   inversion_problem->Compute_MAP_Point(map_estimate);

@@ -9,15 +9,15 @@
 
 #include "Eigen/Dense"
 
-#include "OED_Constraint_Interface.hpp"
+#include "OED_Std_Vector.hpp"
+#include "OED_Model_Interface.hpp"
 #include "OED_Dense_Mass_Matrix.hpp"
 
-using OED_TEST::Test_Vector;
 
 namespace OED_TEST
 {
   template <class RealT>
-  class Poisson_Constraint : public OED::Constraint_Interface<RealT>
+  class Poisson_Model : public OED::Model_Interface<RealT>
   {
   public:
     using Dense_Vector = Eigen::VectorXd;
@@ -32,7 +32,7 @@ namespace OED_TEST
     std::shared_ptr<Eigen::FullPivLU<Dense_Matrix>> A_plu_;
 
   public:
-    Poisson_Constraint(int dim) :
+    Poisson_Model(int dim) :
         dim_{dim}, S_{dim, dim}, A_{dim, dim}
     {
       this->h = 1.0 / (dim - 1);
@@ -98,8 +98,8 @@ namespace OED_TEST
 
     void State_Solve(OED::Vector<RealT> &u_out, OED::Vector<RealT> &z_in) override
     {
-      auto &z = dynamic_cast<Test_Vector<RealT> &>(z_in);
-      auto &u = dynamic_cast<Test_Vector<RealT> &>(u_out);
+      auto &z = dynamic_cast<OED::Std_Vector<RealT> &>(z_in);
+      auto &u = dynamic_cast<OED::Std_Vector<RealT> &>(u_out);
       Dense_Vector b = z.Vec();
       Dense_Matrix &M = this->M_->M();
       b = M * b;
@@ -111,8 +111,8 @@ namespace OED_TEST
 
     void State_Adjoint_Apply(OED::Vector<RealT> &m_out, OED::Vector<RealT> &u_in, OED::Vector<RealT> &m, OED::Vector<RealT> &u)
     {
-      auto &u_in_impl = dynamic_cast<Test_Vector<RealT> &>(u_in);
-      auto &m_out_impl = dynamic_cast<Test_Vector<RealT> &>(m_out);
+      auto &u_in_impl = dynamic_cast<OED::Std_Vector<RealT> &>(u_in);
+      auto &m_out_impl = dynamic_cast<OED::Std_Vector<RealT> &>(m_out);
       Dense_Vector v = this->A_plu_->transpose().solve(u_in_impl.Vec());
       m_out_impl.Set_Vec(v);
     };
@@ -120,8 +120,8 @@ namespace OED_TEST
     void c_u_Transpose_Inverse_Apply(OED::Vector<RealT> &u_out, OED::Vector<RealT> &u_in, OED::Vector<RealT> &u,
       OED::Vector<RealT> &z) override
     {
-      auto &u_in_impl = dynamic_cast<Test_Vector<RealT> &>(u_in);
-      auto &u_out_impl = dynamic_cast<Test_Vector<RealT> &>(u_out);
+      auto &u_in_impl = dynamic_cast<OED::Std_Vector<RealT> &>(u_in);
+      auto &u_out_impl = dynamic_cast<OED::Std_Vector<RealT> &>(u_out);
       Dense_Vector v = this->A_plu_->transpose().solve(u_in_impl.Vec());
       u_out_impl.Vec() = v;
     };
@@ -129,8 +129,8 @@ namespace OED_TEST
     void c_z_Transpose_Apply(OED::Vector<RealT> &z_out, OED::Vector<RealT> &z_in, OED::Vector<RealT> &u,
       OED::Vector<RealT> &z) override
     {
-      auto &z_in_impl = dynamic_cast<Test_Vector<RealT> &>(z_in);
-      auto &z_out_impl = dynamic_cast<Test_Vector<RealT> &>(z_out);
+      auto &z_in_impl = dynamic_cast<OED::Std_Vector<RealT> &>(z_in);
+      auto &z_out_impl = dynamic_cast<OED::Std_Vector<RealT> &>(z_out);
       // TODO: Replace this with transpose of mass matrix apply and settings BCs to zero
       Dense_Matrix &M = this->M_->M();
       Dense_Vector v = -z_in_impl.Vec();

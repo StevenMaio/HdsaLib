@@ -8,14 +8,14 @@
 #include "Test_Linear_Bayesian_Inversion.hpp"
 #include "OED_Lazy_Greedy.hpp"
 #include "OED_Linear_OED_D_Opt.hpp"
-#include "OED_Test_Vector.hpp"
-#include "Poisson_Constraint.hpp"
+#include "OED_Std_Vector.hpp"
+#include "Poisson_Model.hpp"
 #include "Poisson_Likelihood.hpp"
 #include "Poisson_Prior.hpp"
 
 using Eigen::MatrixXd;
 using Eigen::VectorXd;
-using OED_TEST::Test_Vector;
+using OED::Std_Vector;
 
 int main()
 {
@@ -25,19 +25,16 @@ int main()
 
   VectorXd m(dim);
   VectorXd u(dim);
-  for (int i = 0; i < dim; i++)
-  {
-    m(i) = 2.0;
-  }
+  m.setConstant(2.0);
 
-  auto param = std::make_shared<Test_Vector<double>>(dim);
-  auto state = std::make_shared<Test_Vector<double>>(dim);
+  auto param = std::make_shared<Std_Vector<double>>(dim);
+  auto state = std::make_shared<Std_Vector<double>>(dim);
   param->Vec() = m;
 
   std::cout << "Param:" << std::endl << m << std::endl << std::endl;
 
-  auto constraint = std::make_shared<OED_TEST::Poisson_Constraint<double>>(dim);
-  constraint->State_Solve(*state, *param);
+  auto model = std::make_shared<OED_TEST::Poisson_Model<double>>(dim);
+  model->State_Solve(*state, *param);
 
   u = state->Vec();
   std::cout << "State:" << std::endl << u << std::endl;
@@ -50,19 +47,19 @@ int main()
   int data_dim = obs_vec.size();
 
   auto likelihood = std::make_shared<OED_TEST::Poisson_Likelihood<double>>(dim, noise_std, obs_vec);
-  auto data = std::make_shared<Test_Vector<double>>(data_dim);
+  auto data = std::make_shared<Std_Vector<double>>(data_dim);
   likelihood->Observation_Operator_Apply(*data, *state);
   std::cout << data->Vec() << std::endl;
 
   // test the noise precision apply -- looks good to me
-  Test_Vector<double> test(data_dim);
+  Std_Vector<double> test(data_dim);
   likelihood->Noise_Precision_Apply(test, *data);
   std::cout << test.Vec() << std::endl;
 
   // Construct the rows of F
-  auto prior = std::make_shared<OED_TEST::Poisson_Prior<double>>(constraint, norm_scale, grad_scale);
+  auto prior = std::make_shared<OED_TEST::Poisson_Prior<double>>(model, norm_scale, grad_scale);
   std::shared_ptr<OED::Bayesian_Inversion_Interface<double>> inversion_problem
-      = std::make_shared<OED_TEST::Test_Linear_Bayesian_Inversion<double>>(likelihood, prior, constraint);
+      = std::make_shared<OED_TEST::Test_Linear_Bayesian_Inversion<double>>(likelihood, prior, model);
 
   auto oed_problem = std::make_shared<OED::Linear_OED_D_Opt<double>>(inversion_problem);
   int budget = 5;
