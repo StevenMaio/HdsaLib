@@ -1,4 +1,5 @@
 //
+// Centered and isotropic Gaussian error model
 // Created by Steven Maio on 5/25/26.
 //
 
@@ -11,19 +12,18 @@
 
 #include <vector>
 
-using OED::Error_Model_Interface;
-
-namespace OED_TEST
+namespace OED
 {
   template <class RealT>
-  class Poisson_Error_Model : public Error_Model_Interface<RealT>
+  class Gaussian_Error : public Error_Model_Interface<RealT>
   {
   private:
+    // TODO: add some more options
     double noise_std_;
     int data_dim_;
 
   public:
-    Poisson_Error_Model(int data_dim, double noise_std) :
+    Gaussian_Error(int data_dim, double noise_std) :
         data_dim_(data_dim), noise_std_{noise_std} {}
 
     int Data_Dimension() override
@@ -40,6 +40,7 @@ namespace OED_TEST
     {
       d_out.Scaled_Plus(this->noise_std_ * this->noise_std_, d_in);
     }
+
   };
 
 }

@@ -6,10 +6,10 @@
 #include "OED_Lazy_Greedy.hpp"
 #include "OED_Linear_OED_D_Opt.hpp"
 #include "OED_Std_Vector.hpp"
+#include "OED_Gaussian_Error.hpp"
 
 #include "Poisson_Model.hpp"
 #include "Poisson_Obs.hpp"
-#include "Poisson_Error.hpp"
 #include "Poisson_Prior.hpp"
 
 using Eigen::MatrixXd;
@@ -48,7 +48,7 @@ int main()
   int data_dim = obs_vec.size();
 
   auto obs_operator = std::make_shared<OED_TEST::Poisson_Observation_Operator<double>>(dim, obs_vec);
-  auto error_model = std::make_shared<OED_TEST::Poisson_Error_Model<double>>(data_dim, noise_std);
+  auto error_model = std::make_shared<OED::Gaussian_Error<double>>(data_dim, noise_std);
   auto prior = std::make_shared<OED_TEST::Poisson_Prior<double>>(model, norm_scale, grad_scale);
   auto inversion_problem = std::make_shared<OED_TEST::Test_Linear_Bayesian_Inversion<double>>(model, obs_operator, prior, error_model);
 

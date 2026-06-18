@@ -10,7 +10,7 @@
 #include "OED_Linear_OED_D_Opt.hpp"
 #include "OED_Std_Vector.hpp"
 #include "Poisson_Model.hpp"
-#include "Poisson_Error.hpp"
+#include "OED_Gaussian_Error.hpp"
 #include "Poisson_Prior.hpp"
 #include "Poisson_Obs.hpp"
 
@@ -48,7 +48,7 @@ int main()
   int data_dim = obs_vec.size();
 
   auto obs_op = std::make_shared<OED_TEST::Poisson_Observation_Operator<double>>(dim, obs_vec);
-  auto error_model = std::make_shared<OED_TEST::Poisson_Error_Model<double>>(data_dim, noise_std);
+  auto error_model = std::make_shared<OED::Gaussian_Error<double>>(data_dim, noise_std);
   auto data = std::make_shared<Std_Vector<double>>(data_dim);
   obs_op->Observation_Operator_Apply(*data, *state);
   std::cout << data->Vec() << std::endl;

@@ -1,5 +1,7 @@
 cmake_minimum_required(VERSION 3.6.1)
-project(OedLib) # some languages stuff?
+project(OedLib
+    LANGUAGES NONE
+) # some languages stuff?
 
 set(CMAKE_CXX_STANDARD 20)
 
@@ -12,5 +14,14 @@ target_include_directories(OedLib INTERFACE
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/core/algorithms/>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/core/base/linear_algebra/>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/core/base/vectors/>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/impl/bayesian_inversion/model_error/>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    $<INSTALL_INTERFACE:include>
 )
+
+IF(MrHyDE_ENABLE_OED)
+MESSAGE("OedLib::CMakeLists.txt MrHyDE enabling OED")
+target_include_directories(OedLib INTERFACE
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/interfaces/mrhyde/>
+)
+ENDIF()
