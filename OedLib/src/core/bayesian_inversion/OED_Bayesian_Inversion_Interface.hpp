@@ -12,44 +12,46 @@
 #include "OED_Model_Interface.hpp"
 #include "OED_Observation_Operator_Interface.hpp"
 
+#include "OED_Ptr.hpp"
+
 namespace OED
 {
   template <class RealT>
   class Bayesian_Inversion_Interface
   {
   private:
-    std::shared_ptr<Model_Interface<RealT>> model_;
-    std::shared_ptr<Observation_Operator_Interface<RealT>> obs_operator_;
-    std::shared_ptr<Prior_Interface<RealT>> prior_;
-    std::shared_ptr<Error_Model_Interface<RealT>> error_model_;
+    Ptr<Model_Interface<RealT>> model_;
+    Ptr<Observation_Operator_Interface<RealT>> obs_operator_;
+    Ptr<Prior_Interface<RealT>> prior_;
+    Ptr<Error_Model_Interface<RealT>> error_model_;
 
   public:
 
     Bayesian_Inversion_Interface(
-        std::shared_ptr<Model_Interface<RealT>> model,
-        std::shared_ptr<Observation_Operator_Interface<RealT>> obs_operator,
-        std::shared_ptr<Prior_Interface<RealT>> prior,
-        std::shared_ptr<Error_Model_Interface<RealT>> error_model
+        Ptr<Model_Interface<RealT>> model,
+        Ptr<Observation_Operator_Interface<RealT>> obs_operator,
+        Ptr<Prior_Interface<RealT>> prior,
+        Ptr<Error_Model_Interface<RealT>> error_model
     )
       : model_(model), obs_operator_(obs_operator),
         prior_(prior), error_model_(error_model) {}
 
-    std::shared_ptr<Error_Model_Interface<RealT>> &Error_Model()
+    Ptr<Error_Model_Interface<RealT>> &Error_Model()
     {
       return this->error_model_;
     }
 
-    std::shared_ptr<Prior_Interface<RealT>> &Prior()
+    Ptr<Prior_Interface<RealT>> &Prior()
     {
       return this->prior_;
     }
 
-    std::shared_ptr<Model_Interface<RealT>> &Model()
+    Ptr<Model_Interface<RealT>> &Model()
     {
       return this->model_;
     }
 
-    std::shared_ptr<Observation_Operator_Interface<RealT>> &Observation_Operator()
+    Ptr<Observation_Operator_Interface<RealT>> &Observation_Operator()
     {
       return this->obs_operator_;
     }
@@ -58,9 +60,9 @@ namespace OED
 
     // Need these to build the relevant things
     // TODO: change these to use smart pointers later
-    virtual std::shared_ptr<Vector<RealT>> Get_Empty_Parameter_Vector() = 0;
-    virtual std::shared_ptr<Vector<RealT>> Get_Empty_State_Vector() = 0;
-    virtual std::shared_ptr<Vector<RealT>> Get_Empty_Data_Vector() = 0;    // TODO: need to eventually think about how to deal with reducing size of data vector
+    virtual Ptr<Vector<RealT>> Get_Empty_Parameter_Vector() = 0;
+    virtual Ptr<Vector<RealT>> Get_Empty_State_Vector() = 0;
+    virtual Ptr<Vector<RealT>> Get_Empty_Data_Vector() = 0;    // TODO: need to eventually think about how to deal with reducing size of data vector
   };
 }
 

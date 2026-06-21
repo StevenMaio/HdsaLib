@@ -7,6 +7,7 @@
 #ifndef HDSA_VECTOR_HPP
 #define HDSA_VECTOR_HPP
 
+#include <cmath>
 #include <fstream>
 #include <iomanip>
 

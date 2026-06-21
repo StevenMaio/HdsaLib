@@ -13,6 +13,8 @@
 #include "OED_Model_Interface.hpp"
 #include "OED_Dense_Mass_Matrix.hpp"
 
+#include "OED_Ptr.hpp"
+
 
 namespace OED_TEST
 {
@@ -26,10 +28,10 @@ namespace OED_TEST
   private:
     int dim_;
     double h;
-    std::shared_ptr<Dense_Mass_Matrix<RealT>> M_;
+    Ptr<Dense_Mass_Matrix<RealT>> M_;
     Dense_Matrix S_;
     Dense_Matrix A_;
-    std::shared_ptr<Eigen::FullPivLU<Dense_Matrix>> A_plu_;
+    Ptr<Eigen::FullPivLU<Dense_Matrix>> A_plu_;
 
   public:
     Poisson_Model(int dim) :
@@ -71,7 +73,7 @@ namespace OED_TEST
       this->A_plu_ = std::make_shared<Eigen::FullPivLU<Dense_Matrix>>(this->A_);
     }
 
-    std::shared_ptr<Dense_Mass_Matrix<RealT>> &Mass_Matrix()
+    Ptr<Dense_Mass_Matrix<RealT>> &Mass_Matrix()
     {
       return this->M_;
     }

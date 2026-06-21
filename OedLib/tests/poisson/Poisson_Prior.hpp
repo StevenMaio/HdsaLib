@@ -12,6 +12,8 @@
 #include "OED_Std_Vector.hpp"
 #include "Poisson_Model.hpp"
 
+#include "OED_Ptr.hpp"
+
 using Eigen::SelfAdjointEigenSolver;
 
 namespace OED_TEST
@@ -26,16 +28,16 @@ namespace OED_TEST
 
   private:
     int param_dim_;
-    std::shared_ptr<Dense_Mass_Matrix<RealT>> mass_matrix_;
+    Ptr<Dense_Mass_Matrix<RealT>> mass_matrix_;
     Dense_Matrix &M_;
     Dense_Matrix &S_;
     Dense_Matrix L_;
-    std::shared_ptr<Eigen::FullPivLU<Dense_Matrix>> L_plu_;
+    Ptr<Eigen::FullPivLU<Dense_Matrix>> L_plu_;
     double norm_scale_;
     double grad_scale_;
 
   public:
-    Poisson_Prior(std::shared_ptr<Poisson_Model<RealT>> &constraint, double norm_scale, double grad_scale)
+    Poisson_Prior(Ptr<Poisson_Model<RealT>> &constraint, double norm_scale, double grad_scale)
       : param_dim_(constraint->Param_Dimension()),
         mass_matrix_(constraint->Mass_Matrix()),
         M_(constraint->Mass_Matrix()->M()),
@@ -101,7 +103,7 @@ namespace OED_TEST
       return this->param_dim_;
     }
 
-    std::shared_ptr<Vector<RealT>> Sample_Vector() override
+    Ptr<Vector<RealT>> Sample_Vector() override
     {
       return nullptr;
     }

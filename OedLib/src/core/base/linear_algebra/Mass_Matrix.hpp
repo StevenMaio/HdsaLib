@@ -2,7 +2,9 @@
 #define OED_MASS_MATRIX_HPP
 
 #include <memory>
+
 #include "OED_Vector.hpp"
+#include "OED_Ptr.hpp"
 
 namespace OED
 {
@@ -12,18 +14,18 @@ namespace OED
   public:
 
     // Required
-    virtual void Apply(std::shared_ptr<Vector<RealT>> &x_out,
-                       std::shared_ptr<Vector<RealT>> &x_in) = 0;
+    virtual void Apply(Ptr<Vector<RealT>> &x_out,
+                       Ptr<Vector<RealT>> &x_in) = 0;
 
     // Not necessarily required. May depend on application
-    virtual void Apply_Inverse(std::shared_ptr<Vector<RealT>> &x_out,
-                               std::shared_ptr<Vector<RealT>> &x_in) {}
+    virtual void Apply_Inverse(Ptr<Vector<RealT>> &x_out,
+                               Ptr<Vector<RealT>> &x_in) {}
 
-    virtual void Apply_Sqrt(std::shared_ptr<Vector<RealT>> &x_out,
-                            std::shared_ptr<Vector<RealT>> &x_in) {}
+    virtual void Apply_Sqrt(Ptr<Vector<RealT>> &x_out,
+                            Ptr<Vector<RealT>> &x_in) {}
 
-    virtual void Apply_Inverse_Sqrt(std::shared_ptr<Vector<RealT>> &x_out,
-                                    std::shared_ptr<Vector<RealT>> &x_in) {}
+    virtual void Apply_Inverse_Sqrt(Ptr<Vector<RealT>> &x_out,
+                                    Ptr<Vector<RealT>> &x_in) {}
 
   };
 }

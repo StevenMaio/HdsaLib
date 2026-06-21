@@ -12,24 +12,26 @@
 #include "OED_Vector.hpp"
 #include "OED_Dense_Matrix.hpp"
 
+#include "OED_Ptr.hpp"
+
 namespace OED
 {
   template <class RealT>
   class Linear_OED_D_Opt : public Discrete_Design_Criterion
   {
     private:
-    std::shared_ptr<Bayesian_Inversion_Interface<RealT>> inversion_problem_;
+    Ptr<Bayesian_Inversion_Interface<RealT>> inversion_problem_;
 
-    std::shared_ptr<Dense_Matrix<RealT>> forward_cov_;
-    std::shared_ptr<Dense_Matrix<RealT>> noise_cov_;
+    Ptr<Dense_Matrix<RealT>> forward_cov_;
+    Ptr<Dense_Matrix<RealT>> noise_cov_;
 
     public:
-    Linear_OED_D_Opt(std::shared_ptr<Bayesian_Inversion_Interface<RealT>> inversion_problem)
+    Linear_OED_D_Opt(Ptr<Bayesian_Inversion_Interface<RealT>> inversion_problem)
       : inversion_problem_(inversion_problem)
     {
       int data_dim = inversion_problem->Error_Model()->Data_Dimension();
-      this->forward_cov_ = std::make_shared<Dense_Matrix<RealT>>(data_dim, data_dim);
-      this->noise_cov_ = std::make_shared<Dense_Matrix<RealT>>(data_dim, data_dim);
+      this->forward_cov_ = OED::makePtr<Dense_Matrix<RealT>>(data_dim, data_dim);
+      this->noise_cov_ = OED::makePtr<Dense_Matrix<RealT>>(data_dim, data_dim);
 
       this->Construct_Forward_Covariance();
       this->Construct_Noise_Covariance();
@@ -41,8 +43,8 @@ namespace OED
 
     double Evaluate(Active_Sensors &sensors) override
     {
-      std::shared_ptr<Dense_Matrix<RealT>> A = this->forward_cov_->Select_Subsquare_Matrix(sensors.Selection());
-      std::shared_ptr<Dense_Matrix<RealT>> sub_noise_cov = this->noise_cov_->Select_Subsquare_Matrix(sensors.Selection());
+      Ptr<Dense_Matrix<RealT>> A = this->forward_cov_->Select_Subsquare_Matrix(sensors.Selection());
+      Ptr<Dense_Matrix<RealT>> sub_noise_cov = this->noise_cov_->Select_Subsquare_Matrix(sensors.Selection());
       sub_noise_cov->Right_Inverse_Multiply(*A, *A);
       for (int i = 0; i < sensors.Selection().size(); i++)
       {
@@ -61,20 +63,20 @@ namespace OED
 
     inline void Construct_Forward_Covariance()
     {
-      std::shared_ptr<Bayesian_Inversion_Interface<RealT>> &inversion_problem = this->inversion_problem_;
-      std::shared_ptr<Model_Interface<RealT>> &model = inversion_problem->Model();
-      std::shared_ptr<Observation_Operator_Interface<RealT>> &obs_op = inversion_problem->Observation_Operator();
-      std::shared_ptr<Prior_Interface<RealT>> &prior = inversion_problem->Prior();
-      std::shared_ptr<Error_Model_Interface<RealT>> &error_model = inversion_problem->Error_Model();
+      Ptr<Bayesian_Inversion_Interface<RealT>> &inversion_problem = this->inversion_problem_;
+      Ptr<Model_Interface<RealT>> &model = inversion_problem->Model();
+      Ptr<Observation_Operator_Interface<RealT>> &obs_op = inversion_problem->Observation_Operator();
+      Ptr<Prior_Interface<RealT>> &prior = inversion_problem->Prior();
+      Ptr<Error_Model_Interface<RealT>> &error_model = inversion_problem->Error_Model();
       int data_dim = error_model->Data_Dimension();
 
       // Required to use methods, but not actually used here
-      std::shared_ptr<Vector<RealT>> temp = inversion_problem->Get_Empty_Data_Vector();
-      std::shared_ptr<Vector<RealT>> d = inversion_problem->Get_Empty_Data_Vector();
-      std::shared_ptr<Vector<RealT>> u1 = inversion_problem->Get_Empty_State_Vector();
-      std::shared_ptr<Vector<RealT>> u2 = inversion_problem->Get_Empty_State_Vector();
-      std::shared_ptr<Vector<RealT>> m1 = inversion_problem->Get_Empty_Parameter_Vector();
-      std::shared_ptr<Vector<RealT>> m2 = inversion_problem->Get_Empty_Parameter_Vector();
+      Ptr<Vector<RealT>> temp = inversion_problem->Get_Empty_Data_Vector();
+      Ptr<Vector<RealT>> d = inversion_problem->Get_Empty_Data_Vector();
+      Ptr<Vector<RealT>> u1 = inversion_problem->Get_Empty_State_Vector();
+      Ptr<Vector<RealT>> u2 = inversion_problem->Get_Empty_State_Vector();
+      Ptr<Vector<RealT>> m1 = inversion_problem->Get_Empty_Parameter_Vector();
+      Ptr<Vector<RealT>> m2 = inversion_problem->Get_Empty_Parameter_Vector();
 
       for (int i = 0; i < data_dim; i++)
       {
@@ -103,9 +105,9 @@ namespace OED
     inline void Construct_Noise_Covariance()
     {
       auto &inversion_problem = this->inversion_problem_;
-      std::shared_ptr<Error_Model_Interface<RealT>> &error_model = inversion_problem->Error_Model();
-      std::shared_ptr<Vector<RealT>> d_in = inversion_problem->Get_Empty_State_Vector();
-      std::shared_ptr<Vector<RealT>> d_out = inversion_problem->Get_Empty_State_Vector();
+      Ptr<Error_Model_Interface<RealT>> &error_model = inversion_problem->Error_Model();
+      Ptr<Vector<RealT>> d_in = inversion_problem->Get_Empty_State_Vector();
+      Ptr<Vector<RealT>> d_out = inversion_problem->Get_Empty_State_Vector();
       int data_dim = error_model->Data_Dimension();
 
       for (int i = 0; i < data_dim; i++)

@@ -10,6 +10,8 @@
 #include "OED_Error_Model_Interface.hpp"
 #include "OED_Vector.hpp"
 
+#include "OED_Ptr.hpp"
+
 namespace OED
 {
   template <class RealT>
@@ -28,7 +30,7 @@ namespace OED
     virtual void Mass_Matrix_Apply(Vector<RealT> &m_out, Vector<RealT> &m_in) = 0;
     virtual void Mass_Matrix_Inverse_Apply(Vector<RealT> &m_out, Vector<RealT> &m_in) = 0;
 
-    virtual std::shared_ptr<Vector<RealT>> Sample_Vector() = 0;
+    virtual Ptr<Vector<RealT>> Sample_Vector() = 0;
   };
 }
 

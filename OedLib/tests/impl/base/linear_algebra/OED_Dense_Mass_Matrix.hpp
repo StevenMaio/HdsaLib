@@ -6,6 +6,7 @@
 #include <memory>
 #include "Mass_Matrix.hpp"
 #include "OED_Std_Vector.hpp"
+#include "OED_Ptr.hpp"
 
 namespace OED_TEST
 {
@@ -17,7 +18,7 @@ namespace OED_TEST
       using Dense_Vector = Eigen::Matrix<RealT, Eigen::Dynamic, Eigen::Dynamic>;
 
     private:
-      std::shared_ptr<Dense_Matrix> M_; // dense mass matrix
+      Ptr<Dense_Matrix> M_; // dense mass matrix
       Eigen::SelfAdjointEigenSolver<Dense_Matrix> M_eigensolver_; // eigen solver
 
     public:
