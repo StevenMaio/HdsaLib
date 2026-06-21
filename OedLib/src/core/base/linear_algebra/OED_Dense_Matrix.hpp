@@ -8,6 +8,8 @@
 #include <memory>
 #include "Eigen/Dense"
 
+#include "OED_Ptr.hpp"
+
 using Eigen::MatrixXd;
 
 namespace OED
@@ -18,17 +20,17 @@ namespace OED
   private:
     int num_rows_;
     int num_cols_;
-    std::shared_ptr<MatrixXd> data_;
+    Ptr<MatrixXd> data_;
 
   public:
     Dense_Matrix(int num_rows, int num_cols) : num_rows_(num_rows), num_cols_(num_cols)
     {
-      this->data_ = std::make_shared<MatrixXd>(num_rows, num_cols);
+      this->data_ = OED::makePtr<MatrixXd>(num_rows, num_cols);
     }
 
     Dense_Matrix(MatrixXd &data) : num_rows_(data.rows()), num_cols_(data.cols())
     {
-      this->data_ = std::make_shared<MatrixXd>(data);
+      this->data_ = OED::makePtr<MatrixXd>(data);
     }
 
     ~Dense_Matrix() {}
@@ -46,10 +48,10 @@ namespace OED
     }
 
     // TODO: fix this crime as well
-    std::shared_ptr<Dense_Matrix> Select_Subsquare_Matrix(const std::vector<int> &selection)
+    Ptr<Dense_Matrix> Select_Subsquare_Matrix(const std::vector<int> &selection)
     {
       MatrixXd submat = (*this->data_)(selection, selection);
-      std::shared_ptr<Dense_Matrix> mat = std::make_shared<Dense_Matrix>(submat);
+      Ptr<Dense_Matrix> mat = OED::makePtr<Dense_Matrix>(submat);
       return mat;
     }
 
