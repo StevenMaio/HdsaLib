@@ -99,6 +99,8 @@ target_include_directories(HdsaLib INTERFACE
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/core/base/auxiliary>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/core/base/linear_algebra>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/core/base/vectors>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/core/bifidelity_correction/interfaces>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/core/bifidelity_correction/analysis>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/trilinos_adapter/adapters>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/trilinos_adapter/core>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/interfaces/rol>

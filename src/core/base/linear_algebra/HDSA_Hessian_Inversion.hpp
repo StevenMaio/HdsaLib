@@ -7,6 +7,9 @@
 #ifndef HDSA_HESSIAN_INVERSION_HPP
 #define HDSA_HESSIAN_INVERSION_HPP
 
+#include "HDSA_Linear_Operator.hpp"
+#include "HDSA_Linear_Algebra.hpp"
+
 namespace HDSA
 {
 
