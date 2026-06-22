@@ -1,35 +1,35 @@
 /***********************************************************************
  HdsaLib - A library for Hyper-differential Sensitivity Analysis
- 
+
  Questions? Contact Joseph Hart (joshart@sandia.gov)
 ************************************************************************/
 
-#ifndef HDSA_MD_OPT_PROB_INTERFACE_MRHYDE_HPP
-#define HDSA_MD_OPT_PROB_INTERFACE_MRHYDE_HPP
+#ifndef HDSA_BF_SOL_OP_INTERFACE_MRHYDE_HPP
+#define HDSA_BF_SOL_OP_INTERFACE_MRHYDE_HPP
 
-#include "HDSA_MD_Opt_Prob_Interface.hpp"
+#include "userInterface.hpp"
+#include "HDSA_BF_Sol_Op_Interface.hpp"
 #include "HDSA_Tpetra_Vector.hpp"
 #include "HDSA_Std_Vector.hpp"
 #include "HDSA_Solver_Interface_MrHyDE.hpp"
 
 template <class RealT>
-class MD_Opt_Prob_Interface_MrHyDE : public HDSA::MD_Opt_Prob_Interface<RealT>
+class BF_Sol_Op_Interface_MrHyDE : public HDSA::BF_Sol_Op_Interface<RealT>
 {
 
 private:
   HDSA::Ptr<MrHyDE::SolverManager<SolverNode>> solver_;
   HDSA::Ptr<MrHyDE::PostprocessManager<SolverNode>> postproc_;
   HDSA::Ptr<MrHyDE::ParameterManager<SolverNode>> params_;
-  
   HDSA::Ptr<Solver_Interface_MrHyDE<RealT>> solver_interface_;
-  HDSA::Ptr<HDSA::Vector<RealT>> grad_nom_;
 
 public:
-  MD_Opt_Prob_Interface_MrHyDE(HDSA::Ptr<MrHyDE::SolverManager<SolverNode>> &solver, HDSA::Ptr<MrHyDE::PostprocessManager<SolverNode>> &postproc, HDSA::Ptr<MrHyDE::ParameterManager<SolverNode>> &params, const HDSA::Ptr<HDSA::MD_Data_Interface<RealT>> &data_interface)
+  BF_Sol_Op_Interface_MrHyDE(Teuchos::RCP<Teuchos::MpiComm<int>> &comm)
   {
-    postproc_ = postproc;
-    solver_ = solver;
-    params_ = params;
+    std::string input_file_name = "input_hifi.yaml";
+    Teuchos::RCP<MrHyDE::userInterface> UI = Teuchos::rcp(new MrHyDE::userInterface());
+    Teuchos::RCP<Teuchos::ParameterList> Settings = UI->UserInterface(input_file_name);
+    Instantiate_HiFi_Model(comm, Settings);
 
     solver_interface_ = HDSA::makePtr<Solver_Interface_MrHyDE<RealT>>(solver_, params_);
 
@@ -38,22 +38,73 @@ public:
     {
       postproc_->hdsa_solop_data[set] = HDSA::makePtr<MrHyDE::SolutionStorage<SolverNode>>(solver_->settings);
     }
-
-    grad_nom_ = data_interface->Get_z_opt()->Clone();
-    RS_Gradient(*grad_nom_, *data_interface->Get_z_opt());
   }
 
-  virtual ~MD_Opt_Prob_Interface_MrHyDE()
+  virtual ~BF_Sol_Op_Interface_MrHyDE()
   {
+  }
+
+  void Instantiate_HiFi_Model(Teuchos::RCP<Teuchos::MpiComm<int>> comm, Teuchos::RCP<Teuchos::ParameterList> &Settings)
+  {
+
+    Teuchos::RCP<MrHyDE::MeshInterface> mesh = Teuchos::rcp(new MrHyDE::MeshInterface(Settings, comm));
+
+    Teuchos::RCP<MrHyDE::PhysicsInterface> physics = Teuchos::rcp(new MrHyDE::PhysicsInterface(Settings, comm,
+                                                                                               mesh->getBlockNames(),
+                                                                                               mesh->getSideNames(),
+                                                                                               mesh->getDimension()));
+
+    mesh->finalize(physics->getVarList(), physics->getVarTypes(), physics->getDerivedList());
+
+    Teuchos::RCP<MrHyDE::DiscretizationInterface> disc = Teuchos::rcp(new MrHyDE::DiscretizationInterface(Settings, comm,
+                                                                                                          mesh, physics));
+    params_ = Teuchos::rcp(new MrHyDE::ParameterManager<SolverNode>(comm, Settings, mesh, physics, disc));
+
+    Teuchos::RCP<MrHyDE::AssemblyManager<SolverNode>> assembler = Teuchos::rcp(new MrHyDE::AssemblyManager<SolverNode>(comm, Settings, mesh, disc, physics, params_));
+
+    assembler->setMeshData();
+
+    Teuchos::RCP<MrHyDE::MultiscaleManager> multiscale_manager = Teuchos::rcp(new MrHyDE::MultiscaleManager(comm, mesh, Settings,
+                                                                                                            assembler->groups,
+#ifndef MrHyDE_NO_AD
+                                                                                                            assembler->function_managers_AD));
+#else
+                                                                                                            assembler->function_managers));
+#endif
+
+    postproc_ = Teuchos::rcp(new MrHyDE::PostprocessManager<SolverNode>(comm, Settings, mesh,
+                                                                        disc, physics,
+                                                                        multiscale_manager,
+                                                                        assembler, params_));
+
+    solver_ = Teuchos::rcp(new MrHyDE::SolverManager<SolverNode>(comm, Settings, mesh, disc, physics, assembler, params_));
+
+    solver_->multiscale_manager = multiscale_manager;
+    assembler->multiscale_manager = multiscale_manager;
+    solver_->postproc = postproc_;
+
+    mesh->allocateMeshDataStructures();
+    assembler->allocateGroupStorage();
+    solver_->completeSetup();
+    postproc_->linalg = solver_->linalg;
+    solver_->setupExplicitMass();
+    assembler->finalizeFunctions();
+    solver_->finalizeMultiscale();
+
+    Kokkos::fence();
+    comm->barrier();
   }
 
   //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   // Implementation of base class pure virtual functions:
+  // State_Solve
   // Apply_Solution_Operator_z_Jacobian_Transpose
-  // Apply_RS_Hessian
-  // Misfit_Gradient
-  // Apply_Misfit_Hessian
   //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+  void State_Solve(HDSA::Vector<RealT> &u, const HDSA::Vector<RealT> &z) const
+  {
+    solver_interface_->State_Solve(u, z);
+  }
 
   void Apply_Solution_Operator_z_Jacobian_Transpose(HDSA::Vector<RealT> &z_out, const HDSA::Vector<RealT> &u_in, const HDSA::Vector<RealT> &z) const
   {
@@ -61,82 +112,6 @@ public:
     Do_Solution_Operator(true);
     RS_Gradient(z_out, z);
     z_out.Scale(-1.0);
-  }
-
-  void Apply_RS_Hessian(HDSA::Vector<RealT> &z_out, const HDSA::Vector<RealT> &z_in, const HDSA::Vector<RealT> &z) const
-  {
-    Do_Solution_Operator(false);
-    HDSA::Ptr<HDSA::Vector<RealT>> z_pert = z.Clone();
-    z_pert->Set(z);
-    RealT h = 1.e-4;
-    z_pert->Scaled_Plus(h, z_in);
-    RS_Gradient(z_out, *z_pert);
-    z_out.Scaled_Plus(-1.0, *grad_nom_);
-    z_out.Scale(1.0 / h);
-  }
-
-  void Misfit_Gradient(HDSA::Vector<RealT> &u_grad, const HDSA::Vector<RealT> &u, const HDSA::Vector<RealT> &z) const
-  {
-    Do_Solution_Operator(false);
-    if (solver_->isTransient)
-    {
-      const HDSA::Transient_Vector<RealT> &eu = dynamic_cast<const HDSA::Transient_Vector<RealT> &>(u);
-      HDSA::Transient_Vector<RealT> &eu_grad = dynamic_cast<HDSA::Transient_Vector<RealT> &>(u_grad);
-      int n_t = solver_->settings->sublist("Solver").get<int>("number of steps", 0) + 1;
-
-      if (postproc_->objectives[0].type == "integrated control")
-      { // only works for one objective term
-        eu_grad[0]->Zeros();
-        for (int i = 0; i < n_t - 1; i++)
-        { // exludes initial condition
-          const HDSA::Tpetra_Vector<RealT> &eu_i = dynamic_cast<const HDSA::Tpetra_Vector<RealT> &>(*eu[i + 1]);
-          HDSA::Tpetra_Vector<RealT> &eu_grad_i = dynamic_cast<HDSA::Tpetra_Vector<RealT> &>(*eu_grad[i + 1]);
-          RealT currenttime = solver_->initial_time + (double)i * solver_->deltat;
-
-          // the gradient should be a non-overlapping vector, but the state should be an overlapping vector
-          HDSA::Ptr<Tpetra::MultiVector<RealT>> eu_grad_i_tpetra = eu_grad_i.getVector();
-          HDSA::Ptr<Tpetra::MultiVector<RealT>> ui_over = solver_->linalg->getNewOverlappedVector(0);
-          solver_->linalg->importVectorToOverlapped(0, ui_over, eu_i.getVector());
-
-          postproc_->setTimeIndex(i);
-          solver_->assembler->updateStage(0, currenttime, solver_->deltat);
-          postproc_->computeObjectiveGradState(0, ui_over, currenttime, solver_->deltat, eu_grad_i_tpetra);
-          if (i == 0)
-          {
-            eu_grad_i.Scale(solver_->deltat);
-          }
-        }
-        u_grad.Scale(-1.0);
-      }
-    }
-    else
-    {
-      const HDSA::Tpetra_Vector<RealT> &eu = dynamic_cast<const HDSA::Tpetra_Vector<RealT> &>(u);
-      HDSA::Tpetra_Vector<RealT> &eu_grad = dynamic_cast<HDSA::Tpetra_Vector<RealT> &>(u_grad);
-
-      // the gradient should be a non-overlapping vector, but the state should be an overlapping vector
-      HDSA::Ptr<Tpetra::MultiVector<RealT>> grad = eu_grad.getVector();
-      HDSA::Ptr<Tpetra::MultiVector<RealT>> u_over = solver_->linalg->getNewOverlappedVector(0);
-      solver_->linalg->importVectorToOverlapped(0, u_over, eu.getVector());
-      postproc_->computeObjectiveGradState(0, u_over, 0.0, solver_->deltat, grad);
-
-      u_grad.Scale(-1.0);
-    }
-  }
-
-  void Apply_Misfit_Hessian(HDSA::Vector<RealT> &u_out, const HDSA::Vector<RealT> &u_in, const HDSA::Vector<RealT> &u, const HDSA::Vector<RealT> &z) const
-  {
-    HDSA::Ptr<HDSA::Vector<RealT>> ugrad_nom = u_out.Clone();
-    Misfit_Gradient(*ugrad_nom, u, z);
-
-    HDSA::Ptr<HDSA::Vector<RealT>> u_pert = u_out.Clone();
-    u_pert->Set(u);
-    RealT h = 1.0e-4;
-    u_pert->Scaled_Plus(h, u_in);
-    Misfit_Gradient(u_out, *u_pert, z);
-
-    u_out.Scaled_Plus(-1.0, *ugrad_nom);
-    u_out.Scale(1.0 / h);
   }
 
   //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -212,6 +187,5 @@ public:
     }
     return new_z;
   }
-
 };
 #endif

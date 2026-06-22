@@ -36,6 +36,8 @@
 #include "HDSA_MD_OUU_Ensemble_Weighting_Matrix.hpp"
 #include "HDSA_MD_OUU_Hyperparameter_Data_Interface.hpp"
 #include "HDSA_MD_OUU_u_Prior_Interface.hpp"
+#include "HDSA_BF_Update.hpp"
+#include "HDSA_BF_Sol_Op_Interface_MrHyDE.hpp"
 
 template <class RealT,
           class LO = Tpetra::Map<>::local_ordinal_type,
@@ -64,6 +66,26 @@ public:
 
   void HDSA_Solve(void)
   {
+    Teuchos::ParameterList HDSAsettings;
+
+    if (settings_->sublist("Analysis").isSublist("HDSA"))
+      HDSAsettings = settings_->sublist("Analysis").sublist("HDSA");
+    else
+      TEUCHOS_TEST_FOR_EXCEPTION(true, std::runtime_error, "Error: MrHyDE could not find the HDSA sublist in the input file!  Abort!");
+
+    bool do_bifidelity_correction = HDSAsettings.sublist("Configuration").get<bool>("do_bifidelity_correction", false);
+    if (do_bifidelity_correction)
+    {
+      BF_Solve(HDSAsettings);
+    }
+    else
+    {
+      MD_Solve(HDSAsettings);
+    }
+  }
+
+  void BF_Solve(Teuchos::ParameterList &HDSAsettings)
+  {
     postproc_->write_solution = false;
     postproc_->write_optimization_solution = false;
 
@@ -78,16 +100,74 @@ public:
       outStream = HDSA::makePtrFromRef(bhs);
     }
 
-    ///////////////////////////////////////////////////////////////////////////////////////////////////
-    //////////////////////////////////////// Parameter parsing ////////////////////////////////////////
-    ///////////////////////////////////////////////////////////////////////////////////////////////////
+    int hdsa_verbosity = HDSAsettings.sublist("Configuration").get<int>("verbosity", 0);
+    Teuchos::ParameterList data_load_list = HDSAsettings.sublist("DataLoadParameters");
+    std::string random_number_file = data_load_list.get<std::string>("random_number_file", "error");
+    int num_random_numbers = data_load_list.get<int>("num_random_numbers", 0);
 
-    Teuchos::ParameterList HDSAsettings;
-
-    if (settings_->sublist("Analysis").isSublist("HDSA"))
-      HDSAsettings = settings_->sublist("Analysis").sublist("HDSA");
+    HDSA::Ptr<HDSA::Random_Number_Generator<ScalarT>> random_number_generator;
+    HDSA::Ptr<HDSA::Comm<int>> hdsa_comm = HDSA::makePtr<HDSA::Comm<int>>(comm_);
+    if (random_number_file == "error")
+    {
+      random_number_generator = HDSA::makePtr<HDSA::Random_Number_Generator<ScalarT>>(hdsa_comm);
+    }
     else
-      TEUCHOS_TEST_FOR_EXCEPTION(true, std::runtime_error, "Error: MrHyDE could not find the HDSA sublist in the input file!  Abort!");
+    {
+      if (num_random_numbers == 0)
+      {
+        *outStream << " Error: number of random numbers not specified" << std::endl;
+      }
+      random_number_generator = HDSA::makePtr<HDSA::Random_Number_Generator<ScalarT>>(num_random_numbers, random_number_file);
+    }
+
+    if (hdsa_verbosity > 1)
+    {
+      *outStream << "Beginning Data_Interface instantiation" << std::endl;
+    }
+    HDSA::Ptr<HDSA::MD_Data_Interface<ScalarT>> data_interface = HDSA::makePtr<MD_Data_Interface_MrHyDE<ScalarT>>(comm_, solver_, params_, random_number_generator, data_load_list);
+
+    if (hdsa_verbosity > 1)
+    {
+      *outStream << "Beginning Sol_Op_Interface instantiation" << std::endl;
+    }
+    HDSA::Ptr<HDSA::BF_Sol_Op_Interface<ScalarT>> sol_op_interface = HDSA::makePtr<BF_Sol_Op_Interface_MrHyDE<ScalarT>>(comm_);
+
+    if (hdsa_verbosity > 1)
+    {
+      *outStream << "Beginning Opt_Prob_Interface instantiation" << std::endl;
+    }
+    HDSA::Ptr<HDSA::MD_Opt_Prob_Interface<ScalarT>> opt_prob_interface = HDSA::makePtr<MD_Opt_Prob_Interface_MrHyDE<ScalarT>>(solver_, postproc_, params_, data_interface);
+
+    HDSA::Ptr<HDSA::BF_Update<RealT>> bf_update = HDSA::makePtr<HDSA::BF_Update<RealT>>(sol_op_interface, opt_prob_interface);
+    HDSA::Ptr<HDSA::Vector<RealT>> z_update = bf_update->Update(*data_interface->Get_u_opt(), *data_interface->Get_z_opt());
+
+    std::string opt_solution_exo_file_ = data_load_list.get<std::string>("OptimalSolutionExoFile", "error");
+    bool write_exo = true;
+    if (opt_solution_exo_file_ == "error")
+    {
+      write_exo = false;
+    }
+    HDSA::Ptr<Output_Writer_MrHyDE<ScalarT>> output_writer = HDSA::makePtr<Output_Writer_MrHyDE<ScalarT>>(postproc_, solver_, write_exo);
+
+    std::string filename = "z_update";
+    output_writer->Write_to_File(z_update, filename, false);
+  }
+
+  void MD_Solve(Teuchos::ParameterList &HDSAsettings)
+  {
+    postproc_->write_solution = false;
+    postproc_->write_optimization_solution = false;
+
+    HDSA::Ptr<std::ostream> outStream;
+    HDSA::nullstream bhs; // outputs nothing
+    if (comm_->getRank() == 0)
+    {
+      outStream = HDSA::makePtrFromRef(std::cout);
+    }
+    else
+    {
+      outStream = HDSA::makePtrFromRef(bhs);
+    }
 
     int stoch_dim = params_->getNumParams("stochastic");
     bool is_stoch = false;
