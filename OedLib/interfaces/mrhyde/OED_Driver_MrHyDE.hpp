@@ -8,59 +8,63 @@
 
 namespace OED
 {
-    template <class RealT,
-              class LO = Tpetra::Map<>::local_ordinal_type,
-              class GO = Tpetra::Map<>::global_ordinal_type,
-              class Node = Tpetra::Map<>::node_type>
-    class Driver_MrHyDE
-    {
-    private:
-        Teuchos::RCP<MpiComm> comm_;
-        Teuchos::RCP<Teuchos::ParameterList> settings_;
-        Teuchos::RCP<MrHyDE::SolverManager<SolverNode>> solver_;
-        Teuchos::RCP<MrHyDE::PostprocessManager<SolverNode>> postproc_;
-        Teuchos::RCP<MrHyDE::ParameterManager<SolverNode>> params_;
-        int oed_verbosity_{0};
+    namespace MrHyDE_Interface {
 
-    public:
-        Driver_MrHyDE(Teuchos::RCP<MpiComm> &comm, Teuchos::RCP<Teuchos::ParameterList> &settings, Teuchos::RCP<MrHyDE::SolverManager<SolverNode>> &solver,
-                      Teuchos::RCP<MrHyDE::PostprocessManager<SolverNode>> &postproc, Teuchos::RCP<MrHyDE::ParameterManager<SolverNode>> &params)
-            : comm_(comm), settings_(settings), solver_(solver), postproc_(postproc), params_(params)
+        template <class RealT,
+                class LO = Tpetra::Map<>::local_ordinal_type,
+                class GO = Tpetra::Map<>::global_ordinal_type,
+                class Node = Tpetra::Map<>::node_type>
+        class Driver_MrHyDE
         {
-        }
+        private:
+            Teuchos::RCP<MpiComm> comm_;
+            Teuchos::RCP<Teuchos::ParameterList> settings_;
+            Teuchos::RCP<MrHyDE::SolverManager<SolverNode>> solver_;
+            Teuchos::RCP<MrHyDE::PostprocessManager<SolverNode>> postproc_;
+            Teuchos::RCP<MrHyDE::ParameterManager<SolverNode>> params_;
+            int oed_verbosity_{0};
 
-        void OED_Solve()
-        {
-            // TODO: insert OED here
-            std::cout << "Hello OED!" << std::endl;
+        public:
+            Driver_MrHyDE(Teuchos::RCP<MpiComm> &comm, Teuchos::RCP<Teuchos::ParameterList> &settings, Teuchos::RCP<MrHyDE::SolverManager<SolverNode>> &solver,
+                        Teuchos::RCP<MrHyDE::PostprocessManager<SolverNode>> &postproc, Teuchos::RCP<MrHyDE::ParameterManager<SolverNode>> &params)
+                : comm_(comm), settings_(settings), solver_(solver), postproc_(postproc), params_(params)
+            {
+            }
 
-            // TODO: determine general configurations
+            void OED_Solve()
+            {
+                // TODO: insert OED here
+                std::cout << "Hello OED!" << std::endl;
 
-            this->Create_Model_Interface();
-            this->Create_Observation_Operator_Interface();
-            this->Create_Error_Model_Interface();
-            this->Create_Prior_Interface();
+                // TODO: determine general configurations
 
-            // TODO: do some OED -- and then do somehing with the result
-        }
+                this->Create_Model_Interface();
+                this->Create_Observation_Operator_Interface();
+                this->Create_Error_Model_Interface();
+                this->Create_Prior_Interface();
 
-    private:
-        inline void Create_Model_Interface()
-        {
-        }
+                // TODO: do some OED -- and then do somehing with the result
+            }
 
-        inline void Create_Observation_Operator_Interface()
-        {
-        }
+        private:
+            inline void Create_Model_Interface()
+            {
+            }
 
-        inline void Create_Error_Model_Interface()
-        {
-        }
+            inline void Create_Observation_Operator_Interface()
+            {
+            }
 
-        inline void Create_Prior_Interface()
-        {
-        }
-    };
+            inline void Create_Error_Model_Interface()
+            {
+            }
+
+            inline void Create_Prior_Interface()
+            {
+            }
+        };
+
+    }
 
 }
 

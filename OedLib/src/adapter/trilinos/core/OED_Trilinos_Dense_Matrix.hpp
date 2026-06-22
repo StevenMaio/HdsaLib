@@ -1,0 +1,122 @@
+#ifndef OED_DENSE_MATRIX_HPP
+#define OED_DENSE_MATRIX_HPP
+
+#include "Teuchos_SerialDenseMatrix.hpp"
+
+namespace OED
+{
+
+  namespace Trilinos_Adapter
+  {
+
+    template <class RealT>
+    class Dense_Matrix
+    {
+
+      OED::Ptr<Teuchos::SerialDenseMatrix<int, RealT>> A_;
+
+    public:
+      // Null constructor
+      Dense_Matrix(void)
+      {
+      }
+
+      // Constructor given matrix Dimensions
+      Dense_Matrix(int m, int n)
+      {
+        A_ = OED::makePtr<Teuchos::SerialDenseMatrix<int, RealT>>(m, n);
+      }
+
+      ~Dense_Matrix()
+      {
+      }
+
+      // Number of rows
+      int Number_of_Rows(void) const
+      {
+        return A_->numRows();
+      }
+
+      // Number of columns
+      int Number_of_Columns(void) const
+      {
+        return A_->numCols();
+      }
+
+      // Access the (i,j) element
+      RealT operator()(int i, int j) const
+      {
+        return (*A_)(i, j);
+      }
+
+      // Overwrite the (i,j) element
+      void Set_Entry(int i, int j, RealT val)
+      {
+        (*A_)(i, j) = val;
+      }
+
+      // Multiply this*B (a matrix multiply) with options to transpose this and/or B
+      int Multiply(OED::Dense_Matrix<RealT> &C, const OED::Dense_Matrix<RealT> &B, bool A_Trans = false, bool B_Trans = false) const
+      {
+        int info;
+        if (!A_Trans && !B_Trans)
+        {
+          // No transposes
+          info = C.Get_Teuchos_Matrix()->multiply(Teuchos::NO_TRANS, Teuchos::NO_TRANS, 1.0, *A_, *B.Get_Teuchos_Matrix(), 0.0);
+        }
+        else if (A_Trans && !B_Trans)
+        {
+          // Transpose A and not B
+          info = C.Get_Teuchos_Matrix()->multiply(Teuchos::TRANS, Teuchos::NO_TRANS, 1.0, *A_, *B.Get_Teuchos_Matrix(), 0.0);
+        }
+        else if (!A_Trans && B_Trans)
+        {
+          // Transpose B and not A
+          info = C.Get_Teuchos_Matrix()->multiply(Teuchos::NO_TRANS, Teuchos::TRANS, 1.0, *A_, *B.Get_Teuchos_Matrix(), 0.0);
+        }
+        else
+        {
+          // Transpose both A and B
+          info = C.Get_Teuchos_Matrix()->multiply(Teuchos::TRANS, Teuchos::TRANS, 1.0, *A_, *B.Get_Teuchos_Matrix(), 0.0);
+        }
+        return info;
+      }
+
+      void Zeros(void)
+      {
+        A_->putScalar(0.0);
+      }
+
+      void Scale(RealT alpha)
+      {
+        A_->scale(alpha);
+      }
+
+      OED::Ptr<Teuchos::SerialDenseMatrix<int, RealT>> Get_Teuchos_Matrix(void) const
+      {
+        return A_;
+      }
+
+      void Write_to_File(const std::string &name) const
+      {
+        int m = this->Number_of_Rows();
+        int n = this->Number_of_Columns();
+        std::ofstream fout;
+        fout.open(name);
+        for (int i = 0; i < m; i++)
+        {
+          for (int j = 0; j < n; j++)
+          {
+            fout << std::setprecision(16) << (*this)(i, j) << "  ";
+          }
+          fout << "  " << std::endl;
+        }
+        fout.close();
+      }
+    };
+
+  }
+
+}
+
+#endif

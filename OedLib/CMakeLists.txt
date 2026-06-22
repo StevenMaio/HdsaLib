@@ -25,6 +25,8 @@ IF(MrHyDE_ENABLE_OED)
     MESSAGE("OedLib::CMakeLists.txt MrHyDE enabling OED")
     target_include_directories(OedLib INTERFACE
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/interfaces/mrhyde/>
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/adapter/trilinos/adapter/>
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/adapter/trilinos/core/>
     )
 
     # load TRILINOS
@@ -79,5 +81,21 @@ IF(MrHyDE_ENABLE_OED)
     if (CMAKE_Fortran_COMPILER)
     enable_language(Fortran)
     endif()
+
+    include(CTest)
+
+    # MPI check 
+    MESSAGE("-- Checking if MPI is enabled in Trilinos:")
+    LIST(FIND Trilinos_TPL_LIST MPI MPI_List_ID)
+    IF (MPI_List_ID GREATER -1)
+    MESSAGE("-- Checking if MPI is enabled in Trilinos: MPI ENABLED")
+    SET(main_MPI TRUE)
+    ADD_DEFINITIONS(-Dmain_MPI)
+    ELSE()
+    MESSAGE("-- Checking if MPI is enabled in Trilinos: MPI NOT ENABLED")
+    SET(main_MPI FALSE)
+    ENDIF()
+
+    MESSAGE("   CMAKE_CXX_FLAGS = ${CMAKE_CXX_FLAGS}")
 
 ENDIF()

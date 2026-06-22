@@ -1,0 +1,98 @@
+/***********************************************************************
+ HdsaLib - A library for Hyper-differential Sensitivity Analysis
+ 
+ Questions? Contact Joseph Hart (joshart@sandia.gov)
+************************************************************************/
+
+#ifndef OED_COMM_HPP
+#define OED_COMM_HPP
+
+#include "Tpetra_Core.hpp"
+#include "Teuchos_Comm.hpp"
+#include "Teuchos_Array.hpp"
+#include "OED_Ptr.hpp"
+
+namespace OED
+{
+
+  namespace Trilinos_Adapter
+  {
+
+    template <class Ordinal>
+    class Comm
+    {
+    private:
+      OED::Ptr<const Teuchos::Comm<int>> comm_;
+
+    public:
+      Comm()
+      {
+        comm_ = Tpetra::getDefaultComm();
+      }
+
+      Comm(OED::Ptr<Teuchos::Comm<int>> &comm) : comm_(comm)
+      {
+      }
+
+      Comm(OED::Ptr<Teuchos::MpiComm<int>> &comm) : comm_(comm)
+      {
+      }
+
+      int getRank() const
+      {
+        return comm_->getRank();
+      }
+
+      int getSize() const
+      {
+        return comm_->getSize();
+      }
+
+      void barrier() const
+      {
+        comm_->barrier();
+      }
+
+      void broadcast(const int rootRank, const Ordinal bytes, char buffer[]) const
+      {
+        comm_->broadcast(rootRank, bytes, buffer);
+      }
+
+      int receive(const int sourceRank, const Ordinal bytes, char recvBuffer[]) const
+      {
+        int info = comm_->receive(sourceRank, bytes, recvBuffer);
+        return info;
+      }
+
+      void send(const Ordinal bytes, const char sendBuffer[], const int destRank) const
+      {
+        comm_->send(bytes, sendBuffer, destRank);
+      }
+
+      void gatherAll(const Ordinal sendBytes, const char sendBuffer[], const Ordinal recvBytes, char recvBuffer[]) const
+      {
+        comm_->gatherAll(sendBytes, sendBuffer, recvBytes, recvBuffer);
+      }
+
+      OED::Ptr<OED::Comm<int>> createSubcommunicator(const std::vector<int> &ranks) const
+      {
+        Teuchos::Array<int> r;
+        for (unsigned int k = 0; k < ranks.size(); k++)
+        {
+          r.push_back(ranks[k]);
+        }
+        OED::Ptr<Teuchos::Comm<int>> subcomm_teuchos = comm_->createSubcommunicator(r);
+        OED::Ptr<OED::Comm<Ordinal>> subcomm = OED::makePtr<OED::Comm<Ordinal>>(subcomm_teuchos);
+        return subcomm;
+      }
+
+      OED::Ptr<const Teuchos::Comm<int>> Get_Teuchos_Communicator() const
+      {
+        return comm_;
+      }
+    };
+
+  }
+}
+
+#endif
