@@ -18,8 +18,8 @@ namespace OED
   {
   private:
     // TODO: add some more options
-    double noise_std_;
     int data_dim_;
+    double noise_std_;
 
   public:
     Gaussian_Error(int data_dim, double noise_std) :

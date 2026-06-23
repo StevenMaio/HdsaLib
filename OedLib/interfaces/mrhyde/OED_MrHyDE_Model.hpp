@@ -3,10 +3,15 @@
 #include "OED_Model_Interface.hpp"
 #include "OED_Vector.hpp"
 
+#include "Tpetra_Map_decl.hpp"
+
 namespace OED::MrHyDE_Interface
 {
 
-    template <class RealT>
+    template <class RealT,
+              class LO = Tpetra::Map<>::local_ordinal_type,
+              class GO = Tpetra::Map<>::global_ordinal_type,
+              class Node = Tpetra::Map<>::node_type>
     class MrHyDE_Model_Interface : public OED::Model_Interface<RealT>
     {
     private:

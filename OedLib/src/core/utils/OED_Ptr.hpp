@@ -2,7 +2,7 @@
 
 #include <memory>
 
-#ifdef MRHYDE_ENABLE_OED
+#ifdef MrHyDE_ENABLE_OED
 
 #include "Teuchos_RCP.hpp"
 
@@ -13,11 +13,6 @@ namespace OED
   using Ptr = Teuchos::RCP<T>;
 
   static const Teuchos::ENull nullPtr = Teuchos::null;
-
-}
-
-namespace OED
-{
 
   template <class T, class... Args>
   inline Ptr<T> makePtr(Args &&...args)
