@@ -9,7 +9,7 @@
 
 #include "Tpetra_CrsMatrix_decl.hpp"
 #include "Amesos2_Factory.hpp"
-#include "OED_Sparse_Matrix.hpp"
+#include "OED_Trilinos_Sparse_Matrix.hpp"
 #include "OED_Incomplete_Chol_Factor.hpp"
 #include "OED_Linear_Algebra.hpp"
 
@@ -84,8 +84,8 @@ namespace OED::Trilinos_Adapter
       std::string output_message_solver;
       if (use_direct_)
       {
-        OED::Tpetra_Vector<RealT> &ex = dynamic_cast<OED::Tpetra_Vector<RealT> &>(x);
-        const OED::Tpetra_Vector<RealT> &eb = dynamic_cast<const OED::Tpetra_Vector<RealT> &>(b);
+        Tpetra_Vector<RealT> &ex = dynamic_cast<Tpetra_Vector<RealT> &>(x);
+        const Tpetra_Vector<RealT> &eb = dynamic_cast<const Tpetra_Vector<RealT> &>(b);
         solver_->setX(ex.getVector());
         solver_->setB(eb.getVector());
         solver_->solve();
@@ -104,12 +104,12 @@ namespace OED::Trilinos_Adapter
           OED::Ptr<OED::Vector<RealT>> b_prec = b.Clone();
           OED::Ptr<OED::Vector<RealT>> x_prec = x.Clone();
           L_->Apply_Inverse(*b_prec, b);
-          output_message_solver = OED::Linear_Algebra::Iterative_Linear_Solve<RealT>(*x_prec, *b_prec, *A_op, tol, solver, verbosity_, out_stream_);
+          output_message_solver = Iterative_Linear_Solve<RealT>(*x_prec, *b_prec, *A_op, tol, solver, verbosity_, out_stream_);
           L_->Apply_Inverse_Transpose(x, *x_prec);
         }
         else
         {
-          output_message_solver = OED::Linear_Algebra::Iterative_Linear_Solve<RealT>(x, b, *A_op, tol, solver, verbosity_, out_stream_);
+          output_message_solver = Iterative_Linear_Solve<RealT>(x, b, *A_op, tol, solver, verbosity_, out_stream_);
         }
 
         output_message = solver_type_message_ + "::" + output_message_solver;

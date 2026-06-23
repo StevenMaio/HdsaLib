@@ -3,6 +3,7 @@
 #include "OED_Prior_Interface.hpp"
 #include "OED_Vector.hpp"
 #include "OED_Trilinos_Sparse_Matrix.hpp"
+#include "OED_Sparse_Matrix_Solver.hpp"
 
 #include "Tpetra_Map_decl.hpp"
 
@@ -28,6 +29,9 @@ namespace OED::MrHyDE_Interface
         OED::Ptr<OED::Trilinos_Adapter::Sparse_Matrix<RealT, LO, GO, Node>> S_;
         OED::Ptr<OED::Trilinos_Adapter::Sparse_Matrix<RealT, LO, GO, Node>> L_;
 
+        OED::Ptr<OED::Trilinos_Adapter::Sparse_Matrix_Solver<RealT>> M_solver_;
+        OED::Ptr<OED::Trilinos_Adapter::Sparse_Matrix_Solver<RealT>> L_solver_;
+
         Teuchos::RCP<Teuchos::MpiComm<int>> comm_;
         Teuchos::ParameterList &settings_;
         std::vector<string> &blockNames_;
@@ -38,6 +42,20 @@ namespace OED::MrHyDE_Interface
             std::vector<string> &blockNames)
             : comm_(comm), settings_(settings), blockNames_(blockNames)
         {
+            // load OED settings
+            Teuchos::ParameterList &oedSettings = settings_.sublist("Analysis").sublist("OED");
+
+            if (!oedSettings.isSublist("prior"))
+            {
+                TEUCHOS_TEST_FOR_EXCEPTION(true, std::runtime_error, "Error: MrHyDE No specified prior model for OED! Abort!");
+            }
+            // TODO: do error checking
+            this->gamma_ = oedSettings.get<RealT>("gamma", 1e-3);
+            this->delta_ = oedSettings.get<RealT>("delta", 1.0);
+
+            // TODO: consider a mean as well
+
+            // Create bilinar forms
             Teuchos::RCP<Teuchos::ParameterList> priorSettings = OED::makePtr<Teuchos::ParameterList>(settings);
             priorSettings->remove("Physics");
             priorSettings->sublist("Physics").set("modules", "ellipticPrior");
@@ -55,6 +73,7 @@ namespace OED::MrHyDE_Interface
 
             Teuchos::RCP<Tpetra::CrsMatrix<ScalarT, LO, GO, Node>> M;
             Teuchos::RCP<Tpetra::CrsMatrix<ScalarT, LO, GO, Node>> S;
+
             // TODO: should maybe convert these to other sparse matrices
             M = Instantiate_Prior_Operators(comm, priorSettings, blockNames);
             priorSettings->sublist("Functions").set("ellipticPrior diffusion", "1.0");
@@ -63,6 +82,14 @@ namespace OED::MrHyDE_Interface
 
             this->M_ = OED::makePtr<OED::Trilinos_Adapter::Sparse_Matrix<RealT, LO, GO, Node>>(M, true);
             this->S_ = OED::makePtr<OED::Trilinos_Adapter::Sparse_Matrix<RealT, LO, GO, Node>>(S, true);
+
+            this->L_ = OED::makePtr<OED::Trilinos_Adapter::Sparse_Matrix<RealT, LO, GO, Node>>(S, true);
+            this->L_->Scale(this->gamma_);
+            this->L_->Scaled_Plus(this->delta_, *this->M_);
+
+            // TODO: create solvers for M and L
+            this->M_solver_ = OED::makePtr<OED::Trilinos_Adapter::Sparse_Matrix_Solver<RealT>>(this->M_);
+            this->L_solver_ = OED::makePtr<OED::Trilinos_Adapter::Sparse_Matrix_Solver<RealT>>(this->L_);
         }
 
         void Prior_Precision_Apply(OED::Vector<RealT> &m_out, OED::Vector<RealT> &m_in) override
@@ -77,7 +104,8 @@ namespace OED::MrHyDE_Interface
 
         void Get_Prior_Mean(OED::Vector<RealT> &m_out) override
         {
-
+            // TODO: support user provided means later on
+            m_out.Zeros();
         }
 
         void Prior_Covariance_Factor_Apply(OED::Vector<RealT> &m_out, OED::Vector<RealT> &m_in) override
@@ -105,6 +133,7 @@ namespace OED::MrHyDE_Interface
         Ptr<OED::Vector<RealT>> Sample_Vector() override
         {
             // TODO: do something like a multi-vector I suppose
+            return OED::nullPtr;
         }
 
     private:

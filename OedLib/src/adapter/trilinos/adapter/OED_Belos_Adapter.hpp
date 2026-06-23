@@ -4,11 +4,8 @@
 #include "BelosMultiVec.hpp"
 #include "BelosOperator.hpp"
 
-namespace OED
+namespace OED::Trilinos_Adapter
 {
-
-  namespace Trilinos_Adapter
-  {
 
     template <class RealT>
     class Belos_Vector : public Belos::MultiVec<RealT>
@@ -279,8 +276,6 @@ namespace OED
         }
       }
     };
-
-  }
 
 }
 
