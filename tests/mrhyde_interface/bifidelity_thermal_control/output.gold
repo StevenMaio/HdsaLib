@@ -1,0 +1,6 @@
+Beginning Data_Interface instantiation
+u_opt->norm() = 664.422
+z_opt->norm() = 20.8138
+Beginning Sol_Op_Interface instantiation
+Beginning Opt_Prob_Interface instantiation
+z_update->norm() = 21.128

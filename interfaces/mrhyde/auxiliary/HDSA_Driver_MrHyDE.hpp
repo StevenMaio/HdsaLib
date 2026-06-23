@@ -128,6 +128,14 @@ public:
 
     if (hdsa_verbosity > 1)
     {
+      HDSA::Ptr<const HDSA::Vector<ScalarT>> u_opt = data_interface->Get_u_opt();
+      HDSA::Ptr<const HDSA::Vector<ScalarT>> z_opt = data_interface->Get_z_opt();
+      *outStream << "u_opt->norm() = " << u_opt->Norm() << std::endl;
+      *outStream << "z_opt->norm() = " << z_opt->Norm() << std::endl;
+    }
+
+    if (hdsa_verbosity > 1)
+    {
       *outStream << "Beginning Sol_Op_Interface instantiation" << std::endl;
     }
     HDSA::Ptr<HDSA::BF_Sol_Op_Interface<ScalarT>> sol_op_interface = HDSA::makePtr<BF_Sol_Op_Interface_MrHyDE<ScalarT>>(comm_);
@@ -141,6 +149,11 @@ public:
     HDSA::Ptr<HDSA::BF_Update<RealT>> bf_update = HDSA::makePtr<HDSA::BF_Update<RealT>>(sol_op_interface, opt_prob_interface);
     HDSA::Ptr<HDSA::Vector<RealT>> z_update = bf_update->Update(*data_interface->Get_u_opt(), *data_interface->Get_z_opt());
 
+    if (hdsa_verbosity > 1)
+    {
+      *outStream << "z_update->norm() = " << z_update->Norm() << std::endl;
+    }
+
     std::string opt_solution_exo_file_ = data_load_list.get<std::string>("OptimalSolutionExoFile", "error");
     bool write_exo = true;
     if (opt_solution_exo_file_ == "error")
@@ -149,7 +162,7 @@ public:
     }
     HDSA::Ptr<Output_Writer_MrHyDE<ScalarT>> output_writer = HDSA::makePtr<Output_Writer_MrHyDE<ScalarT>>(postproc_, solver_, write_exo);
 
-    std::string filename = "z_update";
+    std::string filename = "./hdsa_output/z_update";
     output_writer->Write_to_File(z_update, filename, false);
   }
 
