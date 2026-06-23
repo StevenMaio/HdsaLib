@@ -1,0 +1,60 @@
+%YAML 1.1
+---
+ANONYMOUS:
+  debug level: 0
+  verbosity: 0
+  Mesh:
+    dimension: 1
+    element type: interval
+    xmin: 0.0
+    xmax: 1.0
+    NX: 99
+  Physics: 
+    modules: thermal
+    Dirichlet conditions:
+      T:
+        all boundaries: '0.0'
+  Discretization:
+    order:
+      T: 1
+    quadrature: 2
+  Analysis:
+    analysis type: OED
+    OED:
+      prior:
+        type: bilaplacian
+        gamma: 0.001
+        delta: 1.0
+      error model:
+        type: gaussian
+        std: 0.01
+        dimension: 10
+  Solver:
+    workset size: 10 
+    solver: steady-state
+  Postprocess: 
+    response type: pointwise
+    verification: compute errors
+    write solution: false
+    compute objective: false
+    compute responses: true
+    Objective functions:
+      objval:
+        type: sensors
+        sensor points file: sensor_points.dat
+        save sensor data: true
+        response: 'T'
+        weight: 1.0
+  Functions:
+    thermal diffusion: thermal_diff(0)
+    thermal source: thermal_source(0)*(2*pi*pi*sin(pi*t))
+  Parameters:
+    thermal_diff:
+      type: scalar
+      value: 2.0
+      usage: active
+    thermal_source:
+      type: scalar
+      value: 3.0
+      usage: active
+...
