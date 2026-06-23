@@ -99,7 +99,6 @@ namespace OED::MrHyDE_Interface
 
         void Prior_Covariance_Apply(OED::Vector<RealT> &m_out, OED::Vector<RealT> &m_in) override
         {
-
         }
 
         void Get_Prior_Mean(OED::Vector<RealT> &m_out) override
@@ -122,12 +121,12 @@ namespace OED::MrHyDE_Interface
         // TODO: move this at some point to a potentially new class
         void Mass_Matrix_Apply(OED::Vector<RealT> &m_out, OED::Vector<RealT> &m_in) override
         {
-
+            this->M_->Apply(m_out, m_in);
         }
 
         void Mass_Matrix_Inverse_Apply(OED::Vector<RealT> &m_out, OED::Vector<RealT> &m_in) override
         {
-
+            this->M_solver_->Apply_A_Inverse(m_out, m_in);
         }
 
         Ptr<OED::Vector<RealT>> Sample_Vector() override

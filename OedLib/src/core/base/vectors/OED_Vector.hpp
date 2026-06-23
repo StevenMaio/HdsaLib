@@ -7,6 +7,9 @@
 #ifndef HDSA_VECTOR_HPP
 #define HDSA_VECTOR_HPP
 
+#include "OED_Ptr.hpp"
+#include "OED_Stack_Trace.hpp"
+
 #include <cmath>
 #include <fstream>
 #include <iomanip>
@@ -31,8 +34,8 @@ namespace OED
     // Pure virtual functions to define when creating a vector interface
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    // // Clone the vector
-    // virtual OED::Ptr<OED::Vector<RealT>> Clone() const = 0;
+    // Clone the vector
+    virtual Ptr<Vector<RealT>> Clone() const = 0;
 
     // compute the Dot product of this and x
     virtual RealT Dot(const OED::Vector<RealT> &x) const = 0;
@@ -46,30 +49,30 @@ namespace OED
     // Set this=val elementwise
     virtual void Set_Scalar(const RealT val) = 0;
 
-    // virtual void Randomize_Standard_Normal() = 0;
+    virtual void Randomize_Standard_Normal() = 0;
 
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // Virtual functions available for convienence when useful, these are not called within HdsaLib but rather are for the user to call from main rather than going through casts
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    // virtual void Write_to_File(const std::string &name) const
-    // {
-    //   HDSA_TEST_FOR_EXCEPTION(true, std::logic_error,
-    //                           "Error in OED::Vector: Write_to_File has not been implemented for this vector type" << std::endl);
-    // }
-    //
+    virtual void Write_to_File(const std::string &name) const
+    {
+      OED_TEST_FOR_EXCEPTION(true, std::logic_error,
+                              "Error in OED::Vector: Write_to_File has not been implemented for this vector type" << std::endl);
+    }
+    
     virtual RealT Get_Entry(int k) const
     {
-      // HDSA_TEST_FOR_EXCEPTION(true, std::logic_error,
-      //                         "Error in OED::Vector: Get_Entry has not been implemented for this vector type" << std::endl);
+      OED_TEST_FOR_EXCEPTION(true, std::logic_error,
+                              "Error in OED::Vector: Get_Entry has not been implemented for this vector type" << std::endl);
       RealT val = 0.0;
       return val;
     }
 
     virtual void Set_Entry(int k, RealT val)
     {
-      // HDSA_TEST_FOR_EXCEPTION(true, std::logic_error,
-      //                         "Error in OED::Vector: Set_Entry has not been implemented for this vector type" << std::endl);
+      OED_TEST_FOR_EXCEPTION(true, std::logic_error,
+                              "Error in OED::Vector: Set_Entry has not been implemented for this vector type" << std::endl);
     }
 
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////
