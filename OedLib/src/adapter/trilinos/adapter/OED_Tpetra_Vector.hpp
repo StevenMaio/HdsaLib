@@ -24,10 +24,10 @@ namespace OED
       const OED::Ptr<Tpetra::MultiVector<RealT, LO, GO, Node>> tpetra_vec_;
       const OED::Ptr<const Tpetra::Map<LO, GO, Node>> map_;
       const OED::Ptr<const Teuchos::Comm<int>> comm_;
-      const OED::Ptr<OED::Random_Number_Generator<RealT>> random_number_generator_;
+      const OED::Ptr<Random_Number_Generator<RealT>> random_number_generator_;
 
     public:
-      Tpetra_Vector(const OED::Ptr<Tpetra::MultiVector<RealT, LO, GO, Node>> &tpetra_vec, const OED::Ptr<OED::Random_Number_Generator<RealT>> &random_number_generator)
+      Tpetra_Vector(const OED::Ptr<Tpetra::MultiVector<RealT, LO, GO, Node>> &tpetra_vec, const OED::Ptr<Random_Number_Generator<RealT>> &random_number_generator)
           : tpetra_vec_(tpetra_vec), map_(tpetra_vec_->getMap()), comm_(map_->getComm()),
             random_number_generator_(random_number_generator) {}
 

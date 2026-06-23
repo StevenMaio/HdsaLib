@@ -34,7 +34,7 @@ namespace OED
 
         Sparse_Matrix(OED::Vector<RealT> &vec, bool reciprocate_diag)
         {
-            OED::Tpetra_Vector<RealT> tpetra_vec = dynamic_cast<OED::Tpetra_Vector<RealT> &>(vec);
+            Tpetra_Vector<RealT> tpetra_vec = dynamic_cast<Tpetra_Vector<RealT> &>(vec);
             OED::Ptr<Tpetra::MultiVector<RealT, LO, GO, Node>> d = tpetra_vec.getVector();
 
             OED::Ptr<const Tpetra::Map<LO, GO, Node>> map = d->getMap();
@@ -75,20 +75,20 @@ namespace OED
             return is_symmetric_;
         }
 
-        OED::Ptr<OED::Sparse_Matrix<RealT>> Clone(int max_entries_per_row = 0) const
+        OED::Ptr<Sparse_Matrix<RealT>> Clone(int max_entries_per_row = 0) const
         {
             if (max_entries_per_row == 0)
             {
                 max_entries_per_row = A_->getGlobalMaxNumRowEntries();
             }
             OED::Ptr<Tpetra::CrsMatrix<RealT, LO, GO, Node>> B = OED::makePtr<Tpetra::CrsMatrix<RealT, LO, GO, Node>>(A_->getRowMap(), max_entries_per_row);
-            OED::Ptr<OED::Sparse_Matrix<RealT>> B_sm = OED::makePtr<OED::Sparse_Matrix<RealT>>(B);
+            OED::Ptr<Sparse_Matrix<RealT>> B_sm = OED::makePtr<Sparse_Matrix<RealT>>(B);
             B_sm->Scale(0.0);
             return B_sm;
         }
 
         // Compute C = this * B, with options for transposes
-        void Matrix_Matrix_Multiply(OED::Sparse_Matrix<RealT> &C, const OED::Sparse_Matrix<RealT> &B, bool A_trans = false, bool B_trans = false) const
+        void Matrix_Matrix_Multiply(Sparse_Matrix<RealT> &C, const Sparse_Matrix<RealT> &B, bool A_trans = false, bool B_trans = false) const
         {
             OED::Ptr<Tpetra::CrsMatrix<RealT, LO, GO, Node>> B_tpetra = B.Get_Tpetra_Matrix();
             OED::Ptr<Tpetra::CrsMatrix<RealT, LO, GO, Node>> C_tpetra = C.Get_Tpetra_Matrix();
@@ -107,8 +107,8 @@ namespace OED
 
         void Apply(OED::Vector<RealT> &x_out, const OED::Vector<RealT> &x_in) const
         {
-            const OED::Tpetra_Vector<RealT> &ex_in = dynamic_cast<const OED::Tpetra_Vector<RealT> &>(x_in);
-            OED::Tpetra_Vector<RealT> &ex_out = dynamic_cast<OED::Tpetra_Vector<RealT> &>(x_out);
+            const Tpetra_Vector<RealT> &ex_in = dynamic_cast<const Tpetra_Vector<RealT> &>(x_in);
+            Tpetra_Vector<RealT> &ex_out = dynamic_cast<Tpetra_Vector<RealT> &>(x_out);
             A_->apply(*ex_in.getVector(), *ex_out.getVector());
         }
 
@@ -117,7 +117,7 @@ namespace OED
             A_->scale(alpha);
         }
 
-        void Set(OED::Sparse_Matrix<RealT> &B)
+        void Set(Sparse_Matrix<RealT> &B)
         {
             // Prepare A for updates
             A_->resumeFill();
@@ -146,7 +146,7 @@ namespace OED
 
         void Set_Diagonal(OED::Vector<RealT> &vec, bool reciprocate_diag)
         {
-            OED::Tpetra_Vector<RealT> tpetra_vec = dynamic_cast<OED::Tpetra_Vector<RealT> &>(vec);
+            Tpetra_Vector<RealT> tpetra_vec = dynamic_cast<Tpetra_Vector<RealT> &>(vec);
             OED::Ptr<Tpetra::MultiVector<RealT, LO, GO, Node>> d = tpetra_vec.getVector();
             auto view = d->getLocalViewHost(Tpetra::Access::ReadOnly);
 
@@ -177,7 +177,7 @@ namespace OED
             A_->fillComplete();
         }
 
-        void Scaled_Plus(const RealT &alpha, const OED::Sparse_Matrix<RealT> &B)
+        void Scaled_Plus(const RealT &alpha, const Sparse_Matrix<RealT> &B)
         {
             A_->resumeFill(); // Prepare A for updates
             // Loop over each row of B and copy its entries to A

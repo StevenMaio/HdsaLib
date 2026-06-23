@@ -9,7 +9,7 @@
 
 #include "OED_MrHyDE_Model.hpp"
 #include "OED_MrHyDE_Observation_Operator.hpp"
-#include "OED_MrHyDE_Prior_Model.hpp"
+#include "OED_MrHyDE_Prior_Interface.hpp"
 #include "OED_Gaussian_Error.hpp"
 
 namespace OED::MrHyDE_Interface
@@ -56,39 +56,53 @@ namespace OED::MrHyDE_Interface
 
             // TODO: Load RNG settings (maybe for another time)
 
-            this->Create_Model_Interface(oedSettings);
-            this->Create_Observation_Operator_Interface(oedSettings);
-            this->Create_Error_Model_Interface(oedSettings);
-            this->Create_Prior_Interface(oedSettings);
+            this->Create_Model_Interface();
+            this->Create_Observation_Operator_Interface();
+            this->Create_Error_Model_Interface();
+            this->Create_Prior_Interface();
 
             // TODO: do some OED -- and then do somehing with the result
         }
 
     private:
-        inline void Create_Model_Interface(Teuchos::ParameterList &parameters)
+        inline void Create_Model_Interface()
         {
+            Teuchos::ParameterList &oedSettings = settings_->sublist("Analysis").sublist("OED");
+
+            std::cout << "OED::MrHyDE_Interface::Driver_MrHyDE::Create_Model_Interface Hello!" << std::endl;
         }
 
-        inline void Create_Observation_Operator_Interface(Teuchos::ParameterList &parameters)
+        inline void Create_Observation_Operator_Interface()
         {
+            Teuchos::ParameterList &oedSettings = settings_->sublist("Analysis").sublist("OED");
+
+            std::cout << "OED::MrHyDE_Interface::Driver_MrHyDE::Create_Observation_Operator_Interface Hello!" << std::endl;
         }
 
-        inline void Create_Error_Model_Interface(Teuchos::ParameterList &parameters)
+        inline void Create_Error_Model_Interface()
         {
+            Teuchos::ParameterList &oedSettings = settings_->sublist("Analysis").sublist("OED");
+
             // TODO: eventually do more here
-            if (!parameters.isSublist("error model"))
+            if (!oedSettings.isSublist("error model"))
             {
                 TEUCHOS_TEST_FOR_EXCEPTION(true, std::runtime_error, "Error: MrHyDE No specified error model for OED! Abort!");
             }
-            Teuchos::ParameterList &error_parameters = parameters.sublist("error model");
+            Teuchos::ParameterList &error_parameters = oedSettings.sublist("error model");
             RealT noise_std = error_parameters.get<RealT>("std", 0.0);
             int dimension = error_parameters.get<int>("dimension", 0);
 
             this->error_model_ = OED::makePtr<OED::Gaussian_Error<RealT>>(dimension, noise_std);
+            std::cout << "OED::MrHyDE_Interface::Driver_MrHyDE::Create_Error_Model_Interface Hello!" << std::endl;
         }
 
-        inline void Create_Prior_Interface(Teuchos::ParameterList &parameters)
+        inline void Create_Prior_Interface()
         {
+            Teuchos::ParameterList &oedSettings = settings_->sublist("Analysis").sublist("OED");
+
+            std::vector<std::string> blockNames = this->solver_->mesh->getBlockNames();
+            this->prior_ = OED::makePtr<MrHyDE_Prior_Interface<RealT>>(this->comm_, *this->settings_, blockNames);
+            std::cout << "OED::MrHyDE_Interface::Driver_MrHyDE::Create_Prior_Interface Hello!" << std::endl;
         }
     };
 

@@ -2,6 +2,7 @@
 
 #include "OED_Prior_Interface.hpp"
 #include "OED_Vector.hpp"
+#include "OED_Trilinos_Sparse_Matrix.hpp"
 
 #include "Tpetra_Map_decl.hpp"
 
@@ -15,21 +16,29 @@ namespace OED::MrHyDE_Interface
     class MrHyDE_Prior_Interface : public OED::Prior_Interface<RealT>
     {
     private:
-        // TODO: make these the sparse matrices we do stuff with
-        Teuchos::RCP<Tpetra::CrsMatrix<ScalarT, LO, GO, Node>> M_;
-        Teuchos::RCP<Tpetra::CrsMatrix<ScalarT, LO, GO, Node>> S_;
+        // TODO: do I need to have these around?
+        // Teuchos::RCP<Tpetra::CrsMatrix<ScalarT, LO, GO, Node>> M_;
+        // Teuchos::RCP<Tpetra::CrsMatrix<ScalarT, LO, GO, Node>> S_;
+
+        ScalarT gamma_{0};
+        ScalarT delta_{0};
+
+        // TODO: need to create solvers
+        OED::Ptr<OED::Trilinos_Adapter::Sparse_Matrix<RealT, LO, GO, Node>> M_;
+        OED::Ptr<OED::Trilinos_Adapter::Sparse_Matrix<RealT, LO, GO, Node>> S_;
+        OED::Ptr<OED::Trilinos_Adapter::Sparse_Matrix<RealT, LO, GO, Node>> L_;
 
         Teuchos::RCP<Teuchos::MpiComm<int>> comm_;
-        Teuchos::RCP<Teuchos::ParameterList> settings_;
+        Teuchos::ParameterList &settings_;
         std::vector<string> &blockNames_;
 
     public:
         MrHyDE_Prior_Interface(Teuchos::RCP<Teuchos::MpiComm<int>> &comm,
-            Teuchos::RCP<Teuchos::ParameterList> &settings,
+            Teuchos::ParameterList &settings,
             std::vector<string> &blockNames)
             : comm_(comm), settings_(settings), blockNames_(blockNames)
         {
-            Teuchos::RCP<Teuchos::ParameterList> priorSettings = OED::makePtr<Teuchos::ParameterList>(*settings);
+            Teuchos::RCP<Teuchos::ParameterList> priorSettings = OED::makePtr<Teuchos::ParameterList>(settings);
             priorSettings->remove("Physics");
             priorSettings->sublist("Physics").set("modules", "ellipticPrior");
             priorSettings->sublist("Solver").set("solver", "steady-state");
@@ -51,6 +60,9 @@ namespace OED::MrHyDE_Interface
             priorSettings->sublist("Functions").set("ellipticPrior diffusion", "1.0");
             priorSettings->sublist("Functions").set("ellipticPrior reaction", "0.0");
             S = Instantiate_Prior_Operators(comm, priorSettings, blockNames);
+
+            this->M_ = OED::makePtr<OED::Trilinos_Adapter::Sparse_Matrix<RealT, LO, GO, Node>>(M, true);
+            this->S_ = OED::makePtr<OED::Trilinos_Adapter::Sparse_Matrix<RealT, LO, GO, Node>>(S, true);
         }
 
         void Prior_Precision_Apply(OED::Vector<RealT> &m_out, OED::Vector<RealT> &m_in) override

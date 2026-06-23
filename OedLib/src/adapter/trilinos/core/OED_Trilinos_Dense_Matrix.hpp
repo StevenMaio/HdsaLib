@@ -56,7 +56,7 @@ namespace OED
       }
 
       // Multiply this*B (a matrix multiply) with options to transpose this and/or B
-      int Multiply(OED::Dense_Matrix<RealT> &C, const OED::Dense_Matrix<RealT> &B, bool A_Trans = false, bool B_Trans = false) const
+      int Multiply(Dense_Matrix<RealT> &C, const Dense_Matrix<RealT> &B, bool A_Trans = false, bool B_Trans = false) const
       {
         int info;
         if (!A_Trans && !B_Trans)

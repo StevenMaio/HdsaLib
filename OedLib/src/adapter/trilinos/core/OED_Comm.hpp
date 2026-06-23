@@ -74,7 +74,7 @@ namespace OED
         comm_->gatherAll(sendBytes, sendBuffer, recvBytes, recvBuffer);
       }
 
-      OED::Ptr<OED::Comm<int>> createSubcommunicator(const std::vector<int> &ranks) const
+      OED::Ptr<Comm<int>> createSubcommunicator(const std::vector<int> &ranks) const
       {
         Teuchos::Array<int> r;
         for (unsigned int k = 0; k < ranks.size(); k++)
@@ -82,7 +82,7 @@ namespace OED
           r.push_back(ranks[k]);
         }
         OED::Ptr<Teuchos::Comm<int>> subcomm_teuchos = comm_->createSubcommunicator(r);
-        OED::Ptr<OED::Comm<Ordinal>> subcomm = OED::makePtr<OED::Comm<Ordinal>>(subcomm_teuchos);
+        OED::Ptr<Comm<Ordinal>> subcomm = OED::makePtr<Comm<Ordinal>>(subcomm_teuchos);
         return subcomm;
       }
 

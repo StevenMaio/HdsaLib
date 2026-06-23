@@ -48,12 +48,14 @@ namespace OED::MrHyDE_Interface
 
         int Param_Dimension() override
         {
-
+            // TODO: implement this
+            return 0;
         }
 
         int State_Dimension() override
         {
-
+            // TODO: implement this
+            return 0;
         }
 
     };

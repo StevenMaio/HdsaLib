@@ -36,7 +36,7 @@ namespace OED
         distribution_ = std::normal_distribution<RealT>(0.0, 1.0);
       }
 
-      Random_Number_Generator(OED::Ptr<OED::Comm<int>> &comm, bool seed_on_time = false)
+      Random_Number_Generator(OED::Ptr<Comm<int>> &comm, bool seed_on_time = false)
       {
         use_numbers_from_file_ = false;
         if (seed_on_time)
@@ -82,7 +82,7 @@ namespace OED
         else
         {
             OED_TEST_FOR_EXCEPTION(true, std::logic_error,
-                                    "Error in OED::Random_Number_Generator: Cannot open random number file" << std::endl);
+                                    "Error in OED::Trilinos_Adapater::Random_Number_Generator: Cannot open random number file" << std::endl);
         }
       }
 
@@ -99,7 +99,7 @@ namespace OED
           if (file_reading_index_ > num_random_numbers_)
           {
             OED_TEST_FOR_EXCEPTION(true, std::logic_error,
-                                    "Error in OED::Random_Number_Generator: Requested more random numbers than was provided" << std::endl);
+                                    "Error in OED::Trilinos_Adapater::Random_Number_Generator: Requested more random numbers than was provided" << std::endl);
           }
           val = random_numbers_[file_reading_index_];
           file_reading_index_ += 1;
