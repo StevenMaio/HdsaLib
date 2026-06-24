@@ -2,6 +2,7 @@
 #define OEDLIB_DRIVER_MRHYDE_HPP
 
 #include <iostream>
+#include <format>
 
 #include "Tpetra_Map_decl.hpp"
 #include "Teuchos_RCPDecl.hpp"
@@ -27,6 +28,7 @@ namespace OED::MrHyDE_Interface
         Teuchos::RCP<MrHyDE::SolverManager<SolverNode>> solver_;
         Teuchos::RCP<MrHyDE::PostprocessManager<SolverNode>> postproc_;
         Teuchos::RCP<MrHyDE::ParameterManager<SolverNode>> params_;
+        OED::Ptr<OED::Trilinos_Adapter::Random_Number_Generator<ScalarT>> rng_;
         int oed_verbosity_{0};
 
         // TODO: may need to add other templates
@@ -55,11 +57,39 @@ namespace OED::MrHyDE_Interface
             Teuchos::ParameterList &oedSettings = settings_->sublist("Analysis").sublist("OED");
 
             // TODO: Load RNG settings (maybe for another time)
+            OED::Ptr<OED::Trilinos_Adapter::Comm<int>> oed_comm = OED::makePtr<OED::Trilinos_Adapter::Comm<int>>(comm_);
+            this->rng_ = OED::makePtr<OED::Trilinos_Adapter::Random_Number_Generator<ScalarT>>(oed_comm);
 
             this->Create_Model_Interface();
             this->Create_Observation_Operator_Interface();
             this->Create_Error_Model_Interface();
             this->Create_Prior_Interface();
+
+            // TODO: test the mass matrix -- how to use this?
+            // TODO: apply mass matrix and look at result
+            {
+                std::string dir = "/home/smaio/Documents/Projects/AIVIS/HdsaLib/OedLib/examples/mrhyde/thermal_1D/test";
+
+                // should wrap this in one of our wrappers -- then we can at least confine things there
+                Teuchos::RCP<Tpetra::MultiVector<RealT>> tpetra_vec = this->solver_->linalg->getNewVector(0);
+                int dim = tpetra_vec->getGlobalLength();
+                std::cout << "dimension: " << dim << std::endl;
+
+                // auto vec = OED::makePtr<OED::Trilinos_Adapter::Tpetra_Vector<RealT>>(tpetra_vec, this->rng_);
+                // auto v_out = vec->Clone();
+
+                // for (int i = 0; i < dim; i++)
+                // {
+                //     vec->Zeros();
+                //     v_out->Zeros();
+                //     vec->Set_Entry(i, 1.0);
+
+                //     this->prior_->Mass_Matrix_Apply(*v_out, *vec);
+                //     std::string output_file = std::format("{}/Me_{}.txt", dir, i);
+
+                //     v_out->Write_To_File(output_file);
+                // }
+            }
 
             // TODO: do some OED -- and then do somehing with the result
         }

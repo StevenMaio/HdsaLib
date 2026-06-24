@@ -4,7 +4,7 @@ ANONYMOUS:
   debug level: 0
   verbosity: 0
   Mesh:
-    dimension: 1
+    dimension: 2
     element type: tri
     xmin: 0.0
     xmax: 1.0
