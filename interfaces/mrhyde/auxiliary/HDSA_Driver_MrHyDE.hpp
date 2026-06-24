@@ -138,7 +138,7 @@ public:
     {
       *outStream << "Beginning Sol_Op_Interface instantiation" << std::endl;
     }
-    HDSA::Ptr<HDSA::BF_Sol_Op_Interface<ScalarT>> sol_op_interface = HDSA::makePtr<BF_Sol_Op_Interface_MrHyDE<ScalarT>>(comm_);
+    HDSA::Ptr<HDSA::BF_Sol_Op_Interface<ScalarT>> sol_op_interface = HDSA::makePtr<BF_Sol_Op_Interface_MrHyDE<ScalarT>>(comm_, solver_->varlist, random_number_generator);
 
     if (hdsa_verbosity > 1)
     {

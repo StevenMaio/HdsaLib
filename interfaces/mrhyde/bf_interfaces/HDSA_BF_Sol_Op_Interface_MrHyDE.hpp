@@ -18,14 +18,18 @@ class BF_Sol_Op_Interface_MrHyDE : public HDSA::BF_Sol_Op_Interface<RealT>
 {
 
 private:
+  std::vector<std::vector<std::vector<std::string>>> lofi_varlist_;
+  HDSA::Ptr<HDSA::Random_Number_Generator<ScalarT>> random_number_generator_;
   HDSA::Ptr<MrHyDE::SolverManager<SolverNode>> solver_;
   HDSA::Ptr<MrHyDE::PostprocessManager<SolverNode>> postproc_;
   HDSA::Ptr<MrHyDE::ParameterManager<SolverNode>> params_;
   HDSA::Ptr<Solver_Interface_MrHyDE<RealT>> solver_interface_;
 
 public:
-  BF_Sol_Op_Interface_MrHyDE(Teuchos::RCP<Teuchos::MpiComm<int>> &comm)
+  BF_Sol_Op_Interface_MrHyDE(Teuchos::RCP<Teuchos::MpiComm<int>> &comm, std::vector<std::vector<std::vector<std::string>>> &lofi_varlist, HDSA::Ptr<HDSA::Random_Number_Generator<ScalarT>> &random_number_generator)
   {
+    lofi_varlist_ = lofi_varlist;
+    random_number_generator_ = random_number_generator;
     std::string input_file_name = "input_hifi.yaml";
     Teuchos::RCP<MrHyDE::userInterface> UI = Teuchos::rcp(new MrHyDE::userInterface());
     Teuchos::RCP<Teuchos::ParameterList> Settings = UI->UserInterface(input_file_name);
@@ -103,15 +107,84 @@ public:
 
   void State_Solve(HDSA::Vector<RealT> &u, const HDSA::Vector<RealT> &z) const
   {
-    solver_interface_->State_Solve(u, z);
+    Teuchos::RCP<Tpetra::MultiVector<ScalarT, LO, GO, SolverNode>> vec = solver_->linalg->getNewVector(0);
+    HDSA::Ptr<HDSA::Vector<RealT>> u_hifi = HDSA::makePtr<HDSA::Tpetra_Vector<RealT>>(vec, random_number_generator_);
+    solver_interface_->State_Solve(*u_hifi, z);
+    Map_HiFi_State_to_LoFi_State(u, *u_hifi);
   }
 
   void Apply_Solution_Operator_z_Jacobian_Transpose(HDSA::Vector<RealT> &z_out, const HDSA::Vector<RealT> &u_in, const HDSA::Vector<RealT> &z) const
   {
-    Write_Data_Solution_Operator(u_in);
+    Teuchos::RCP<Tpetra::MultiVector<ScalarT, LO, GO, SolverNode>> vec = solver_->linalg->getNewVector(0);
+    HDSA::Ptr<HDSA::Vector<RealT>> u_hifi = HDSA::makePtr<HDSA::Tpetra_Vector<RealT>>(vec, random_number_generator_);
+    Map_Lofi_State_to_Hifi_State(*u_hifi, u_in);
+    Write_Data_Solution_Operator(*u_hifi);
     Do_Solution_Operator(true);
     RS_Gradient(z_out, z);
     z_out.Scale(-1.0);
+  }
+
+  void Map_HiFi_State_to_LoFi_State(HDSA::Vector<RealT> &u_lofi, const HDSA::Vector<RealT> &u_hifi) const
+  {
+    if (u_lofi.Dimension() == u_hifi.Dimension())
+    {
+      u_lofi.Set(u_hifi);
+    }
+    else
+    {
+      HDSA::Tpetra_Vector<RealT> &eu_lofi = dynamic_cast<HDSA::Tpetra_Vector<RealT> &>(u_lofi);
+      const HDSA::Tpetra_Vector<RealT> &eu_hifi = dynamic_cast<const HDSA::Tpetra_Vector<RealT> &>(u_hifi);
+      HDSA::Ptr<Tpetra::MultiVector<RealT>> eu_lofi_tpetra = eu_lofi.getVector();
+      HDSA::Ptr<Tpetra::MultiVector<RealT>> eu_hifi_tpetra = eu_hifi.getVector();
+      Teuchos::ArrayRCP<const RealT> u_hifi_view = eu_hifi_tpetra->get1dView();
+
+      int num_lofi_states = lofi_varlist_[0][0].size();
+      int num_hifi_states = solver_->varlist[0][0].size();
+      int num_local_elements = eu_lofi_tpetra->getMap()->getLocalNumElements() / num_lofi_states;
+
+      for (int state = 0; state < num_lofi_states; state++)
+      {
+        auto it = std::find(solver_->varlist[0][0].begin(), solver_->varlist[0][0].end(), lofi_varlist_[0][0][state]);
+        int state_index = std::distance(solver_->varlist[0][0].begin(), it);
+        for (int k = 0; k < num_local_elements; k++)
+        {
+          eu_lofi_tpetra->replaceLocalValue(k * num_lofi_states + state, 0, u_hifi_view[k * num_hifi_states + state_index]);
+        }
+      }
+    }
+  }
+
+  void Map_Lofi_State_to_Hifi_State(HDSA::Vector<RealT> &u_hifi, const HDSA::Vector<RealT> &u_lofi) const
+  {
+    if (u_lofi.Dimension() == u_hifi.Dimension())
+    {
+      u_hifi.Set(u_lofi);
+    }
+    else
+    {
+      HDSA::Tpetra_Vector<RealT> &eu_hifi = dynamic_cast<HDSA::Tpetra_Vector<RealT> &>(u_hifi);
+      const HDSA::Tpetra_Vector<RealT> &eu_lofi = dynamic_cast<const HDSA::Tpetra_Vector<RealT> &>(u_lofi);
+
+      HDSA::Ptr<Tpetra::MultiVector<RealT>> eu_hifi_tpetra = eu_hifi.getVector();
+      HDSA::Ptr<Tpetra::MultiVector<RealT>> eu_lofi_tpetra = eu_lofi.getVector();
+
+      Teuchos::ArrayRCP<const RealT> u_lofi_view = eu_lofi_tpetra->get1dView();
+
+      int num_lofi_states = lofi_varlist_[0][0].size();
+      int num_hifi_states = solver_->varlist[0][0].size();
+      int num_local_elements = eu_lofi_tpetra->getMap()->getLocalNumElements() / num_lofi_states;
+
+      eu_hifi_tpetra->putScalar(0.0);
+      for (int state = 0; state < num_lofi_states; state++)
+      {
+        auto it = std::find(solver_->varlist[0][0].begin(), solver_->varlist[0][0].end(), lofi_varlist_[0][0][state]);
+        int state_index = std::distance(solver_->varlist[0][0].begin(), it);
+        for (int k = 0; k < num_local_elements; k++)
+        {
+          eu_hifi_tpetra->replaceLocalValue(k * num_hifi_states + state_index, 0, u_lofi_view[k * num_lofi_states + state]);
+        }
+      }
+    }
   }
 
   //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
