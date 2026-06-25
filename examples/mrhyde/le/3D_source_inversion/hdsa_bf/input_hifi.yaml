@@ -45,11 +45,10 @@ ANONYMOUS:
     nonlinear TOL: 1.0e-08
     max nonlinear iters: 10
   Postprocess: 
-    output file: output_hifi_1
     response type: pointwise
     compute response: false
     compute objective: true
-    write solution: true
+    write solution: false
     Objective functions:
       val_dx:
         type: sensors
@@ -84,7 +83,7 @@ ANONYMOUS:
             function: 'grad(lambdafield)[x]*grad(lambdafield)[x] + grad(lambdafield)[y]*grad(lambdafield)[y] + grad(lambdafield)[z]*grad(lambdafield)[z]'
             weight: 1.e-3
   Parameters input file: input_params.yaml
-  Analysis input file: input_readExo.yaml
+  Analysis input file: input_HDSA.yaml
   Functions:
     mu: '8.0'
     lambda: lambdafield 

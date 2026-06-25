@@ -1,0 +1,12 @@
+%YAML 1.1
+---
+ANONYMOUS:
+  Analysis: 
+    analysis type: HDSA
+    HDSA:
+      Configuration:
+        do_bifidelity_correction: true
+        verbosity: 12
+      DataLoadParameters:
+        OptimalSolutionExoFile: "output_lofi_opt.exo"
+...
