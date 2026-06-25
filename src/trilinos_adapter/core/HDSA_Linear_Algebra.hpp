@@ -63,6 +63,7 @@ namespace HDSA
       if (verbose)
       {
         belosList.set("Verbosity", Belos::Errors + Belos::Warnings + Belos::StatusTestDetails);
+        belosList.set("Output Style", Belos::Brief);
         belosList.set("Output Frequency", frequency);
       }
       else
