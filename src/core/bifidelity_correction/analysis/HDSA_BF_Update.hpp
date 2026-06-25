@@ -24,9 +24,9 @@ namespace HDSA
     HDSA::Ptr<HDSA::Hessian_Inversion<RealT>> hess_invert_;
 
   public:
-    BF_Update(const HDSA::Ptr<HDSA::BF_Sol_Op_Interface<RealT>> &sol_op_interface, const HDSA::Ptr<HDSA::MD_Opt_Prob_Interface<RealT>> &opt_prob_interface, int verbosity = 0, std::string hessian_solver = "CG") : sol_op_interface_(sol_op_interface), opt_prob_interface_(opt_prob_interface)
+    BF_Update(const HDSA::Ptr<HDSA::BF_Sol_Op_Interface<RealT>> &sol_op_interface, const HDSA::Ptr<HDSA::MD_Opt_Prob_Interface<RealT>> &opt_prob_interface, int verbosity = 0, RealT hessian_tol = 1.e-6, std::string hessian_solver = "CG") : sol_op_interface_(sol_op_interface), opt_prob_interface_(opt_prob_interface)
     {
-      hess_invert_ = HDSA::makePtr<BF_Hessian_Inversion<RealT>>(opt_prob_interface, verbosity, hessian_solver);
+      hess_invert_ = HDSA::makePtr<BF_Hessian_Inversion<RealT>>(opt_prob_interface, verbosity, hessian_tol, hessian_solver);
     }
 
     ~BF_Update(void)
@@ -72,7 +72,7 @@ namespace HDSA
       HDSA::Ptr<HDSA::MD_Opt_Prob_Interface<ScalarType>> opt_prob_interface_;
 
     public:
-      BF_Hessian_Inversion(const HDSA::Ptr<HDSA::MD_Opt_Prob_Interface<ScalarType>> &opt_prob_interface, int verbosity, std::string solver) : HDSA::Hessian_Inversion<ScalarType>(verbosity, 1.e-6, solver), opt_prob_interface_(opt_prob_interface)
+      BF_Hessian_Inversion(const HDSA::Ptr<HDSA::MD_Opt_Prob_Interface<ScalarType>> &opt_prob_interface, int verbosity, ScalarType tol, std::string solver) : HDSA::Hessian_Inversion<ScalarType>(verbosity, tol, solver), opt_prob_interface_(opt_prob_interface)
       {
       }
 

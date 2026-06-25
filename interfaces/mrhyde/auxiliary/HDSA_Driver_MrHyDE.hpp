@@ -150,7 +150,8 @@ public:
     {
       *outStream << "Beginning optimization solution update" << std::endl;
     }
-    HDSA::Ptr<HDSA::BF_Update<RealT>> bf_update = HDSA::makePtr<HDSA::BF_Update<RealT>>(sol_op_interface, opt_prob_interface, hdsa_verbosity, "GMRES");
+    RealT hessian_tol = HDSAsettings.sublist("Configuration").get<RealT>("Hessian Solve Tolerance", 1.e-4);
+    HDSA::Ptr<HDSA::BF_Update<RealT>> bf_update = HDSA::makePtr<HDSA::BF_Update<RealT>>(sol_op_interface, opt_prob_interface, hdsa_verbosity, hessian_tol, "GMRES");
     HDSA::Ptr<HDSA::Vector<RealT>> z_update = bf_update->Update(*data_interface->Get_u_opt(), *data_interface->Get_z_opt());
 
     if (hdsa_verbosity > 1)
