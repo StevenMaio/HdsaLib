@@ -6,8 +6,7 @@
 #define OEDLIB_LIKELIHOOD_MODEL_HPP
 
 #include "OED_Vector.hpp"
-
-using OED::Vector;
+#include "OED_Ptr.hpp"
 
 namespace OED
 {
@@ -24,6 +23,8 @@ namespace OED
     virtual void Noise_Covariance_Apply(Vector<RealT> &d_out, Vector<RealT> &d_in) = 0;
 
     virtual int Data_Dimension() = 0;
+
+    virtual Ptr<Vector<RealT>> Get_Empty_Data_Vector() = 0;
 
     // TODO: implement other methods
   };

@@ -35,32 +35,6 @@ namespace OED_TEST
     {
       this->data_ = this->Get_Empty_Data_Vector();
     }
-
-    Ptr<Vector<RealT>> Get_Empty_Parameter_Vector() override
-    {
-      int param_dim = this->Prior()->Param_Dimension();
-      Ptr<Std_Vector<RealT>> m = std::make_shared<Std_Vector<RealT>>(param_dim);
-      return m;
-    }
-
-    Ptr<Vector<RealT>> Get_Empty_State_Vector() override
-    {
-      int state_dim = this->Model()->State_Dimension();
-      Ptr<Std_Vector<RealT>> u = std::make_shared<Std_Vector<RealT>>(state_dim);
-      return u;
-    };
-
-    Ptr<Vector<RealT>> Get_Empty_Data_Vector() override
-    {
-      int data_dim = this->Error_Model()->Data_Dimension();
-      Ptr<Std_Vector<RealT>> d = std::make_shared<Std_Vector<RealT>>(data_dim);
-      return d;
-    };
-
-    void Compute_MAP_Point(Ptr<Vector<double>> &m_out)
-    {
-      // TODO: need to build the linear equation I want to solve...
-    }
   };
 }
 

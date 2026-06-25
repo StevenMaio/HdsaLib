@@ -155,6 +155,18 @@ namespace OED_TEST
     {
       // TODO: implement this
     };
+
+    OED::Ptr<OED::Vector<RealT>> Get_Empty_Parameter_Vector() override
+    {
+      OED::Ptr<OED::Vector<RealT>> param_vec = OED::makePtr<OED::Std_Vector<RealT>>(this->dim_);
+      return param_vec;
+    }
+
+    OED::Ptr<OED::Vector<RealT>> Get_Empty_State_Vector() override
+    {
+      OED::Ptr<OED::Vector<RealT>> state_vec = OED::makePtr<OED::Std_Vector<RealT>>(this->dim_);
+      return state_vec;
+    }
   };
 
 }

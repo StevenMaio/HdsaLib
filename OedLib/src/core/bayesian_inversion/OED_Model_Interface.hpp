@@ -3,7 +3,9 @@
 //
 #ifndef OEDLIB_CONSTRAINT_HPP
 #define OEDLIB_CONSTRAINT_HPP
+
 #include "OED_Vector.hpp"
+#include "OED_Ptr.hpp"
 
 
 namespace OED
@@ -29,6 +31,10 @@ namespace OED
     virtual ~Model_Interface()
     {
     }
+
+    virtual Ptr<Vector<RealT>> Get_Empty_Parameter_Vector() = 0;
+
+    virtual Ptr<Vector<RealT>> Get_Empty_State_Vector() = 0;
 
     // TODO: add semi-abstract methods from Sola
     // virtual void Adjoint_Solve(Vector<RealT> &u_out, Vector<RealT> &u, Vector<RealT> &z) = 0;

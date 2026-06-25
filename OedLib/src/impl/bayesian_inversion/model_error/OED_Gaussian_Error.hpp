@@ -9,6 +9,8 @@
 #include <vector>
 
 #include "OED_Error_Model_Interface.hpp"
+#include "OED_Std_Vector.hpp"
+#include "OED_Ptr.hpp"
 
 
 namespace OED
@@ -38,6 +40,12 @@ namespace OED
     void Noise_Covariance_Apply(Vector<RealT> &d_out, Vector<RealT> &d_in) override
     {
       d_out.Scaled_Plus(this->noise_std_ * this->noise_std_, d_in);
+    }
+
+    Ptr<Vector<RealT>> Get_Empty_Data_Vector() override
+    {
+      Ptr<Vector<RealT>> data_vec = OED::makePtr<Std_Vector<RealT>>(this->data_dim_);
+      return data_vec;
     }
 
   };

@@ -11,6 +11,7 @@
 #include "Poisson_Model.hpp"
 #include "Poisson_Obs.hpp"
 #include "Poisson_Prior.hpp"
+#include "OED_Gaussian_Error.hpp"
 
 using Eigen::MatrixXd;
 using Eigen::VectorXd;

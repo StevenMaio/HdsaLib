@@ -83,15 +83,18 @@ namespace OED
       this->vec_ = new_vec;
     }
 
-    void Randomize_Standard_Norm() override {
+    void Randomize_Standard_Normal() override
+    {
       OED_TEST_FOR_EXCEPTION(true, std::logic_error,
                               "Error in OED::Vector: Randomize_Standard_Norm has not been implemented for this vector type" << std::endl);
     }
 
-    Ptr<Std_Vector<RealT>> Clone() const override {
-      Ptr<Std_Vector<RealT>> clone = OED<Std_Vector<RealT>>(this->dim_);
+    Ptr<Vector<RealT>> Clone() const override {
+      Ptr<Std_Vector<RealT>> clone = OED::makePtr<Std_Vector<RealT>>(this->dim_);
       clone->Set_Vec(this->vec_);
+      return clone;
     }
+
   };
 }
 

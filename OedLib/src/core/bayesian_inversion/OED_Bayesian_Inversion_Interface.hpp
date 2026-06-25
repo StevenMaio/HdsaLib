@@ -56,13 +56,21 @@ namespace OED
       return this->obs_operator_;
     }
 
-    virtual ~Bayesian_Inversion_Interface() {}
-
     // Need these to build the relevant things
-    // TODO: change these to use smart pointers later
-    virtual Ptr<Vector<RealT>> Get_Empty_Parameter_Vector() = 0;
-    virtual Ptr<Vector<RealT>> Get_Empty_State_Vector() = 0;
-    virtual Ptr<Vector<RealT>> Get_Empty_Data_Vector() = 0;    // TODO: need to eventually think about how to deal with reducing size of data vector
+    OED::Ptr<OED::Vector<RealT>> Get_Empty_Parameter_Vector()
+    {
+      return this->model_->Get_Empty_Parameter_Vector();
+    }
+
+    OED::Ptr<OED::Vector<RealT>> Get_Empty_State_Vector()
+    {
+      return this->model_->Get_Empty_State_Vector();
+    }
+
+    OED::Ptr<OED::Vector<RealT>> Get_Empty_Data_Vector()
+    {
+      return this->error_model_->Get_Empty_Data_Vector();
+    }
   };
 }
 
