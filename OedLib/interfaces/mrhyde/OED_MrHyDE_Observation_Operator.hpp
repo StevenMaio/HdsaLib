@@ -16,6 +16,7 @@ namespace OED::MrHyDE_Interface
         : public OED::Observation_Operator_Interface<RealT>
     {
     public:
+
         void Observation_Operator_Apply(OED::Vector<RealT> &d_out,
             OED::Vector<RealT> &u_in) override
         {

@@ -74,7 +74,6 @@ namespace OED::MrHyDE_Interface
             Teuchos::RCP<Tpetra::CrsMatrix<ScalarT, LO, GO, Node>> M;
             Teuchos::RCP<Tpetra::CrsMatrix<ScalarT, LO, GO, Node>> S;
 
-            // TODO: should maybe convert these to other sparse matrices
             M = Instantiate_Prior_Operators(comm, priorSettings, blockNames);
             priorSettings->sublist("Functions").set("ellipticPrior diffusion", "1.0");
             priorSettings->sublist("Functions").set("ellipticPrior reaction", "0.0");
@@ -94,11 +93,18 @@ namespace OED::MrHyDE_Interface
 
         void Prior_Precision_Apply(OED::Vector<RealT> &m_out, OED::Vector<RealT> &m_in) override
         {
-
+            OED::Ptr<OED::Vector<RealT>> temp = m_in.Clone();
+            this->L_->Apply(*temp, m_in);
+            this->M_solver_->Apply_A_Inverse(m_out, *temp);
+            this->L_->Apply(*temp, m_out);
+            this->M_solver_->Apply_A_Inverse(m_out, *temp);
         }
 
         void Prior_Covariance_Apply(OED::Vector<RealT> &m_out, OED::Vector<RealT> &m_in) override
         {
+            OED::Ptr<OED::Vector<RealT>> temp = m_in.Clone();
+            this->Prior_Covariance_Sqrt_Apply(*temp, m_in);
+            this->Prior_Covariance_Sqrt_Apply(m_out, *temp);
         }
 
         void Get_Prior_Mean(OED::Vector<RealT> &m_out) override
@@ -109,7 +115,14 @@ namespace OED::MrHyDE_Interface
 
         void Prior_Covariance_Factor_Apply(OED::Vector<RealT> &m_out, OED::Vector<RealT> &m_in) override
         {
+            // TODO: Implement this later
+        }
 
+        void Prior_Covariance_Sqrt_Apply(OED::Vector<RealT> &m_out, OED::Vector<RealT> &m_in)
+        {
+            OED::Ptr<OED::Vector<RealT>> temp = m_in.Clone();
+            this->Mass_Matrix_Apply(*temp, m_in);
+            this->L_solver_->Apply_A_Inverse(m_out, *temp);
         }
 
         int Param_Dimension() override

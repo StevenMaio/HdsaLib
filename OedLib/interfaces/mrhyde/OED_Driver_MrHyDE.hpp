@@ -8,7 +8,7 @@
 #include "Teuchos_RCPDecl.hpp"
 #include "Teuchos_ParameterList.hpp"
 
-#include "OED_MrHyDE_Model.hpp"
+#include "OED_MrHyDE_Model_Interface.hpp"
 #include "OED_MrHyDE_Observation_Operator.hpp"
 #include "OED_MrHyDE_Prior_Interface.hpp"
 #include "OED_Gaussian_Error.hpp"
@@ -65,30 +65,28 @@ namespace OED::MrHyDE_Interface
             this->Create_Error_Model_Interface();
             this->Create_Prior_Interface();
 
-            // TODO: test the mass matrix -- how to use this?
-            // TODO: apply mass matrix and look at result
+            // TODO: Test mass matrix and creating empty vectors
             {
                 std::string dir = "/home/smaio/Documents/Projects/AIVIS/HdsaLib/OedLib/examples/mrhyde/thermal_1D/test";
 
                 // should wrap this in one of our wrappers -- then we can at least confine things there
-                Teuchos::RCP<Tpetra::MultiVector<RealT>> tpetra_vec = this->solver_->linalg->getNewVector(0);
-                int dim = tpetra_vec->getGlobalLength();
+                auto v_in = this->model_->Get_Empty_Parameter_Vector();
+                auto v_out = this->model_->Get_Empty_Parameter_Vector();
+
+                int dim = this->model_->Param_Dimension();
                 std::cout << "dimension: " << dim << std::endl;
 
-                // auto vec = OED::makePtr<OED::Trilinos_Adapter::Tpetra_Vector<RealT>>(tpetra_vec, this->rng_);
-                // auto v_out = vec->Clone();
+                for (int i = 0; i < dim; i++)
+                {
+                    v_in->Zeros();
+                    v_out->Zeros();
+                    v_in->Set_Entry(i, 1.0);
 
-                // for (int i = 0; i < dim; i++)
-                // {
-                //     vec->Zeros();
-                //     v_out->Zeros();
-                //     vec->Set_Entry(i, 1.0);
+                    this->prior_->Mass_Matrix_Apply(*v_out, *v_in);
+                    std::string output_file = std::format("{}/Me_{}.txt", dir, i);
 
-                //     this->prior_->Mass_Matrix_Apply(*v_out, *vec);
-                //     std::string output_file = std::format("{}/Me_{}.txt", dir, i);
-
-                //     v_out->Write_To_File(output_file);
-                // }
+                    v_out->Write_To_File(output_file);
+                }
             }
 
             // TODO: do some OED -- and then do somehing with the result
@@ -98,7 +96,8 @@ namespace OED::MrHyDE_Interface
         inline void Create_Model_Interface()
         {
             Teuchos::ParameterList &oedSettings = settings_->sublist("Analysis").sublist("OED");
-
+            this->model_ = OED::makePtr<MrHyDE_Model_Interface<RealT>>(this->comm_, this->settings_, this->solver_, this->postproc_, this->params_, this->rng_);
+            
             std::cout << "OED::MrHyDE_Interface::Driver_MrHyDE::Create_Model_Interface Hello!" << std::endl;
         }
 
