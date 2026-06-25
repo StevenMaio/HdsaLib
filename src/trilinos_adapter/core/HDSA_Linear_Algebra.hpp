@@ -62,8 +62,7 @@ namespace HDSA
       belosList.set("Convergence Tolerance", tol); // Relative convergence tolerance requested
       if (verbose)
       {
-        belosList.set("Verbosity", Belos::Errors + Belos::Warnings +
-                                       Belos::TimingDetails + Belos::FinalSummary + Belos::StatusTestDetails);
+        belosList.set("Verbosity", Belos::Errors + Belos::Warnings + Belos::StatusTestDetails);
         belosList.set("Output Frequency", frequency);
       }
       else

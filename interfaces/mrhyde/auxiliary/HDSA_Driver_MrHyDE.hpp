@@ -146,7 +146,11 @@ public:
     }
     HDSA::Ptr<HDSA::MD_Opt_Prob_Interface<ScalarT>> opt_prob_interface = HDSA::makePtr<MD_Opt_Prob_Interface_MrHyDE<ScalarT>>(solver_, postproc_, params_, data_interface);
 
-    HDSA::Ptr<HDSA::BF_Update<RealT>> bf_update = HDSA::makePtr<HDSA::BF_Update<RealT>>(sol_op_interface, opt_prob_interface);
+    if (hdsa_verbosity > 1)
+    {
+      *outStream << "Beginning optimization solution update" << std::endl;
+    }
+    HDSA::Ptr<HDSA::BF_Update<RealT>> bf_update = HDSA::makePtr<HDSA::BF_Update<RealT>>(sol_op_interface, opt_prob_interface, hdsa_verbosity, "GMRES");
     HDSA::Ptr<HDSA::Vector<RealT>> z_update = bf_update->Update(*data_interface->Get_u_opt(), *data_interface->Get_z_opt());
 
     if (hdsa_verbosity > 1)

@@ -1,6 +1,6 @@
 /***********************************************************************
  HdsaLib - A library for Hyper-differential Sensitivity Analysis
- 
+
  Questions? Contact Joseph Hart (joshart@sandia.gov)
 ************************************************************************/
 
@@ -18,16 +18,16 @@ namespace HDSA
   {
 
   private:
+    int verbosity_;
     RealT tol_;
     std::string solver_;
-    bool verbose_;
 
   public:
-    Hessian_Inversion(RealT tol = 1.e-8, std::string solver = "CG", bool verbose = false)
+    Hessian_Inversion(int verbosity = 0, RealT tol = 1.e-8, std::string solver = "CG")
     {
+      verbosity_ = verbosity;
       tol_ = tol;
       solver_ = solver;
-      verbose_ = verbose;
     }
 
     virtual ~Hessian_Inversion()
@@ -39,7 +39,7 @@ namespace HDSA
     void Apply_RS_Hessian_Inverse(HDSA::Vector<RealT> &z_out, const HDSA::Vector<RealT> &z_in, const HDSA::Vector<RealT> &z) const
     {
       HDSA::Ptr<Hessian_Operator<RealT>> hess_op = HDSA::makePtr<Hessian_Operator<RealT>>(this, &z);
-      HDSA::Linear_Algebra::Iterative_Linear_Solve<RealT>(z_out, z_in, *hess_op, tol_, solver_, verbose_);
+      HDSA::Linear_Algebra::Iterative_Linear_Solve<RealT>(z_out, z_in, *hess_op, tol_, solver_, verbosity_);
     }
 
     template <class ScalarType>
