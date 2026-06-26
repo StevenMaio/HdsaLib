@@ -28,7 +28,9 @@ ANONYMOUS:
       error model:
         type: gaussian
         std: 0.01
-        dimension: 19
+      observation operator:
+        type: components
+        indices file: indices.dat
   Solver:
     workset size: 10 
     solver: steady-state

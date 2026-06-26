@@ -134,13 +134,19 @@ namespace OED::MrHyDE_Interface
         inline void Create_Observation_Operator_Interface()
         {
             Teuchos::ParameterList &oedSettings = settings_->sublist("Analysis").sublist("OED");
-            std::vector<int> obs_vec;
-            for (int i = 4; i < 99; i = i + 5)
-            {
-                obs_vec.push_back(i);
-            }
-            this->observation_operator_ = OED::makePtr<OED::Component_Observation_Operator<RealT>>(this->model_->State_Dimension(), obs_vec);
 
+            if (!oedSettings.isSublist("observation operator"))
+            {
+                TEUCHOS_TEST_FOR_EXCEPTION(true, std::runtime_error, "Error: MrHyDE No specified observation operator for OED! Abort!");
+            }
+            Teuchos::ParameterList obs_settings = oedSettings.sublist("observation operator");
+            std::string &type = obs_settings.get<std::string>("type", "ERROR");
+            if (type == "components")
+            {
+                std::string indices_file = obs_settings.get<std::string>("indices file", "ERROR");
+                // TODO: do error checking
+                this->observation_operator_ = OED::makePtr<OED::Component_Observation_Operator<RealT>>(this->model_->State_Dimension(), indices_file);
+            }
             std::cout << "OED::MrHyDE_Interface::Driver_MrHyDE::Create_Observation_Operator_Interface Hello!" << std::endl;
         }
 
@@ -155,7 +161,7 @@ namespace OED::MrHyDE_Interface
             }
             Teuchos::ParameterList &error_parameters = oedSettings.sublist("error model");
             RealT noise_std = error_parameters.get<RealT>("std", 0.0);
-            int dimension = error_parameters.get<int>("dimension", 0);
+            int dimension = this->observation_operator_->Data_Dimension();
 
             this->error_model_ = OED::makePtr<OED::Gaussian_Error<RealT>>(dimension, noise_std);
 

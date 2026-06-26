@@ -1,6 +1,7 @@
 //
 // Created by Steven Maio on 5/25/26.
 //
+#include <string>
 #include <iostream>
 #include <vector>
 #include "Eigen/Dense"
@@ -33,31 +34,33 @@ int main()
   auto state = std::make_shared<Std_Vector<double>>(dim);
   param->Vec() = m;
 
-  std::cout << "Param:" << std::endl << m << std::endl << std::endl;
+  // std::cout << "Param:" << std::endl << m << std::endl << std::endl;
 
   auto model = std::make_shared<OED_TEST::Poisson_Model<double>>(dim);
   model->State_Solve(*state, *param);
 
   u = state->Vec();
-  std::cout << "State:" << std::endl << u << std::endl;
+  // std::cout << "State:" << std::endl << u << std::endl;
   std::vector<int> obs_vec;
   double noise_std = 1e-2;
   for (int i = 4; i < 99; i = i + 5)
   {
     obs_vec.push_back(i);
   }
-  int data_dim = obs_vec.size();
 
-  auto obs_op = std::make_shared<OED::Component_Observation_Operator<double>>(dim, obs_vec);
+  std::string filename = "indices.dat";
+  auto obs_op = std::make_shared<OED::Component_Observation_Operator<double>>(dim, filename);
+  int data_dim = obs_op->Data_Dimension();
+
   auto error_model = std::make_shared<OED::Gaussian_Error<double>>(data_dim, noise_std);
   auto data = std::make_shared<Std_Vector<double>>(data_dim);
   obs_op->Observation_Operator_Apply(*data, *state);
-  std::cout << data->Vec() << std::endl;
+  // std::cout << data->Vec() << std::endl;
 
   // test the noise precision apply -- looks good to me
   Std_Vector<double> test(data_dim);
   error_model->Noise_Precision_Apply(test, *data);
-  std::cout << test.Vec() << std::endl;
+  // std::cout << test.Vec() << std::endl;
 
   // Construct the rows of F
   auto prior = std::make_shared<OED_TEST::Poisson_Prior<double>>(model, norm_scale, grad_scale);

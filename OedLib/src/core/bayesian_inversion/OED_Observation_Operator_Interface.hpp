@@ -11,6 +11,10 @@ namespace OED
         virtual void Observation_Operator_Apply(Vector<RealT> &d_out, Vector<RealT> &u_in) = 0;
 
         virtual void Observation_Operator_Transpose_Apply(Vector<RealT> &u_out, Vector<RealT> &d_in) = 0;
+
+        virtual int Data_Dimension() = 0;
+
+        virtual int State_Dimension() = 0;
     };
 
 }
