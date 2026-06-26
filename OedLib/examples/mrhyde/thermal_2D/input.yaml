@@ -31,7 +31,7 @@ ANONYMOUS:
       error model:
         type: gaussian
         std: 0.01
-        dimension: 10
+        dimension: 19
   Solver:
     workset size: 10 
     solver: steady-state
@@ -42,12 +42,6 @@ ANONYMOUS:
     compute objective: false
     compute responses: true
     Objective functions:
-      objgrad:
-        type: sensors
-        sensor points file: sensor_points.dat
-        save sensor data: true
-        response: '(grad(T)[x])^2 + (grad(T)[y])^2'
-        weight: 1.0
       objval:
         type: sensors
         sensor points file: sensor_points.dat
@@ -55,15 +49,11 @@ ANONYMOUS:
         response: 'T'
         weight: 1.0
   Functions:
-    thermal diffusion: thermal_diff(0)
-    thermal source: thermal_source(0)*(2*pi*pi*sin(pi*t) + pi*cos(pi*t))*sin(pi*x)*sin(pi*y)
+    thermal source: 1.0*thermal_source
   Parameters:
-    thermal_diff:
-      type: scalar
-      value: 2.0
-      usage: active
     thermal_source:
-      type: scalar
-      value: 3.0
-      usage: active
+      type: HGRAD
+      order: 1
+      usage: discretized
+      initial_value: 2.0
 ...
