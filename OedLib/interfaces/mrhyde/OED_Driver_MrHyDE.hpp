@@ -8,10 +8,18 @@
 #include "Teuchos_RCPDecl.hpp"
 #include "Teuchos_ParameterList.hpp"
 
+#include "OED_Bayesian_Inversion_Interface.hpp"
+#include "OED_Lazy_Greedy.hpp"
+#include "OED_Linear_OED_D_Opt.hpp"
+#include "OED_Active_Sensors.hpp"
+
 #include "OED_MrHyDE_Model_Interface.hpp"
 #include "OED_MrHyDE_Observation_Operator.hpp"
 #include "OED_MrHyDE_Prior_Interface.hpp"
 #include "OED_Gaussian_Error.hpp"
+
+#include "OED_Observation_Operator_Interface.hpp"
+#include "OED_Component_Observation_Operator.hpp"
 
 namespace OED::MrHyDE_Interface
 {
@@ -33,7 +41,7 @@ namespace OED::MrHyDE_Interface
 
         // TODO: may need to add other templates
         OED::Ptr<MrHyDE_Model_Interface<RealT>> model_;
-        OED::Ptr<MrHyDE_Observation_Operator_Interface<RealT>> obervation_operator_;
+        OED::Ptr<OED::Observation_Operator_Interface<RealT>> observation_operator_;
         OED::Ptr<MrHyDE_Prior_Interface<RealT>> prior_;
         OED::Ptr<OED::Error_Model_Interface<RealT>> error_model_;
 
@@ -46,6 +54,9 @@ namespace OED::MrHyDE_Interface
 
         void OED_Solve()
         {
+            postproc_->write_solution = false;
+            postproc_->write_optimization_solution = false;
+
             // TODO: insert OED here
             std::cout << "Hello OED!" << std::endl;
 
@@ -65,9 +76,9 @@ namespace OED::MrHyDE_Interface
             this->Create_Error_Model_Interface();
             this->Create_Prior_Interface();
 
+            std::string dir = "/home/smaio/Documents/Projects/AIVIS/HdsaLib/OedLib/examples/mrhyde/thermal_1D/test";
             // TODO: Test mass matrix and creating empty vectors
             {
-                std::string dir = "/home/smaio/Documents/Projects/AIVIS/HdsaLib/OedLib/examples/mrhyde/thermal_1D/test";
 
                 // should wrap this in one of our wrappers -- then we can at least confine things there
                 auto v_in = this->model_->Get_Empty_Parameter_Vector();
@@ -89,7 +100,26 @@ namespace OED::MrHyDE_Interface
                 }
             }
 
+            // TODO: test the forward solve
+            {
+                std::string output_file = std::format("{}/u.txt", dir);
+                auto m = this->model_->Get_Empty_Parameter_Vector();
+                auto u = this->model_->Get_Empty_State_Vector();
+
+                m->Set_Scalar(2.0);
+                this->model_->State_Solve(*u, *m);
+                u->Write_To_File(output_file);
+            }
+
             // TODO: do some OED -- and then do somehing with the result
+            auto inversion_problem = OED::makePtr<OED::Bayesian_Inversion_Interface<RealT>>(this->model_, this->observation_operator_, this->prior_, this->error_model_);
+
+            auto oed_problem = OED::makePtr<OED::Linear_OED_D_Opt<RealT>>(inversion_problem);
+            int budget = 5;
+            int data_dim = this->error_model_->Data_Dimension();
+            OED::Active_Sensors design = OED::Lazy_Greedy_Solve(*oed_problem, data_dim, budget);
+            std::cout << "EIG: " << oed_problem->Evaluate(design) << std::endl;
+            design.Print_Sensors();
         }
 
     private:
@@ -104,6 +134,12 @@ namespace OED::MrHyDE_Interface
         inline void Create_Observation_Operator_Interface()
         {
             Teuchos::ParameterList &oedSettings = settings_->sublist("Analysis").sublist("OED");
+            std::vector<int> obs_vec;
+            for (int i = 4; i < 99; i = i + 5)
+            {
+                obs_vec.push_back(i);
+            }
+            this->observation_operator_ = OED::makePtr<OED::Component_Observation_Operator<RealT>>(this->model_->State_Dimension(), obs_vec);
 
             std::cout << "OED::MrHyDE_Interface::Driver_MrHyDE::Create_Observation_Operator_Interface Hello!" << std::endl;
         }
@@ -122,6 +158,7 @@ namespace OED::MrHyDE_Interface
             int dimension = error_parameters.get<int>("dimension", 0);
 
             this->error_model_ = OED::makePtr<OED::Gaussian_Error<RealT>>(dimension, noise_std);
+
             std::cout << "OED::MrHyDE_Interface::Driver_MrHyDE::Create_Error_Model_Interface Hello!" << std::endl;
         }
 
@@ -131,6 +168,7 @@ namespace OED::MrHyDE_Interface
 
             std::vector<std::string> blockNames = this->solver_->mesh->getBlockNames();
             this->prior_ = OED::makePtr<MrHyDE_Prior_Interface<RealT>>(this->comm_, *this->settings_, blockNames);
+
             std::cout << "OED::MrHyDE_Interface::Driver_MrHyDE::Create_Prior_Interface Hello!" << std::endl;
         }
     };

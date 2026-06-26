@@ -68,8 +68,10 @@ namespace OED_TEST
       this->A_ = this->S_;
       this->A_(0, 0) = 1.0;
       this->A_(0, 1) = 0.0;
-      this->A_(dim -1, dim - 2) = 0.0;
-      this->A_(dim -1, dim - 1) = 1.0;
+      this->A_(1, 0) = 0.0;
+      this->A_(dim - 1, dim - 2) = 0.0;
+      this->A_(dim - 2, dim - 1) = 0.0;
+      this->A_(dim - 1, dim - 1) = 1.0;
       this->A_plu_ = std::make_shared<Eigen::FullPivLU<Dense_Matrix>>(this->A_);
     }
 

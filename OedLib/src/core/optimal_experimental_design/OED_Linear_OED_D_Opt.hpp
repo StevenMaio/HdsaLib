@@ -71,33 +71,35 @@ namespace OED
       int data_dim = error_model->Data_Dimension();
 
       // Required to use methods, but not actually used here
-      Ptr<Vector<RealT>> temp = inversion_problem->Get_Empty_Data_Vector();
-      Ptr<Vector<RealT>> d = inversion_problem->Get_Empty_Data_Vector();
-      Ptr<Vector<RealT>> u1 = inversion_problem->Get_Empty_State_Vector();
-      Ptr<Vector<RealT>> u2 = inversion_problem->Get_Empty_State_Vector();
-      Ptr<Vector<RealT>> m1 = inversion_problem->Get_Empty_Parameter_Vector();
-      Ptr<Vector<RealT>> m2 = inversion_problem->Get_Empty_Parameter_Vector();
+      Ptr<Vector<RealT>> d = error_model->Get_Empty_Data_Vector();
+      Ptr<Vector<RealT>> u_temp = model->Get_Empty_State_Vector();
+      Ptr<Vector<RealT>> u1 = model->Get_Empty_State_Vector();
+      Ptr<Vector<RealT>> m_temp = model->Get_Empty_Parameter_Vector();
+      Ptr<Vector<RealT>> m1 = model->Get_Empty_Parameter_Vector();
+      Ptr<Vector<RealT>> m2 = model->Get_Empty_Parameter_Vector();
 
+      u_temp->Zeros();
+      m_temp->Zeros();
       for (int i = 0; i < data_dim; i++)
       {
+        // clear vectors
+        d->Zeros();
+        u1->Zeros();
+        m1->Zeros();
+        m2->Zeros();
+
         d->Set_Entry(i, 1.0);
         obs_op->Observation_Operator_Transpose_Apply(*u1, *d);
         // TODO: maybe create some kind of Adjoint solve function
-        model->c_u_Transpose_Inverse_Apply(*u2, *u1, *temp, *temp);
-        model->c_z_Transpose_Apply(*m1, *u2, *temp, *temp);
+        model->State_Transpose_Apply(*m1, *u1, *u_temp, *m_temp);
         prior->Mass_Matrix_Inverse_Apply(*m2, *m1);
         prior->Prior_Covariance_Apply(*m1, *m2);
         model->State_Solve(*u1, *m1);
         obs_op->Observation_Operator_Apply(*d, *u1);
         for (int j = 0; j < data_dim; j++)
         {
-          this->forward_cov_->Set_Entry(j, i, -d->Get_Entry(j));
+          this->forward_cov_->Set_Entry(j, i, d->Get_Entry(j));
         }
-        d->Zeros();
-        u1->Zeros();
-        u2->Zeros();
-        m1->Zeros();
-        m2->Zeros();
       }
 
     }
@@ -112,14 +114,14 @@ namespace OED
 
       for (int i = 0; i < data_dim; i++)
       {
+        d_in->Zeros();
+        d_out->Zeros();
         d_in->Set_Entry(i, 1.0);
         error_model->Noise_Covariance_Apply(*d_out, *d_in);
         for (int j = 0; j < data_dim; j++)
         {
           this->noise_cov_->Set_Entry(j, i, d_out->Get_Entry(j));
         }
-        d_in->Zeros();
-        d_out->Zeros();
       }
     }
   };

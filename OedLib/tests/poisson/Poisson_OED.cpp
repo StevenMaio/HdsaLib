@@ -13,7 +13,7 @@
 #include "OED_Gaussian_Error.hpp"
 #include "Poisson_Prior.hpp"
 #include "Poisson_Obs.hpp"
-#include "OED_Gaussian_Error.hpp"
+#include "OED_Component_Observation_Operator.hpp"
 
 using Eigen::MatrixXd;
 using Eigen::VectorXd;
@@ -22,8 +22,8 @@ using OED::Std_Vector;
 int main()
 {
   int dim = 100;
-  double norm_scale = 5.0 / 6;
-  double grad_scale = 1.0 / 30;
+  double norm_scale = 1.0;
+  double grad_scale = 1e-3;
 
   VectorXd m(dim);
   VectorXd u(dim);
@@ -42,13 +42,13 @@ int main()
   std::cout << "State:" << std::endl << u << std::endl;
   std::vector<int> obs_vec;
   double noise_std = 1e-2;
-  for (int i = 0; i < 12; i++)
+  for (int i = 4; i < 99; i = i + 5)
   {
-    obs_vec.push_back(i * 9);
+    obs_vec.push_back(i);
   }
   int data_dim = obs_vec.size();
 
-  auto obs_op = std::make_shared<OED_TEST::Poisson_Observation_Operator<double>>(dim, obs_vec);
+  auto obs_op = std::make_shared<OED::Component_Observation_Operator<double>>(dim, obs_vec);
   auto error_model = std::make_shared<OED::Gaussian_Error<double>>(data_dim, noise_std);
   auto data = std::make_shared<Std_Vector<double>>(data_dim);
   obs_op->Observation_Operator_Apply(*data, *state);

@@ -16,6 +16,7 @@ target_include_directories(OedLib INTERFACE
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/core/base/vectors/>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/core/utils/>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/impl/bayesian_inversion/model_error/>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/impl/bayesian_inversion/observation_operator/>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     $<INSTALL_INTERFACE:include>
 )

@@ -28,21 +28,20 @@ namespace OED
     RealT Dot(const OED::Vector<RealT> &x) const override
     {
       // TODO: check to make sure they are compatible
-      const Std_Vector<RealT> x_eig = dynamic_cast<const Std_Vector<RealT> &>(x);
       RealT res = 0;
       for (int i = 0; i < this->dim_; i++)
       {
-        res += this->vec_[i] * x_eig.vec_[i];
+        res += this->vec_[i] * x.Get_Entry(i);
       }
       return res;
     };
 
     void Scaled_Plus(const RealT alpha, const OED::Vector<RealT> &x) override
     {
-      const Std_Vector<RealT> x_eig = dynamic_cast<const Std_Vector<RealT> &>(x);
+      // TODO: check to make sure they are compatible
       for (int i = 0; i < this->dim_; i++)
       {
-        this->vec_[i] += alpha * x_eig.vec_[i];
+        this->vec_[i] += alpha * x.Get_Entry(i);
       }
     }
 
