@@ -56,8 +56,6 @@ namespace OED::MrHyDE_Interface
         {
             postproc_->write_solution = false;
             postproc_->write_optimization_solution = false;
-
-            // TODO: insert OED here
             std::cout << "Hello OED!" << std::endl;
 
             // Exit if not OED settings are available
@@ -65,9 +63,9 @@ namespace OED::MrHyDE_Interface
             {
                 TEUCHOS_TEST_FOR_EXCEPTION(true, std::runtime_error, "Error: MrHyDE could not find the OED sublist in the input file!  Abort!");
             }
-            Teuchos::ParameterList &oedSettings = settings_->sublist("Analysis").sublist("OED");
+            Teuchos::ParameterList &oed_settings = settings_->sublist("Analysis").sublist("OED");
 
-            // TODO: Load RNG settings (maybe for another time)
+            // TODO: Load custom RNG settings
             OED::Ptr<OED::Trilinos_Adapter::Comm<int>> oed_comm = OED::makePtr<OED::Trilinos_Adapter::Comm<int>>(comm_);
             this->rng_ = OED::makePtr<OED::Trilinos_Adapter::Random_Number_Generator<ScalarT>>(oed_comm);
 
@@ -76,56 +74,69 @@ namespace OED::MrHyDE_Interface
             this->Create_Error_Model_Interface();
             this->Create_Prior_Interface();
 
-            std::string dir = "/home/smaio/Documents/Projects/AIVIS/HdsaLib/OedLib/examples/mrhyde/thermal_1D/test";
-            // TODO: Test mass matrix and creating empty vectors
-            {
-
-                // should wrap this in one of our wrappers -- then we can at least confine things there
-                auto v_in = this->model_->Get_Empty_Parameter_Vector();
-                auto v_out = this->model_->Get_Empty_Parameter_Vector();
-
-                int dim = this->model_->Param_Dimension();
-                std::cout << "dimension: " << dim << std::endl;
-
-                for (int i = 0; i < dim; i++)
-                {
-                    v_in->Zeros();
-                    v_out->Zeros();
-                    v_in->Set_Entry(i, 1.0);
-
-                    this->prior_->Mass_Matrix_Apply(*v_out, *v_in);
-                    std::string output_file = std::format("{}/Me_{}.txt", dir, i);
-
-                    v_out->Write_To_File(output_file);
-                }
-            }
-
-            // TODO: test the forward solve
-            {
-                std::string output_file = std::format("{}/u.txt", dir);
-                auto m = this->model_->Get_Empty_Parameter_Vector();
-                auto u = this->model_->Get_Empty_State_Vector();
-
-                m->Set_Scalar(2.0);
-                this->model_->State_Solve(*u, *m);
-                u->Write_To_File(output_file);
-            }
-
-            // TODO: do some OED -- and then do somehing with the result
             auto inversion_problem = OED::makePtr<OED::Bayesian_Inversion_Interface<RealT>>(this->model_, this->observation_operator_, this->prior_, this->error_model_);
 
-            auto oed_problem = OED::makePtr<OED::Linear_OED_D_Opt<RealT>>(inversion_problem);
-            int budget = 5;
-            int data_dim = this->error_model_->Data_Dimension();
-            OED::Active_Sensors design = OED::Lazy_Greedy_Solve(*oed_problem, data_dim, budget);
-            std::cout << "EIG: " << oed_problem->Evaluate(design) << std::endl;
-            design.Print_Sensors();
+            /* TODO: DELETE THIS
+            //////////////////////////////////////////////////////////
+            // Start: Delete this
+            //////////////////////////////////////////////////////////
+            // play around with point eval observations
+            auto u_vec = this->model_->Get_Empty_State_Vector();
+
+            // TODO: cast u_vec to Petra_Vector
+            auto &u = dynamic_cast<OED::Trilinos_Adapter::Tpetra_Vector<RealT> &>(*u_vec);
+            std::vector<Teuchos::RCP<Tpetra::MultiVector<RealT, LO, GO, Node>>> soln;
+            soln.push_back(u.getVector());
+            auto &response_data = postproc_->objectives[0].response_data;
+
+            for (int i = 0; i < u.Dimension(); i++)
+            {
+                response_data.clear();
+                u.Zeros();
+                u.Set_Entry(i, 1.0); 
+                postproc_->computeObjective(soln, 0);
+                std::cout << "col=" << i << ": "; 
+                for (int j = 0; j < response_data.size(); j++)
+                {
+                    for (int k = 0; k < response_data[j].extent(0); k++)
+                    {
+                        std::cout << response_data[j](k) << " ";
+                    }
+                }
+                std::cout << std::endl;
+            }
+            //////////////////////////////////////////////////////////
+            // End: Delete this
+            //////////////////////////////////////////////////////////
+            */
+
+            // TODO: look at design criterion settings
+            if (!oed_settings.isSublist("design criterion"))
+            {
+                TEUCHOS_TEST_FOR_EXCEPTION(true, std::runtime_error, "Error: MrHyDE No specified design criterion for OED! Abort!");
+            }
+            Teuchos::ParameterList &obj_settings = oed_settings.sublist("design criterion");
+            std::string &type = obj_settings.get<std::string>("type", "ERROR");
+            if (type == "D-Optimality")
+            {
+                // TODO: handle other types of constraints
+                auto oed_problem = OED::makePtr<OED::Linear_OED_D_Opt<RealT>>(inversion_problem);
+                int budget = obj_settings.get<int>("budget", 0);;
+                int data_dim = this->error_model_->Data_Dimension();
+                OED::Active_Sensors design = OED::Lazy_Greedy_Solve(*oed_problem, data_dim, budget);
+                std::cout << "EIG: " << oed_problem->Evaluate(design) << std::endl;
+                design.Print_Sensors();
+            }
+            else
+            {
+                TEUCHOS_TEST_FOR_EXCEPTION(true, std::runtime_error, "Error: Specified design criterion not supported!  Abort!");
+            }
         }
 
     private:
         inline void Create_Model_Interface()
         {
-            Teuchos::ParameterList &oedSettings = settings_->sublist("Analysis").sublist("OED");
+            Teuchos::ParameterList &oed_settings = settings_->sublist("Analysis").sublist("OED");
             this->model_ = OED::makePtr<MrHyDE_Model_Interface<RealT>>(this->comm_, this->settings_, this->solver_, this->postproc_, this->params_, this->rng_);
             
             std::cout << "OED::MrHyDE_Interface::Driver_MrHyDE::Create_Model_Interface Hello!" << std::endl;
@@ -133,34 +144,39 @@ namespace OED::MrHyDE_Interface
 
         inline void Create_Observation_Operator_Interface()
         {
-            Teuchos::ParameterList &oedSettings = settings_->sublist("Analysis").sublist("OED");
+            Teuchos::ParameterList &oed_settings = settings_->sublist("Analysis").sublist("OED");
 
-            if (!oedSettings.isSublist("observation operator"))
+            if (!oed_settings.isSublist("observation operator"))
             {
                 TEUCHOS_TEST_FOR_EXCEPTION(true, std::runtime_error, "Error: MrHyDE No specified observation operator for OED! Abort!");
             }
-            Teuchos::ParameterList obs_settings = oedSettings.sublist("observation operator");
-            std::string &type = obs_settings.get<std::string>("type", "ERROR");
+            Teuchos::ParameterList obsSettings = oed_settings.sublist("observation operator");
+            std::string &type = obsSettings.get<std::string>("type", "ERROR");
             if (type == "components")
             {
-                std::string indices_file = obs_settings.get<std::string>("indices file", "ERROR");
+                std::string indices_file = obsSettings.get<std::string>("indices file", "ERROR");
                 // TODO: do error checking
                 this->observation_operator_ = OED::makePtr<OED::Component_Observation_Operator<RealT>>(this->model_->State_Dimension(), indices_file);
+            }
+            else if (type == "sensors")
+            {
+                // TODO: do error checking -- make sure that an objective is already defined
+                this->observation_operator_ = OED::makePtr<MrHyDE_Observation_Operator_Interface<RealT>>(this->model_, this->postproc_);
             }
             std::cout << "OED::MrHyDE_Interface::Driver_MrHyDE::Create_Observation_Operator_Interface Hello!" << std::endl;
         }
 
         inline void Create_Error_Model_Interface()
         {
-            Teuchos::ParameterList &oedSettings = settings_->sublist("Analysis").sublist("OED");
+            Teuchos::ParameterList &oed_settings = settings_->sublist("Analysis").sublist("OED");
 
             // TODO: eventually do more here
-            if (!oedSettings.isSublist("error model"))
+            if (!oed_settings.isSublist("error model"))
             {
                 TEUCHOS_TEST_FOR_EXCEPTION(true, std::runtime_error, "Error: MrHyDE No specified error model for OED! Abort!");
             }
-            Teuchos::ParameterList &error_parameters = oedSettings.sublist("error model");
-            RealT noise_std = error_parameters.get<RealT>("std", 0.0);
+            Teuchos::ParameterList &error_settings = oed_settings.sublist("error model");
+            RealT noise_std = error_settings.get<RealT>("std", 0.0);
             int dimension = this->observation_operator_->Data_Dimension();
 
             this->error_model_ = OED::makePtr<OED::Gaussian_Error<RealT>>(dimension, noise_std);
@@ -170,10 +186,10 @@ namespace OED::MrHyDE_Interface
 
         inline void Create_Prior_Interface()
         {
-            Teuchos::ParameterList &oedSettings = settings_->sublist("Analysis").sublist("OED");
+            Teuchos::ParameterList &oed_settings = settings_->sublist("Analysis").sublist("OED");
 
-            std::vector<std::string> blockNames = this->solver_->mesh->getBlockNames();
-            this->prior_ = OED::makePtr<MrHyDE_Prior_Interface<RealT>>(this->comm_, *this->settings_, blockNames);
+            std::vector<std::string> block_names = this->solver_->mesh->getBlockNames();
+            this->prior_ = OED::makePtr<MrHyDE_Prior_Interface<RealT>>(this->comm_, *this->settings_, block_names);
 
             std::cout << "OED::MrHyDE_Interface::Driver_MrHyDE::Create_Prior_Interface Hello!" << std::endl;
         }

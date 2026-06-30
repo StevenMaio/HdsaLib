@@ -8,7 +8,7 @@ ANONYMOUS:
     element type: interval
     xmin: 0.0
     xmax: 1.0
-    NX: 99
+    NX: 200
   Physics: 
     modules: thermal
     Dirichlet conditions:
@@ -29,8 +29,13 @@ ANONYMOUS:
         type: gaussian
         std: 0.01
       observation operator:
-        type: components
-        indices file: indices.dat
+        #type: components
+        #indices file: indices.dat
+        type: sensors
+      design criterion:
+        type: D-Optimality
+        constraint: cardinality
+        budget: 5
   Solver:
     workset size: 10 
     solver: steady-state
