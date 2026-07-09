@@ -1,0 +1,84 @@
+%YAML 1.1
+---
+ANONYMOUS:
+  verbosity: 0
+  debug level: 0
+  Mesh:
+    dimension: 3
+    element type: hex
+    xmin: 0.0
+    xmax: 30.0
+    ymin: 0.0
+    ymax: 12.0
+    zmin: 0.0
+    zmax: 3.0
+    NX: 90
+    NY: 36
+    NZ: 9
+  Physics: 
+    modules: linearelasticity
+    Dirichlet conditions:
+      dx:
+        top: 0.0
+        bottom: 0.0
+      dy:
+        left: 4.0*cos(pi*y/12.0)
+        right: -4.0*cos(pi*y/12.0)
+      dz:
+        left: 1.0*cos(pi*y/12.0)
+        right: -1.0*cos(pi*y/12.0)
+  Discretization:
+    order:
+      dx: 1
+      dy: 1
+      dz: 1
+    quadrature: 2
+  Solver:
+    workset size: 100
+    solver: steady-state
+    linear TOL: 1.0e-12
+    max linear iters: 1000
+    nonlinear TOL: 1.0e-08
+    max nonlinear iters: 10
+  Postprocess: 
+    response type: pointwise
+    compute response: false
+    compute objective: true
+    Objective functions:
+      val_dx:
+        type: sensors
+        sensor points file: sensor_points.dat
+        save sensor data: true
+        sensor data file: sensor_data_dx.dat
+        response: 'dx'
+        weight: 1.0
+      val_dy:
+        type: sensors
+        sensor points file: sensor_points.dat
+        save sensor data: true
+        sensor data file: sensor_data_dy.dat
+        response: 'dy'
+        weight: 1.0
+      val_dz:
+        type: sensors
+        sensor points file: sensor_points.dat
+        save sensor data: true
+        sensor data file: sensor_data_dz.dat
+        response: 'dz'
+        weight: 1.0
+        Regularization functions:
+          regv0:
+            type: integrated
+            location: volume
+            function: (lambdafield-10.0)^2
+            weight: 1.e-2
+          regv1:
+            type: integrated
+            location: volume
+            function: 'grad(lambdafield)[x]*grad(lambdafield)[x] + grad(lambdafield)[y]*grad(lambdafield)[y] + grad(lambdafield)[z]*grad(lambdafield)[z]'
+            weight: 1.e-3
+  Parameters input file: input_params.yaml
+  Analysis input file: input_HDSA.yaml
+  Functions:
+    mu: '8.0'
+    lambda: lambdafield 

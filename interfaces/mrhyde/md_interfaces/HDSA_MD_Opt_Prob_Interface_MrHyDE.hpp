@@ -77,6 +77,7 @@ public:
 
   void Misfit_Gradient(HDSA::Vector<RealT> &u_grad, const HDSA::Vector<RealT> &u, const HDSA::Vector<RealT> &z) const
   {
+    Do_Solution_Operator(false);
     if (solver_->isTransient)
     {
       const HDSA::Transient_Vector<RealT> &eu = dynamic_cast<const HDSA::Transient_Vector<RealT> &>(u);

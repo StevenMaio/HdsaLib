@@ -16,7 +16,14 @@ hdsa/mrhyde
 hdsa/dmrhyde
 hdsa/*exo*
 hdsa/*.dat
-hdsa_exo/hdsa_output/*
+hdsa/hdsa_output/*
+hdsa_bf/mrhyde
+hdsa_bf/dmrhyde
+hdsa_bf/*exo*
+hdsa_bf/*.dat
+hdsa_bf/hdsa_output/*
 hifi_obj_eval/*exo*
 hifi_obj_eval/*.dat
 hifi_obj_eval/*.txt
+hifi_obj_eval/dmrhyde
+hifi_obj_eval/mrhyde

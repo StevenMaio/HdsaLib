@@ -25,12 +25,13 @@ namespace HDSA
     HDSA::Ptr<HDSA::MultiVector<RealT>> Z_;
     HDSA::Ptr<HDSA::MultiVector<RealT>> D_;
     HDSA::Ptr<HDSA::Vector<RealT>> data_shift_;
-    bool is_data_loaded_;
+    bool is_opt_data_loaded_, is_hifi_data_loaded_;
 
   public:
     MD_Data_Interface()
     {
-      is_data_loaded_ = false;
+      is_opt_data_loaded_ = false;
+      is_hifi_data_loaded_ = false;
     }
 
     virtual ~MD_Data_Interface()
@@ -39,13 +40,24 @@ namespace HDSA
 
     void Load_Data(void)
     {
+      Load_Opt_Data();
+      Load_HiFi_Data();
+    }
+
+    void Load_Opt_Data(void)
+    {
       u_opt_ = Load_Optimal_u();
       z_opt_ = Load_Optimal_z();
-      Z_ = Load_Z_Data();
-      D_ = Load_D_Data();
       data_shift_ = u_opt_->Clone();
       data_shift_->Zeros();
-      is_data_loaded_ = true;
+      is_opt_data_loaded_ = true;
+    }
+
+    void Load_HiFi_Data(void)
+    {
+      Z_ = Load_Z_Data();
+      D_ = Load_D_Data();
+      is_hifi_data_loaded_ = true;
     }
 
     void Center_Data()
@@ -156,45 +168,45 @@ namespace HDSA
 
     HDSA::Ptr<const HDSA::Vector<RealT>> Get_u_opt(void)
     {
-      if (!is_data_loaded_)
+      if (!is_opt_data_loaded_)
       {
-        Load_Data();
+        Load_Opt_Data();
       }
       return u_opt_;
     }
 
     HDSA::Ptr<const HDSA::Vector<RealT>> Get_z_opt(void)
     {
-      if (!is_data_loaded_)
+      if (!is_opt_data_loaded_)
       {
-        Load_Data();
+        Load_Opt_Data();
       }
       return z_opt_;
     }
 
     HDSA::Ptr<const HDSA::MultiVector<RealT>> Get_Z(void)
     {
-      if (!is_data_loaded_)
+      if (!is_hifi_data_loaded_)
       {
-        Load_Data();
+        Load_HiFi_Data();
       }
       return Z_;
     }
 
     HDSA::Ptr<const HDSA::MultiVector<RealT>> Get_D(void)
     {
-      if (!is_data_loaded_)
+      if (!is_hifi_data_loaded_)
       {
-        Load_Data();
+        Load_HiFi_Data();
       }
       return D_;
     }
 
     HDSA::Ptr<const HDSA::Vector<RealT>> Get_data_shift(void)
     {
-      if (!is_data_loaded_)
+      if (!is_opt_data_loaded_)
       {
-        Load_Data();
+        Load_Opt_Data();
       }
       return data_shift_;
     }

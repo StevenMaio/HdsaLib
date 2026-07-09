@@ -1,6 +1,7 @@
 add_subdirectory(base)
 add_subdirectory(model_discrepancy)
 add_subdirectory(pseudo_time_continuation)
+add_subdirectory(bifidelity_correction)
 
 # Define the source directory and the target directory
 set(SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR})

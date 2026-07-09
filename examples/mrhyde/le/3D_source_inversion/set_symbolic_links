@@ -22,6 +22,11 @@ ln -s $MRHYDE_EXE_PATH ./mrhyde
 ln -s $DMRHYDE_EXE_PATH ./dmrhyde
 cd ../
 
+cd hdsa_bf
+ln -s $MRHYDE_EXE_PATH ./mrhyde
+ln -s $DMRHYDE_EXE_PATH ./dmrhyde
+cd ../
+
 cd hifi_obj_eval
 ln -s $MRHYDE_EXE_PATH ./mrhyde
 ln -s $DMRHYDE_EXE_PATH ./dmrhyde

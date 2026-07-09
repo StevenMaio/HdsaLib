@@ -9,3 +9,7 @@ cd ..
 cd pseudo_time_continuation
 python3 run_tests.py
 cd ..
+
+cd bifidelity_correction
+python3 run_tests.py
+cd ..

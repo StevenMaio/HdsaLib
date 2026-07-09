@@ -62,9 +62,10 @@ namespace HDSA
       belosList.set("Convergence Tolerance", tol); // Relative convergence tolerance requested
       if (verbose)
       {
-        belosList.set("Verbosity", Belos::Errors + Belos::Warnings +
-                                       Belos::TimingDetails + Belos::FinalSummary + Belos::StatusTestDetails);
+        belosList.set("Verbosity", Belos::Errors + Belos::Warnings + Belos::StatusTestDetails + Belos::IterationDetails);
+        belosList.set("Output Style", Belos::Brief);
         belosList.set("Output Frequency", frequency);
+        belosList.set("Explicit Residual Test", true);
       }
       else
         belosList.set("Verbosity", Belos::Errors + Belos::Warnings);
@@ -77,7 +78,7 @@ namespace HDSA
       if (rhs_Norm != 0.0)
       {
         rhs->vec[0]->Scale(1.0 / rhs_Norm);
-        Belos::OperatorTraits<RealT, Belos::MultiVec<RealT>, Belos::Operator<RealT>>::Apply(*A_Belos, *rhs, *soln);
+        soln->vec[0]->Scale(0.0);
 
         HDSA::Ptr<Belos::LinearProblem<RealT, Belos::MultiVec<RealT>, Belos::Operator<RealT>>> problem =
             HDSA::makePtr<Belos::LinearProblem<RealT, Belos::MultiVec<RealT>, Belos::Operator<RealT>>>(A_Belos, soln, rhs);

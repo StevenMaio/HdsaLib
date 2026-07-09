@@ -22,9 +22,9 @@ ANONYMOUS:
         dz:
           beta_u: 4.0E-2
         z:
-          alpha_z: 1.0E-3
+          alpha_z: 1.0E-5
           beta_z: 4.0E-2
-        hessian_num_eig_vals: 20
+        hessian_num_eig_vals: 5
         hessian_oversampling: 5
       DataLoadParameters:
         OptimalSolutionExoFile: "output_lofi_opt.exo"

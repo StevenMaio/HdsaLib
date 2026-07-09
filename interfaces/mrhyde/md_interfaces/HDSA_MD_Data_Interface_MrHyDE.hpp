@@ -210,7 +210,7 @@ public:
       else
       {
         HDSA_TEST_FOR_EXCEPTION(true, std::logic_error,
-                                "Error in HDSA_Data_Interface_MrHyDE: no valid input file given for Load_Optimal_z" << std::endl);
+                                "Error in HDSA_Data_Interface_MrHyDE: no valid input file given for Load_Z_Data" << std::endl);
       }
       Z->push_back(z_hdsa);
     }
