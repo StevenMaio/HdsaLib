@@ -76,40 +76,6 @@ namespace OED::MrHyDE_Interface
 
             auto inversion_problem = OED::makePtr<OED::Bayesian_Inversion_Interface<RealT>>(this->model_, this->observation_operator_, this->prior_, this->error_model_);
 
-            /* TODO: DELETE THIS
-            //////////////////////////////////////////////////////////
-            // Start: Delete this
-            //////////////////////////////////////////////////////////
-            // play around with point eval observations
-            auto u_vec = this->model_->Get_Empty_State_Vector();
-
-            // TODO: cast u_vec to Petra_Vector
-            auto &u = dynamic_cast<OED::Trilinos_Adapter::Tpetra_Vector<RealT> &>(*u_vec);
-            std::vector<Teuchos::RCP<Tpetra::MultiVector<RealT, LO, GO, Node>>> soln;
-            soln.push_back(u.getVector());
-            auto &response_data = postproc_->objectives[0].response_data;
-
-            for (int i = 0; i < u.Dimension(); i++)
-            {
-                response_data.clear();
-                u.Zeros();
-                u.Set_Entry(i, 1.0); 
-                postproc_->computeObjective(soln, 0);
-                std::cout << "col=" << i << ": "; 
-                for (int j = 0; j < response_data.size(); j++)
-                {
-                    for (int k = 0; k < response_data[j].extent(0); k++)
-                    {
-                        std::cout << response_data[j](k) << " ";
-                    }
-                }
-                std::cout << std::endl;
-            }
-            //////////////////////////////////////////////////////////
-            // End: Delete this
-            //////////////////////////////////////////////////////////
-            */
-
             // TODO: look at design criterion settings
             if (!oed_settings.isSublist("design criterion"))
             {
