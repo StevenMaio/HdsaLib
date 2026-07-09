@@ -1,0 +1,67 @@
+%YAML 1.1
+---
+ANONYMOUS:
+  debug level: 0
+  verbosity: 0
+  Mesh:
+    dimension: 3
+    element type: hex
+    xmin: 0.0
+    xmax: 1.0
+    ymin: 0.0
+    ymax: 1.0
+    zmin: 0.0
+    zmax: 1.0
+    NX: 20
+    NY: 20
+    NZ: 20
+  Physics: 
+    modules: thermal
+    Dirichlet conditions:
+      T:
+        all boundaries: '0.0'
+  Discretization:
+    order:
+      T: 1
+    quadrature: 2
+  Analysis:
+    analysis type: OED
+    OED:
+      prior:
+        type: bilaplacian
+        gamma: 0.001
+        delta: 1.0
+      error model:
+        type: gaussian
+        std: 0.01
+      observation operator:
+        type: sensors
+      design criterion:
+        type: D-Optimality
+        constraint: cardinality
+        budget: 3
+  Solver:
+    workset size: 10 
+    solver: steady-state
+  Postprocess: 
+    response type: pointwise
+    verification: compute errors
+    write solution: false
+    compute objective: false
+    compute responses: true
+    Objective functions:
+      objval:
+        type: sensors
+        sensor points file: sensor_points.dat
+        save sensor data: true
+        response: 'T'
+        weight: 1.0
+  Functions:
+    thermal source: 1.0*thermal_source
+  Parameters:
+    thermal_source:
+      type: HGRAD
+      order: 1
+      usage: discretized
+      initial_value: 2.0
+...
