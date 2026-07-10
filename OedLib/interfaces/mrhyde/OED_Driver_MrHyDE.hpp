@@ -20,6 +20,7 @@
 
 #include "OED_Observation_Operator_Interface.hpp"
 #include "OED_Component_Observation_Operator.hpp"
+#include "OED_Transient_Observation_Operator.hpp"
 
 namespace OED::MrHyDE_Interface
 {
@@ -127,7 +128,13 @@ namespace OED::MrHyDE_Interface
             else if (type == "sensors")
             {
                 // TODO: do error checking -- make sure that an objective is already defined
-                this->observation_operator_ = OED::makePtr<MrHyDE_Observation_Operator_Interface<RealT>>(this->model_, this->solver_, this->postproc_, this->settings_);
+                this->observation_operator_ = OED::makePtr<MrHyDE_Observation_Operator_Interface<RealT>>(this->model_, this->solver_, this->postproc_);
+            }
+
+            // determine if the problem is transient
+            if (this->solver_->isTransient)
+            {
+                this->Configure_Transient_Settings();
             }
             std::cout << "OED::MrHyDE_Interface::Driver_MrHyDE::Create_Observation_Operator_Interface Hello!" << std::endl;
         }
@@ -157,7 +164,62 @@ namespace OED::MrHyDE_Interface
             std::vector<std::string> block_names = this->solver_->mesh->getBlockNames();
             this->prior_ = OED::makePtr<MrHyDE_Prior_Interface<RealT>>(this->comm_, *this->settings_, block_names);
 
-            std::cout << "OED::MrHyDE_Interface::Driver_MrHyDE::Create_Prior_Interface Hello!" << std::endl;
+            std::cout << "Driver_MrHyDE::Create_Prior_Interface Hello!" << std::endl;
+        }
+
+    private:
+        inline void Configure_Transient_Settings()
+        {
+            std::cout << "Driver_MrHyDE::Configure_Transient_Settings begin configuring transient problem" << std::endl;
+            std::vector<RealT> meas_times;
+
+            Teuchos::ParameterList &oed_settings = this->settings_->sublist("Analysis").sublist("OED");
+            Teuchos::ParameterList &obs_settings = oed_settings.sublist("observation operator");
+
+            // load number of time steps
+            int num_steps = this->settings_->sublist("Solver").get<int>("number of steps", 0);
+            double initial_time = this->settings_->sublist("Solver").get<double>("initial time", 0.0);
+            double final_time = this->settings_->sublist("Solver").get<double>("final time", 1.0);
+
+            // load measurement times
+            std::string measurement_times_file = obs_settings.get<std::string>("measurement times", "ERROR");
+            this->Load_Measurement_Times(measurement_times_file, meas_times);
+            // Start: DELETE THIS LATER
+            for (int i = 0; i < meas_times.size(); i++)
+            {
+                std::cout << "Driver_MrHyDE::Configure_Transient_Settings meas_time=" << meas_times[i] << std::endl;
+            }
+            // End:   DELETE THIS LATER
+
+            // TODO: update observation operator to the transient operator
+            this->observation_operator_ = OED::makePtr<OED::Transient_Observation_Operator<RealT>>(
+                this->observation_operator_,
+                initial_time,
+                final_time,
+                num_steps,
+                meas_times
+            );
+
+            // update dimension numSensors * measTimes
+            std::cout << "Driver_MrHyDE::Configure_Transient_Settings finish configuring transient problem data_dim=" << this->observation_operator_->Data_Dimension() << std::endl;
+        }
+
+        inline void Load_Measurement_Times(std::string &meas_times_filename, std::vector<double> &meas_times)
+        {
+            // TODO: load data file, etc.
+            double t;
+            std::string line;
+            std::fstream input_file;
+            input_file.open(meas_times_filename, std::ios::in);
+            // TODO: add error checking
+            if (input_file.is_open())
+            {
+                while (getline(input_file, line))
+                {
+                    t = std::stod(line);
+                    meas_times.push_back(t);
+                }
+            }
         }
     };
 

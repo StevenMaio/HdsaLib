@@ -26,6 +26,7 @@ IF(MrHyDE_ENABLE_OED)
     MESSAGE("OedLib::CMakeLists.txt MrHyDE enabling OED")
     target_include_directories(OedLib INTERFACE
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/interfaces/mrhyde/>
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/interfaces/mrhyde/obs/>
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/adapter/trilinos/adapter/>
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/adapter/trilinos/core/>
     )

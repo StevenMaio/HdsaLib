@@ -61,7 +61,7 @@ namespace OED
         // Virtual methods specific to transient vectors //
         ///////////////////////////////////////////////////
 
-        Ptr<Vector<RealT>> operator[](int k) const
+        Ptr<Vector<RealT>> operator[](int k)
         {
             return this->vec_[k];
         }
