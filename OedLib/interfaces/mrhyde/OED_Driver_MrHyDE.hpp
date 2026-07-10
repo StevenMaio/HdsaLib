@@ -110,24 +110,24 @@ namespace OED::MrHyDE_Interface
 
         inline void Create_Observation_Operator_Interface()
         {
-            Teuchos::ParameterList &oed_settings = settings_->sublist("Analysis").sublist("OED");
+            Teuchos::ParameterList &oed_settings = this->settings_->sublist("Analysis").sublist("OED");
 
             if (!oed_settings.isSublist("observation operator"))
             {
                 TEUCHOS_TEST_FOR_EXCEPTION(true, std::runtime_error, "Error: MrHyDE No specified observation operator for OED! Abort!");
             }
-            Teuchos::ParameterList obsSettings = oed_settings.sublist("observation operator");
-            std::string &type = obsSettings.get<std::string>("type", "ERROR");
+            Teuchos::ParameterList &obs_settings = oed_settings.sublist("observation operator");
+            std::string &type = obs_settings.get<std::string>("type", "ERROR");
             if (type == "components")
             {
-                std::string indices_file = obsSettings.get<std::string>("indices file", "ERROR");
+                std::string indices_file = obs_settings.get<std::string>("indices file", "ERROR");
                 // TODO: do error checking
                 this->observation_operator_ = OED::makePtr<OED::Component_Observation_Operator<RealT>>(this->model_->State_Dimension(), indices_file);
             }
             else if (type == "sensors")
             {
                 // TODO: do error checking -- make sure that an objective is already defined
-                this->observation_operator_ = OED::makePtr<MrHyDE_Observation_Operator_Interface<RealT>>(this->model_, this->postproc_);
+                this->observation_operator_ = OED::makePtr<MrHyDE_Observation_Operator_Interface<RealT>>(this->model_, this->solver_, this->postproc_, this->settings_);
             }
             std::cout << "OED::MrHyDE_Interface::Driver_MrHyDE::Create_Observation_Operator_Interface Hello!" << std::endl;
         }

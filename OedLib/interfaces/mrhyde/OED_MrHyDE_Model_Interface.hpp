@@ -6,6 +6,7 @@
 #include "OED_Ptr.hpp"
 #include "OED_Random_Number_Generator.hpp"
 #include "OED_Tpetra_Vector.hpp"
+#include "OED_Transient_Vector.hpp"
 
 #include "Tpetra_Map_decl.hpp"
 #include "Teuchos_RCPDecl.hpp"
@@ -31,10 +32,12 @@ namespace OED::MrHyDE_Interface
         OED::Ptr<OED::Trilinos_Adapter::Random_Number_Generator<ScalarT>> rng_;
         int oed_verbosity_{0};
 
-        OED::Ptr<OED::Trilinos_Adapter::Tpetra_Vector<RealT>> parameter_vec_;
-        OED::Ptr<OED::Trilinos_Adapter::Tpetra_Vector<RealT>> state_vec_;
+        OED::Ptr<OED::Vector<RealT>> parameter_vec_;
+        OED::Ptr<OED::Vector<RealT>> state_vec_;
 
-        int dim_;
+        int num_t_{0};
+        int param_dim_;
+        int state_dim_;
 
     public:
         MrHyDE_Model_Interface(Teuchos::RCP<MpiComm> &comm,
@@ -45,10 +48,21 @@ namespace OED::MrHyDE_Interface
                                OED::Ptr<OED::Trilinos_Adapter::Random_Number_Generator<ScalarT>> &rng)
             : comm_(comm), settings_(settings), solver_(solver), postproc_(postproc), params_(params), rng_(rng)
         {
+            // TODO: does this do what I want it to do?
             auto tpetra_vec = solver_->linalg->getNewVector(0);
             this->parameter_vec_ = OED::makePtr<OED::Trilinos_Adapter::Tpetra_Vector<RealT>>(tpetra_vec, this->rng_);
-            this->state_vec_ = this->parameter_vec_;
-            this->dim_ = tpetra_vec->getGlobalLength();
+            this->param_dim_ = this->parameter_vec_->Dimension();
+            if (solver->isTransient)
+            {
+                this->num_t_ = solver->settings->sublist("Solver").get<int>("number of steps", 0) + 1;
+                this->state_vec_ = OED::makePtr<OED::Transient_Vector<RealT>>(this->num_t_, this->parameter_vec_);
+                this->state_dim_ = this->param_dim_ * this->num_t_;
+            }
+            else
+            {
+                this->state_vec_ = this->parameter_vec_;
+                this->state_dim_ = this->param_dim_;
+            }
 
             // TODO: this seems to be necessary for getting the gradient
             postproc_->hdsa_solop_data.resize(solver_->setnames.size());
@@ -102,12 +116,17 @@ namespace OED::MrHyDE_Interface
 
         int Param_Dimension() override
         {
-            return this->dim_;
+            return this->param_dim_;
         }
 
         int State_Dimension() override
         {
-            return this->dim_;
+            return this->state_dim_;
+        }
+
+        int Get_Num_T()
+        {
+            return this->num_t_;
         }
 
         Ptr<Vector<RealT>> Get_Empty_Parameter_Vector() override
