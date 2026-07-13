@@ -48,7 +48,6 @@ namespace OED::MrHyDE_Interface
                                OED::Ptr<OED::Trilinos_Adapter::Random_Number_Generator<ScalarT>> &rng)
             : comm_(comm), settings_(settings), solver_(solver), postproc_(postproc), params_(params), rng_(rng)
         {
-            // TODO: does this do what I want it to do?
             auto tpetra_vec = solver_->linalg->getNewVector(0);
             this->parameter_vec_ = OED::makePtr<OED::Trilinos_Adapter::Tpetra_Vector<RealT>>(tpetra_vec, this->rng_);
             this->param_dim_ = this->parameter_vec_->Dimension();
@@ -77,12 +76,27 @@ namespace OED::MrHyDE_Interface
             ROL::Ptr<MrHyDE_OptVector> z_rol = Map_OED_Vector_to_MrHyDE_OptVector(z);
             params_->updateParams(*z_rol);
             ScalarT val = 0.0;
-            solver_->forwardModel(val);
-            // TODO: handle transient problems
-            OED::Ptr<Tpetra::MultiVector<ScalarT, LO, GO, SolverNode>> u_vec;
-            solver_->postproc->soln[0]->extract(u_vec, 0);
-            OED::Trilinos_Adapter::Tpetra_Vector<RealT> &eu = dynamic_cast<OED::Trilinos_Adapter::Tpetra_Vector<RealT> &>(u_out);
-            eu.getVector()->update(1.0, *u_vec, 0.0);
+            this->solver_->forwardModel(val);
+
+            if (this->solver_->isTransient)
+            {
+                OED::Transient_Vector<RealT> &u_trans = dynamic_cast<OED::Transient_Vector<RealT> &>(u_out);
+                int n_t = this->solver_->settings->sublist("Solver").get<int>("number of steps", 0) + 1;
+                for (int i = 0; i < n_t; i++)
+                {
+                    OED::Ptr<Tpetra::MultiVector<ScalarT, LO, GO, SolverNode>> u_vec;
+                    this->solver_->postproc->soln[0]->extract(u_vec, i);
+                    OED::Trilinos_Adapter::Tpetra_Vector<RealT> &eu_i = dynamic_cast<OED::Trilinos_Adapter::Tpetra_Vector<RealT> &>(*u_trans[i]);
+                    eu_i.getVector()->update(1.0, *u_vec, 0.0);
+                }
+            }
+            else
+            {
+                OED::Ptr<Tpetra::MultiVector<ScalarT, LO, GO, SolverNode>> u_vec;
+                this->solver_->postproc->soln[0]->extract(u_vec, 0);
+                OED::Trilinos_Adapter::Tpetra_Vector<RealT> &eu = dynamic_cast<OED::Trilinos_Adapter::Tpetra_Vector<RealT> &>(u_out);
+                eu.getVector()->update(1.0, *u_vec, 0.0);
+            }
         }
 
         void State_Transpose_Apply(OED::Vector<RealT> &z_out, OED::Vector<RealT> &u_in, OED::Vector<RealT> &u, OED::Vector<RealT> &z) override
@@ -192,24 +206,24 @@ namespace OED::MrHyDE_Interface
             postproc_->hdsa_solop = solop_flag;
         }
 
-        void Write_Data_Solution_Operator(const OED::Vector<RealT> &u) const
+        void Write_Data_Solution_Operator(OED::Vector<RealT> &u) const
         {
-            // if (solver_->isTransient)
-            // {
-            // const OED::Transient_Vector<RealT> &eu = dynamic_cast<const OED::Transient_Vector<RealT> &>(u);
-            // int n_t = solver_->settings->sublist("Solver").get<int>("number of steps", 0) + 1;
-            // for (int i = 0; i < n_t; i++)
-            // {
-            //     const OED::Tpetra_Vector<RealT> &eu_i = dynamic_cast<const OED::Tpetra_Vector<RealT> &>(*eu[i]);
-            //     RealT currenttime = solver_->initial_time + (double)i * solver_->deltat;
-            //     postproc_->hdsa_solop_data[0]->store(eu_i.getVector(), currenttime, 0);
-            // }
-            // }
-            // else
-            // {
-            const OED::Trilinos_Adapter::Tpetra_Vector<RealT> &eu = dynamic_cast<const OED::Trilinos_Adapter::Tpetra_Vector<RealT> &>(u);
-            postproc_->hdsa_solop_data[0]->store(eu.getVector(), 0.0, 0);
-            // }
+            if (solver_->isTransient)
+            {
+                OED::Transient_Vector<RealT> &eu = dynamic_cast<OED::Transient_Vector<RealT> &>(u);
+                int n_t = solver_->settings->sublist("Solver").get<int>("number of steps", 0) + 1;
+                for (int i = 0; i < n_t; i++)
+                {
+                    OED::Trilinos_Adapter::Tpetra_Vector<RealT> &eu_i = dynamic_cast<OED::Trilinos_Adapter::Tpetra_Vector<RealT> &>(*eu[i]);
+                    RealT currenttime = solver_->initial_time + (double)i * solver_->deltat;
+                    postproc_->hdsa_solop_data[0]->store(eu_i.getVector(), currenttime, 0);
+                }
+            }
+            else
+            {
+                OED::Trilinos_Adapter::Tpetra_Vector<RealT> &eu = dynamic_cast<OED::Trilinos_Adapter::Tpetra_Vector<RealT> &>(u);
+                postproc_->hdsa_solop_data[0]->store(eu.getVector(), 0.0, 0);
+            }
         }
 
 

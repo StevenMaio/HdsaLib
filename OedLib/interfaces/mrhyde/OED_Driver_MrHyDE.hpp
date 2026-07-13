@@ -106,7 +106,7 @@ namespace OED::MrHyDE_Interface
             Teuchos::ParameterList &oed_settings = settings_->sublist("Analysis").sublist("OED");
             this->model_ = OED::makePtr<MrHyDE_Model_Interface<RealT>>(this->comm_, this->settings_, this->solver_, this->postproc_, this->params_, this->rng_);
             
-            std::cout << "OED::MrHyDE_Interface::Driver_MrHyDE::Create_Model_Interface Hello!" << std::endl;
+            std::cout << "Driver_MrHyDE::Create_Model_Interface Hello!" << std::endl;
         }
 
         inline void Create_Observation_Operator_Interface()
