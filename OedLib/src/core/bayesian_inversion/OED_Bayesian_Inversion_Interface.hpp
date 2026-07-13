@@ -24,6 +24,7 @@ namespace OED
     Ptr<Observation_Operator_Interface<RealT>> obs_operator_;
     Ptr<Prior_Interface<RealT>> prior_;
     Ptr<Error_Model_Interface<RealT>> error_model_;
+    bool is_transient_;
 
   public:
 
@@ -31,10 +32,11 @@ namespace OED
         Ptr<Model_Interface<RealT>> model,
         Ptr<Observation_Operator_Interface<RealT>> obs_operator,
         Ptr<Prior_Interface<RealT>> prior,
-        Ptr<Error_Model_Interface<RealT>> error_model
+        Ptr<Error_Model_Interface<RealT>> error_model,
+        bool is_transient = false
     )
       : model_(model), obs_operator_(obs_operator),
-        prior_(prior), error_model_(error_model) {}
+        prior_(prior), error_model_(error_model), is_transient_(is_transient) {}
 
     Ptr<Error_Model_Interface<RealT>> &Error_Model()
     {
@@ -71,6 +73,12 @@ namespace OED
     {
       return this->obs_operator_->Get_Empty_Data_Vector();
     }
+
+    bool Is_Transient() const
+    {
+      return this->is_transient_;
+    }
+
   };
 }
 

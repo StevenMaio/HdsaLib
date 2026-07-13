@@ -90,8 +90,8 @@ namespace OED::MrHyDE_Interface
                 // TODO: handle other types of constraints
                 auto oed_problem = OED::makePtr<OED::Linear_OED_D_Opt<RealT>>(inversion_problem);
                 int budget = obj_settings.get<int>("budget", 0);;
-                int data_dim = this->error_model_->Data_Dimension();
-                OED::Active_Sensors design = OED::Lazy_Greedy_Solve(*oed_problem, data_dim, budget);
+                int num_sensors = this->observation_operator_->Num_Sensors();
+                OED::Active_Sensors design = OED::Lazy_Greedy_Solve(*oed_problem, num_sensors, budget);
                 std::cout << "EIG: " << oed_problem->Evaluate(design) << std::endl;
                 design.Print_Sensors();
             }

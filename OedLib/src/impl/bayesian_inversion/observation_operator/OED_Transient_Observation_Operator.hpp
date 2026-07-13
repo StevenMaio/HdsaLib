@@ -62,6 +62,16 @@ namespace OED
             return this->num_steps_ * this->obs_->State_Dimension();
         }
 
+        int Get_Num_T()
+        {
+            return this->num_meas_;
+        }
+
+        int Num_Sensors() override
+        {
+            return this->obs_->Num_Sensors();
+        }
+
         void Observation_Operator_Apply(Vector<RealT> &d_out, Vector<RealT> &u_in) override
         {
             auto &d_trans = dynamic_cast<Transient_Vector<RealT> &>(d_out);

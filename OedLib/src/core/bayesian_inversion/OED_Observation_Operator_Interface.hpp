@@ -17,6 +17,11 @@ namespace OED
         virtual int State_Dimension() = 0;
 
         virtual Ptr<Vector<RealT>> Get_Empty_Data_Vector() = 0;
+
+        virtual int Num_Sensors()
+        {
+            return this->Data_Dimension();
+        }
     };
 
 }

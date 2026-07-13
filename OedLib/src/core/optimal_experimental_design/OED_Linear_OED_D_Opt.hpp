@@ -8,6 +8,7 @@
 #include <memory>
 
 #include "OED_Bayesian_Inversion_Interface.hpp"
+#include "OED_Transient_Observation_Operator.hpp"
 #include "OED_Discrete_Design_Criterion.hpp"
 #include "OED_Vector.hpp"
 #include "OED_Dense_Matrix.hpp"
@@ -43,10 +44,12 @@ namespace OED
 
     double Evaluate(Active_Sensors &sensors) override
     {
-      Ptr<Dense_Matrix<RealT>> A = this->forward_cov_->Select_Subsquare_Matrix(sensors.Selection());
-      Ptr<Dense_Matrix<RealT>> sub_noise_cov = this->noise_cov_->Select_Subsquare_Matrix(sensors.Selection());
+      std::vector<int> selection = this->Compute_Selection_Indices(sensors);
+      // TODO: determine indices based on sensors and problem type
+      Ptr<Dense_Matrix<RealT>> A = this->forward_cov_->Select_Subsquare_Matrix(selection);
+      Ptr<Dense_Matrix<RealT>> sub_noise_cov = this->noise_cov_->Select_Subsquare_Matrix(selection);
       sub_noise_cov->Right_Inverse_Multiply(*A, *A);
-      for (int i = 0; i < sensors.Selection().size(); i++)
+      for (int i = 0; i < selection.size(); i++)
       {
         A->Set_Entry(i, i, (*A)(i, i) + 1);
       }
@@ -124,6 +127,31 @@ namespace OED
         }
       }
       std::cout << "Linear_OED_D_Opt::Construct_Forward_Covariance finished constructing noise covariance matrix" << std::endl;;
+    }
+
+    private:
+
+    inline std::vector<int> Compute_Selection_Indices(Active_Sensors &sensors)
+    {
+      std::vector<int> selection;
+      if (this->inversion_problem_->Is_Transient())
+      {
+        selection = sensors.Selection();
+      }
+      else
+      {
+        auto &trans_obs = dynamic_cast<Transient_Observation_Operator<RealT> &>(*this->inversion_problem_->Observation_Operator());
+        int num_t = trans_obs.Get_Num_T();
+        int num_sensors = trans_obs.Num_Sensors();
+        for (int v: sensors.Selection())
+        {
+          for (int i = 0; i < num_t; i++)
+          {
+            selection.push_back(v + i * num_sensors);
+          }
+        }
+      }
+      return selection;
     }
   };
 }
