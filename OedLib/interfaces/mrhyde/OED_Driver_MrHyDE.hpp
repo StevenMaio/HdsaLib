@@ -75,7 +75,7 @@ namespace OED::MrHyDE_Interface
             this->Create_Error_Model_Interface();
             this->Create_Prior_Interface();
 
-            auto inversion_problem = OED::makePtr<OED::Bayesian_Inversion_Interface<RealT>>(this->model_, this->observation_operator_, this->prior_, this->error_model_);
+            auto inversion_problem = OED::makePtr<OED::Bayesian_Inversion_Interface<RealT>>(this->model_, this->observation_operator_, this->prior_, this->error_model_, this->solver_->isTransient);
 
             // TODO: look at design criterion settings
             if (!oed_settings.isSublist("design criterion"))

@@ -67,6 +67,11 @@ namespace OED
       return this->num_cols_;
     }
 
+    void Scaled_Plus(const RealT alpha, const Dense_Matrix<RealT> &A)
+    {
+      *this->data_ += *A->data_;
+    }
+
     // Access the (i,j) element
     RealT operator()(int i, int j) const
     {

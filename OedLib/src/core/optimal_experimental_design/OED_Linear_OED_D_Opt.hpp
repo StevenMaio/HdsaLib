@@ -45,7 +45,6 @@ namespace OED
     double Evaluate(Active_Sensors &sensors) override
     {
       std::vector<int> selection = this->Compute_Selection_Indices(sensors);
-      // TODO: determine indices based on sensors and problem type
       Ptr<Dense_Matrix<RealT>> A = this->forward_cov_->Select_Subsquare_Matrix(selection);
       Ptr<Dense_Matrix<RealT>> sub_noise_cov = this->noise_cov_->Select_Subsquare_Matrix(selection);
       sub_noise_cov->Right_Inverse_Multiply(*A, *A);
@@ -54,13 +53,22 @@ namespace OED
         A->Set_Entry(i, i, (*A)(i, i) + 1);
       }
       return 0.5 * std::log(A->Compute_Determinant());
-    };
+    }
+
+    // double Evaluate(Active_Sensors &sensors) override
+    // {
+    //   std::vector<int> selection = this->Compute_Selection_Indices(sensors);
+    //   // TODO: determine indices based on sensors and problem type
+    //   Ptr<Dense_Matrix<RealT>> A = this->forward_cov_->Select_Subsquare_Matrix(selection);
+    //   Ptr<Dense_Matrix<RealT>> sub_noise_cov = this->noise_cov_->Select_Subsquare_Matrix(selection);
+    //   A->Scaled_Plus(sub_noise_cov);
+    // }
 
     double Compute_Marginal_Gain(Active_Sensors &sensors, int v) override
     {
       // TODO: implement this
       return 0;
-    };
+    }
 
     private:
 
@@ -85,7 +93,6 @@ namespace OED
       m_temp->Zeros();
       for (int i = 0; i < data_dim; i++)
       {
-        std::cout << "Linear_OED_D_Opt::Construct_Forward_Covariance constructing column i=" << i << std::endl;
         // clear vectors
         d->Zeros();
         u1->Zeros();
@@ -134,7 +141,7 @@ namespace OED
     inline std::vector<int> Compute_Selection_Indices(Active_Sensors &sensors)
     {
       std::vector<int> selection;
-      if (this->inversion_problem_->Is_Transient())
+      if (!this->inversion_problem_->Is_Transient())
       {
         selection = sensors.Selection();
       }
