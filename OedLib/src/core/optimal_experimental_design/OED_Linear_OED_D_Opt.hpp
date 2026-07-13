@@ -71,7 +71,7 @@ namespace OED
       int data_dim = error_model->Data_Dimension();
 
       // Required to use methods, but not actually used here
-      Ptr<Vector<RealT>> d = error_model->Get_Empty_Data_Vector();
+      Ptr<Vector<RealT>> d = obs_op->Get_Empty_Data_Vector();
       Ptr<Vector<RealT>> u_temp = model->Get_Empty_State_Vector();
       Ptr<Vector<RealT>> u1 = model->Get_Empty_State_Vector();
       Ptr<Vector<RealT>> m_temp = model->Get_Empty_Parameter_Vector();
@@ -82,6 +82,7 @@ namespace OED
       m_temp->Zeros();
       for (int i = 0; i < data_dim; i++)
       {
+        std::cout << "Linear_OED_D_Opt::Construct_Forward_Covariance constructing column i=" << i << std::endl;
         // clear vectors
         d->Zeros();
         u1->Zeros();
@@ -90,7 +91,6 @@ namespace OED
 
         d->Set_Entry(i, 1.0);
         obs_op->Observation_Operator_Transpose_Apply(*u1, *d);
-        // TODO: maybe create some kind of Adjoint solve function
         model->State_Transpose_Apply(*m1, *u1, *u_temp, *m_temp);
         prior->Mass_Matrix_Inverse_Apply(*m2, *m1);
         prior->Prior_Covariance_Apply(*m1, *m2);
@@ -101,7 +101,7 @@ namespace OED
           this->forward_cov_->Set_Entry(j, i, d->Get_Entry(j));
         }
       }
-
+      std::cout << "Linear_OED_D_Opt::Construct_Forward_Covariance finished constructing forward covariance matrix" << std::endl;;
     }
 
     inline void Construct_Noise_Covariance()
@@ -123,6 +123,7 @@ namespace OED
           this->noise_cov_->Set_Entry(j, i, d_out->Get_Entry(j));
         }
       }
+      std::cout << "Linear_OED_D_Opt::Construct_Forward_Covariance finished constructing noise covariance matrix" << std::endl;;
     }
   };
 }

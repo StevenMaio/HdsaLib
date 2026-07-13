@@ -15,6 +15,8 @@ namespace OED
         virtual int Data_Dimension() = 0;
 
         virtual int State_Dimension() = 0;
+
+        virtual Ptr<Vector<RealT>> Get_Empty_Data_Vector() = 0;
     };
 
 }

@@ -62,6 +62,12 @@ namespace OED
                 u_out.Set_Entry(j, d_in.Get_Entry(i));
             }
         }
+
+        Ptr<Vector<RealT>> Get_Empty_Data_Vector() override {
+            OED::Ptr<OED::Std_Vector<RealT>> data_vector = OED::makePtr<OED::Std_Vector<RealT>>(this->data_dim_);
+            return data_vector;
+        }
+
     };
 }
 

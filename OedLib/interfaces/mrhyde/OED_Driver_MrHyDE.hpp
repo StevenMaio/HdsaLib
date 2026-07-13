@@ -86,6 +86,7 @@ namespace OED::MrHyDE_Interface
             std::string &type = obj_settings.get<std::string>("type", "ERROR");
             if (type == "D-Optimality")
             {
+                std::cout << "OED::MrHyDE_Interface::Driver_MrHyDE::OED_Solve criterion=D-Optimality" << std::endl;
                 // TODO: handle other types of constraints
                 auto oed_problem = OED::makePtr<OED::Linear_OED_D_Opt<RealT>>(inversion_problem);
                 int budget = obj_settings.get<int>("budget", 0);;

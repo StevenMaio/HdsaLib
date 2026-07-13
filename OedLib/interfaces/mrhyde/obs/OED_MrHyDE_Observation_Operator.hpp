@@ -93,6 +93,12 @@ namespace OED::MrHyDE_Interface
         {
             return this->state_dim_;
         }
+
+        Ptr<Vector<RealT>> Get_Empty_Data_Vector() override {
+            OED::Ptr<OED::Std_Vector<RealT>> data_vector = OED::makePtr<OED::Std_Vector<RealT>>(this->data_dim_);
+            return data_vector;
+        }
+
     };
 
 }

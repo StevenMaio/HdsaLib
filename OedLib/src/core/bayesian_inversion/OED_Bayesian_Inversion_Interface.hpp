@@ -69,7 +69,7 @@ namespace OED
 
     OED::Ptr<OED::Vector<RealT>> Get_Empty_Data_Vector()
     {
-      return this->error_model_->Get_Empty_Data_Vector();
+      return this->obs_operator_->Get_Empty_Data_Vector();
     }
   };
 }

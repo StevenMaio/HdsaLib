@@ -36,7 +36,6 @@ namespace OED
             num_steps_(num_steps), initial_time_(initial_time), final_time_(final_time)
         {
             this->dt_ = (final_time - initial_time) / num_steps;
-            this->meas_indices_.resize(this->num_meas_);
 
             double t = initial_time;
             int idx = 0;
@@ -50,6 +49,7 @@ namespace OED
                 this->meas_indices_.push_back(idx);
                 std::cout << "Transient_Observation_Operator::Constructor meas_idx=" << idx << std::endl;
             }
+            this->meas_indices_.resize(this->num_meas_);
         }
 
         int Data_Dimension() override
@@ -83,5 +83,11 @@ namespace OED
                 this->obs_->Observation_Operator_Transpose_Apply(*u_trans[t], *d_trans[i]);
             }
         }
+
+        Ptr<Vector<RealT>> Get_Empty_Data_Vector() override {
+            Ptr<Transient_Vector<RealT>> data_vector = OED::makePtr<Transient_Vector<RealT>>(this->num_meas_, this->obs_->Get_Empty_Data_Vector());
+            return data_vector;
+        }
+
     };
 }

@@ -15,6 +15,7 @@ namespace OED
         int num_x_;
         std::vector<Ptr<Vector<RealT>>> vec_;
 
+        // Access methods helpers specific to transient vectors
         inline RealT _Get_Entry(int t, int k) const
         {
             return this->vec_[t]->Get_Entry(k);
@@ -31,14 +32,14 @@ namespace OED
             // TODO: figure out why this was around in HdsaLib
         }
 
-        Transient_Vector(int num_t, const Ptr<Vector<RealT>> &spatial_vec)
+        Transient_Vector(int num_t, const Ptr<Vector<RealT>> &base_vec)
         {
             this->num_t_ = num_t;
-            this->num_x_ = spatial_vec->Dimension();
+            this->num_x_ = base_vec->Dimension();
             this->vec_.resize(this->num_t_);
             for (int i = 0; i < this->num_t_; i++)
             {
-                vec_[i] = spatial_vec->Clone();
+                vec_[i] = base_vec->Clone();
             }
         }
 
@@ -133,12 +134,13 @@ namespace OED
             this->_Set_Entry(t, k, val);
         }
 
-        inline RealT Get_Entry(int t, int k) const
+        // Access methods specific to transient vectors
+        RealT Get_Entry(int t, int k) const
         {
             return this->_Get_Entry(t, k);
         }
 
-        inline void Set_Entry(int t, int k, RealT val)
+        void Set_Entry(int t, int k, RealT val)
         {
             this->_Set_Entry(t, k, val);
         }
