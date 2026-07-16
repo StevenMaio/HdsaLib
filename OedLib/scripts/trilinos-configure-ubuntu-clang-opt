@@ -9,10 +9,10 @@ EXTRA_ARGS=$@
 # Modules installed using Homebrew: open-mpi, boost, hdf5-mpi, netcdf, cmake, ninja
 # May also need to use Homebrew to install: zlib, pnetcdf, libx11
 
-TRILINOS_HOME="/home/smaio/Documents/Projects/AIVIS/Trilinos"
+TRILINOS_HOME="/path/to/Trilinos"
 INSTALL_DIR="${TRILINOS_HOME}/install-opt"
 
-BREW_ROOT="/home/linuxbrew/.linuxbrew/Cellar"
+BREW_ROOT="/path/to/Cellar" # you may not need to do this
 
 cmake \
 ${TRILINOS_HOME} \

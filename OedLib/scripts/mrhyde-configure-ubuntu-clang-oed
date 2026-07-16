@@ -10,14 +10,12 @@ EXTRA_ARGS=$@
 rm CMakeCache.txt
 rm -rf CMakeFiles/
 
-AIVIS_ROOT="/home/smaio/Documents/Projects/AIVIS"
-
-TRILINOS_HOME="${AIVIS_ROOT}/Trilinos"
-TRILINOS_INSTALL="${AIVIS_ROOT}/Trilinos/install-opt"
-HDSALIB_HOME="${AIVIS_ROOT}/HdsaLib"
-OEDLIB_HOME="${AIVIS_ROOT}/HdsaLib/OedLib"
-MRHYDE_HOME="${AIVIS_ROOT}/MrHyDE"
-MRHYDE_INSTALL="${AIVIS_ROOT}/MrHyDE/install-opt"
+TRILINOS_HOME="/path/to/Trilinos"
+TRILINOS_INSTALL="/path/to/Trilinos/install"
+HDSALIB_HOME="/path/to/HdsaLib"
+OEDLIB_HOME="${HDSALIB_HOME}/OedLib"
+MRHYDE_HOME="/path/to/MrHyDE"
+MRHYDE_INSTALL="/path/to/MrHyDE/install"
 
 cmake \
 ${MRHYDE_HOME} \
