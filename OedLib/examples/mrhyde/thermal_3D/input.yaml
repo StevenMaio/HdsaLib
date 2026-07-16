@@ -39,7 +39,7 @@ ANONYMOUS:
       design criterion:
         type: D-Optimality
         constraint: cardinality
-        budget: 3
+        budget: 7
   Solver:
     workset size: 10 
     solver: steady-state

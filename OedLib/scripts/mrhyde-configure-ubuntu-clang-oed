@@ -1,0 +1,35 @@
+#!/bin/bash
+rm -rf CMakeCache.txt
+rm -rf CMakeFiles
+
+EXTRA_ARGS=$@
+
+# Machine type: Ubuntu 24.04.4 LTS
+# Compiler: g++
+ 
+rm CMakeCache.txt
+rm -rf CMakeFiles/
+
+AIVIS_ROOT="/home/smaio/Documents/Projects/AIVIS"
+
+TRILINOS_HOME="${AIVIS_ROOT}/Trilinos"
+TRILINOS_INSTALL="${AIVIS_ROOT}/Trilinos/install-opt"
+HDSALIB_HOME="${AIVIS_ROOT}/HdsaLib"
+OEDLIB_HOME="${AIVIS_ROOT}/HdsaLib/OedLib"
+MRHYDE_HOME="${AIVIS_ROOT}/MrHyDE"
+MRHYDE_INSTALL="${AIVIS_ROOT}/MrHyDE/install-opt"
+
+cmake \
+${MRHYDE_HOME} \
+-GNinja \
+-D Trilinos_SRC_DIR=${TRILINOS_HOME} \
+-D Trilinos_INSTALL_DIR=${TRILINOS_INSTALL} \
+-D OedLib_SRC_DIR=${OEDLIB_HOME} \
+-D HdsaLib_SRC_DIR=${HDSALIB_HOME} \
+-D CMAKE_INSTALL_PREFIX:PATH=${MRHYDE_INSTALL} \
+-D CMAKE_CXX_FLAGS:STRING="-Wall" \
+-D MrHyDE_ENABLE_SANDBOX=OFF \
+-D MrHyDE_MAX_DERIVS=64 \
+-D MrHyDE_BUILD_DOXYGEN=false \
+-D MrHyDE_ENABLE_OED=ON \
+${EXTRA-ARGS} \

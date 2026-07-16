@@ -1,0 +1,75 @@
+#!/bin/bash
+rm -rf CMakeCache.txt
+rm -rf CMakeFiles
+
+EXTRA_ARGS=$@
+
+# Machine type: Ubuntu 24.04.4 LTS
+# Compiler: g++
+# Modules installed using Homebrew: open-mpi, boost, hdf5-mpi, netcdf, cmake, ninja
+# May also need to use Homebrew to install: zlib, pnetcdf, libx11
+
+TRILINOS_HOME="/home/smaio/Documents/Projects/AIVIS/Trilinos"
+INSTALL_DIR="${TRILINOS_HOME}/install-opt"
+
+BREW_ROOT="/home/linuxbrew/.linuxbrew/Cellar"
+
+cmake \
+${TRILINOS_HOME} \
+-GNinja \
+-D CMAKE_BUILD_TYPE:STRING=NONE \
+-D TPL_ENABLE_MPI:BOOL=ON \
+-D CMAKE_CXX_FLAGS:STRING="-O3 -ansi -pedantic -ftrapv -Wall -Wno-long-long -Wno-strict-aliasing -DBOOST_NO_HASH -DBOOST_STACKTRACE_GNU_SOURCE_NOT_REQUIRED" \
+-D CMAKE_C_FLAGS:STRING="-O3" \
+-D CMAKE_Fortran_FLAGS:STRING="-O3" \
+-D Trilinos_ENABLE_CHECKED_STL:BOOL=OFF \
+-D Trilinos_ENABLE_EXPLICIT_INSTANTIATION:BOOL=ON \
+-D Trilinos_ENABLE_INSTALL_CMAKE_CONFIG_FILES:BOOL=ON \
+-D Trilinos_SKIP_FORTRANCINTERFACE_VERIFY_TEST:BOOL=ON \
+-D Trilinos_ENABLE_EXAMPLES:BOOL=OFF \
+-D Trilinos_ENABLE_TESTS:BOOL=OFF \
+-D Trilinos_ENABLE_ALL_PACKAGES:BOOL=OFF \
+-D Trilinos_ENABLE_ALL_OPTIONAL_PACKAGES:BOOL=OFF \
+-D Trilinos_ENABLE_Belos:BOOL=ON \
+-D Trilinos_ENABLE_ROL:BOOL=ON \
+-D Trilinos_ENABLE_PanzerCore=ON \
+-D Trilinos_ENABLE_PanzerDofMgr=ON \
+-D Trilinos_ENABLE_PanzerMiniEM=OFF \
+-D Trilinos_ENABLE_PanzerAdaptersSTK=ON \
+-D Trilinos_ENABLE_PanzerAdaptersIOSS=ON \
+-D Trilinos_ENABLE_Intrepid:BOOL=ON \
+-D Trilinos_ENABLE_Intrepid2:BOOL=ON \
+-D Trilinos_ENABLE_Shards:BOOL=ON \
+-D Trilinos_ENABLE_Amesos2:BOOL=ON \
+-D Trilinos_ENABLE_Belos:BOOL=ON \
+-D Trilinos_ENABLE_MueLu:BOOL=ON \
+-D Trilinos_ENABLE_Percept:BOOL=OFF \
+-D Trilinos_ENABLE_Compadre:BOOL=ON \
+-D PanzerAdaptersSTK_ENABLE_EXAMPLES=OFF \
+-D PanzerAdaptersSTK_ENABLE_TESTS=OFF \
+-D TPL_ENABLE_Matio=OFF \
+-D STK_ENABLE_TESTS:BOOL=OFF \
+-D Panzer_ENABLE_TESTS:BOOL=OFF \
+-D Panzer_ENABLE_EXAMPLES:BOOL=OFF \
+-D Panzer_ENABLE_EXPLICIT_INSTANTIATION:BOOL=ON \
+-D PANZER_HAVE_PERCEPT:BOOL=OFF \
+-D CMAKE_INSTALL_PREFIX:PATH=${INSTALL_DIR} \
+-D TPL_ENABLE_Boost:BOOL=ON \
+-D TPL_Boost_INCLUDE_DIRS="${BREW_ROOT}/boost@1.85/1.85.0_3/include" \
+-D TPL_Boost_LIBRARY_DIRS="${BREW_ROOT}/boost@1.85/1.85.0_3/lib" \
+-D TPL_ENABLE_BoostLib:BOOL=ON \
+-D BoostLib_INCLUDE_DIRS="${BREW_ROOT}/boost@1.85/1.85.0_3/include" \
+-D BoostLib_LIBRARY_DIRS="${BREW_ROOT}/boost@1.85/1.85.0_3/lib" \
+-D TPL_ENABLE_Netcdf:BOOL=ON \
+-D Netcdf_INCLUDE_DIRS="${BREW_ROOT}/netcdf/4.10.0/include;${BREW_ROOT}/pnetcdf/1.14.1/include" \
+-D Netcdf_LIBRARY_DIRS="${BREW_ROOT}/netcdf/4.10.0/lib;${BREW_ROOT}/pnetcdf/1.14.1/lib" \
+-D TPL_ENABLE_HDF5=ON \
+-D HDF5_LIBRARY_DIRS="${BREW_ROOT}/hdf5-mpi/2.1.1/lib;${BREW_ROOT}/zlib/1.3.2/lib/" \
+-D HDF5_INCLUDE_DIRS="${BREW_ROOT}/hdf5-mpi/2.1.1/include" \
+-D GTEST_LIBRARY_DIRS="${BREW_ROOT}/googletest/1.17.0/lib" \
+-D GTEST_INCLUDE_DIRS="${BREW_ROOT}/googletest/1.17.0/include" \
+-D SEACASExodus_ENABLE_MPI:BOOL=OFF \
+-D TPL_ENABLE_GLM=OFF \
+-D Kokkos_ENABLE_SERIAL=ON \
+${EXTRA-ARGS}
+
